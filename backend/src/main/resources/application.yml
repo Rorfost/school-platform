@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: school-portal
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:5}
+      minimum-idle: ${DB_POOL_MIN_IDLE:1}
+      connection-timeout: 30000
+      max-lifetime: 1500000
+      validation-timeout: 5000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  session:
+    jdbc:
+      initialize-schema: never
+    timeout: ${SESSION_TIMEOUT:8h}
+
+server:
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:true}
+        same-site: lax
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  storage:
+    endpoint: ${R2_ENDPOINT:}
+    region: ${R2_REGION:auto}
+    access-key-id: ${R2_ACCESS_KEY_ID}
+    secret-access-key: ${R2_SECRET_ACCESS_KEY}
+    public-bucket: ${R2_PUBLIC_BUCKET}
+    private-bucket: ${R2_PRIVATE_BUCKET}
+    public-base-url: ${R2_PUBLIC_BASE_URL:}
