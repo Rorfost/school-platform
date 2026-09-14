@@ -2,6 +2,8 @@
 node_modules/
 frontend/node_modules/
 frontend/dist/
+frontend/coverage/
+frontend/.cache/
 *.tsbuildinfo
 
 # Java and backend
@@ -36,3 +38,4 @@ Thumbs.db
 .vscode/
 *.iml
 *.swp
+*.local
