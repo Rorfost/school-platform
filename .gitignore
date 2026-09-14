@@ -1,0 +1,38 @@
+# Node and frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Java and backend
+backend/target/
+*.class
+*.jar
+*.war
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local infrastructure and uploads
+postgres-data/
+minio-data/
+uploads/
+tmp/
+
+# Logs and operating systems
+*.log
+logs/
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.iml
+*.swp
