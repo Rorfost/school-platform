@@ -22,7 +22,7 @@
         <aws.sdk.version>2.41.29</aws.sdk.version>
         <apache.poi.version>5.5.1</apache.poi.version>
         <testcontainers.version>1.21.3</testcontainers.version>
-        <spotless.version>2.46.1</spotless.version>
+        <spotless.version>3.10.2</spotless.version>
     </properties>
 
     <dependencyManagement>
