@@ -22,6 +22,7 @@ React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boo
 frontend/       React/Vite static application shell
 backend/        Spring Boot modular-monolith foundation
 docs/           Product, architecture, engineering, data, operations, and roadmap docs
+infrastructure/ Infrastructure boundary and local-stack guidance
 .github/        CI and dependency-management configuration
 ```
 

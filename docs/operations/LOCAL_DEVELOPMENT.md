@@ -1,6 +1,6 @@
 # Local Development
 
-The intended local topology is Vite at `localhost:5173`, Spring Boot at `localhost:8080`, PostgreSQL at `localhost:5432`, and MinIO at `localhost:9000` (console `localhost:9001`). Docker Compose runs PostgreSQL and MinIO; frontend and backend will run natively after their scaffolds are added.
+The intended local topology is Vite at `localhost:5173`, Spring Boot at `localhost:8080`, PostgreSQL at `localhost:5432`, and MinIO at `localhost:9000` (console `localhost:9001`). Docker Compose runs PostgreSQL and MinIO; frontend and backend run natively.
 
 1. Install Node 24 LTS or newer and Java 21 (plus Maven). Copy the component `.env.example` files to untracked local environment files only when your shell tooling needs them.
 2. Start infrastructure with `docker compose up -d`.

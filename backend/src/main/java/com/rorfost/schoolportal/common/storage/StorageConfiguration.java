@@ -18,6 +18,7 @@ public class StorageConfiguration {
     S3ClientBuilder builder =
         S3Client.builder()
             .region(Region.of(properties.region()))
+            .forcePathStyle(true)
             .credentialsProvider(
                 StaticCredentialsProvider.create(
                     AwsBasicCredentials.create(

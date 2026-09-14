@@ -1,6 +1,6 @@
 # API Guidelines
 
-Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/api/v1/admin` for authenticated principal operations. Do not create a broad public data endpoint simply for frontend convenience.
+Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/api/v1/admin` for authenticated principal operations. Do not create a broad public data endpoint simply for frontend convenience. These are conventions for future feature endpoints; no product API endpoints exist yet.
 
 - Use DTOs and Jakarta Validation. Never return JPA entities.
 - Use `ProblemDetail` for predictable errors, with a stable application error code and request ID where useful. Do not disclose sensitive internals.

@@ -3,9 +3,6 @@ name: Continuous Integration
 on:
   pull_request:
   push:
-    branches:
-      - main
-      - feat/**
 
 permissions:
   contents: read
@@ -45,3 +42,10 @@ jobs:
           java-version: "21"
           cache: maven
       - run: mvn -B verify
+
+  infrastructure:
+    name: Infrastructure checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config --quiet

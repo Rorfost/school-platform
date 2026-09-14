@@ -22,7 +22,7 @@ flowchart LR
 
 ## Security boundary
 
-Only the backend connects to PostgreSQL and object storage. Spring Security authenticates the initial `PRINCIPAL` role; Spring Session JDBC stores server-side sessions in PostgreSQL. Public endpoints remain narrowly scoped. Individual result retrieval must be protected against enumeration and return `Cache-Control: no-store`.
+Only the backend connects to PostgreSQL and object storage. The implemented security baseline denies all backend routes except health and future public API paths. Phase 2 will authenticate the initial `PRINCIPAL` role; Spring Session JDBC is already configured to store those future server-side sessions in PostgreSQL. Public endpoints remain narrowly scoped. Individual result retrieval must eventually resist enumeration and return `Cache-Control: no-store`.
 
 ## Local architecture
 

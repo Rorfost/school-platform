@@ -21,13 +21,15 @@ spring:
     jdbc:
       initialize-schema: never
     timeout: ${SESSION_TIMEOUT:8h}
-    cookie:
-      http-only: true
-      secure: ${SESSION_COOKIE_SECURE:true}
-      same-site: lax
 
 server:
   forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:true}
+        same-site: lax
 
 management:
   endpoint:
