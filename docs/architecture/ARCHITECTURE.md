@@ -15,8 +15,8 @@ flowchart LR
 
 ## Components and boundaries
 
-- **Frontend:** feature-oriented pages, forms, API clients, TanStack Query cache, and Gujarati-first UI. It never holds secrets.
-- **Backend:** controller → service → repository flow, DTO boundaries, validation, security, and feature packages such as school, academic, assessment, results, materials, notices, gallery, downloads, and admin.
+- **Frontend:** React/Vite static SPA with a feature-oriented route/provider/API-client foundation, TanStack Query cache, Tailwind styling, and Gujarati-first shell. It never holds secrets.
+- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, security baseline, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an S3-compatible storage abstraction. Feature packages are added only when their roadmap phase starts.
 - **PostgreSQL:** relational source of truth, audit metadata, and Spring Session JDBC tables. Use Flyway for every schema change, `snake_case`, UUID external IDs, and `TIMESTAMPTZ` timestamps.
 - **Object storage:** an S3-compatible abstraction. Cloudflare R2 in production and MinIO locally. Database rows retain object keys and metadata, never binary file content.
 
@@ -34,7 +34,7 @@ flowchart LR
   A --> M[MinIO :9000]
 ```
 
-Docker Compose runs only PostgreSQL and MinIO; frontend and backend may run natively for fast development.
+Docker Compose runs only PostgreSQL and MinIO; frontend and backend run natively for fast development. The only initial Flyway migration creates Spring Session JDBC tables; domain schema migrations wait for their corresponding feature phase.
 
 ## Intentional constraints
 

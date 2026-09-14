@@ -4,7 +4,7 @@ A reusable, Gujarati-first school website and principal-admin portal for small s
 
 ## Current status
 
-Foundation only. The repository contains architecture, engineering rules, operational documentation, and empty component entry points. No product modules or domain-feature implementation exists yet.
+Phase 0 technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL/MinIO Compose setup, Flyway session migration, formatting, tests, and CI. No product modules, authentication flow, school-specific configuration, or result-import implementation exists yet.
 
 ## Architecture
 
@@ -19,8 +19,8 @@ React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boo
 ## Repository layout
 
 ```text
-frontend/       Future React application
-backend/        Future Spring Boot application
+frontend/       React/Vite static application shell
+backend/        Spring Boot modular-monolith foundation
 docs/           Product, architecture, engineering, data, operations, and roadmap docs
 .github/        CI and dependency-management configuration
 ```
@@ -30,6 +30,8 @@ docs/           Product, architecture, engineering, data, operations, and roadma
 1. Read [AGENT.md](AGENT.md) before modifying the repository.
 2. Review [local development](docs/operations/LOCAL_DEVELOPMENT.md).
 3. Use the [roadmap](docs/planning/ROADMAP.md) to choose the next scoped phase.
+
+For local development, start PostgreSQL and MinIO with `docker compose up -d`, then run `npm run dev` in `frontend` and `mvn spring-boot:run -Dspring-boot.run.profiles=local` in `backend`. See the component READMEs for required local tools and commands.
 
 ## Key principles
 

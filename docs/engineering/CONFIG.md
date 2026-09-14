@@ -19,4 +19,4 @@ Use environment-based configuration only. Keep local, test, and production profi
 
 `VITE_API_BASE_URL` identifies the API base URL and `VITE_ASSET_BASE_URL` identifies public assets. Both are public configuration, not secret storage.
 
-`backend/.env.example` and `frontend/.env.example` show local development values. Production configuration belongs in the deployment provider's protected secret/configuration facility.
+`backend/.env.example` and `frontend/.env.example` show variable names and non-secret local addresses. The backend's `application.yml` defines shared defaults; `application-local.yml`, `application-test.yml`, and `application-prod.yml` isolate environment behavior. Production configuration belongs in the deployment provider's protected secret/configuration facility. `DB_POOL_MAX_SIZE` and `DB_POOL_MIN_IDLE` are optional conservative HikariCP controls; defaults are 5 and 1.

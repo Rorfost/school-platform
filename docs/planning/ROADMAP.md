@@ -4,7 +4,7 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 
 ## Phase 0 — Foundation
 
-**Goal:** create a runnable, documented baseline. **Scope:** repository, React/Vite and Spring Boot scaffolds, PostgreSQL/MinIO abstraction, Docker, Flyway, CI, baseline tests, and environment setup. **Dependencies:** this documentation. **Deliverables:** component build files, health endpoint, first safe migration, CI workflows, local setup. **Tests:** frontend lint/typecheck/build; backend verify; infrastructure smoke test. **Definition of Done:** a new developer can start local infrastructure and both apps using documented commands.
+**Goal:** create a runnable, documented baseline. **Scope:** repository, React/Vite and Spring Boot scaffolds, PostgreSQL/MinIO abstraction, Docker, Flyway, CI, baseline tests, and environment setup. **Dependencies:** this documentation. **Deliverables:** component build files, restricted health endpoint, Spring Session JDBC migration, CI workflows, local setup. **Tests:** frontend lint/typecheck/test/build; backend verify; infrastructure smoke test. **Definition of Done:** a new developer can start local infrastructure and both apps using documented commands. **Status:** initialized; keep Phase 0 checks healthy while beginning later phases.
 
 ## Phase 1 — Public school website
 

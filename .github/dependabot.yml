@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: monthly
+      interval: weekly
   - package-ecosystem: maven
     directory: /backend
     schedule:
-      interval: monthly
+      interval: weekly
