@@ -21,7 +21,8 @@ export function MaterialsPage() {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.materials({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
   });
 
   const materials = data?.items ?? [];
@@ -57,7 +58,10 @@ export function MaterialsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Standard Selector */}
           <div>
-            <label htmlFor="standard-select" className="block text-xs font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="standard-select"
+              className="block text-xs font-medium text-slate-700 mb-1"
+            >
               {LABELS.selectStandard} (ધોરણ)
             </label>
             <select
@@ -77,7 +81,10 @@ export function MaterialsPage() {
 
           {/* Subject Selector */}
           <div>
-            <label htmlFor="subject-select" className="block text-xs font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="subject-select"
+              className="block text-xs font-medium text-slate-700 mb-1"
+            >
               વિષય પસંદ કરો
             </label>
             <select
@@ -134,7 +141,10 @@ export function MaterialsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredMaterials.map((item) => (
-            <Card key={item.id} className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs">
+            <Card
+              key={item.id}
+              className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs"
+            >
               <div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">

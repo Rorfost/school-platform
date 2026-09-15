@@ -16,13 +16,14 @@ export function DownloadsPage() {
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.downloads({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
   });
 
   const downloads = data?.items ?? [];
 
   const categories = Array.from(
-    new Set(downloads.map((d) => d.category).filter(Boolean) as string[])
+    new Set(downloads.map((d) => d.category).filter(Boolean) as string[]),
   );
 
   const filteredDownloads = downloads.filter((item) => {
@@ -81,7 +82,10 @@ export function DownloadsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredDownloads.map((item) => (
-            <Card key={item.id} className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs">
+            <Card
+              key={item.id}
+              className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs"
+            >
               <div className="flex items-start gap-3">
                 <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
                   <FileDown size={22} aria-hidden="true" />

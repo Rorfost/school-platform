@@ -18,7 +18,8 @@ export function AdminDownloadsPage() {
 
   const { data, isLoading } = useQuery<PageResponse<DownloadResponse>>({
     queryKey: queryKeys.downloads({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
   });
 
   const downloads = data?.items ?? [];
@@ -76,11 +77,7 @@ export function AdminDownloadsPage() {
             Upload public school forms, circulars, application templates, and official documents.
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setIsUploadOpen(true)}
-          className="gap-2 shrink-0"
-        >
+        <Button variant="primary" onClick={() => setIsUploadOpen(true)} className="gap-2 shrink-0">
           <Plus size={16} aria-hidden="true" />
           <span>Upload Document</span>
         </Button>
@@ -171,8 +168,17 @@ export function AdminDownloadsPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Upload Public Document</h2>
             <form onSubmit={handleUploadSubmit} className="space-y-4">
-              <Input label="Title" name="title" required placeholder="e.g. પ્રવેશ અરજી ફોર્મ ૨૦૨૬-૨૭" />
-              <Input label="Category" name="category" placeholder="e.g. ફોર્મ્સ / પરિપત્રો / પત્રકો" />
+              <Input
+                label="Title"
+                name="title"
+                required
+                placeholder="e.g. પ્રવેશ અરજી ફોર્મ ૨૦૨૬-૨૭"
+              />
+              <Input
+                label="Category"
+                name="category"
+                placeholder="e.g. ફોર્મ્સ / પરિપત્રો / પત્રકો"
+              />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
@@ -195,10 +201,20 @@ export function AdminDownloadsPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsUploadOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsUploadOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={uploadMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={uploadMutation.isPending}
+                >
                   Upload Document
                 </Button>
               </div>

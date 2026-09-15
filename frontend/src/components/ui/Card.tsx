@@ -5,12 +5,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "interactive" | "accent";
 }
 
-export function Card({
-  children,
-  variant = "default",
-  className = "",
-  ...rest
-}: CardProps) {
+export function Card({ children, variant = "default", className = "", ...rest }: CardProps) {
   const variantStyles = {
     default: "bg-white border-slate-200 shadow-xs",
     interactive:
@@ -19,10 +14,7 @@ export function Card({
   }[variant];
 
   return (
-    <div
-      className={`rounded-xl border p-5 sm:p-6 ${variantStyles} ${className}`}
-      {...rest}
-    >
+    <div className={`rounded-xl border p-5 sm:p-6 ${variantStyles} ${className}`} {...rest}>
       {children}
     </div>
   );

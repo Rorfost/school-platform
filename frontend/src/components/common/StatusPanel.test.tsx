@@ -25,12 +25,7 @@ describe("StatusPanel components", () => {
   });
 
   it("renders EmptyState with title and description", () => {
-    render(
-      <EmptyState
-        title="કોઈ ફાઈલ મળી નથી."
-        description="થોડા સમય પછી ફરી પ્રયત્ન કરો."
-      />,
-    );
+    render(<EmptyState title="કોઈ ફાઈલ મળી નથી." description="થોડા સમય પછી ફરી પ્રયત્ન કરો." />);
 
     expect(screen.getByText("કોઈ ફાઈલ મળી નથી.")).toBeVisible();
     expect(screen.getByText("થોડા સમય પછી ફરી પ્રયત્ન કરો.")).toBeVisible();

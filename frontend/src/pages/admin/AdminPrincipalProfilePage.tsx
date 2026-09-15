@@ -59,7 +59,8 @@ export function AdminPrincipalProfilePage() {
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Principal Profile & Message</h1>
         <p className="text-sm text-slate-600 mt-1">
-          Manage the Principal's message, designation, qualification, and public desk visibility settings.
+          Manage the Principal's message, designation, qualification, and public desk visibility
+          settings.
         </p>
       </div>
 
@@ -72,7 +73,8 @@ export function AdminPrincipalProfilePage() {
 
       {updateMutation.isError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
-          Failed to update profile. {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
+          Failed to update profile.{" "}
+          {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
         </div>
       )}
 
@@ -129,7 +131,10 @@ export function AdminPrincipalProfilePage() {
               name="message"
               rows={6}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={profile?.message || "પ્રિય વિદ્યાર્થીઓ અને વાલીશ્રીઓ,\n\nઅમારી શાળામાં આપ સૌનું હાર્દિક સ્વાગત છે."}
+              defaultValue={
+                profile?.message ||
+                "પ્રિય વિદ્યાર્થીઓ અને વાલીશ્રીઓ,\n\nઅમારી શાળામાં આપ સૌનું હાર્દિક સ્વાગત છે."
+              }
             />
           </div>
           <div>

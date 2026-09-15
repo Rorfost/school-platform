@@ -18,7 +18,7 @@ export function NoticesPage() {
   const filteredNotices = notices.filter(
     (n) =>
       n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      n.body.toLowerCase().includes(searchTerm.toLowerCase())
+      n.body.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -57,7 +57,10 @@ export function NoticesPage() {
       ) : (
         <div className="space-y-4">
           {filteredNotices.map((item) => (
-            <Card key={item.id} className="p-5 sm:p-6 transition-all hover:border-blue-200 shadow-xs">
+            <Card
+              key={item.id}
+              className="p-5 sm:p-6 transition-all hover:border-blue-200 shadow-xs"
+            >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">

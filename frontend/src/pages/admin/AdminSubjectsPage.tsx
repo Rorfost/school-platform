@@ -172,7 +172,12 @@ export function AdminSubjectsPage() {
               </label>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button

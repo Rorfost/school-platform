@@ -45,8 +45,8 @@ export function ConfirmModal({
                 variant === "danger"
                   ? "bg-red-50 text-red-700"
                   : variant === "warning"
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-blue-50 text-blue-900"
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-blue-50 text-blue-900"
               }`}
             >
               <AlertTriangle size={20} aria-hidden="true" />

@@ -17,7 +17,10 @@ export function AdminGalleryPage() {
 
   const { data, isLoading } = useQuery<PageResponse<GalleryAlbumResponse>>({
     queryKey: queryKeys.galleryAlbums({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<GalleryAlbumResponse>>("/api/v1/public/gallery/albums?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<GalleryAlbumResponse>>(
+        "/api/v1/public/gallery/albums?page=0&size=50",
+      ),
   });
 
   const albums = data?.items ?? [];
@@ -83,7 +86,8 @@ export function AdminGalleryPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Photo Gallery Management</h1>
           <p className="text-sm text-slate-600 mt-1">
-            Create photo albums, upload event photographs, and publish galleries to the public portal.
+            Create photo albums, upload event photographs, and publish galleries to the public
+            portal.
           </p>
         </div>
         <Button
@@ -150,7 +154,9 @@ export function AdminGalleryPage() {
           <div className="col-span-full p-12 text-center text-slate-500 bg-white rounded-xl border border-slate-200">
             <Camera size={40} className="mx-auto mb-2 text-slate-400" />
             <p className="font-semibold text-slate-700">No gallery albums created</p>
-            <p className="text-xs text-slate-500 mt-1">Click 'New Photo Album' to create your first album.</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Click 'New Photo Album' to create your first album.
+            </p>
           </div>
         )}
       </div>
@@ -161,7 +167,12 @@ export function AdminGalleryPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Create Photo Album</h2>
             <form onSubmit={handleCreateAlbumSubmit} className="space-y-4">
-              <Input label="Album Title" name="title" required placeholder="e.g. વાર્ષિક રમતગમત મહોત્સવ ૨૦૨૬" />
+              <Input
+                label="Album Title"
+                name="title"
+                required
+                placeholder="e.g. વાર્ષિક રમતગમત મહોત્સવ ૨૦૨૬"
+              />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Album Description
@@ -175,10 +186,20 @@ export function AdminGalleryPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsAlbumModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsAlbumModalOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={createAlbumMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={createAlbumMutation.isPending}
+                >
                   Create Album
                 </Button>
               </div>
@@ -193,7 +214,12 @@ export function AdminGalleryPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Upload Photo to Album</h2>
             <form onSubmit={handleUploadImageSubmit} className="space-y-4">
-              <Input label="Alt Text / Title" name="altText" required placeholder="e.g. વિજેતા વિદ્યાર્થીઓ" />
+              <Input
+                label="Alt Text / Title"
+                name="altText"
+                required
+                placeholder="e.g. વિજેતા વિદ્યાર્થીઓ"
+              />
               <Input label="Caption (Optional)" name="caption" placeholder="Photo description..." />
               <Input label="Sort Order" name="sortOrder" type="number" defaultValue={1} />
               <div>
@@ -210,10 +236,20 @@ export function AdminGalleryPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setUploadImageAlbumId(null)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setUploadImageAlbumId(null)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={uploadImageMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={uploadImageMutation.isPending}
+                >
                   Upload Photo
                 </Button>
               </div>

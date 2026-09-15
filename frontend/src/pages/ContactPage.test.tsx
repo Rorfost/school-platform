@@ -19,9 +19,7 @@ describe("ContactPage", () => {
   it("renders school contact info and address in Gujarati", () => {
     renderWithProviders(<ContactPage />);
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "સંપર્ક" })
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1, name: "સંપર્ક" })).toBeVisible();
     expect(screen.getByText("પીએમ શ્રી ધધાણા પ્રાથમિક શાળા")).toBeVisible();
     expect(screen.getByText("principal24030401801@ssguj.in")).toBeVisible();
   });

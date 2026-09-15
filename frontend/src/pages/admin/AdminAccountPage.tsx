@@ -81,15 +81,21 @@ export function AdminAccountPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="text-xs font-semibold text-slate-500 block uppercase">Email Address</span>
-            <span className="font-bold text-slate-900">{principal?.email || "principal@school.in"}</span>
+            <span className="text-xs font-semibold text-slate-500 block uppercase">
+              Email Address
+            </span>
+            <span className="font-bold text-slate-900">
+              {principal?.email || "principal@school.in"}
+            </span>
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-500 block uppercase">Role</span>
             <span className="font-bold text-blue-900">{principal?.role || "PRINCIPAL"}</span>
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 block uppercase">Must Change Password</span>
+            <span className="text-xs font-semibold text-slate-500 block uppercase">
+              Must Change Password
+            </span>
             <span
               className={`font-bold ${
                 principal?.mustChangePassword ? "text-amber-600" : "text-emerald-700"
@@ -101,7 +107,12 @@ export function AdminAccountPage() {
         </div>
 
         <div className="pt-4 border-t border-slate-100 flex justify-end">
-          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 text-slate-700">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="gap-2 text-slate-700"
+          >
             <LogOut size={15} />
             <span>Sign Out of Session</span>
           </Button>

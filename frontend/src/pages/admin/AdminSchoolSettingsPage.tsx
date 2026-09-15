@@ -47,7 +47,9 @@ export function AdminSchoolSettingsPage() {
       website: String(formData.get("website") || "") || null,
       mapsUrl: String(formData.get("mapsUrl") || "") || null,
       about: String(formData.get("about") || "") || null,
-      establishedYear: formData.get("establishedYear") ? Number(formData.get("establishedYear")) : null,
+      establishedYear: formData.get("establishedYear")
+        ? Number(formData.get("establishedYear"))
+        : null,
       medium: String(formData.get("medium") || "") || null,
       schoolType: String(formData.get("schoolType") || "") || null,
       logoObjectKey: school?.logoObjectKey ?? null,
@@ -65,7 +67,8 @@ export function AdminSchoolSettingsPage() {
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">School Identity & Settings</h1>
         <p className="text-sm text-slate-600 mt-1">
-          Manage official school name, DISE code, location, contact, and branding displayed on the public website.
+          Manage official school name, DISE code, location, contact, and branding displayed on the
+          public website.
         </p>
       </div>
 
@@ -78,7 +81,8 @@ export function AdminSchoolSettingsPage() {
 
       {updateMutation.isError && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
-          Failed to update school settings. {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
+          Failed to update school settings.{" "}
+          {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
         </div>
       )}
 
@@ -131,9 +135,7 @@ export function AdminSchoolSettingsPage() {
             Address & Location
           </h2>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Full Address
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Address</label>
             <textarea
               name="address"
               rows={2}
@@ -144,7 +146,11 @@ export function AdminSchoolSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input label="Village / City" name="city" defaultValue={school?.city || "ધધાણા"} />
             <Input label="State" name="state" defaultValue={school?.state || "Gujarat"} />
-            <Input label="Postal Code / PIN" name="postalCode" defaultValue={school?.postalCode || "384245"} />
+            <Input
+              label="Postal Code / PIN"
+              name="postalCode"
+              defaultValue={school?.postalCode || "384245"}
+            />
           </div>
           <Input
             label="Google Maps Embedded Link / URL"
@@ -187,7 +193,10 @@ export function AdminSchoolSettingsPage() {
               name="about"
               rows={4}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={school?.about || "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા સમી તાલુકાના ધધાણા ગામમાં ૧૯૫૦ થી શિક્ષણ સેવા આપી રહી છે."}
+              defaultValue={
+                school?.about ||
+                "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા સમી તાલુકાના ધધાણા ગામમાં ૧૯૫૦ થી શિક્ષણ સેવા આપી રહી છે."
+              }
             />
           </div>
         </Card>

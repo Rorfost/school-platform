@@ -11,11 +11,7 @@ export function PrincipalDeskPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <PageHeader
-          title={LABELS.principalDesk}
-          backTo="/"
-          backLabel={LABELS.home}
-        />
+        <PageHeader title={LABELS.principalDesk} backTo="/" backLabel={LABELS.home} />
         <LoadingState message="આચાર્યશ્રીની વિગતો લોડ થઈ રહી છે..." />
       </div>
     );
@@ -43,9 +39,7 @@ export function PrincipalDeskPage() {
               {profile?.designation || "મુખ્ય શિક્ષક / આચાર્ય"}
             </p>
             {profile?.qualification && (
-              <p className="text-xs text-slate-500 mt-0.5">
-                લાયકાત: {profile.qualification}
-              </p>
+              <p className="text-xs text-slate-500 mt-0.5">લાયકાત: {profile.qualification}</p>
             )}
           </div>
         </div>

@@ -9,7 +9,8 @@ export function StudentCornerPage() {
     {
       to: "/student/materials",
       title: LABELS.materials,
-      description: "ધોરણ ૧ થી ૮ માટે વિષયવાર પાઠ્યપુસ્તકો, સ્વાધ્યાય સામગ્રી અને શીખવા માટે ઉપયોગી ફાઈલો.",
+      description:
+        "ધોરણ ૧ થી ૮ માટે વિષયવાર પાઠ્યપુસ્તકો, સ્વાધ્યાય સામગ્રી અને શીખવા માટે ઉપયોગી ફાઈલો.",
       icon: BookOpen,
       badgeText: "અભ્યાસ",
     },
@@ -59,13 +60,9 @@ export function StudentCornerPage() {
                 <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-900 transition-colors">
                   {section.title}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  {section.description}
-                </p>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{section.description}</p>
               </div>
-              <div className="mt-6 text-sm font-semibold text-blue-900">
-                વિભાગ ખોલો →
-              </div>
+              <div className="mt-6 text-sm font-semibold text-blue-900">વિભાગ ખોલો →</div>
             </Link>
           );
         })}

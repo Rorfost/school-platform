@@ -40,10 +40,7 @@ export function AdminLayout() {
             <AlertCircle size={16} aria-hidden="true" />
             <span>Security Action Required: You must change your default password.</span>
           </div>
-          <Link
-            to="/admin/account"
-            className="underline hover:text-amber-100 font-bold shrink-0"
-          >
+          <Link to="/admin/account" className="underline hover:text-amber-100 font-bold shrink-0">
             Change Password Now
           </Link>
         </div>
@@ -68,9 +65,7 @@ export function AdminLayout() {
                   <span>{principal?.role || "PRINCIPAL"}</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium hidden sm:block">
-                {school.name}
-              </p>
+              <p className="text-xs text-slate-500 font-medium hidden sm:block">{school.name}</p>
             </div>
           </div>
 
@@ -90,12 +85,7 @@ export function AdminLayout() {
               <span className="hidden sm:inline">View Site</span>
             </Link>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="text-slate-700"
-            >
+            <Button variant="outline" size="sm" onClick={handleLogout} className="text-slate-700">
               <LogOut size={14} aria-hidden="true" />
               <span>Sign out</span>
             </Button>

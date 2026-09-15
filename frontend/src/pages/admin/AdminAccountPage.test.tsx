@@ -57,8 +57,6 @@ describe("AdminAccountPage", () => {
     fireEvent.change(confirmInput, { target: { value: "short" } });
     fireEvent.click(submitBtn);
 
-    expect(
-      screen.getByText("New password must be at least 12 characters long.")
-    ).toBeVisible();
+    expect(screen.getByText("New password must be at least 12 characters long.")).toBeVisible();
   });
 });

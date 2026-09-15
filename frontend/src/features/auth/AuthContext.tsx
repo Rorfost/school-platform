@@ -1,8 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  type PropsWithChildren,
-} from "react";
+import { createContext, useCallback, type PropsWithChildren } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
@@ -42,13 +38,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const response = await apiRequest<PrincipalAccountResponse>(
-        "/api/v1/admin/auth/login",
-        {
-          method: "POST",
-          body: { email, password },
-        },
-      );
+      const response = await apiRequest<PrincipalAccountResponse>("/api/v1/admin/auth/login", {
+        method: "POST",
+        body: { email, password },
+      });
       queryClient.setQueryData(queryKeys.authMe, response);
       return response;
     },

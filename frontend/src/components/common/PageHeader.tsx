@@ -31,9 +31,7 @@ export function PageHeader({
       )}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            {title}
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
           {description && (
             <p className="mt-1.5 text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed">
               {description}

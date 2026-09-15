@@ -25,16 +25,61 @@ export function AdminDashboardPage() {
   const galleryCount = galleryData?.totalItems ?? 0;
 
   const quickLinks = [
-    { to: "/admin/school", label: "School Identity", icon: Settings, desc: "Name, address, contact, DISE code" },
-    { to: "/admin/principal", label: "Principal Profile", icon: UserCheck, desc: "Biography, message, designation" },
-    { to: "/admin/academic-years", label: "Academic Years", icon: Calendar, desc: "Manage sessions, current year" },
-    { to: "/admin/standards", label: "Standards & Classes", icon: Layers, desc: "Standards 1 to 8 configuration" },
-    { to: "/admin/subjects", label: "Subjects Catalog", icon: BookOpen, desc: "Curriculum subjects list" },
-    { to: "/admin/assessments", label: "Assessments", icon: Award, desc: "Ekam Kasoti & exam setup" },
-    { to: "/admin/materials", label: "Study Materials", icon: GraduationCap, desc: "Worksheets & textbook files" },
-    { to: "/admin/notices", label: "Notices & Circulars", icon: FileText, desc: "School announcements" },
+    {
+      to: "/admin/school",
+      label: "School Identity",
+      icon: Settings,
+      desc: "Name, address, contact, DISE code",
+    },
+    {
+      to: "/admin/principal",
+      label: "Principal Profile",
+      icon: UserCheck,
+      desc: "Biography, message, designation",
+    },
+    {
+      to: "/admin/academic-years",
+      label: "Academic Years",
+      icon: Calendar,
+      desc: "Manage sessions, current year",
+    },
+    {
+      to: "/admin/standards",
+      label: "Standards & Classes",
+      icon: Layers,
+      desc: "Standards 1 to 8 configuration",
+    },
+    {
+      to: "/admin/subjects",
+      label: "Subjects Catalog",
+      icon: BookOpen,
+      desc: "Curriculum subjects list",
+    },
+    {
+      to: "/admin/assessments",
+      label: "Assessments",
+      icon: Award,
+      desc: "Ekam Kasoti & exam setup",
+    },
+    {
+      to: "/admin/materials",
+      label: "Study Materials",
+      icon: GraduationCap,
+      desc: "Worksheets & textbook files",
+    },
+    {
+      to: "/admin/notices",
+      label: "Notices & Circulars",
+      icon: FileText,
+      desc: "School announcements",
+    },
     { to: "/admin/gallery", label: "Photo Gallery", icon: Camera, desc: "Event albums & photos" },
-    { to: "/admin/downloads", label: "Downloads", icon: FolderDown, desc: "Public forms & documents" },
+    {
+      to: "/admin/downloads",
+      label: "Downloads",
+      icon: FolderDown,
+      desc: "Public forms & documents",
+    },
   ];
 
   return (
@@ -66,13 +111,18 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Published Notices</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase">
+              Published Notices
+            </span>
             <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
               <FileText size={18} aria-hidden="true" />
             </div>
           </div>
           <p className="text-2xl font-extrabold text-slate-900 mt-2">{noticesCount}</p>
-          <Link to="/admin/notices" className="text-xs font-semibold text-blue-900 hover:underline mt-1 block">
+          <Link
+            to="/admin/notices"
+            className="text-xs font-semibold text-blue-900 hover:underline mt-1 block"
+          >
             Manage notices →
           </Link>
         </Card>
@@ -85,7 +135,10 @@ export function AdminDashboardPage() {
             </div>
           </div>
           <p className="text-2xl font-extrabold text-slate-900 mt-2">{galleryCount}</p>
-          <Link to="/admin/gallery" className="text-xs font-semibold text-blue-900 hover:underline mt-1 block">
+          <Link
+            to="/admin/gallery"
+            className="text-xs font-semibold text-blue-900 hover:underline mt-1 block"
+          >
             Manage gallery →
           </Link>
         </Card>
@@ -97,7 +150,9 @@ export function AdminDashboardPage() {
               <Calendar size={18} aria-hidden="true" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{school.establishedYear || 1950}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-2">
+            {school.establishedYear || 1950}
+          </p>
           <span className="text-xs text-slate-500 mt-1 block">Primary School (Std 1–8)</span>
         </Card>
 
@@ -108,7 +163,9 @@ export function AdminDashboardPage() {
               <BookOpen size={18} aria-hidden="true" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{(school as { medium?: string }).medium || "Gujarati"}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-2">
+            {(school as { medium?: string }).medium || "Gujarati"}
+          </p>
           <span className="text-xs text-slate-500 mt-1 block">Public Portal active</span>
         </Card>
       </div>

@@ -20,9 +20,7 @@ export function Footer() {
                 className="size-11 rounded-full object-contain border border-blue-100"
               />
               <div>
-                <h3 className="text-base font-bold text-slate-900 leading-tight">
-                  {school.name}
-                </h3>
+                <h3 className="text-base font-bold text-slate-900 leading-tight">{school.name}</h3>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
                   {LABELS.estLabel}: {toGujaratiNumber(school.establishedYear)}
                 </p>
@@ -38,9 +36,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-900 mb-3">
-              ઉપયોગી લિંક્સ
-            </h4>
+            <h4 className="text-sm font-semibold text-slate-900 mb-3">ઉપયોગી લિંક્સ</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/" className="hover:text-blue-900 transition-colors">
@@ -77,9 +73,7 @@ export function Footer() {
 
           {/* Contact Details */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-900 mb-3">
-              {LABELS.contact}
-            </h4>
+            <h4 className="text-sm font-semibold text-slate-900 mb-3">{LABELS.contact}</h4>
             <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
               <div className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-blue-900" aria-hidden="true" />
@@ -103,7 +97,9 @@ export function Footer() {
 
         {/* Bottom Strip */}
         <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>© {toGujaratiNumber(new Date().getFullYear())} {school.name}. સર્વ હક સુરક્ષિત.</p>
+          <p>
+            © {toGujaratiNumber(new Date().getFullYear())} {school.name}. સર્વ હક સુરક્ષિત.
+          </p>
           <div className="flex items-center gap-4">
             <Link
               to="/admin/login"

@@ -52,7 +52,9 @@ export function ContactPage() {
               <MapPin className="text-blue-900 shrink-0 mt-0.5" size={20} aria-hidden="true" />
               <div>
                 <p className="font-semibold text-slate-900">સ્થાન</p>
-                <p className="mt-0.5 text-slate-600">ગામ: ધધાણા, તાલુકો: સમી, જિલ્લો: પાટણ - ૩૮૪૨૪૫</p>
+                <p className="mt-0.5 text-slate-600">
+                  ગામ: ધધાણા, તાલુકો: સમી, જિલ્લો: પાટણ - ૩૮૪૨૪૫
+                </p>
               </div>
             </div>
           </Card>
@@ -86,9 +88,7 @@ export function ContactPage() {
               <Calendar className="text-blue-900 shrink-0 mt-0.5" size={20} aria-hidden="true" />
               <div>
                 <p className="font-semibold text-slate-900">{LABELS.estLabel}</p>
-                <p className="mt-0.5 text-slate-600">
-                  {toGujaratiNumber(school.establishedYear)}
-                </p>
+                <p className="mt-0.5 text-slate-600">{toGujaratiNumber(school.establishedYear)}</p>
               </div>
             </div>
           </Card>
@@ -104,7 +104,9 @@ export function ContactPage() {
           {submitted ? (
             <div className="p-6 text-center space-y-3 bg-emerald-50 rounded-xl border border-emerald-200">
               <CheckCircle2 size={40} className="mx-auto text-emerald-600" />
-              <h3 className="text-base font-bold text-emerald-900">આપનો સંદેશ સફળતાપૂર્વક મળ્યો છે!</h3>
+              <h3 className="text-base font-bold text-emerald-900">
+                આપનો સંદેશ સફળતાપૂર્વક મળ્યો છે!
+              </h3>
               <p className="text-xs sm:text-sm text-emerald-700">
                 અમે ટૂંક સમયમાં આપનો સંપર્ક કરીશું. આભાર!
               </p>

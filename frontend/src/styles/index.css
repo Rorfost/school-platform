@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Noto Sans Gujarati", "Gujarati Sangam MN", "Nirmala UI", "Shruti", system-ui, -apple-system, sans-serif;
+  --font-sans:
+    "Noto Sans Gujarati", "Gujarati Sangam MN", "Nirmala UI", "Shruti", system-ui, -apple-system,
+    sans-serif;
 
   --color-brand-50: #f0f5ff;
   --color-brand-100: #e0ebfe;

@@ -36,7 +36,7 @@ export function ResultsInfoPage() {
   const [selectedAssessment, setSelectedAssessment] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [resultPin, setResultPin] = useState("");
-  
+
   const [isSearching, setIsSearching] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [resultData, setResultData] = useState<StudentResultData | null>(null);
@@ -139,15 +139,21 @@ export function ResultsInfoPage() {
             {/* Student Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm print:bg-white print:border-slate-400">
               <div>
-                <span className="text-xs font-semibold text-slate-500 block uppercase">વિદ્યાર્થીનું નામ</span>
+                <span className="text-xs font-semibold text-slate-500 block uppercase">
+                  વિદ્યાર્થીનું નામ
+                </span>
                 <span className="font-bold text-slate-900 text-base">{resultData.studentName}</span>
               </div>
               <div>
                 <span className="text-xs font-semibold text-slate-500 block uppercase">ધોરણ</span>
-                <span className="font-bold text-slate-900 text-base">{resultData.standardName}</span>
+                <span className="font-bold text-slate-900 text-base">
+                  {resultData.standardName}
+                </span>
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-500 block uppercase">રોલ નંબર</span>
+                <span className="text-xs font-semibold text-slate-500 block uppercase">
+                  રોલ નંબર
+                </span>
                 <span className="font-bold text-slate-900 text-base">{resultData.rollNumber}</span>
               </div>
             </div>
@@ -159,7 +165,9 @@ export function ResultsInfoPage() {
                   <tr className="bg-blue-900 text-white print:bg-slate-200 print:text-slate-900">
                     <th className="p-3 border border-slate-300 font-bold">અનુ.</th>
                     <th className="p-3 border border-slate-300 font-bold">વિષય</th>
-                    <th className="p-3 border border-slate-300 font-bold text-center">મેળવેલ ગુણ</th>
+                    <th className="p-3 border border-slate-300 font-bold text-center">
+                      મેળવેલ ગુણ
+                    </th>
                     <th className="p-3 border border-slate-300 font-bold text-center">કુલ ગુણ</th>
                     <th className="p-3 border border-slate-300 font-bold text-center">પરિણામ</th>
                   </tr>
@@ -170,7 +178,9 @@ export function ResultsInfoPage() {
                       <td className="p-3 border border-slate-300 text-center text-slate-600 font-medium">
                         {toGujaratiNumber(idx + 1)}
                       </td>
-                      <td className="p-3 border border-slate-300 font-bold text-slate-900">{sub.name}</td>
+                      <td className="p-3 border border-slate-300 font-bold text-slate-900">
+                        {sub.name}
+                      </td>
                       <td className="p-3 border border-slate-300 font-extrabold text-blue-900 text-center print:text-slate-900">
                         {toGujaratiNumber(sub.obtainedMarks)}
                       </td>
@@ -184,7 +194,10 @@ export function ResultsInfoPage() {
                   ))}
                   {/* Total Summary Row */}
                   <tr className="bg-blue-50/80 font-bold border-t-2 border-blue-900 print:bg-slate-100 print:border-slate-900">
-                    <td colSpan={2} className="p-3 border border-slate-300 text-right text-slate-900">
+                    <td
+                      colSpan={2}
+                      className="p-3 border border-slate-300 text-right text-slate-900"
+                    >
                       કુલ સરવાળો:
                     </td>
                     <td className="p-3 border border-slate-300 text-center text-base font-black text-blue-900 print:text-slate-900">
@@ -228,7 +241,8 @@ export function ResultsInfoPage() {
             <div className="text-xs sm:text-sm">
               <p className="font-bold text-blue-900">સુરક્ષિત અને ગોપનીય પરિણામ સિસ્ટમ</p>
               <p className="mt-0.5 text-blue-900/90 leading-relaxed">
-                દરેક વિદ્યાર્થી પોતાનો રોલ નંબર અને પરિણામ પિન (Result PIN) દાખલ કરીને જ પોતાનું પરિણામ જોઈ શકશે.
+                દરેક વિદ્યાર્થી પોતાનો રોલ નંબર અને પરિણામ પિન (Result PIN) દાખલ કરીને જ પોતાનું
+                પરિણામ જોઈ શકશે.
               </p>
             </div>
           </div>
@@ -245,7 +259,11 @@ export function ResultsInfoPage() {
                 className="mb-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900"
                 role="alert"
               >
-                <AlertCircle size={18} className="text-red-700 shrink-0 mt-0.5" aria-hidden="true" />
+                <AlertCircle
+                  size={18}
+                  className="text-red-700 shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -253,7 +271,10 @@ export function ResultsInfoPage() {
             <form onSubmit={handleLookup} className="space-y-4">
               {/* Standard Selector */}
               <div>
-                <label htmlFor="res-standard" className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label
+                  htmlFor="res-standard"
+                  className="block text-sm font-medium text-slate-700 mb-1.5"
+                >
                   ધોરણ પસંદ કરો <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -281,7 +302,10 @@ export function ResultsInfoPage() {
 
               {/* Assessment Type */}
               <div>
-                <label htmlFor="res-assessment" className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label
+                  htmlFor="res-assessment"
+                  className="block text-sm font-medium text-slate-700 mb-1.5"
+                >
                   પરીક્ષા / કસોટી
                 </label>
                 <select

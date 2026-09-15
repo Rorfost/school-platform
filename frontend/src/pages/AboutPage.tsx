@@ -26,17 +26,15 @@ export function AboutPage() {
             className="size-28 sm:size-36 rounded-full object-contain border border-blue-100 shadow-sm p-1"
           />
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-              {school.name}
-            </h2>
-            <p className="mt-1 text-sm sm:text-base text-slate-600">
-              {school.address}
-            </p>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{school.name}</h2>
+            <p className="mt-1 text-sm sm:text-base text-slate-600">{school.address}</p>
             <p className="mt-2 text-xs sm:text-sm font-semibold text-blue-900">
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
             <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700">
-              અમારી શાળા સમી તાલુકાના ધધાણા ગામમાં સ્થિત એક અગ્રણી પ્રાથમિક શાળા છે. વર્ષ {toGujaratiNumber(school.establishedYear)} માં સ્થાપના પામેલી આ શાળામાં ધોરણ ૧ થી ૮ સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે.
+              અમારી શાળા સમી તાલુકાના ધધાણા ગામમાં સ્થિત એક અગ્રણી પ્રાથમિક શાળા છે. વર્ષ{" "}
+              {toGujaratiNumber(school.establishedYear)} માં સ્થાપના પામેલી આ શાળામાં ધોરણ ૧ થી ૮
+              સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે.
             </p>
           </div>
         </div>

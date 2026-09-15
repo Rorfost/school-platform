@@ -86,9 +86,7 @@ export function HomePage() {
             >
               {school.name}
             </h1>
-            <p className="mt-2 text-sm sm:text-base font-medium text-slate-600">
-              {school.address}
-            </p>
+            <p className="mt-2 text-sm sm:text-base font-medium text-slate-600">{school.address}</p>
             <p className="mt-3 text-xs sm:text-sm text-blue-900 font-semibold tracking-wide">
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
@@ -146,7 +144,11 @@ export function HomePage() {
                 </div>
                 <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-blue-900">
                   <span>પ્રવેશ કરો</span>
-                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  <ArrowRight
+                    size={13}
+                    className="transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
                 </div>
               </Link>
             );
@@ -164,9 +166,7 @@ export function HomePage() {
             >
               {LABELS.notices}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              શાળાની તાજેતરની જાહેરાતો
-            </p>
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">શાળાની તાજેતરની જાહેરાતો</p>
           </div>
           <Link
             to="/notices"
@@ -207,9 +207,7 @@ export function HomePage() {
         ) : (
           <Card className="p-6 text-center text-slate-600">
             <p className="text-sm font-medium">હાલ કોઈ નવી સૂચના નથી.</p>
-            <p className="text-xs text-slate-500 mt-1">
-              નવી સૂચનાઓ જાહેર થતાં જ અહીં જોવા મળશે.
-            </p>
+            <p className="text-xs text-slate-500 mt-1">નવી સૂચનાઓ જાહેર થતાં જ અહીં જોવા મળશે.</p>
           </Card>
         )}
       </section>

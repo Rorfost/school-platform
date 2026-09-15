@@ -97,11 +97,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       body: finalBody,
     });
   } catch {
-    throw new ApiError(
-      getGujaratiErrorMessage("network_error"),
-      0,
-      "network_error",
-    );
+    throw new ApiError(getGujaratiErrorMessage("network_error"), 0, "network_error");
   }
 
   if (!response.ok) {

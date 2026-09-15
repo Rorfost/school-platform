@@ -67,7 +67,7 @@ export function AdminAssessmentsPage() {
     queryKey: ["admin", "standards", selectedStandardId, "subjects"],
     queryFn: () =>
       apiRequest<StandardSubjectResponse[]>(
-        `/api/v1/admin/standards/${selectedStandardId}/subjects`
+        `/api/v1/admin/standards/${selectedStandardId}/subjects`,
       ),
     enabled: Boolean(selectedStandardId),
   });
@@ -145,7 +145,8 @@ export function AdminAssessmentsPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Assessment & Exam Management</h1>
           <p className="text-sm text-slate-600 mt-1">
-            Configure generic assessments, Ekam Kasoti exams, subject mark limits, and publish results.
+            Configure generic assessments, Ekam Kasoti exams, subject mark limits, and publish
+            results.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -196,7 +197,9 @@ export function AdminAssessmentsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="p-4 font-medium text-slate-800">{stdObj?.name || item.standardId}</td>
+                    <td className="p-4 font-medium text-slate-800">
+                      {stdObj?.name || item.standardId}
+                    </td>
                     <td className="p-4 text-slate-600">{item.assessmentDate || "N/A"}</td>
                     <td className="p-4">
                       {item.status === "PUBLISHED" ? (
@@ -366,7 +369,8 @@ export function AdminAssessmentsPage() {
                 </h3>
                 {mappedSubjects.length === 0 ? (
                   <p className="text-xs text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                    No subjects mapped to this standard yet. Map subjects in 'Subject Mappings' first.
+                    No subjects mapped to this standard yet. Map subjects in 'Subject Mappings'
+                    first.
                   </p>
                 ) : (
                   <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
@@ -414,7 +418,12 @@ export function AdminAssessmentsPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsCreateModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -445,14 +454,22 @@ export function AdminAssessmentsPage() {
                 <strong>Tri-masik Ekam Kasoti Standard 3 Workbook Contract:</strong>
               </p>
               <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                <li>Observed structure: 4 Subject Columns (Gujarati 40, Maths 40, EVS 40, English 40 = Total 160).</li>
-                <li>Automatic computation: Totals are recomputed server-side from subject marks.</li>
                 <li>
-                  <strong>Pending Contract Status:</strong> Excel parsing and student roll-number mapping are blocked per <code>docs/data/RESULT_IMPORT.md</code> until school owner supplies roll-number distribution contract.
+                  Observed structure: 4 Subject Columns (Gujarati 40, Maths 40, EVS 40, English 40 =
+                  Total 160).
+                </li>
+                <li>
+                  Automatic computation: Totals are recomputed server-side from subject marks.
+                </li>
+                <li>
+                  <strong>Pending Contract Status:</strong> Excel parsing and student roll-number
+                  mapping are blocked per <code>docs/data/RESULT_IMPORT.md</code> until school owner
+                  supplies roll-number distribution contract.
                 </li>
               </ul>
               <p className="text-xs bg-slate-50 p-3 rounded-lg border border-slate-200 text-slate-600">
-                Assessments created here are automatically available for public lookup test simulation once published.
+                Assessments created here are automatically available for public lookup test
+                simulation once published.
               </p>
             </div>
             <div className="flex justify-end pt-2">

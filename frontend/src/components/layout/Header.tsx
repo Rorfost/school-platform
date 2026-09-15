@@ -59,9 +59,7 @@ export function Header() {
               <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 leading-tight">
                 {school.name}
               </span>
-              <span className="text-xs text-slate-500 font-medium">
-                {school.address}
-              </span>
+              <span className="text-xs text-slate-500 font-medium">{school.address}</span>
             </div>
           </Link>
 

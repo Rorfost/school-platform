@@ -49,7 +49,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 md:hidden">
+    <div className="fixed inset-0 z-50 lg:hidden">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"

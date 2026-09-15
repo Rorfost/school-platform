@@ -6,9 +6,7 @@ export function NotFoundPage() {
   return (
     <section className="mx-auto max-w-xl py-10 sm:py-16 text-center">
       <p className="text-sm font-semibold text-blue-900 tracking-wide">૪૦૪ ભૂલ</p>
-      <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">
-        પાનું મળ્યું નથી.
-      </h1>
+      <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">પાનું મળ્યું નથી.</h1>
       <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-md mx-auto leading-relaxed">
         તમે જે પાનું શોધી રહ્યા છો તે ખસેડવામાં આવ્યું છે અથવા ઉપલબ્ધ નથી.
       </p>

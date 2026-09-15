@@ -7,12 +7,7 @@ export interface BadgeProps {
   children: ReactNode;
 }
 
-export function Badge({
-  variant = "primary",
-  size = "md",
-  className = "",
-  children,
-}: BadgeProps) {
+export function Badge({ variant = "primary", size = "md", className = "", children }: BadgeProps) {
   const variantStyles = {
     primary: "bg-blue-50 text-blue-900 border-blue-200",
     secondary: "bg-amber-50 text-amber-900 border-amber-200",

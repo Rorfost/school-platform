@@ -19,16 +19,12 @@ describe("NoticesPage", () => {
   it("renders page header in Gujarati", () => {
     renderWithProviders(<NoticesPage />);
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "સૂચનાઓ" })
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1, name: "સૂચનાઓ" })).toBeVisible();
   });
 
   it("renders search input for filtering notices", () => {
     renderWithProviders(<NoticesPage />);
 
-    expect(
-      screen.getByPlaceholderText("સૂચનાઓમાં શોધો...")
-    ).toBeVisible();
+    expect(screen.getByPlaceholderText("સૂચનાઓમાં શોધો...")).toBeVisible();
   });
 });

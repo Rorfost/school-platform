@@ -34,7 +34,7 @@ export function AdminSubjectMappingsPage() {
     queryKey: ["admin", "standards", effectiveStandardId, "subjects"],
     queryFn: () =>
       apiRequest<StandardSubjectResponse[]>(
-        `/api/v1/admin/standards/${effectiveStandardId}/subjects`
+        `/api/v1/admin/standards/${effectiveStandardId}/subjects`,
       ),
     enabled: Boolean(effectiveStandardId),
   });
@@ -136,7 +136,9 @@ export function AdminSubjectMappingsPage() {
                   return (
                     <tr key={m.id} className="hover:bg-slate-50/50">
                       <td className="p-4 font-mono font-bold text-blue-900">{m.sortOrder}</td>
-                      <td className="p-4 font-bold text-slate-900">{subObj?.name || m.subjectId}</td>
+                      <td className="p-4 font-bold text-slate-900">
+                        {subObj?.name || m.subjectId}
+                      </td>
                       <td className="p-4 font-mono text-xs text-slate-500">{m.id}</td>
                     </tr>
                   );
@@ -144,7 +146,8 @@ export function AdminSubjectMappingsPage() {
                 {mappings.length === 0 && (
                   <tr>
                     <td colSpan={3} className="p-8 text-center text-slate-500">
-                      No subjects mapped to this standard yet. Click 'Map Subject to Standard' to add one.
+                      No subjects mapped to this standard yet. Click 'Map Subject to Standard' to
+                      add one.
                     </td>
                   </tr>
                 )}
@@ -189,10 +192,20 @@ export function AdminSubjectMappingsPage() {
               />
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={createMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={createMutation.isPending}
+                >
                   Save Mapping
                 </Button>
               </div>

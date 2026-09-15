@@ -1,11 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "../../api/client";
 import { queryKeys } from "../../api/queryKeys";
-import {
-  AcademicYearResponse,
-  StandardResponse,
-  SubjectResponse,
-} from "../../api/types";
+import { AcademicYearResponse, StandardResponse, SubjectResponse } from "../../api/types";
 
 export interface AssessmentTypeResponse {
   id: string;
@@ -32,15 +28,13 @@ export function usePublicSubjects() {
 export function usePublicCurrentYear() {
   return useQuery<AcademicYearResponse>({
     queryKey: queryKeys.currentAcademicYear,
-    queryFn: () =>
-      apiRequest<AcademicYearResponse>("/api/v1/public/academic-years/current"),
+    queryFn: () => apiRequest<AcademicYearResponse>("/api/v1/public/academic-years/current"),
   });
 }
 
 export function usePublicAssessmentTypes() {
   return useQuery<AssessmentTypeResponse[]>({
     queryKey: queryKeys.assessmentTypes,
-    queryFn: () =>
-      apiRequest<AssessmentTypeResponse[]>("/api/v1/public/assessment-types"),
+    queryFn: () => apiRequest<AssessmentTypeResponse[]>("/api/v1/public/assessment-types"),
   });
 }

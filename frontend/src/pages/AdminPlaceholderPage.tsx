@@ -27,7 +27,8 @@ export function AdminPlaceholderPage() {
           <div>
             <p className="font-semibold">Password update required</p>
             <p className="mt-0.5 text-amber-800">
-              Your account has a default or temporary password. Please update your password to maintain account security.
+              Your account has a default or temporary password. Please update your password to
+              maintain account security.
             </p>
           </div>
         </div>

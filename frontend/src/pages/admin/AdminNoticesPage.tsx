@@ -19,7 +19,8 @@ export function AdminNoticesPage() {
 
   const { data, isLoading } = useQuery<PageResponse<NoticeResponse>>({
     queryKey: queryKeys.notices({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<NoticeResponse>>("/api/v1/public/notices?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<NoticeResponse>>("/api/v1/public/notices?page=0&size=50"),
   });
 
   const notices = data?.items ?? [];
@@ -100,11 +101,7 @@ export function AdminNoticesPage() {
             Create school announcements, attach official PDF circulars, and publish notice updates.
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setIsCreateOpen(true)}
-          className="gap-2 shrink-0"
-        >
+        <Button variant="primary" onClick={() => setIsCreateOpen(true)} className="gap-2 shrink-0">
           <Plus size={16} aria-hidden="true" />
           <span>New Notice</span>
         </Button>
@@ -211,7 +208,12 @@ export function AdminNoticesPage() {
           <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Create New Announcement</h2>
             <form onSubmit={handleCreateSubmit} className="space-y-4">
-              <Input label="Title" name="title" required placeholder="e.g. દિવાળી વેકેશન અંગે સૂચના" />
+              <Input
+                label="Title"
+                name="title"
+                required
+                placeholder="e.g. દિવાળી વેકેશન અંગે સૂચના"
+              />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Notice Details / Body <span className="text-red-500">*</span>
@@ -226,15 +228,29 @@ export function AdminNoticesPage() {
               </div>
               <Input label="Expiration Date (Optional)" name="expiresAt" type="date" />
               <label className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                <input type="checkbox" name="pinned" className="rounded text-blue-900 focus:ring-blue-900" />
+                <input
+                  type="checkbox"
+                  name="pinned"
+                  className="rounded text-blue-900 focus:ring-blue-900"
+                />
                 <span>Pin notice to top of notice board</span>
               </label>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsCreateOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsCreateOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={createMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={createMutation.isPending}
+                >
                   Create Notice
                 </Button>
               </div>
@@ -261,10 +277,20 @@ export function AdminNoticesPage() {
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setAttachTargetId(null)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setAttachTargetId(null)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={attachMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={attachMutation.isPending}
+                >
                   Attach File
                 </Button>
               </div>

@@ -65,9 +65,7 @@ export function AdminLoginPage() {
         <h1 className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900">
           Principal Admin Portal
         </h1>
-        <p className="mt-1 text-center text-sm text-slate-600">
-          {school.name}
-        </p>
+        <p className="mt-1 text-center text-sm text-slate-600">{school.name}</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

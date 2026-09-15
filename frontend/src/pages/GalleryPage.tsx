@@ -33,8 +33,15 @@ export function GalleryPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {albums.map((album) => (
-            <Link key={album.id} to={`/gallery/${album.id}`} className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 rounded-xl">
-              <Card variant="interactive" className="overflow-hidden p-0 h-full flex flex-col justify-between">
+            <Link
+              key={album.id}
+              to={`/gallery/${album.id}`}
+              className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 rounded-xl"
+            >
+              <Card
+                variant="interactive"
+                className="overflow-hidden p-0 h-full flex flex-col justify-between"
+              >
                 <div>
                   <div className="aspect-video bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center text-blue-900/60 group-hover:text-blue-900 transition-colors">
                     <ImageIcon size={40} aria-hidden="true" />
@@ -52,7 +59,11 @@ export function GalleryPage() {
                 </div>
                 <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-semibold text-blue-900">
                   <span>ફોટાઓ જુઓ</span>
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  <ArrowRight
+                    size={14}
+                    className="transition-transform group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
                 </div>
               </Card>
             </Link>

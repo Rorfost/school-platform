@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { LABELS } from "@/utils/gujarati";
 
-export function LoadingState({
-  message = LABELS.loading,
-}: {
-  message?: string;
-}) {
+export function LoadingState({ message = LABELS.loading }: { message?: string }) {
   return (
     <div
       className="flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white p-8 text-slate-700 shadow-xs"
@@ -38,9 +34,7 @@ export function ErrorState({
       <div className="flex items-start gap-3.5">
         <AlertCircle className="mt-0.5 shrink-0 text-red-600" aria-hidden="true" size={22} />
         <div className="flex-1">
-          <p className="text-sm sm:text-base font-medium leading-relaxed">
-            {children ?? message}
-          </p>
+          <p className="text-sm sm:text-base font-medium leading-relaxed">{children ?? message}</p>
           {onRetry && (
             <div className="mt-4">
               <Button
@@ -78,9 +72,7 @@ export function EmptyState({
       </div>
       <h3 className="text-base font-semibold text-slate-800">{title}</h3>
       {description && (
-        <p className="mt-1.5 max-w-sm text-sm text-slate-500 leading-relaxed">
-          {description}
-        </p>
+        <p className="mt-1.5 max-w-sm text-sm text-slate-500 leading-relaxed">{description}</p>
       )}
       {action && <div className="mt-5">{action}</div>}
     </div>

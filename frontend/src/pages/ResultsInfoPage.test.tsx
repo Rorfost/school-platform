@@ -41,7 +41,7 @@ describe("ResultsInfoPage", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("આ માહિતી માટે પરિણામ મળ્યું નથી. કૃપા કરીને વિગતો ફરી તપાસો.")
+        screen.getByText("આ માહિતી માટે પરિણામ મળ્યું નથી. કૃપા કરીને વિગતો ફરી તપાસો."),
       ).toBeVisible();
     });
   });

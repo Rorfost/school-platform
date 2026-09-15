@@ -18,7 +18,8 @@ export function AdminMaterialsPage() {
 
   const { data, isLoading } = useQuery<PageResponse<MaterialResponse>>({
     queryKey: queryKeys.materials({ page: 0, size: 50 }),
-    queryFn: () => apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
+    queryFn: () =>
+      apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
   });
 
   const materials = data?.items ?? [];
@@ -76,11 +77,7 @@ export function AdminMaterialsPage() {
             Upload textbooks, worksheets, and learning resources for Standard 1 to 8 students.
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setIsUploadOpen(true)}
-          className="gap-2 shrink-0"
-        >
+        <Button variant="primary" onClick={() => setIsUploadOpen(true)} className="gap-2 shrink-0">
           <Upload size={16} aria-hidden="true" />
           <span>Upload New Material</span>
         </Button>
@@ -167,7 +164,12 @@ export function AdminMaterialsPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Upload Study Material</h2>
             <form onSubmit={handleUploadSubmit} className="space-y-4">
-              <Input label="Title" name="title" required placeholder="e.g. Std 3 Maths Worksheet 1" />
+              <Input
+                label="Title"
+                name="title"
+                required
+                placeholder="e.g. Std 3 Maths Worksheet 1"
+              />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Material Type
@@ -205,10 +207,20 @@ export function AdminMaterialsPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" type="button" onClick={() => setIsUploadOpen(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsUploadOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="primary" size="sm" type="submit" loading={uploadMutation.isPending}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  loading={uploadMutation.isPending}
+                >
                   Upload Material
                 </Button>
               </div>

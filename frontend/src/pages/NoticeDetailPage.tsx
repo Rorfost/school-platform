@@ -14,11 +14,7 @@ export function NoticeDetailPage() {
   if (isLoading) {
     return (
       <div className="space-y-6 max-w-3xl">
-        <PageHeader
-          title={LABELS.notices}
-          backTo="/notices"
-          backLabel={LABELS.notices}
-        />
+        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
         <LoadingState message="સૂચના વિગત લોડ થઈ રહી છે..." />
       </div>
     );
@@ -27,11 +23,7 @@ export function NoticeDetailPage() {
   if (!notice) {
     return (
       <div className="space-y-6 max-w-3xl">
-        <PageHeader
-          title={LABELS.notices}
-          backTo="/notices"
-          backLabel={LABELS.notices}
-        />
+        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
         <EmptyState
           icon={Newspaper}
           title="સૂચના મળી નથી."

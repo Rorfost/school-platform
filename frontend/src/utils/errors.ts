@@ -12,7 +12,10 @@ const ERROR_MESSAGES_GU: Record<string, string> = {
   network_error: "નેટવર્ક કનેક્શન તપાસો અને ફરી પ્રયત્ન કરો.",
 };
 
-export function getGujaratiErrorMessage(code?: string, fallback = "હમણાં વિનંતી પૂર્ણ થઈ શકી નથી. કૃપા કરીને ફરી પ્રયત્ન કરો."): string {
+export function getGujaratiErrorMessage(
+  code?: string,
+  fallback = "હમણાં વિનંતી પૂર્ણ થઈ શકી નથી. કૃપા કરીને ફરી પ્રયત્ન કરો.",
+): string {
   if (!code) {
     return fallback;
   }
