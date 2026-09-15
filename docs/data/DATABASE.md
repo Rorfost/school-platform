@@ -77,7 +77,7 @@ erDiagram
 
 `assessments`, `study_materials`, `notices`, `gallery_albums`, `gallery_images`, and `downloads` use `DRAFT`, `PUBLISHED`, and `ARCHIVED`. A draft cannot have lifecycle timestamps; published records require `published_at`; archived records require `archived_at`. Public queries must filter to `PUBLISHED` and observe parent visibility, such as an album's state for gallery images.
 
-Important academic and result records use `ON DELETE RESTRICT`. Their historical references must be archived rather than removed. Gallery images use `ON DELETE CASCADE` from their album because images have no independent meaning; service code may delete only a draft album after object-storage cleanup. The database intentionally does not attempt to coordinate object deletion with R2/S3.
+Important academic and result records use `ON DELETE RESTRICT`. Their historical references must be archived rather than removed. Gallery images use `ON DELETE CASCADE` from their album because images have no independent meaning; service code may delete only a draft album after object-storage cleanup. The database intentionally does not attempt to coordinate object deletion with ImageKit.
 
 ### Result PIN and privacy
 

@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
+import { ApiError } from "@/api/client";
+import { AuthProvider } from "@/features/auth/AuthContext";
 
 export function AppProviders({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -8,12 +10,24 @@ export function AppProviders({ children }: PropsWithChildren) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            retry: 1,
+            retry: (failureCount, error) => {
+              if (error instanceof ApiError) {
+                if ([400, 401, 403, 404, 422, 429].includes(error.status)) {
+                  return false;
+                }
+              }
+              return failureCount < 1;
+            },
             refetchOnWindowFocus: false,
+            staleTime: 1000 * 60 * 5,
           },
         },
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>{children}</AuthProvider>
+    </QueryClientProvider>
+  );
 }

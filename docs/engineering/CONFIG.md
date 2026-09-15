@@ -16,11 +16,12 @@ Use environment-based configuration only. Keep local, test, and production profi
 | `ADMIN_INITIAL_EMAIL`, `ADMIN_INITIAL_PASSWORD`, `ADMIN_INITIAL_SCHOOL_SLUG` | First-principal bootstrap inputs. All three must be present only after the selected school exists. The password is BCrypt-hashed, never logged, and is never used to overwrite an existing administrator. Remove it after bootstrap. |
 | `LOGIN_MAX_ATTEMPTS`, `LOGIN_ATTEMPT_WINDOW` | Optional local login limiter settings. Defaults are five failed attempts per direct client address in ten minutes. |
 | `APP_LOG_LEVEL` | Application package logging level. Do not use logging configuration to expose request bodies, credentials, PINs, or storage secrets. |
-| `R2_ENDPOINT`, `R2_REGION`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | S3-compatible endpoint, region, and credentials. |
-| `R2_PUBLIC_BUCKET`, `R2_PRIVATE_BUCKET`, `R2_PUBLIC_BASE_URL` | Storage locations and public asset base URL. |
+| `IMAGEKIT_PRIVATE_KEY` | Server-only ImageKit private API key for file upload, lookup, and deletion. |
+| `IMAGEKIT_URL_ENDPOINT` | Public ImageKit URL endpoint, such as `https://ik.imagekit.io/your_imagekit_id`. |
+| `PORT` | HTTP port supplied by Render; defaults to `8080` locally. |
 
 ## Frontend environment
 
 `VITE_API_BASE_URL` identifies the API base URL and `VITE_ASSET_BASE_URL` identifies public assets. Both are public configuration, not secret storage.
 
-`backend/.env.example` and `frontend/.env.example` show every currently consumed environment variable and non-secret local addresses. The backend's `application.yml` defines shared defaults; `application-local.yml`, `application-test.yml`, and `application-prod.yml` isolate environment behavior. Production configuration, including database, R2, and bootstrap secrets, belongs only in the deployment provider's protected environment facility. Production must use HTTPS and keep `SESSION_COOKIE_SECURE=true`; only the local profile defaults this setting to false.
+`backend/.env.example` and `frontend/.env.example` show every currently consumed environment variable and non-secret local addresses. The backend's `application.yml` defines shared defaults; `application-local.yml`, `application-test.yml`, and `application-prod.yml` isolate environment behavior. Production configuration, including database, ImageKit private key, and bootstrap secrets, belongs only in the deployment provider's protected environment facility. Production must use HTTPS and keep `SESSION_COOKIE_SECURE=true`; only the local profile defaults this setting to false.

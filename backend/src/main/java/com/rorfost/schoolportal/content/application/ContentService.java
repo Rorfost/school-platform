@@ -25,6 +25,7 @@ import com.rorfost.schoolportal.content.repository.GalleryAlbumRepository;
 import com.rorfost.schoolportal.content.repository.GalleryImageRepository;
 import com.rorfost.schoolportal.content.repository.NoticeRepository;
 import com.rorfost.schoolportal.content.repository.StudyMaterialRepository;
+import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,7 @@ public class ContentService {
   private final GalleryAlbumRepository albums;
   private final GalleryImageRepository images;
   private final DownloadRepository downloads;
+  private final SchoolRepository schools;
   private final AuditLogService audit;
 
   public ContentService(
@@ -53,6 +55,7 @@ public class ContentService {
       GalleryAlbumRepository albums,
       GalleryImageRepository images,
       DownloadRepository downloads,
+      SchoolRepository schools,
       AuditLogService audit) {
     this.storage = storage;
     this.materials = materials;
@@ -60,13 +63,14 @@ public class ContentService {
     this.albums = albums;
     this.images = images;
     this.downloads = downloads;
+    this.schools = schools;
     this.audit = audit;
   }
 
   @Transactional
   public MaterialResponse uploadMaterial(
       UUID school, UUID actor, MaterialMetadataRequest request, MultipartFile file) {
-    StoredObject object = storage.uploadPublicDocument("materials/" + school, file);
+    StoredObject object = storage.uploadPublicDocument(storagePrefix("materials", school), file);
     try {
       StudyMaterial item =
           materials.saveAndFlush(
@@ -103,7 +107,7 @@ public class ContentService {
   @Transactional
   public NoticeResponse attachNotice(UUID school, UUID actor, UUID id, MultipartFile file) {
     Notice item = noticeItem(school, id);
-    StoredObject object = storage.uploadPublicDocument("notices/" + school, file);
+    StoredObject object = storage.uploadPublicDocument(storagePrefix("notices", school), file);
     item.setAttachment(
         object.bucket(),
         object.objectKey(),
@@ -139,7 +143,7 @@ public class ContentService {
       MultipartFile file) {
     GalleryAlbum album = album(school, albumId);
     if (album.getStatus() == PublicationStatus.ARCHIVED) throw conflict("gallery_album_archived");
-    StoredObject object = storage.uploadPublicImage("gallery/" + school, file);
+    StoredObject object = storage.uploadPublicImage(storagePrefix("gallery", school), file);
     try {
       GalleryImage item =
           images.saveAndFlush(
@@ -166,7 +170,7 @@ public class ContentService {
   @Transactional
   public DownloadResponse uploadDownload(
       UUID school, UUID actor, DownloadMetadataRequest request, MultipartFile file) {
-    StoredObject object = storage.uploadPublicDocument("downloads/" + school, file);
+    StoredObject object = storage.uploadPublicDocument(storagePrefix("downloads", school), file);
     try {
       Download item =
           downloads.saveAndFlush(
@@ -351,6 +355,15 @@ public class ContentService {
 
   private DomainException conflict(String code) {
     return new DomainException(HttpStatus.CONFLICT, code);
+  }
+
+  private String storagePrefix(String category, UUID schoolId) {
+    String schoolSlug =
+        schools
+            .findById(schoolId)
+            .map(school -> school.getSlug())
+            .orElseThrow(() -> notFound("school_not_found"));
+    return category + "/" + schoolSlug;
   }
 
   private String trim(String value) {

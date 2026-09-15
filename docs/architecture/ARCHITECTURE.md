@@ -10,15 +10,15 @@ flowchart LR
   CF --> FE[React + Vite frontend\nCloudflare hosting]
   FE -->|HTTPS REST| BE[Spring Boot modular monolith\nRender Free initially]
   BE --> DB[(Aiven PostgreSQL)]
-  BE --> R2[Cloudflare R2\nobjects]
+  BE --> IK[ImageKit\npublic files]
 ```
 
 ## Components and boundaries
 
 - **Frontend:** React/Vite static SPA with a feature-oriented route/provider/API-client foundation, TanStack Query cache, Tailwind styling, and Gujarati-first shell. It never holds secrets.
-- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, `PRINCIPAL` session authentication, CSRF/CORS/security headers, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an S3-compatible storage abstraction. Feature packages are added only when their roadmap phase starts.
+- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, `PRINCIPAL` session authentication, CSRF/CORS/security headers, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an ImageKit-backed storage abstraction. Feature packages are added only when their roadmap phase starts.
 - **PostgreSQL:** relational source of truth, audit metadata, and Spring Session JDBC tables. Use Flyway for every schema change, `snake_case`, UUID external IDs, and `TIMESTAMPTZ` timestamps.
-- **Object storage:** an S3-compatible abstraction. Cloudflare R2 in production and MinIO locally. Database rows retain object keys and metadata, never binary file content.
+- **Object storage:** ImageKit for public files. Database rows retain object keys and metadata, never binary file content.
 
 ## Security boundary
 
@@ -31,10 +31,10 @@ flowchart LR
   B[Browser :5173] --> F[Vite dev server]
   F --> A[Spring Boot :8080]
   A --> P[(PostgreSQL :5432)]
-  A --> M[MinIO :9000]
+  A --> I[ImageKit]
 ```
 
-Docker Compose runs only PostgreSQL and MinIO; frontend and backend run natively for fast development. Flyway owns both Spring Session JDBC tables and the V1 domain schema. The database foundation is created before feature delivery so later feature work can use stable, tested constraints; controllers and workflows still arrive in their roadmap phases.
+Docker Compose runs only PostgreSQL; frontend and backend run natively for fast development. The backend connects to ImageKit using environment-provided credentials. Flyway owns both Spring Session JDBC tables and the V1 domain schema. The database foundation is created before feature delivery so later feature work can use stable, tested constraints; controllers and workflows still arrive in their roadmap phases.
 
 ## Intentional constraints
 
@@ -42,4 +42,4 @@ Redis is absent because one backend instance and JDBC-backed sessions are suffic
 
 ## Scaling path
 
-First improve indexes, caching of safe public content, file delivery through R2/CDN, and backend host capacity. If multiple backend instances become necessary, revisit session strategy, rate limiting, and operational needs with measured evidence. Split services only when a clear ownership, scaling, or reliability boundary outweighs the new complexity.
+First improve indexes, caching of safe public content, ImageKit/CDN file delivery, and backend host capacity. If multiple backend instances become necessary, revisit session strategy, rate limiting, and operational needs with measured evidence. Split services only when a clear ownership, scaling, or reliability boundary outweighs the new complexity.

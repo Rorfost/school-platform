@@ -4,17 +4,17 @@ A reusable, Gujarati-first school website and principal-admin portal for small s
 
 ## Current status
 
-The technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL/MinIO Compose setup, Flyway-owned V1 database architecture, PostgreSQL-backed `PRINCIPAL` authentication, persistence models, formatting, tests, and CI. Product workflows, operational school data, and result import remain future phases.
+The technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL Compose setup, Flyway-owned V1 database architecture, PostgreSQL-backed `PRINCIPAL` authentication, persistence models, formatting, tests, and CI. Product workflows, operational school data, and result import remain future phases.
 
 ## Architecture
 
-React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boot modular monolith. PostgreSQL stores relational data and session records; S3-compatible object storage stores files. Production direction is Cloudflare for frontend/DNS/R2, Render Free for the backend initially, and Aiven PostgreSQL.
+React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boot modular monolith. PostgreSQL stores relational data and session records; ImageKit stores public files. Production direction is Cloudflare for frontend/DNS, Render Free for the backend initially, ImageKit for public files, and Aiven PostgreSQL.
 
 ## Stack
 
 - Frontend: React, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, shadcn/ui where useful, Lucide
-- Backend: Spring Boot 4.x, Maven, Spring MVC, Spring Security, Spring Session JDBC, Spring Data JPA, Flyway, PostgreSQL, Apache POI (planned), AWS SDK v2 S3 client, Actuator
-- Local infrastructure: PostgreSQL and MinIO via Docker Compose
+- Backend: Spring Boot 4.x, Maven, Spring MVC, Spring Security, Spring Session JDBC, Spring Data JPA, Flyway, PostgreSQL, Apache POI (planned), ImageKit Java SDK, Actuator
+- Local infrastructure: PostgreSQL via Docker Compose
 
 ## Repository layout
 
@@ -31,7 +31,7 @@ docs/           Product, architecture, engineering, data, operations, and roadma
 2. Review [local development](docs/operations/LOCAL_DEVELOPMENT.md).
 3. Use the [roadmap](docs/planning/ROADMAP.md) to choose the next scoped phase.
 
-For local development, start PostgreSQL and MinIO with `docker compose up -d`, then run `npm run dev` in `frontend` and `mvn spring-boot:run -Dspring-boot.run.profiles=local` in `backend`. See the component READMEs for required local tools and commands.
+For local development, start PostgreSQL with `docker compose up -d`, then run `npm run dev` in `frontend` and `mvn spring-boot:run -Dspring-boot.run.profiles=local` in `backend`. See the component READMEs for required local tools and commands.
 
 ## Key principles
 
