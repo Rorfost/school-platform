@@ -96,7 +96,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       credentials: "include",
       body: finalBody,
     });
-  } catch (error) {
+  } catch {
     throw new ApiError(
       getGujaratiErrorMessage("network_error"),
       0,
