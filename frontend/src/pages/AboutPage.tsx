@@ -1,4 +1,4 @@
-import { Award, BookOpen, Calendar, CheckCircle2, Users } from "lucide-react";
+import { Award, BookOpen, Calendar } from "lucide-react";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";

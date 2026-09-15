@@ -17,7 +17,7 @@ import { ResultsInfoPage } from "@/pages/ResultsInfoPage";
 import { RouteErrorPage } from "@/pages/RouteErrorPage";
 import { StudentCornerPage } from "@/pages/StudentCornerPage";
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <PublicLayout />,
