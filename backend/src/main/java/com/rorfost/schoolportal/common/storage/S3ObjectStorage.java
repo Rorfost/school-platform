@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class S3ObjectStorage implements ObjectStorage {
   private final S3Client client;
@@ -39,6 +40,9 @@ public class S3ObjectStorage implements ObjectStorage {
       return true;
     } catch (NoSuchKeyException exception) {
       return false;
+    } catch (S3Exception exception) {
+      if (exception.statusCode() == 404) return false;
+      throw exception;
     }
   }
 }
