@@ -104,7 +104,7 @@ class StorageServiceTest {
   }
 
   private void assertUploadFailure(Runnable action, String code) {
-    assertThatThrownBy(action)
+    assertThatThrownBy(() -> action.run())
         .isInstanceOf(DomainException.class)
         .satisfies(
             exception -> assertThat(((DomainException) exception).getCode()).isEqualTo(code));
