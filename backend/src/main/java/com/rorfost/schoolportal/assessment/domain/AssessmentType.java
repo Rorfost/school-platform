@@ -14,4 +14,20 @@ public class AssessmentType extends UuidEntity {
   private boolean isActive;
 
   protected AssessmentType() {}
+
+  public String getCode() {
+    return code;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public short getSortOrder() {
+    return sortOrder;
+  }
+
+  public boolean isActive() {
+    return isActive;
+  }
 }

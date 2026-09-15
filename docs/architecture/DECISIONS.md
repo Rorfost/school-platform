@@ -42,6 +42,14 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 **Context:** the portal supports several assessment labels but the owner has not supplied the Excel workbook. **Decision:** seed generic assessment types and store only one numeric subject score model; do not create import tables, parser logic, totals, grades, absence fields, or workbook mappings. **Reason:** generic assessment structure is documented, while workbook-specific behavior is not. **Trade-offs:** future result-import work needs a new migration after workbook review. **Reconsider when:** the approved workbook contract defines required data.
 
+## V1 operational metadata and assessment publication
+
+**Context:** school configuration, content management, and generic assessment APIs need fields beyond the initial persistence boundary. **Decision:** add forward-only Flyway migration V6 for optional school and principal contact/profile fields, ordered standard-subject mappings, configured per-subject marks, notice pin/expiry, gallery covers, and material type. An assessment can publish only after its subject configuration is complete; result-data publication remains a separate future import/release decision. **Reason:** the first condition is known now, while the real workbook has not established result-data rules. **Trade-offs:** a later result-import migration may add a stricter publication gate. **Reconsider when:** the approved workbook contract defines it.
+
+## Storage upload policy and consistency
+
+**Context:** V1 needs public documents and images without treating object storage as a database. **Decision:** accept only signature-checked PDF, JPEG, PNG, and WebP uploads, generate UUID object keys, and retain original filename plus checksum in metadata. Upload callers compensate by deleting a newly stored object when metadata persistence fails; deletion removes storage before metadata so a storage failure retains the database reference for retry. **Reason:** it avoids executable uploads and obvious silent orphaning without a speculative cleanup subsystem. **Trade-offs:** a rare double failure requires operational reconciliation of bucket prefixes against metadata. **Reconsider when:** asynchronous cleanup or private upload workflows are approved.
+
 ## PostgreSQL integrity for school scope and lifecycle
 
 **Context:** one school runs initially, but reuse must be safe without an expensive redesign. **Decision:** retain `school_id` on important records, use composite foreign keys where relationships cross school-scoped tables, enforce publication/archive states and one current academic year in PostgreSQL. **Reason:** application code alone cannot reliably protect cross-school references or concurrent lifecycle changes. **Trade-offs:** selected tables carry integrity-key repetition and migrations are more detailed. **Reconsider when:** a confirmed multi-school authorization model needs a different ownership boundary.

@@ -8,4 +8,6 @@ public interface ObjectStorage {
       String bucket, String objectKey, InputStream content, long contentLength, String contentType);
 
   void delete(String bucket, String objectKey);
+
+  boolean exists(String bucket, String objectKey);
 }

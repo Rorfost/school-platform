@@ -23,4 +23,31 @@ public class Subject extends AuditableUuidEntity {
     this.name = name;
     this.sortOrder = sortOrder;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public short getSortOrder() {
+    return sortOrder;
+  }
+
+  public boolean isArchived() {
+    return isArchived;
+  }
+
+  public void update(String code, String name, short sortOrder, boolean archived) {
+    this.code = code;
+    this.name = name;
+    this.sortOrder = sortOrder;
+    this.isArchived = archived;
+  }
 }

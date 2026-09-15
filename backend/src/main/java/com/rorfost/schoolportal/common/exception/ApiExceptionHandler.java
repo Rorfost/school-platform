@@ -41,6 +41,11 @@ public class ApiExceptionHandler {
     return problem(HttpStatus.TOO_MANY_REQUESTS, "login_rate_limited", request);
   }
 
+  @ExceptionHandler(DomainException.class)
+  ProblemDetail handleDomainException(DomainException exception, HttpServletRequest request) {
+    return problem(exception.getStatus(), exception.getCode(), request);
+  }
+
   @ExceptionHandler(Exception.class)
   ProblemDetail handleUnexpectedException(Exception exception, HttpServletRequest request) {
     return problem(HttpStatus.INTERNAL_SERVER_ERROR, "internal_error", request);

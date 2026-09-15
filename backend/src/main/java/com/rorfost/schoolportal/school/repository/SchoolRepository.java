@@ -9,4 +9,6 @@ public interface SchoolRepository extends JpaRepository<School, UUID> {
   Optional<School> findBySlug(String slug);
 
   Optional<School> findFirstByOrderByCreatedAtAsc();
+
+  Optional<School> findFirstByIsActiveTrueOrderByCreatedAtAsc();
 }

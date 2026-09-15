@@ -23,4 +23,31 @@ public class Standard extends AuditableUuidEntity {
     this.displayName = displayName;
     this.sortOrder = sortOrder;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public short getSortOrder() {
+    return sortOrder;
+  }
+
+  public boolean isArchived() {
+    return isArchived;
+  }
+
+  public void update(String code, String displayName, short sortOrder, boolean archived) {
+    this.code = code;
+    this.displayName = displayName;
+    this.sortOrder = sortOrder;
+    this.isArchived = archived;
+  }
 }

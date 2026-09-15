@@ -39,4 +39,48 @@ public class AcademicYear extends AuditableUuidEntity {
     this.status = status;
     this.archivedAt = archivedAt;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public LocalDate getStartsOn() {
+    return startsOn;
+  }
+
+  public LocalDate getEndsOn() {
+    return endsOn;
+  }
+
+  public AcademicYearStatus getStatus() {
+    return status;
+  }
+
+  public Instant getArchivedAt() {
+    return archivedAt;
+  }
+
+  public boolean isArchived() {
+    return status == AcademicYearStatus.ARCHIVED;
+  }
+
+  public void update(String name, LocalDate startsOn, LocalDate endsOn) {
+    this.name = name;
+    this.startsOn = startsOn;
+    this.endsOn = endsOn;
+  }
+
+  public void archive(Instant archivedAt) {
+    this.status = AcademicYearStatus.ARCHIVED;
+    this.archivedAt = archivedAt;
+  }
+
+  public void markCurrent() {
+    this.status = AcademicYearStatus.CURRENT;
+    this.archivedAt = null;
+  }
 }
