@@ -1,7 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Noto Sans Gujarati", "Nirmala UI", system-ui, sans-serif;
+  --font-sans: "Noto Sans Gujarati", "Gujarati Sangam MN", "Nirmala UI", "Shruti", system-ui, -apple-system, sans-serif;
+
+  --color-brand-50: #f0f5ff;
+  --color-brand-100: #e0ebfe;
+  --color-brand-200: #bae0fd;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  --color-accent-50: #fef2f2;
+  --color-accent-100: #fee2e2;
+  --color-accent-600: #dc2626;
+  --color-accent-700: #b91c1c;
+  --color-accent-800: #991b1b;
+
+  --color-gold-50: #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-600: #d97706;
+  --color-gold-700: #b45309;
 }
 
 @layer base {
@@ -10,10 +30,11 @@
   }
 
   body {
-    @apply min-w-80 bg-stone-50 font-sans antialiased;
+    @apply min-w-80 bg-stone-50 font-sans text-slate-900 antialiased;
+    letter-spacing: 0.01em;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-emerald-700;
+    @apply outline-2 outline-offset-2 outline-blue-900;
   }
 }
