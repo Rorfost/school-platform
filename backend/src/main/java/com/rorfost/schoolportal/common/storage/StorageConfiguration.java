@@ -13,7 +13,10 @@ public class StorageConfiguration {
   @Bean(destroyMethod = "close")
   @Profile("!test")
   ImageKitClient imageKitClient() {
-    return ImageKitOkHttpClient.fromEnv();
+    String privateKey = System.getenv("IMAGEKIT_PRIVATE_KEY");
+    if (privateKey == null || privateKey.isBlank())
+      throw new IllegalStateException("IMAGEKIT_PRIVATE_KEY must be configured");
+    return ImageKitOkHttpClient.builder().privateKey(privateKey).build();
   }
 
   @Bean
