@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestIdFilter extends OncePerRequestFilter {
   private static final String HEADER_NAME = "X-Request-Id";
+  private static final Logger logger = LoggerFactory.getLogger(RequestIdFilter.class);
 
   @Override
   protected void doFilterInternal(
@@ -26,11 +29,20 @@ public class RequestIdFilter extends OncePerRequestFilter {
       requestId = UUID.randomUUID().toString();
     }
 
+    long startedAt = System.nanoTime();
     MDC.put("requestId", requestId);
     response.setHeader(HEADER_NAME, requestId);
     try {
       filterChain.doFilter(request, response);
     } finally {
+      long durationMillis = (System.nanoTime() - startedAt) / 1_000_000;
+      logger.info(
+          "request_complete requestId={} method={} route={} status={} durationMs={}",
+          requestId,
+          request.getMethod(),
+          request.getRequestURI(),
+          response.getStatus(),
+          durationMillis);
       MDC.remove("requestId");
     }
   }

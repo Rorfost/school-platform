@@ -20,7 +20,51 @@ public class AdminUser extends AuditableUuidEntity {
   private AdminRole role = AdminRole.PRINCIPAL;
 
   private boolean isActive = true;
+  private boolean mustChangePassword = true;
   private Instant lastLoginAt;
 
   protected AdminUser() {}
+
+  public AdminUser(UUID schoolId, String email, String passwordHash) {
+    this.schoolId = schoolId;
+    this.email = email;
+    this.passwordHash = passwordHash;
+  }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getPasswordHash() {
+    return passwordHash;
+  }
+
+  public AdminRole getRole() {
+    return role;
+  }
+
+  public boolean isActive() {
+    return isActive;
+  }
+
+  public boolean isMustChangePassword() {
+    return mustChangePassword;
+  }
+
+  public Instant getLastLoginAt() {
+    return lastLoginAt;
+  }
+
+  public void recordSuccessfulLogin(Instant occurredAt) {
+    lastLoginAt = occurredAt;
+  }
+
+  public void changePassword(String newPasswordHash) {
+    passwordHash = newPasswordHash;
+    mustChangePassword = false;
+  }
 }

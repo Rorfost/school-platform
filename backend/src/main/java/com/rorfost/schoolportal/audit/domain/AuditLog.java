@@ -28,4 +28,21 @@ public class AuditLog extends UuidEntity {
   private Instant createdAt;
 
   protected AuditLog() {}
+
+  public AuditLog(
+      UUID schoolId,
+      UUID actorAdminUserId,
+      AuditAction action,
+      String targetType,
+      UUID targetId,
+      String requestId,
+      String metadata) {
+    this.schoolId = schoolId;
+    this.actorAdminUserId = actorAdminUserId;
+    this.action = action.name();
+    this.targetType = targetType;
+    this.targetId = targetId;
+    this.requestId = requestId;
+    this.metadata = metadata;
+  }
 }

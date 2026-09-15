@@ -18,6 +18,9 @@ app:
     secret-access-key: test-secret-key
     public-bucket: test-public
     private-bucket: test-private
+  security:
+    login-max-attempts: 5
+    login-attempt-window: 10m
 
 management:
   endpoint:
