@@ -1,4 +1,4 @@
-import { GraduationCap, Lock, Mail, MapPin } from "lucide-react";
+import { Lock, Mail, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
