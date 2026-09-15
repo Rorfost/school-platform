@@ -1,12 +1,15 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dhadhana-school",
-  "compatibility_date": "2026-09-16",
-  "main": "./worker/index.ts",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
-    "run_worker_first": true,
-  },
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "dhadhana-school",
+    "compatibility_date": "2026-09-16",
+    "main": "./worker/index.ts",
+    "vars": {
+        "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com"
+    },
+    "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": true,
+    },
 }
