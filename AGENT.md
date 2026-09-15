@@ -5,7 +5,7 @@ This file applies to every developer and coding tool working in this repository.
 ## Before work
 
 1. Read this file, the root README, the PRD, architecture, decisions, and code rules.
-2. Read documentation relevant to the task.
+2. Read documentation relevant to the task (a lil bit from web and from Root/docs folder).
 3. Check the current branch and `git status`.
 4. Review relevant recent commits before changing existing code.
 
