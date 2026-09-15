@@ -12,7 +12,7 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 
 ## Phase 2 — Principal authentication
 
-**Goal:** protect administration. **Scope:** bootstrap, Spring Security, Spring Session JDBC, login/logout, password change, protected admin shell, CSRF. **Dependencies:** Phase 0 and approved bootstrap/credential handling. **Deliverables:** sole `PRINCIPAL` role and audited auth lifecycle. **Tests:** login/logout, protected routes, CSRF, cookie flags, password validation. **Definition of Done:** unauthenticated users cannot access admin operations and sessions behave correctly in production configuration.
+**Goal:** protect administration. **Scope:** bootstrap, Spring Security, Spring Session JDBC, login/logout, password change, protected admin shell, CSRF. **Dependencies:** Phase 0 and approved bootstrap/credential handling. **Deliverables:** sole `PRINCIPAL` role and audited auth lifecycle. **Tests:** login/logout, protected routes, CSRF, cookie flags, password validation. **Definition of Done:** unauthenticated users cannot access admin operations and sessions behave correctly in production configuration. **Status:** backend authentication foundation complete; the admin shell arrives with its frontend phase.
 
 ## Phase 3 — Academic configuration
 

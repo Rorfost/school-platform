@@ -53,3 +53,15 @@ Each decision is intentional and may be revisited only when a concrete requireme
 ## Testcontainers 2.x for current Docker engines
 
 **Context:** the existing Testcontainers 1.21.3 client cannot negotiate with the installed Docker Engine 29 API, blocking PostgreSQL persistence tests. **Decision:** use the current Testcontainers 2.x test-only modules. **Reason:** it supports current Docker engine behavior while retaining disposable PostgreSQL integration tests. **Trade-offs:** module artifact names use the 2.x `testcontainers-` prefix. **Reconsider when:** the project standardizes on a managed dependency version that provides the same compatibility.
+
+## Principal session authentication in PostgreSQL
+
+**Context:** the browser-based admin panel needs revocable server-side authentication while the first deployment remains a single instance with a limited operational footprint. **Decision:** use Spring Security, Spring Session JDBC, PostgreSQL, BCrypt, and the sole `PRINCIPAL` role. **Reason:** this provides secure session invalidation, durable sessions, and adaptive password hashing without JWT or Redis. **Trade-offs:** each authenticated request reads session state from PostgreSQL. **Reconsider when:** measured multi-instance scale needs a dedicated session store.
+
+## Explicit CSRF and bootstrap boundaries
+
+**Context:** cookie authentication needs browser request protection, and `admin_users` correctly requires an existing school. **Decision:** keep CSRF enabled through a token endpoint and require email, password, and school slug for first-principal bootstrap. Bootstrap creates only when no administrator exists and never updates existing credentials. **Reason:** the SPA has an explicit CSRF contract and the bootstrap cannot silently create speculative school data. **Trade-offs:** initial deployment must create the school record before enabling bootstrap. **Reconsider when:** a documented school-provisioning workflow is implemented.
+
+## Local login rate limiter
+
+**Context:** repeated authentication attempts need a bounded control before any distributed infrastructure is justified. **Decision:** use a configurable in-memory rolling-window limiter keyed by direct client address. **Reason:** it protects the only current authentication endpoint without adding Redis or another service. **Trade-offs:** limits reset on restart and do not coordinate across instances. **Reconsider when:** deployment topology has more than one backend instance or measured abuse requires a shared control.

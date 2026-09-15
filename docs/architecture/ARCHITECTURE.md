@@ -16,13 +16,13 @@ flowchart LR
 ## Components and boundaries
 
 - **Frontend:** React/Vite static SPA with a feature-oriented route/provider/API-client foundation, TanStack Query cache, Tailwind styling, and Gujarati-first shell. It never holds secrets.
-- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, security baseline, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an S3-compatible storage abstraction. Feature packages are added only when their roadmap phase starts.
+- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, `PRINCIPAL` session authentication, CSRF/CORS/security headers, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an S3-compatible storage abstraction. Feature packages are added only when their roadmap phase starts.
 - **PostgreSQL:** relational source of truth, audit metadata, and Spring Session JDBC tables. Use Flyway for every schema change, `snake_case`, UUID external IDs, and `TIMESTAMPTZ` timestamps.
 - **Object storage:** an S3-compatible abstraction. Cloudflare R2 in production and MinIO locally. Database rows retain object keys and metadata, never binary file content.
 
 ## Security boundary
 
-Only the backend connects to PostgreSQL and object storage. The implemented security baseline denies all backend routes except health and future public API paths. Phase 2 will authenticate the initial `PRINCIPAL` role; Spring Session JDBC is already configured to store those future server-side sessions in PostgreSQL. Public endpoints remain narrowly scoped. Individual result retrieval must eventually resist enumeration and return `Cache-Control: no-store`.
+Only the backend connects to PostgreSQL and object storage. The initial `PRINCIPAL` role authenticates through BCrypt and PostgreSQL-backed Spring Session JDBC records. Public routes and health remain narrowly scoped, while other admin routes require the principal session and CSRF on mutation. Individual result retrieval must eventually resist enumeration and return `Cache-Control: no-store`.
 
 ## Local architecture
 

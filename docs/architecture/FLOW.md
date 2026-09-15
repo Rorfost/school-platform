@@ -4,9 +4,25 @@
 
 Browser requests the frontend through Cloudflare; the React app requests only public REST data needed for the page. Public assets are delivered through configured storage/CDN paths. Public data must not reveal admin or private result information.
 
-## Planned Phase 2: principal login and session
+## Principal login and session
 
-The principal will submit credentials over HTTPS. Spring Security will verify the BCrypt password hash, create a server-side Spring Session JDBC record, and return a protected cookie. Admin requests will include CSRF protection and be authorized as `PRINCIPAL`; logout will invalidate the server-side session. The current foundation configures the session schema and security boundary only; it does not implement this flow.
+```mermaid
+sequenceDiagram
+  participant B as Browser SPA
+  participant A as Spring Boot API
+  participant P as PostgreSQL
+  B->>A: GET /api/v1/admin/auth/csrf
+  A-->>B: XSRF-TOKEN cookie and token/header name
+  B->>A: POST /login with CSRF header and credentials
+  A->>P: Verify active principal and BCrypt hash
+  A->>P: Save LOGIN_SUCCESS audit event
+  A->>P: Persist Spring Session JDBC record
+  A-->>B: HttpOnly session cookie and safe account view
+  B->>A: Protected request with session cookie and CSRF on mutation
+  A->>P: Load server-side session
+```
+
+The server rotates the session ID at login and password change. Logout invalidates the JDBC session. Login failure is generic and rate-limited; submitted credentials are not logged. The frontend maps error codes to Gujarati text.
 
 ## Content and files
 

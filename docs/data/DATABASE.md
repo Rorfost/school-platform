@@ -6,7 +6,7 @@ This document describes the implemented V1 schema. The only executable schema so
 backend/src/main/resources/db/migration/
 ```
 
-`V1__create_spring_session_tables.sql` owns Spring Session JDBC tables. `V2__create_domain_schema.sql` creates the domain schema, `V3__seed_assessment_types.sql` inserts stable generic assessment types, and `V4__add_domain_indexes.sql` adds query-focused indexes. Do not maintain a second schema script.
+`V1__create_spring_session_tables.sql` owns Spring Session JDBC tables. `V2__create_domain_schema.sql` creates the domain schema, `V3__seed_assessment_types.sql` inserts stable generic assessment types, `V4__add_domain_indexes.sql` adds query-focused indexes, and `V5__add_admin_authentication_lifecycle.sql` adds the principal password-change lifecycle. Do not maintain a second schema script.
 
 All domain identifiers are UUIDs, timestamps are `TIMESTAMPTZ`, and database names are `snake_case`. Hibernate validates this schema but never creates or updates it.
 
@@ -45,7 +45,7 @@ erDiagram
 | --- | --- |
 | `schools` | Reusable school identity and public contact/branding metadata. The lowercase URL-safe `slug` is unique. A school cannot be deleted while it owns V1 records. |
 | `principal_profiles` | One optional public principal profile per school. `school_id` is unique. |
-| `admin_users` | Future principal authentication identity. Email is lowercase and unique within a school. The only allowed V1 role is `PRINCIPAL`; password hashes are never exposed by APIs. |
+| `admin_users` | Principal authentication identity. Email is lowercase and unique within a school. The only allowed V1 role is `PRINCIPAL`; BCrypt password hashes are never exposed by APIs. `must_change_password` starts true for bootstrap accounts and is cleared only after a successful password change. |
 | `academic_years` | School-owned date-bounded years. `CURRENT` and `ARCHIVED` are the only states; a partial unique index permits only one current year per school. Archiving requires `archived_at`. |
 | `standards` | School-configured standard code, display name, ordering, and archive flag. V1 does not seed standards because operational school configuration must not enter shared migrations. |
 | `subjects` | School-configured normalized uppercase code, name, ordering, and archive flag. Case-insensitive duplicate names are rejected per school. |
@@ -60,7 +60,7 @@ erDiagram
 | `gallery_albums` | School gallery groups with publication lifecycle. |
 | `gallery_images` | Ordered image metadata and required accessible alt text. Image order is unique inside an album. |
 | `downloads` | Published document/timetable-style file metadata, optionally scoped to an academic year. `category` remains free text until a product vocabulary is approved. |
-| `audit_logs` | Append-only administrative event record: safe action/target metadata, request ID, and optional actor. Metadata must be a JSON object and must not contain credentials, PINs, or sensitive payloads. |
+| `audit_logs` | Append-only administrative event record: safe action/target metadata, request ID, and optional actor. The implemented actions are `LOGIN_SUCCESS`, `LOGIN_FAILED`, and `PASSWORD_CHANGED`. Metadata must be a JSON object and must not contain credentials, PINs, cookies, session IDs, or sensitive payloads. |
 | `spring_session`, `spring_session_attributes` | Spring Session JDBC implementation tables. They are not domain tables; deleting a session cascades only to its attributes. |
 
 ## Integrity and lifecycle rules
@@ -115,6 +115,6 @@ Future services, not controllers, own transactions.
 
 ## Implemented versus deliberately deferred
 
-Implemented: relational structure, status constraints, object metadata, generic numeric marks, password-style result-PIN storage, audit storage, stable assessment-type seeds, JPA model/repository boundaries, PostgreSQL migration testing, and conservative connection-pool configuration.
+Implemented: relational structure, status constraints, object metadata, generic numeric marks, password-style result-PIN storage, principal-password lifecycle, JDBC session storage, authentication audit storage, stable assessment-type seeds, JPA model/repository boundaries, PostgreSQL migration testing, and conservative connection-pool configuration.
 
-Deferred: controllers, authentication/bootstrap execution, file upload policies, object lifecycle jobs, result import records, Excel parsing, result calculations, maximum/passing marks, grades, attendance/absence representation, public result lookup, and any school-specific operational data. A future requirement must add these through new Flyway migrations; applied migrations are never edited.
+Deferred: file upload policies, object lifecycle jobs, result import records, Excel parsing, result calculations, maximum/passing marks, grades, attendance/absence representation, public result lookup, and any school-specific operational data. A future requirement must add these through new Flyway migrations; applied migrations are never edited.
