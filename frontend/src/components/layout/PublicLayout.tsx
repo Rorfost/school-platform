@@ -1,12 +1,18 @@
 import { Outlet } from "react-router-dom";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { SkipToContent } from "@/components/common/SkipToContent";
 
 export function PublicLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-stone-50 text-slate-900">
+      <SkipToContent targetId="main-content" />
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10 focus:outline-none"
+      >
         <Outlet />
       </main>
       <Footer />
