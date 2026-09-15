@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: CI Pipeline
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend checks
+    name: Frontend-CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -29,7 +29,7 @@ jobs:
       - run: npm run build
 
   backend:
-    name: Backend checks
+    name: Backend-CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,7 +44,7 @@ jobs:
       - run: mvn -B verify
 
   infrastructure:
-    name: Infrastructure checks
+    name: Infra-CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
