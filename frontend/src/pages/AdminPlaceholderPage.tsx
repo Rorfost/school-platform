@@ -1,6 +1,6 @@
 import { AlertTriangle, CheckCircle2, Shield, User } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/Card";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function AdminPlaceholderPage() {

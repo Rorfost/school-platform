@@ -7,7 +7,7 @@ import { z } from "zod";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 const loginSchema = z.object({

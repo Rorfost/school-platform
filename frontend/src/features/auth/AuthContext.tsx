@@ -1,7 +1,6 @@
 import {
   createContext,
   useCallback,
-  useContext,
   type PropsWithChildren,
 } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +8,7 @@ import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalAccountResponse } from "@/api/types";
 
-interface AuthContextValue {
+export interface AuthContextValue {
   principal: PrincipalAccountResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -18,7 +17,8 @@ interface AuthContextValue {
   refetchSession: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
@@ -84,12 +84,4 @@ export function AuthProvider({ children }: PropsWithChildren) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { LoadingState } from "@/components/common/StatusPanel";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/useAuth";
 
 export function RequireAdmin() {
   const { isAuthenticated, isLoading } = useAuth();
