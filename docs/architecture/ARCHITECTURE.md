@@ -34,7 +34,7 @@ flowchart LR
   A --> M[MinIO :9000]
 ```
 
-Docker Compose runs only PostgreSQL and MinIO; frontend and backend run natively for fast development. The only initial Flyway migration creates Spring Session JDBC tables; domain schema migrations wait for their corresponding feature phase.
+Docker Compose runs only PostgreSQL and MinIO; frontend and backend run natively for fast development. Flyway owns both Spring Session JDBC tables and the V1 domain schema. The database foundation is created before feature delivery so later feature work can use stable, tested constraints; controllers and workflows still arrive in their roadmap phases.
 
 ## Intentional constraints
 

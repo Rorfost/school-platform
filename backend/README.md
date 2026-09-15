@@ -1,6 +1,6 @@
 # Backend
 
-The backend is a Java 21 Spring Boot 4.x Maven modular-monolith foundation. It includes configuration, secure defaults, Flyway-owned Spring Session JDBC schema, an S3-compatible object-storage abstraction, request IDs, `ProblemDetail` exception handling, and a restricted Actuator health endpoint. It intentionally contains no domain feature, login flow, result parsing, or Excel assumptions.
+The backend is a Java 21 Spring Boot 4.x Maven modular monolith foundation. It includes configuration, secure defaults, Flyway-owned Spring Session JDBC and V1 domain schema, feature-oriented JPA persistence boundaries, an S3-compatible object-storage abstraction, request IDs, `ProblemDetail` exception handling, and a restricted Actuator health endpoint. It intentionally contains no controllers, login flow, result parsing, or Excel assumptions.
 
 ## Commands
 
@@ -24,4 +24,4 @@ Profiles are `local`, `test`, and `prod`. `application.yml` contains shared safe
 - `common/storage` — provider-neutral object storage interface and S3 implementation
 - `common/exception` — API error and request identifier foundation
 
-Feature packages are added only when their roadmap phase begins. See the root [README](../README.md) and [engineering documentation](../docs/engineering/CODE_RULES.md).
+The `school`, `academic`, `assessment`, `content`, and `audit` packages provide V1 persistence models and repositories only. Services and HTTP adapters remain feature-phase work. See the root [README](../README.md) and [engineering documentation](../docs/engineering/CODE_RULES.md).

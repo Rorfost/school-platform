@@ -4,7 +4,7 @@ A reusable, Gujarati-first school website and principal-admin portal for small s
 
 ## Current status
 
-Phase 0 technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL/MinIO Compose setup, Flyway session migration, formatting, tests, and CI. No product modules, authentication flow, school-specific configuration, or result-import implementation exists yet.
+The technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL/MinIO Compose setup, Flyway-owned V1 database architecture, persistence models, formatting, tests, and CI. No product controllers, authentication flow, operational school data, or result-import implementation exists yet.
 
 ## Architecture
 
@@ -22,7 +22,6 @@ React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boo
 frontend/       React/Vite static application shell
 backend/        Spring Boot modular-monolith foundation
 docs/           Product, architecture, engineering, data, operations, and roadmap docs
-infrastructure/ Infrastructure boundary and local-stack guidance
 .github/        CI and dependency-management configuration
 ```
 
