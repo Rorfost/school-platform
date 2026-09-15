@@ -4,7 +4,7 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 
 ## Phase 0 — Foundation
 
-**Goal:** create a runnable, documented baseline. **Scope:** repository, React/Vite and Spring Boot scaffolds, PostgreSQL/MinIO abstraction, Docker, Flyway, CI, baseline tests, and environment setup. **Dependencies:** this documentation. **Deliverables:** component build files, restricted health endpoint, Spring Session JDBC migration, CI workflows, local setup. **Tests:** frontend lint/typecheck/test/build; backend verify; infrastructure smoke test. **Definition of Done:** a new developer can start local infrastructure and both apps using documented commands. **Status:** initialized; keep Phase 0 checks healthy while beginning later phases.
+**Goal:** create a runnable, documented baseline. **Scope:** repository, React/Vite and Spring Boot scaffolds, PostgreSQL and ImageKit abstraction, Docker, Flyway, CI, baseline tests, and environment setup. **Dependencies:** this documentation. **Deliverables:** component build files, restricted health endpoint, Spring Session JDBC migration, CI workflows, local setup. **Tests:** frontend lint/typecheck/test/build; backend verify; infrastructure smoke test. **Definition of Done:** a new developer can start local infrastructure and both apps using documented commands. **Status:** initialized; keep Phase 0 checks healthy while beginning later phases.
 
 ## Phase 1 — Public school website
 
@@ -52,7 +52,7 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 
 ## Current backend status
 
-- **DONE:** principal authentication/session foundation, Flyway/PostgreSQL foundation, school/profile APIs, academic configuration APIs, generic assessment configuration, S3-compatible storage abstraction, and health/security baseline.
+- **DONE:** principal authentication/session foundation, Flyway/PostgreSQL foundation, school/profile APIs, academic configuration APIs, generic assessment configuration, ImageKit-backed storage abstraction, and health/security baseline.
 - **IN PROGRESS:** materials, notices, gallery, and download API lifecycle coverage; their public API foundation is implemented but complete feature-level integration coverage is not.
 - **BLOCKED — INPUT REQUIRED:** Tri-masik Ekam Kasoti import and secure result lookup. The observed workbook has no privacy-safe school-controlled student identifier or PIN. See `docs/data/RESULT_IMPORT.md`.
 

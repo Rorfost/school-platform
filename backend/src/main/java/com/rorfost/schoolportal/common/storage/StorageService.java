@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class StorageService {
+  static final String IMAGEKIT_STORAGE_BUCKET = "imagekit";
   private static final Set<String> DOCUMENT_TYPES = Set.of("application/pdf");
   private static final Set<String> IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
   private final ObjectStorage storage;
@@ -37,9 +38,10 @@ public class StorageService {
   }
 
   public String publicUrl(String objectKey) {
-    if (properties.publicBaseUrl() == null)
+    validateKey(objectKey);
+    if (properties.urlEndpoint() == null || properties.urlEndpoint().isBlank())
       throw new DomainException(HttpStatus.SERVICE_UNAVAILABLE, "public_storage_url_unavailable");
-    return properties.publicBaseUrl().toString().replaceAll("/$", "") + "/" + objectKey;
+    return properties.urlEndpoint().replaceAll("/$", "") + "/" + objectKey;
   }
 
   public void delete(StoredObject object) {
@@ -70,22 +72,23 @@ public class StorageService {
       byte[] bytes = file.getBytes();
       if (!hasExpectedSignature(bytes, type))
         throw new DomainException(HttpStatus.BAD_REQUEST, "upload_content_invalid");
-      String key = prefix + "/" + UUID.randomUUID();
+      String key = prefix + "/" + UUID.randomUUID() + extension(type);
+      validateKey(key);
       storage.put(
-          properties.publicBucket(),
+          IMAGEKIT_STORAGE_BUCKET,
           key,
           new java.io.ByteArrayInputStream(bytes),
           bytes.length,
           type);
       return new StoredObject(
-          properties.publicBucket(), key, filename, type, bytes.length, sha256(bytes));
+          IMAGEKIT_STORAGE_BUCKET, key, filename, type, bytes.length, sha256(bytes));
     } catch (IOException exception) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "upload_unreadable");
     }
   }
 
   private void validateKey(String key) {
-    if (key == null || !key.matches("^[a-z0-9][a-z0-9/_-]{0,510}$") || key.contains(".."))
+    if (key == null || !key.matches("^[a-z0-9][a-z0-9/_.-]{0,510}$") || key.contains(".."))
       throw new DomainException(HttpStatus.BAD_REQUEST, "storage_key_invalid");
   }
 
@@ -141,6 +144,16 @@ public class StorageService {
         && bytes[9] == 'E'
         && bytes[10] == 'B'
         && bytes[11] == 'P';
+  }
+
+  private String extension(String type) {
+    return switch (type) {
+      case "application/pdf" -> ".pdf";
+      case "image/jpeg" -> ".jpg";
+      case "image/png" -> ".png";
+      case "image/webp" -> ".webp";
+      default -> throw new IllegalArgumentException("Unsupported content type");
+    };
   }
 
   private String sha256(byte[] value) {

@@ -29,6 +29,7 @@ spring:
       max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:12MB}
 
 server:
+  port: ${PORT:8080}
   forward-headers-strategy: framework
   servlet:
     session:
@@ -65,10 +66,4 @@ app:
     max-file-size: ${UPLOAD_MAX_FILE_SIZE:10MB}
     max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:12MB}
   storage:
-    endpoint: ${R2_ENDPOINT:}
-    region: ${R2_REGION:auto}
-    access-key-id: ${R2_ACCESS_KEY_ID}
-    secret-access-key: ${R2_SECRET_ACCESS_KEY}
-    public-bucket: ${R2_PUBLIC_BUCKET}
-    private-bucket: ${R2_PRIVATE_BUCKET}
-    public-base-url: ${R2_PUBLIC_BASE_URL:}
+    url-endpoint: ${IMAGEKIT_URL_ENDPOINT:}

@@ -18,7 +18,7 @@ Assessments are one generic domain with types such as `EKAM_KASOTI`, `UNIT_TEST`
 
 ## V1 scope
 
-V1 is a small, single-principal portal with public content and individual public result lookup. It uses a React frontend, Spring Boot modular monolith, PostgreSQL, and S3-compatible file storage. Students do not authenticate. Public result lookup will eventually use academic year, standard, assessment, roll number, and a result PIN; details remain subject to the supplied result workflow.
+V1 is a small, single-principal portal with public content and individual public result lookup. It uses a React frontend, Spring Boot modular monolith, PostgreSQL, and ImageKit file storage. Students do not authenticate. Public result lookup will eventually use academic year, standard, assessment, roll number, and a result PIN; details remain subject to the supplied result workflow.
 
 ## Excluded from V1
 

@@ -14,9 +14,9 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 **Context:** Academic data, configuration, and results are relational and auditable. **Decision:** PostgreSQL with every schema change through Flyway. **Reason:** transactions, relationships, constraints, and reliable migrations. **Trade-offs:** schema discipline is required. **Reconsider when:** a documented data requirement no longer fits relational storage.
 
-## R2-compatible object storage
+## ImageKit public file storage
 
-**Context:** Images and documents should not be database blobs. **Decision:** Cloudflare R2 in production, MinIO locally, via AWS SDK v2 S3 abstraction. **Reason:** portable object keys and inexpensive file delivery. **Trade-offs:** storage coordination and cleanup are required. **Reconsider when:** file access or compliance needs change.
+**Context:** Images and documents should not be database blobs. **Decision:** ImageKit for public files, behind the existing object-storage interface. **Reason:** managed uploads and public delivery without maintaining local object-storage infrastructure. **Trade-offs:** deletion and existence checks resolve the exact ImageKit asset path before operating on its file ID. **Reconsider when:** file access or compliance needs change.
 
 ## Spring Session JDBC; no Redis initially
 
@@ -32,7 +32,7 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 ## Production direction and local parity
 
-**Context:** keep initial hosting inexpensive and portable. **Decision:** Cloudflare frontend/DNS/R2, Render Free backend initially, Aiven PostgreSQL; MinIO locally. **Reason:** managed services with no provider-specific application design. **Trade-offs:** Render Free availability limitations. **Reconsider when:** reliability, cost, or region requirements change.
+**Context:** keep initial hosting inexpensive and portable. **Decision:** Cloudflare frontend/DNS, Render Free backend initially, Aiven PostgreSQL, and ImageKit public storage. **Reason:** managed services with no provider-specific application design. **Trade-offs:** Render Free availability limitations. **Reconsider when:** reliability, cost, or region requirements change.
 
 ## V1 database foundation before feature workflows
 

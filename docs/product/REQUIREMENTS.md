@@ -21,7 +21,7 @@
 | NFR-002 | Support keyboard access, semantic HTML, labels, focus visibility, useful alt text, contrast, logical headings, and touch-friendly controls. |
 | NFR-003 | Design public pages mobile-first, then tablet and desktop. |
 | NFR-004 | Keep a simple modular monolith that is maintainable by a small team and suitable for 100–500 users. |
-| NFR-005 | Use PostgreSQL/Flyway for relational data and an S3-compatible store for files; do not store binary files in PostgreSQL. |
+| NFR-005 | Use PostgreSQL/Flyway for relational data and ImageKit for public files; do not store binary files in PostgreSQL. |
 | NFR-006 | Maintain auditable admin and sensitive bulk actions, backups, recovery checks, and production-safe logging. |
 | NFR-007 | Use Gujarati-first, simple, natural UI copy for all visible user interactions. |
 | NFR-008 | Validate upload type and size server-side. Exact allowed types and limits are an implementation-time policy decision to document before enabling uploads. |
