@@ -1,18 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import { Camera, Image as ImageIcon } from "lucide-react";
-import { apiRequest } from "@/api/client";
-import { queryKeys } from "@/api/queryKeys";
-import type { GalleryAlbumResponse, PageResponse } from "@/api/types";
+import { Camera, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { usePublicGalleryAlbums } from "@/features/public/usePublicContent";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
 
 export function GalleryPage() {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: queryKeys.galleryAlbums({ page: 0, size: 20 }),
-    queryFn: () => apiRequest<PageResponse<GalleryAlbumResponse>>("/api/v1/public/gallery/albums?page=0&size=20"),
-  });
+  const { data, isLoading, error, refetch } = usePublicGalleryAlbums(0, 50);
 
   const albums = data?.items ?? [];
 
@@ -38,19 +33,29 @@ export function GalleryPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {albums.map((album) => (
-            <Card key={album.id} variant="interactive" className="overflow-hidden p-0">
-              <div className="aspect-video bg-slate-100 flex items-center justify-center text-slate-400">
-                <ImageIcon size={32} aria-hidden="true" />
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-slate-900 text-base">{album.title}</h3>
-                {album.description && (
-                  <p className="mt-1 text-xs sm:text-sm text-slate-600 line-clamp-2">
-                    {album.description}
-                  </p>
-                )}
-              </div>
-            </Card>
+            <Link key={album.id} to={`/gallery/${album.id}`} className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 rounded-xl">
+              <Card variant="interactive" className="overflow-hidden p-0 h-full flex flex-col justify-between">
+                <div>
+                  <div className="aspect-video bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center text-blue-900/60 group-hover:text-blue-900 transition-colors">
+                    <ImageIcon size={40} aria-hidden="true" />
+                  </div>
+                  <div className="p-4 sm:p-5">
+                    <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-900 transition-colors">
+                      {album.title}
+                    </h3>
+                    {album.description && (
+                      <p className="mt-1.5 text-xs sm:text-sm text-slate-600 line-clamp-2 leading-relaxed">
+                        {album.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-semibold text-blue-900">
+                  <span>ફોટાઓ જુઓ</span>
+                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

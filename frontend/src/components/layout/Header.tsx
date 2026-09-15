@@ -10,7 +10,7 @@ import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 const NAV_LINKS = [
   { to: "/", label: LABELS.home },
   { to: "/about", label: LABELS.about },
-  { to: "/student", label: LABELS.studentCorner },
+  { to: "/principal", label: LABELS.principalDesk },
   { to: "/notices", label: LABELS.notices },
   { to: "/gallery", label: LABELS.gallery },
   { to: "/contact", label: LABELS.contact },

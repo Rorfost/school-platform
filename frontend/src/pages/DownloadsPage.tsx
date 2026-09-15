@@ -51,11 +51,20 @@ export function DownloadsPage() {
                 </div>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span>{item.originalFilename}</span>
-                <span className="font-medium text-blue-900 flex items-center gap-1">
-                  <Download size={13} aria-hidden="true" />
-                  <span>ડાઉનલોડ</span>
-                </span>
+                <span>{item.filename}</span>
+                {item.url ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-blue-900 hover:underline flex items-center gap-1"
+                  >
+                    <Download size={13} aria-hidden="true" />
+                    <span>ડાઉનલોડ</span>
+                  </a>
+                ) : (
+                  <span className="font-medium text-slate-400">ડાઉનલોડ</span>
+                )}
               </div>
             </Card>
           ))}

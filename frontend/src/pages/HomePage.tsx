@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   BookOpen,
@@ -12,9 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { apiRequest } from "@/api/client";
-import { queryKeys } from "@/api/queryKeys";
-import type { NoticeResponse, PageResponse } from "@/api/types";
+import { usePublicNotices } from "@/features/public/usePublicContent";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -23,12 +20,7 @@ import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function HomePage() {
   const school = useEffectiveSchoolInfo();
-
-  const { data: noticesData } = useQuery({
-    queryKey: queryKeys.notices({ page: 0, size: 3 }),
-    queryFn: () => apiRequest<PageResponse<NoticeResponse>>("/api/v1/public/notices?page=0&size=3"),
-  });
-
+  const { data: noticesData } = usePublicNotices(0, 3);
   const recentNotices = noticesData?.items ?? [];
 
   const studentShortcuts = [
@@ -193,16 +185,21 @@ export function HomePage() {
                   <div className="flex items-center gap-2.5">
                     <FileText className="text-blue-900 shrink-0" size={18} aria-hidden="true" />
                     <h3 className="text-base font-semibold text-slate-900">{notice.title}</h3>
+                    {notice.pinned && (
+                      <Badge variant="primary" size="sm">
+                        મહત્વપૂર્ણ
+                      </Badge>
+                    )}
                   </div>
-                  {notice.publishedAt && (
+                  {notice.expiresAt && (
                     <div className="flex items-center gap-1 text-xs text-slate-500 shrink-0">
                       <Calendar size={13} aria-hidden="true" />
-                      <span>{notice.publishedAt.slice(0, 10)}</span>
+                      <span>મુદત: {notice.expiresAt.slice(0, 10)}</span>
                     </div>
                   )}
                 </div>
                 <p className="mt-2 text-sm text-slate-600 line-clamp-2 leading-relaxed">
-                  {notice.content}
+                  {notice.body}
                 </p>
               </Card>
             ))}

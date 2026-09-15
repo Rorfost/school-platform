@@ -57,63 +57,63 @@ export interface PageResponse<T> {
   items: T[];
   page: number;
   size: number;
-  totalElements: number;
+  totalItems: number;
   totalPages: number;
-  first: boolean;
-  last: boolean;
 }
 
 export interface NoticeResponse {
   id: string;
   title: string;
-  content: string;
-  isPinned: boolean;
-  publishedAt: string | null;
+  body: string;
+  pinned: boolean;
+  expiresAt: string | null;
   attachmentFilename: string | null;
-  attachmentContentType: string | null;
-  attachmentObjectKey: string | null;
+  attachmentUrl: string | null;
+  status: string;
 }
 
 export interface MaterialResponse {
   id: string;
   title: string;
   description: string | null;
-  standardSubjectId: string | null;
+  materialType: string;
   academicYearId: string | null;
-  objectKey: string;
-  originalFilename: string;
+  standardSubjectId: string | null;
+  filename: string;
   contentType: string;
-  sizeBytes: number;
-  publishedAt: string | null;
+  byteSize: number;
+  url: string;
+  status: string;
 }
 
 export interface DownloadResponse {
   id: string;
   title: string;
+  description: string | null;
   category: string | null;
   academicYearId: string | null;
-  objectKey: string;
-  originalFilename: string;
+  filename: string;
   contentType: string;
-  sizeBytes: number;
-  publishedAt: string | null;
+  byteSize: number;
+  url: string;
+  status: string;
 }
 
 export interface GalleryAlbumResponse {
   id: string;
   title: string;
   description: string | null;
-  coverImageObjectKey: string | null;
-  publishedAt: string | null;
+  coverImageId: string | null;
+  status: string;
 }
 
 export interface GalleryImageResponse {
   id: string;
-  albumId: string;
-  objectKey: string;
   altText: string;
   caption: string | null;
-  displayOrder: number;
+  sortOrder: number;
+  url: string;
+  status: string;
 }
 
 export interface PrincipalAccountResponse {

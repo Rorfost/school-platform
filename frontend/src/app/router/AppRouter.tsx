@@ -7,10 +7,12 @@ import { AboutPage } from "@/pages/AboutPage";
 import { AdminPlaceholderPage } from "@/pages/AdminPlaceholderPage";
 import { ContactPage } from "@/pages/ContactPage";
 import { DownloadsPage } from "@/pages/DownloadsPage";
+import { GalleryAlbumPage } from "@/pages/GalleryAlbumPage";
 import { GalleryPage } from "@/pages/GalleryPage";
 import { HomePage } from "@/pages/HomePage";
 import { MaterialsPage } from "@/pages/MaterialsPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { NoticeDetailPage } from "@/pages/NoticeDetailPage";
 import { NoticesPage } from "@/pages/NoticesPage";
 import { PrincipalDeskPage } from "@/pages/PrincipalDeskPage";
 import { ResultsInfoPage } from "@/pages/ResultsInfoPage";
@@ -31,7 +33,9 @@ const router = createBrowserRouter([
       { path: "student/results", element: <ResultsInfoPage /> },
       { path: "student/downloads", element: <DownloadsPage /> },
       { path: "notices", element: <NoticesPage /> },
+      { path: "notices/:id", element: <NoticeDetailPage /> },
       { path: "gallery", element: <GalleryPage /> },
+      { path: "gallery/:albumId", element: <GalleryAlbumPage /> },
       { path: "contact", element: <ContactPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],

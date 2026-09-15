@@ -7,6 +7,7 @@ import {
   Info,
   Mail,
   Newspaper,
+  UserCheck,
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -20,7 +21,7 @@ export interface MobileNavProps {
 const NAV_ITEMS = [
   { to: "/", label: LABELS.home, icon: Home },
   { to: "/about", label: LABELS.about, icon: Info },
-  { to: "/student", label: LABELS.studentCorner, icon: GraduationCap },
+  { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
   { to: "/notices", label: LABELS.notices, icon: Newspaper },
   { to: "/gallery", label: LABELS.gallery, icon: Camera },
   { to: "/contact", label: LABELS.contact, icon: Mail },
