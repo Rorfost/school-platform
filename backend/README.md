@@ -25,3 +25,7 @@ Profiles are `local`, `test`, and `prod`. `application.yml` contains shared safe
 - `common/exception` — API error and request identifier foundation
 
 The `auth` package owns principal login, bootstrap, password change, rate limiting, and DTOs. The `school`, `academic`, `assessment`, `content`, and `audit` packages retain feature-oriented persistence boundaries. See the root [README](../README.md) and [engineering documentation](../docs/engineering/SECURITY.md).
+
+## Current backend scope
+
+Authentication, school/profile, academic configuration, generic assessment configuration, and public/admin content API foundations are implemented. Result import and individual result lookup are blocked until the owner provides a privacy-safe school roll-number and PIN workflow for the observed Standard 3 workbook. Other exam formats and timetable features remain pending source material.

@@ -77,3 +77,7 @@ Each decision is intentional and may be revisited only when a concrete requireme
 ## Local login rate limiter
 
 **Context:** repeated authentication attempts need a bounded control before any distributed infrastructure is justified. **Decision:** use a configurable in-memory rolling-window limiter keyed by direct client address. **Reason:** it protects the only current authentication endpoint without adding Redis or another service. **Trade-offs:** limits reset on restart and do not coordinate across instances. **Reconsider when:** deployment topology has more than one backend instance or measured abuse requires a shared control.
+
+## Audit hardening for content APIs
+
+**Context:** the completion audit found public content query methods without routes and lifecycle mutations occurring outside a service transaction. **Decision:** expose DTO-only, bounded public content routes; exclude expired notices in the query; make content mutations transactional; flush newly uploaded metadata within the object-cleanup boundary; and set `Cache-Control: no-store` for every admin response. **Reason:** published content must be reachable while administrative data and writes must not be silently lost or cached. **Trade-offs:** uploads hold a short database transaction while storage writes, and larger asynchronous workflows remain out of scope. **Reconsider when:** measured upload contention requires an approved outbox or cleanup workflow.

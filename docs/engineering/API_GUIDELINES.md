@@ -20,3 +20,11 @@ Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failu
 - Credentialed CORS permits only configured origins. Authenticated endpoints never return wildcard origins.
 - Paginated list endpoints define page size limits and response metadata. Filtering and sorting use explicit whitelists, never raw field names.
 - Individual result responses will use `Cache-Control: no-store`; failed lookups must be generic enough to resist enumeration.
+
+## Current endpoint inventory
+
+Authentication, school/profile, academic configuration, generic assessment configuration, and storage-backed materials, notices, gallery, and downloads have versioned DTO endpoints. Admin mutations require the principal session and CSRF. Public school/profile, current academic configuration, assessment-type, and public content routes expose published data only.
+
+Result import, result publication, available-result choices, and individual result lookup are blocked by the documented privacy-safe student-identity decision. Other exam formats and timetables have no endpoint contract until source material is supplied.
+
+All `/api/v1/admin/**` responses use `Cache-Control: no-store`.

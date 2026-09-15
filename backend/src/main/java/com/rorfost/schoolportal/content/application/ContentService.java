@@ -33,6 +33,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -62,12 +63,13 @@ public class ContentService {
     this.audit = audit;
   }
 
+  @Transactional
   public MaterialResponse uploadMaterial(
       UUID school, UUID actor, MaterialMetadataRequest request, MultipartFile file) {
     StoredObject object = storage.uploadPublicDocument("materials/" + school, file);
     try {
       StudyMaterial item =
-          materials.save(
+          materials.saveAndFlush(
               new StudyMaterial(
                   school,
                   request.academicYearId(),
@@ -89,6 +91,7 @@ public class ContentService {
     }
   }
 
+  @Transactional
   public NoticeResponse createNotice(UUID school, UUID actor, NoticeRequest request) {
     Notice item = notices.save(new Notice(school, request.title().trim(), request.body().trim()));
     item.update(
@@ -97,6 +100,7 @@ public class ContentService {
     return notice(item);
   }
 
+  @Transactional
   public NoticeResponse attachNotice(UUID school, UUID actor, UUID id, MultipartFile file) {
     Notice item = noticeItem(school, id);
     StoredObject object = storage.uploadPublicDocument("notices/" + school, file);
@@ -106,10 +110,17 @@ public class ContentService {
         object.originalFilename(),
         object.contentType(),
         object.byteSize());
-    audit(school, actor, AuditAction.NOTICE_UPDATED, "NOTICE", id);
-    return notice(item);
+    try {
+      notices.saveAndFlush(item);
+      audit(school, actor, AuditAction.NOTICE_UPDATED, "NOTICE", id);
+      return notice(item);
+    } catch (RuntimeException exception) {
+      storage.delete(object);
+      throw exception;
+    }
   }
 
+  @Transactional
   public GalleryAlbumResponse createAlbum(UUID school, UUID actor, GalleryAlbumRequest request) {
     GalleryAlbum item =
         albums.save(new GalleryAlbum(school, request.title().trim(), trim(request.description())));
@@ -117,6 +128,7 @@ public class ContentService {
     return GalleryAlbumResponse.from(item);
   }
 
+  @Transactional
   public GalleryImageResponse uploadImage(
       UUID school,
       UUID actor,
@@ -130,7 +142,7 @@ public class ContentService {
     StoredObject object = storage.uploadPublicImage("gallery/" + school, file);
     try {
       GalleryImage item =
-          images.save(
+          images.saveAndFlush(
               new GalleryImage(
                   school,
                   albumId,
@@ -151,12 +163,13 @@ public class ContentService {
     }
   }
 
+  @Transactional
   public DownloadResponse uploadDownload(
       UUID school, UUID actor, DownloadMetadataRequest request, MultipartFile file) {
     StoredObject object = storage.uploadPublicDocument("downloads/" + school, file);
     try {
       Download item =
-          downloads.save(
+          downloads.saveAndFlush(
               new Download(
                   school,
                   request.academicYearId(),
@@ -177,6 +190,7 @@ public class ContentService {
     }
   }
 
+  @Transactional
   public void deleteMaterial(UUID school, UUID actor, UUID id) {
     StudyMaterial item =
         materials.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("material_not_found"));
@@ -185,6 +199,7 @@ public class ContentService {
     audit(school, actor, AuditAction.MATERIAL_DELETED, "STUDY_MATERIAL", id);
   }
 
+  @Transactional
   public void deleteNotice(UUID school, UUID actor, UUID id) {
     Notice item = noticeItem(school, id);
     if (item.getAttachmentObjectKey() != null)
@@ -193,6 +208,7 @@ public class ContentService {
     audit(school, actor, AuditAction.NOTICE_DELETED, "NOTICE", id);
   }
 
+  @Transactional
   public void deleteDownload(UUID school, UUID actor, UUID id) {
     Download item =
         downloads.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("download_not_found"));
@@ -201,6 +217,7 @@ public class ContentService {
     audit(school, actor, AuditAction.DOWNLOAD_DELETED, "DOWNLOAD", id);
   }
 
+  @Transactional
   public void publishMaterial(UUID school, UUID actor, UUID id) {
     StudyMaterial item =
         materials.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("material_not_found"));
@@ -208,18 +225,21 @@ public class ContentService {
     audit(school, actor, AuditAction.MATERIAL_UPLOADED, "STUDY_MATERIAL", id);
   }
 
+  @Transactional
   public void publishNotice(UUID school, UUID actor, UUID id) {
     Notice item = noticeItem(school, id);
     item.publish(Instant.now());
     audit(school, actor, AuditAction.NOTICE_UPDATED, "NOTICE", id);
   }
 
+  @Transactional
   public void publishAlbum(UUID school, UUID actor, UUID id) {
     GalleryAlbum item = album(school, id);
     item.publish(Instant.now());
     audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", id);
   }
 
+  @Transactional
   public void publishDownload(UUID school, UUID actor, UUID id) {
     Download item =
         downloads.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("download_not_found"));
@@ -227,6 +247,7 @@ public class ContentService {
     audit(school, actor, AuditAction.DOWNLOAD_UPLOADED, "DOWNLOAD", id);
   }
 
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<StudyMaterial> publicMaterials(
       UUID school, int page, int size) {
     return materials.findBySchoolIdAndStatus(
@@ -235,14 +256,16 @@ public class ContentService {
         page(page, size, Sort.by(Sort.Direction.DESC, "publishedAt")));
   }
 
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<Notice> publicNotices(
       UUID school, int page, int size) {
-    return notices.findBySchoolIdAndStatus(
+    return notices.findVisibleBySchoolIdAndStatus(
         school,
         PublicationStatus.PUBLISHED,
         page(page, size, Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("publishedAt"))));
   }
 
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<GalleryAlbum> publicAlbums(
       UUID school, int page, int size) {
     return albums.findBySchoolIdAndStatus(
@@ -251,6 +274,7 @@ public class ContentService {
         page(page, size, Sort.by(Sort.Direction.DESC, "publishedAt")));
   }
 
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<Download> publicDownloads(
       UUID school, int page, int size) {
     return downloads.findBySchoolIdAndStatus(
@@ -259,6 +283,7 @@ public class ContentService {
         page(page, size, Sort.by(Sort.Direction.DESC, "publishedAt")));
   }
 
+  @Transactional(readOnly = true)
   public List<GalleryImageResponse> publicAlbumImages(UUID school, UUID albumId) {
     GalleryAlbum album = album(school, albumId);
     if (album.getStatus() != PublicationStatus.PUBLISHED) throw notFound("gallery_album_not_found");
