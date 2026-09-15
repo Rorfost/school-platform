@@ -49,3 +49,7 @@ Each decision is intentional and may be revisited only when a concrete requireme
 ## No infrastructure directory at this stage
 
 **Context:** the inspected `infrastructure/` directory contained guidance only; Docker Compose already has the conventional root location and no provider/runtime asset is versioned yet. **Decision:** remove the empty infrastructure boundary rather than retain a placeholder directory. **Reason:** the repository should not imply deployment assets exist when there are none. **Trade-offs:** a future genuine provider-neutral script or deployment asset will reintroduce the directory with that asset and documentation. **Reconsider when:** such an asset is required.
+
+## Testcontainers 2.x for current Docker engines
+
+**Context:** the existing Testcontainers 1.21.3 client cannot negotiate with the installed Docker Engine 29 API, blocking PostgreSQL persistence tests. **Decision:** use the current Testcontainers 2.x test-only modules. **Reason:** it supports current Docker engine behavior while retaining disposable PostgreSQL integration tests. **Trade-offs:** module artifact names use the 2.x `testcontainers-` prefix. **Reconsider when:** the project standardizes on a managed dependency version that provides the same compatibility.
