@@ -1,6 +1,6 @@
 # Backend
 
-The backend is a Java 21 Spring Boot 4.x Maven modular-monolith foundation. It includes configuration, secure defaults, Flyway-owned Spring Session JDBC schema, an S3-compatible object-storage abstraction, request IDs, `ProblemDetail` exception handling, and a restricted Actuator health endpoint. It intentionally contains no domain feature, login flow, result parsing, or Excel assumptions.
+The backend is a Java 21 Spring Boot 4.x Maven modular monolith. It includes Flyway-owned PostgreSQL schema, JDBC-backed principal sessions, BCrypt authentication, CSRF/CORS/security-header controls, safe audit events, request IDs, restricted Actuator health, and an S3-compatible object-storage abstraction. It intentionally contains no result parsing or Excel assumptions.
 
 ## Commands
 
@@ -24,4 +24,8 @@ Profiles are `local`, `test`, and `prod`. `application.yml` contains shared safe
 - `common/storage` — provider-neutral object storage interface and S3 implementation
 - `common/exception` — API error and request identifier foundation
 
-Feature packages are added only when their roadmap phase begins. See the root [README](../README.md) and [engineering documentation](../docs/engineering/CODE_RULES.md).
+The `auth` package owns principal login, bootstrap, password change, rate limiting, and DTOs. The `school`, `academic`, `assessment`, `content`, and `audit` packages retain feature-oriented persistence boundaries. See the root [README](../README.md) and [engineering documentation](../docs/engineering/SECURITY.md).
+
+## Current backend scope
+
+Authentication, school/profile, academic configuration, generic assessment configuration, and public/admin content API foundations are implemented. Result import and individual result lookup are blocked until the owner provides a privacy-safe school roll-number and PIN workflow for the observed Standard 3 workbook. Other exam formats and timetable features remain pending source material.

@@ -9,6 +9,19 @@ spring:
     hibernate:
       ddl-auto: validate
 
+app:
+  frontend-url: http://localhost:5173
+  cors:
+    allowed-origins: http://localhost:5173
+  storage:
+    access-key-id: test-access-key
+    secret-access-key: test-secret-key
+    public-bucket: test-public
+    private-bucket: test-private
+  security:
+    login-max-attempts: 5
+    login-attempt-window: 10m
+
 management:
   endpoint:
     health:

@@ -8,6 +8,7 @@ spring:
     password: ${DB_PASSWORD:school_portal_local}
 
 app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   storage:
@@ -16,7 +17,7 @@ app:
     secret-access-key: ${R2_SECRET_ACCESS_KEY:minioadmin}
     public-bucket: ${R2_PUBLIC_BUCKET:school-public}
     private-bucket: ${R2_PRIVATE_BUCKET:school-private}
-    public-base-url: ${R2_PUBLIC_BASE_URL:http://localhost:9000}
+    public-base-url: ${R2_PUBLIC_BASE_URL:http://localhost:9000/school-public}
 
 server:
   servlet:

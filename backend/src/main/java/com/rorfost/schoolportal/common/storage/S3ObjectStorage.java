@@ -4,7 +4,10 @@ import java.io.InputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class S3ObjectStorage implements ObjectStorage {
   private final S3Client client;
@@ -28,5 +31,18 @@ public class S3ObjectStorage implements ObjectStorage {
   @Override
   public void delete(String bucket, String objectKey) {
     client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(objectKey).build());
+  }
+
+  @Override
+  public boolean exists(String bucket, String objectKey) {
+    try {
+      client.headObject(HeadObjectRequest.builder().bucket(bucket).key(objectKey).build());
+      return true;
+    } catch (NoSuchKeyException exception) {
+      return false;
+    } catch (S3Exception exception) {
+      if (exception.statusCode() == 404) return false;
+      throw exception;
+    }
   }
 }

@@ -12,7 +12,7 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 
 ## Phase 2 — Principal authentication
 
-**Goal:** protect administration. **Scope:** bootstrap, Spring Security, Spring Session JDBC, login/logout, password change, protected admin shell, CSRF. **Dependencies:** Phase 0 and approved bootstrap/credential handling. **Deliverables:** sole `PRINCIPAL` role and audited auth lifecycle. **Tests:** login/logout, protected routes, CSRF, cookie flags, password validation. **Definition of Done:** unauthenticated users cannot access admin operations and sessions behave correctly in production configuration.
+**Goal:** protect administration. **Scope:** bootstrap, Spring Security, Spring Session JDBC, login/logout, password change, protected admin shell, CSRF. **Dependencies:** Phase 0 and approved bootstrap/credential handling. **Deliverables:** sole `PRINCIPAL` role and audited auth lifecycle. **Tests:** login/logout, protected routes, CSRF, cookie flags, password validation. **Definition of Done:** unauthenticated users cannot access admin operations and sessions behave correctly in production configuration. **Status:** backend authentication foundation complete; the admin shell arrives with its frontend phase.
 
 ## Phase 3 — Academic configuration
 
@@ -49,3 +49,15 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 ## Phase 11 — Production hardening
 
 **Goal:** launch safely and reliably. **Scope:** security headers, rate limiting, error handling, audit logs, indexes, backups, monitoring, E2E tests, deployment, domain/TLS, accessibility audit, Gujarati copy review, mobile UX review. **Dependencies:** completed intended product phases and production credentials/domains. **Deliverables:** deployment checklist, monitored release, recovery verification. **Tests:** security regression, production smoke, critical Playwright flow, restore exercise. **Definition of Done:** launch checklist passes, backup restoration is verified, and owner approves Gujarati/mobile experience.
+
+## Current backend status
+
+- **DONE:** principal authentication/session foundation, Flyway/PostgreSQL foundation, school/profile APIs, academic configuration APIs, generic assessment configuration, S3-compatible storage abstraction, and health/security baseline.
+- **IN PROGRESS:** materials, notices, gallery, and download API lifecycle coverage; their public API foundation is implemented but complete feature-level integration coverage is not.
+- **BLOCKED — INPUT REQUIRED:** Tri-masik Ekam Kasoti import and secure result lookup. The observed workbook has no privacy-safe school-controlled student identifier or PIN. See `docs/data/RESULT_IMPORT.md`.
+
+## Pending input from project owner
+
+1. **Other examination result workbook formats** — no real workbook, sample, or contract has been provided.
+2. **Exam timetable** — no timetable data or format has been provided.
+3. **School timetable** — no timetable data or format has been provided.
