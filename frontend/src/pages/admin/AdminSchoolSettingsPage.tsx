@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Save, School as SchoolIcon } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { SchoolResponse, SchoolUpdateRequest } from "@/api/types";
 import { Button } from "@/components/ui/Button";
@@ -25,7 +25,9 @@ export function AdminSchoolSettingsPage() {
         body: payload,
       }),
     onSuccess: (updated) => {
+      // Invalidate so public portal header/contact page reflects updated school name
       queryClient.setQueryData(queryKeys.school, updated);
+      queryClient.invalidateQueries({ queryKey: queryKeys.school });
       setSuccessMessage("School identity settings updated successfully.");
       setTimeout(() => setSuccessMessage(null), 4000);
     },
@@ -58,6 +60,13 @@ export function AdminSchoolSettingsPage() {
     updateMutation.mutate(payload);
   };
 
+  const errorMessage =
+    updateMutation.error instanceof ApiError
+      ? updateMutation.error.message
+      : updateMutation.isError
+        ? "Failed to update school settings."
+        : null;
+
   if (isLoading) {
     return <LoadingState message="Loading school settings..." />;
   }
@@ -79,14 +88,14 @@ export function AdminSchoolSettingsPage() {
         </div>
       )}
 
-      {updateMutation.isError && (
+      {errorMessage && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
-          Failed to update school settings.{" "}
-          {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
+          {errorMessage}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* key forces form to re-mount with fresh defaultValues once backend data arrives */}
+      <form key={school?.id ?? "loading"} onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Identity */}
         <Card className="p-6 space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -98,33 +107,35 @@ export function AdminSchoolSettingsPage() {
               label="Official School Name"
               name="name"
               required
-              defaultValue={school?.name || "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા"}
+              defaultValue={school?.name ?? ""}
             />
             <Input
               label="Short Name"
               name="shortName"
-              defaultValue={school?.shortName || "ધધાણા પ્રાથમિક શાળા"}
+              defaultValue={school?.shortName ?? ""}
             />
             <Input
               label="DISE Code"
               name="schoolCode"
-              defaultValue={school?.schoolCode || "24030401801"}
+              defaultValue={school?.schoolCode ?? ""}
             />
             <Input
               label="Established Year"
               name="establishedYear"
               type="number"
-              defaultValue={school?.establishedYear || 1950}
+              defaultValue={school?.establishedYear ?? ""}
             />
             <Input
               label="Medium of Instruction"
               name="medium"
-              defaultValue={school?.medium || "Gujarati"}
+              defaultValue={school?.medium ?? ""}
+              placeholder="e.g. Gujarati"
             />
             <Input
               label="School Category / Type"
               name="schoolType"
-              defaultValue={school?.schoolType || "Primary (Std 1–8)"}
+              defaultValue={school?.schoolType ?? ""}
+              placeholder="e.g. Primary (Std 1–8)"
             />
           </div>
         </Card>
@@ -140,22 +151,22 @@ export function AdminSchoolSettingsPage() {
               name="address"
               rows={2}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={school?.address || "મુ. પો. ધધાણા, તા. સમી, જિ. પાટણ - ૩૮૪૨૪૫"}
+              defaultValue={school?.address ?? ""}
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Input label="Village / City" name="city" defaultValue={school?.city || "ધધાણા"} />
-            <Input label="State" name="state" defaultValue={school?.state || "Gujarat"} />
+            <Input label="Village / City" name="city" defaultValue={school?.city ?? ""} />
+            <Input label="State" name="state" defaultValue={school?.state ?? ""} />
             <Input
               label="Postal Code / PIN"
               name="postalCode"
-              defaultValue={school?.postalCode || "384245"}
+              defaultValue={school?.postalCode ?? ""}
             />
           </div>
           <Input
             label="Google Maps Embedded Link / URL"
             name="mapsUrl"
-            defaultValue={school?.mapsUrl || ""}
+            defaultValue={school?.mapsUrl ?? ""}
             placeholder="https://maps.google.com/..."
           />
         </Card>
@@ -170,18 +181,18 @@ export function AdminSchoolSettingsPage() {
               label="Official Email"
               name="email"
               type="email"
-              defaultValue={school?.email || "principal24030401801@ssguj.in"}
+              defaultValue={school?.email ?? ""}
             />
             <Input
               label="Contact Phone"
               name="phone"
-              defaultValue={school?.phone || ""}
+              defaultValue={school?.phone ?? ""}
               placeholder="e.g. +91 9876543210"
             />
             <Input
               label="Website URL"
               name="website"
-              defaultValue={school?.website || ""}
+              defaultValue={school?.website ?? ""}
               placeholder="https://..."
             />
           </div>
@@ -193,10 +204,7 @@ export function AdminSchoolSettingsPage() {
               name="about"
               rows={4}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={
-                school?.about ||
-                "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા સમી તાલુકાના ધધાણા ગામમાં ૧૯૫૦ થી શિક્ષણ સેવા આપી રહી છે."
-              }
+              defaultValue={school?.about ?? ""}
             />
           </div>
         </Card>
