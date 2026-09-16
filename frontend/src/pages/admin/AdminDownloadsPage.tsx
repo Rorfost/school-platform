@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Trash2 } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { DownloadResponse, PageResponse } from "@/api/types";
+import type { AcademicYearResponse, DownloadResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,6 +15,12 @@ export function AdminDownloadsPage() {
   const queryClient = useQueryClient();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data: years = [] } = useQuery<AcademicYearResponse[]>({
+    queryKey: queryKeys.adminAcademicYears,
+    queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
+  });
 
   const { data, isLoading } = useQuery<PageResponse<DownloadResponse>>({
     queryKey: queryKeys.downloads({ page: 0, size: 50 }),
@@ -33,6 +39,10 @@ export function AdminDownloadsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.downloads() });
       setIsUploadOpen(false);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to upload document.");
     },
   });
 
@@ -165,20 +175,52 @@ export function AdminDownloadsPage() {
       {/* Upload Modal */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-slate-900">Upload Public Document</h2>
             <form onSubmit={handleUploadSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <Input
                 label="Title"
                 name="title"
                 required
-                placeholder="e.g. પ્રવેશ અરજી ફોર્મ ૨૦૨૬-૨૭"
+                placeholder="e.g. Admission Application Form 2026-27"
               />
-              <Input
-                label="Category"
-                name="category"
-                placeholder="e.g. ફોર્મ્સ / પરિપત્રો / પત્રકો"
-              />
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  required
+                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
+                >
+                  <option value="FORM">Form (અરજી પત્રક)</option>
+                  <option value="CIRCULAR">Circular (પરિપત્ર)</option>
+                  <option value="SYLLABUS">Syllabus (અભ્યાસક્રમ)</option>
+                  <option value="TIMETABLE">Timetable (સમયપત્રક)</option>
+                  <option value="OTHER">Other (અન્ય)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Academic Session (Optional)
+                </label>
+                <select
+                  name="academicYearId"
+                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
+                >
+                  <option value="">-- Optional Academic Year --</option>
+                  {years.map((y) => (
+                    <option key={y.id} value={y.id}>
+                      {y.name} {y.status === "CURRENT" ? "(Current)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                 <textarea
@@ -205,7 +247,10 @@ export function AdminDownloadsPage() {
                   variant="outline"
                   size="sm"
                   type="button"
-                  onClick={() => setIsUploadOpen(false)}
+                  onClick={() => {
+                    setIsUploadOpen(false);
+                    setErrorMessage(null);
+                  }}
                 >
                   Cancel
                 </Button>
