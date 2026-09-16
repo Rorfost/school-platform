@@ -98,7 +98,7 @@ export function Footer() {
         {/* Bottom Strip */}
         <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="space-y-1 text-center sm:text-left">
-            <p className="text-slate-500">© 2026 Rakesh Patel, Principal at PM SHRI Dhadhana Primary School. All rights reserved.</p>
+            <p className="text-slate-500">© 2026 Rakesh Patel. All rights reserved.</p>
             <p className="text-slate-500">Built by Raj Patel | Rorfost</p>
           </div>
           <div className="flex items-center gap-4">
@@ -115,4 +115,3 @@ export function Footer() {
     </footer>
   );
 }
-
