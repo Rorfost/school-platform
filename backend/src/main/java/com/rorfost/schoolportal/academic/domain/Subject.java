@@ -19,7 +19,7 @@ public class Subject extends AuditableUuidEntity {
 
   public Subject(UUID schoolId, String code, String name, short sortOrder) {
     this.schoolId = schoolId;
-    this.code = code;
+    this.code = code == null ? null : code.trim().toUpperCase(java.util.Locale.ROOT);
     this.name = name;
     this.sortOrder = sortOrder;
   }
@@ -45,7 +45,7 @@ public class Subject extends AuditableUuidEntity {
   }
 
   public void update(String code, String name, short sortOrder, boolean archived) {
-    this.code = code;
+    this.code = code == null ? null : code.trim().toUpperCase(java.util.Locale.ROOT);
     this.name = name;
     this.sortOrder = sortOrder;
     this.isArchived = archived;

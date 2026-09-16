@@ -12,4 +12,6 @@ public interface GalleryAlbumRepository extends JpaRepository<GalleryAlbum, UUID
       UUID schoolId, PublicationStatus status, Pageable pageable);
 
   java.util.Optional<GalleryAlbum> findByIdAndSchoolId(UUID id, UUID schoolId);
+
+  long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);
 }

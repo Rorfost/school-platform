@@ -45,4 +45,36 @@ public class AuditLog extends UuidEntity {
     this.requestId = requestId;
     this.metadata = metadata;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public UUID getActorAdminUserId() {
+    return actorAdminUserId;
+  }
+
+  public String getAction() {
+    return action;
+  }
+
+  public String getTargetType() {
+    return targetType;
+  }
+
+  public UUID getTargetId() {
+    return targetId;
+  }
+
+  public String getRequestId() {
+    return requestId;
+  }
+
+  public String getMetadata() {
+    return metadata;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
 }

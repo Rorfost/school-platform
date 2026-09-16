@@ -10,4 +10,6 @@ public interface StandardRepository extends JpaRepository<Standard, UUID> {
   List<Standard> findBySchoolIdOrderBySortOrder(UUID schoolId);
 
   Optional<Standard> findByIdAndSchoolId(UUID id, UUID schoolId);
+
+  long countBySchoolIdAndIsArchivedFalse(UUID schoolId);
 }

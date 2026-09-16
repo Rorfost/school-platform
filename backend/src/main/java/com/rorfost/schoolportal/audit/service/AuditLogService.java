@@ -31,4 +31,11 @@ public class AuditLogService {
         new AuditLog(
             schoolId, actorAdminUserId, action, targetType, targetId, requestId, EMPTY_METADATA));
   }
+
+  @Transactional(readOnly = true)
+  public java.util.List<com.rorfost.schoolportal.audit.api.AuditLogResponse> list(UUID schoolId) {
+    return auditLogRepository.findBySchoolIdOrderByCreatedAtDesc(schoolId).stream()
+        .map(com.rorfost.schoolportal.audit.api.AuditLogResponse::from)
+        .toList();
+  }
 }
