@@ -45,4 +45,4 @@ Copy `.env.example` to `.env.local` for local values. Every `VITE_*` value is em
 
 ## Deployment
 
-Cloudflare Pages is the intended frontend host. Configure the Pages project with repository root `frontend`, build command `npm run build`, and build output `dist`. The application is a static SPA; no frontend Docker deployment is required.
+Cloudflare Workers is the intended frontend host. The checked-in Worker configuration builds the SPA into `dist`, serves assets with SPA fallback, and proxies `/api/` requests to the configured backend origin. Use `npm run deploy` only with provider credentials supplied outside the repository. No frontend Docker deployment is required.

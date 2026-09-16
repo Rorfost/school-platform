@@ -29,7 +29,7 @@ class StudentServiceTest {
     UUID standardId = UUID.randomUUID();
 
     StudentRequest request =
-        new StudentRequest(yearId, standardId, "Ramesh Patel", "101", "654321", false);
+        new StudentRequest(yearId, standardId, "Student A", "101", "123456", false);
 
     when(studentRepository.findBySchoolIdAndAcademicYearIdAndStandardIdAndRollNumber(
             schoolId, yearId, standardId, "101"))
@@ -40,7 +40,7 @@ class StudentServiceTest {
 
     StudentResponse response = service.createStudent(schoolId, request);
 
-    assertThat(response.fullName()).isEqualTo("Ramesh Patel");
+    assertThat(response.fullName()).isEqualTo("Student A");
     assertThat(response.rollNumber()).isEqualTo("101");
     assertThat(response.isArchived()).isFalse();
   }
@@ -52,13 +52,13 @@ class StudentServiceTest {
     UUID yearId = UUID.randomUUID();
     UUID standardId = UUID.randomUUID();
 
-    Student existing = new Student(schoolId, yearId, standardId, "Existing", "101", "hash");
+    Student existing = new Student(schoolId, yearId, standardId, "Existing Student", "101", "hash");
     when(studentRepository.findBySchoolIdAndAcademicYearIdAndStandardIdAndRollNumber(
             schoolId, yearId, standardId, "101"))
         .thenReturn(Optional.of(existing));
 
     StudentRequest request =
-        new StudentRequest(yearId, standardId, "Ramesh Patel", "101", "654321", false);
+        new StudentRequest(yearId, standardId, "Student A", "101", "123456", false);
 
     assertThatThrownBy(() -> service.createStudent(schoolId, request))
         .isInstanceOf(DomainException.class)

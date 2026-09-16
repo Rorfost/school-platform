@@ -30,3 +30,5 @@ Comments explain why, constraints, non-obvious behavior, security choices, or bu
 ## Commits and documentation
 
 Make small, logical, professional commits after meaningful, tested units of work. Before committing, run checks relevant to changed areas. Update documentation in the same change when architecture, config, API, database, security, deployment, or workflows change.
+
+Never commit credentials, real student records, private result workbooks, database dumps, or production secrets. Use safe examples and synthetic test data only.
