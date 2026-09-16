@@ -16,6 +16,7 @@ backend/target/
 .env
 .env.*
 !.env.example
+!**/.env.example
 *.pem
 *.key
 *.p12
@@ -26,6 +27,12 @@ postgres-data/
 minio-data/
 uploads/
 tmp/
+
+# Local database exports and recovery artifacts
+*.sql.gz
+*.dump
+*.backup
+*.pgdump
 
 # Logs and operating systems
 *.log
