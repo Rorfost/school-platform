@@ -6,8 +6,7 @@ import { AcademicYearResponse, StandardResponse, SubjectResponse } from "../../a
 export interface AssessmentTypeResponse {
   id: string;
   code: string;
-  name: string;
-  description?: string | null;
+  displayName: string;
   sortOrder: number;
 }
 

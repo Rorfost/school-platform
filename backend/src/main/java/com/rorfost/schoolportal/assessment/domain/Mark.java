@@ -39,4 +39,32 @@ public class Mark extends AuditableUuidEntity {
     this.assessmentSubjectId = assessmentSubjectId;
     this.score = score;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public UUID getAcademicYearId() {
+    return academicYearId;
+  }
+
+  public UUID getStandardId() {
+    return standardId;
+  }
+
+  public UUID getAssessmentId() {
+    return assessmentId;
+  }
+
+  public UUID getStudentId() {
+    return studentId;
+  }
+
+  public UUID getAssessmentSubjectId() {
+    return assessmentSubjectId;
+  }
+
+  public BigDecimal getScore() {
+    return score;
+  }
 }
