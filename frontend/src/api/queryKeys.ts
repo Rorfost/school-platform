@@ -12,4 +12,7 @@ export const queryKeys = {
     ["gallery", "albums", filters ?? {}] as const,
   galleryAlbumImages: (albumId: string) => ["gallery", "albums", albumId, "images"] as const,
   authMe: ["admin", "auth", "me"] as const,
+  adminDashboardSummary: ["admin", "dashboard", "summary"] as const,
+  adminAuditLogs: ["admin", "audit-logs"] as const,
 };
+

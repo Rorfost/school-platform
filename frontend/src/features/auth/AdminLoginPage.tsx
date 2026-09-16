@@ -22,9 +22,12 @@ export function AdminLoginPage() {
   const school = useEffectiveSchoolInfo();
   const navigate = useNavigate();
   const location = useLocation();
-  const [serverError, setServerError] = useState<string | null>(null);
-
-  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || "/admin";
+  const locationState = location.state as { from?: { pathname?: string }; expired?: boolean } | null;
+  const from = locationState?.from?.pathname || "/admin";
+  const isExpired = locationState?.expired ?? false;
+  const [serverError, setServerError] = useState<string | null>(
+    isExpired ? "Your session has expired. Please sign in again." : null,
+  );
 
   const {
     register,

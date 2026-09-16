@@ -256,3 +256,26 @@ export interface ProblemDetail {
   code?: string;
   requestId?: string;
 }
+
+export interface DashboardSummaryResponse {
+  totalStudents: number;
+  totalStandards: number;
+  totalSubjects: number;
+  publishedMaterials: number;
+  publishedNotices: number;
+  publishedGalleryAlbums: number;
+  totalDownloads: number;
+}
+
+export interface AuditLogResponse {
+  id: string;
+  schoolId: string;
+  actorAdminUserId: string | null;
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  requestId: string | null;
+  metadata: string;
+  createdAt: string;
+}
+
