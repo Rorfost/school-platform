@@ -16,7 +16,7 @@ function renderWithClient(ui: React.ReactElement, queryClient: QueryClient) {
 describe("AdminDownloadsPage", () => {
   it("renders downloads document list correctly", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    queryClient.setQueryData(queryKeys.downloads({ page: 0, size: 50 }), {
+    queryClient.setQueryData(queryKeys.adminDownloads({ page: 0, size: 50 }), {
       items: [
         {
           id: "dl-1",

@@ -54,6 +54,15 @@ class StorageServiceTest {
   }
 
   @Test
+  void createsAnOptimizedImageKitThumbnailUrl() {
+    StorageService service = service(DataSize.ofMegabytes(10));
+
+    assertThat(service.publicImageThumbnailUrl("gallery/school-slug/photo.jpg"))
+        .isEqualTo(
+            "https://ik.imagekit.io/account/gallery/school-slug/photo.jpg?tr=w-800,h-600,c-at_max,q-80");
+  }
+
+  @Test
   void delegatesDeleteAndExistsToStorage() {
     StorageService service = service(DataSize.ofMegabytes(10));
     when(objectStorage.exists("imagekit", "downloads/school-slug/file.pdf")).thenReturn(true);

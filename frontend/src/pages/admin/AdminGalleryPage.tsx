@@ -23,10 +23,10 @@ export function AdminGalleryPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<PageResponse<GalleryAlbumResponse>>({
-    queryKey: queryKeys.galleryAlbums({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminGalleryAlbums({ page: 0, size: 50 }),
     queryFn: () =>
       apiRequest<PageResponse<GalleryAlbumResponse>>(
-        "/api/v1/public/gallery/albums?page=0&size=50",
+        "/api/v1/admin/gallery/albums?page=0&size=50",
       ),
   });
 
@@ -39,7 +39,7 @@ export function AdminGalleryPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
       setIsAlbumModalOpen(false);
       setErrorMessage(null);
     },
@@ -56,7 +56,7 @@ export function AdminGalleryPage() {
       }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.galleryAlbumImages(variables.albumId),
+        queryKey: queryKeys.adminGalleryAlbumImages(variables.albumId),
       });
       setUploadImageAlbumId(null);
       setErrorMessage(null);
@@ -72,7 +72,7 @@ export function AdminGalleryPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
     },
   });
 
@@ -310,9 +310,9 @@ export function AdminGalleryPage() {
 
 function AlbumImagesGrid({ albumId }: { albumId: string }) {
   const { data: images = [], isLoading } = useQuery<GalleryImageResponse[]>({
-    queryKey: queryKeys.galleryAlbumImages(albumId),
+    queryKey: queryKeys.adminGalleryAlbumImages(albumId),
     queryFn: () =>
-      apiRequest<GalleryImageResponse[]>(`/api/v1/public/gallery/albums/${albumId}/images`),
+      apiRequest<GalleryImageResponse[]>(`/api/v1/admin/gallery/albums/${albumId}/images`),
   });
 
   if (isLoading) {
@@ -331,7 +331,19 @@ function AlbumImagesGrid({ albumId }: { albumId: string }) {
     <div className="grid grid-cols-3 gap-2 pt-2">
       {images.map((img) => (
         <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-          <img src={img.url} alt={img.altText || "Gallery photo"} className="w-full h-full object-cover" />
+          {img.thumbnailUrl || img.url ? (
+            <img
+              src={img.thumbnailUrl || img.url}
+              alt={img.altText || "Gallery photo"}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-slate-400">
+              <ImageIcon size={28} aria-hidden="true" />
+            </div>
+          )}
         </div>
       ))}
     </div>

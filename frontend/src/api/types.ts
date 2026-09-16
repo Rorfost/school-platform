@@ -82,7 +82,7 @@ export interface MaterialResponse {
   filename: string;
   contentType: string;
   byteSize: number;
-  url: string;
+  url: string | null;
   status: string;
 }
 
@@ -95,7 +95,7 @@ export interface DownloadResponse {
   filename: string;
   contentType: string;
   byteSize: number;
-  url: string;
+  url: string | null;
   status: string;
 }
 
@@ -112,7 +112,8 @@ export interface GalleryImageResponse {
   altText: string;
   caption: string | null;
   sortOrder: number;
-  url: string;
+  url: string | null;
+  thumbnailUrl: string | null;
   status: string;
 }
 
@@ -278,4 +279,3 @@ export interface AuditLogResponse {
   metadata: string;
   createdAt: string;
 }
-

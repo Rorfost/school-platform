@@ -23,9 +23,9 @@ export function AdminDownloadsPage() {
   });
 
   const { data, isLoading } = useQuery<PageResponse<DownloadResponse>>({
-    queryKey: queryKeys.downloads({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminDownloads({ page: 0, size: 50 }),
     queryFn: () =>
-      apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
+      apiRequest<PageResponse<DownloadResponse>>("/api/v1/admin/downloads?page=0&size=50"),
   });
 
   const downloads = data?.items ?? [];
@@ -37,7 +37,7 @@ export function AdminDownloadsPage() {
         body: formData,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.downloads() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
       setIsUploadOpen(false);
       setErrorMessage(null);
     },
@@ -52,7 +52,7 @@ export function AdminDownloadsPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.downloads() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
     },
   });
 
@@ -62,7 +62,7 @@ export function AdminDownloadsPage() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.downloads() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
       setDeleteTargetId(null);
     },
   });

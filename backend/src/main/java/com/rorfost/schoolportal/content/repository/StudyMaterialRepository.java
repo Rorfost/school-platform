@@ -11,6 +11,8 @@ public interface StudyMaterialRepository extends JpaRepository<StudyMaterial, UU
   Page<StudyMaterial> findBySchoolIdAndStatus(
       UUID schoolId, PublicationStatus status, Pageable pageable);
 
+  Page<StudyMaterial> findBySchoolId(UUID schoolId, Pageable pageable);
+
   Page<StudyMaterial> findBySchoolIdAndStatusAndAcademicYearIdAndStandardSubjectId(
       UUID schoolId,
       PublicationStatus status,

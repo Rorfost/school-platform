@@ -22,6 +22,8 @@ public interface NoticeRepository extends JpaRepository<Notice, UUID> {
       @Param("status") PublicationStatus status,
       Pageable pageable);
 
+  Page<Notice> findBySchoolId(UUID schoolId, Pageable pageable);
+
   java.util.Optional<Notice> findByIdAndSchoolId(UUID id, UUID schoolId);
 
   long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);

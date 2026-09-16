@@ -16,7 +16,7 @@ function renderWithClient(ui: React.ReactElement, queryClient: QueryClient) {
 describe("AdminGalleryPage", () => {
   it("renders photo gallery albums list correctly", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    queryClient.setQueryData(queryKeys.galleryAlbums({ page: 0, size: 50 }), {
+    queryClient.setQueryData(queryKeys.adminGalleryAlbums({ page: 0, size: 50 }), {
       items: [
         {
           id: "album-1",

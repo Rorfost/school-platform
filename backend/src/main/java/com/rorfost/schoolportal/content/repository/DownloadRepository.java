@@ -11,6 +11,8 @@ public interface DownloadRepository extends JpaRepository<Download, UUID> {
   Page<Download> findBySchoolIdAndStatus(
       UUID schoolId, PublicationStatus status, Pageable pageable);
 
+  Page<Download> findBySchoolId(UUID schoolId, Pageable pageable);
+
   java.util.Optional<Download> findByIdAndSchoolId(UUID id, UUID schoolId);
 
   long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);

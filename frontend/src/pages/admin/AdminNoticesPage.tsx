@@ -19,9 +19,9 @@ export function AdminNoticesPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<PageResponse<NoticeResponse>>({
-    queryKey: queryKeys.notices({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminNotices({ page: 0, size: 50 }),
     queryFn: () =>
-      apiRequest<PageResponse<NoticeResponse>>("/api/v1/public/notices?page=0&size=50"),
+      apiRequest<PageResponse<NoticeResponse>>("/api/v1/admin/notices?page=0&size=50"),
   });
 
   const notices = data?.items ?? [];
@@ -33,7 +33,7 @@ export function AdminNoticesPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setIsCreateOpen(false);
       setErrorMessage(null);
     },
@@ -49,7 +49,7 @@ export function AdminNoticesPage() {
         body: formData,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setAttachTargetId(null);
     },
   });
@@ -60,7 +60,7 @@ export function AdminNoticesPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
     },
   });
 
@@ -70,7 +70,7 @@ export function AdminNoticesPage() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setDeleteTargetId(null);
     },
   });

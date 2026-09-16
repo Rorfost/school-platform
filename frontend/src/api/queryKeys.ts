@@ -20,6 +20,15 @@ export const queryKeys = {
   adminSubjects: ["admin", "subjects"] as const,
   adminStandardSubjects: (standardId: string) =>
     ["admin", "standards", standardId, "subjects"] as const,
+  adminMaterials: (filters?: { page?: number; size?: number }) =>
+    ["admin", "materials", filters ?? {}] as const,
+  adminNotices: (filters?: { page?: number; size?: number }) =>
+    ["admin", "notices", filters ?? {}] as const,
+  adminDownloads: (filters?: { page?: number; size?: number }) =>
+    ["admin", "downloads", filters ?? {}] as const,
+  adminGalleryAlbums: (filters?: { page?: number; size?: number }) =>
+    ["admin", "gallery", "albums", filters ?? {}] as const,
+  adminGalleryAlbumImages: (albumId: string) =>
+    ["admin", "gallery", "albums", albumId, "images"] as const,
 };
-
 

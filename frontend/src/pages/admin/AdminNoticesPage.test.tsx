@@ -16,7 +16,7 @@ function renderWithClient(ui: React.ReactElement, queryClient: QueryClient) {
 describe("AdminNoticesPage", () => {
   it("renders notice board list correctly", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    queryClient.setQueryData(queryKeys.notices({ page: 0, size: 50 }), {
+    queryClient.setQueryData(queryKeys.adminNotices({ page: 0, size: 50 }), {
       items: [
         {
           id: "notice-1",

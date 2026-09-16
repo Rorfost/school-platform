@@ -51,9 +51,9 @@ export function AdminMaterialsPage() {
   });
 
   const { data, isLoading } = useQuery<PageResponse<MaterialResponse>>({
-    queryKey: queryKeys.materials({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminMaterials({ page: 0, size: 50 }),
     queryFn: () =>
-      apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
+      apiRequest<PageResponse<MaterialResponse>>("/api/v1/admin/materials?page=0&size=50"),
   });
 
   const allMaterials = data?.items ?? [];
@@ -70,7 +70,7 @@ export function AdminMaterialsPage() {
         body: formData,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.materials() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
       setIsUploadOpen(false);
       setErrorMessage(null);
     },
@@ -85,7 +85,7 @@ export function AdminMaterialsPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.materials() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
     },
   });
 
@@ -95,7 +95,7 @@ export function AdminMaterialsPage() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.materials() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
       setDeleteTargetId(null);
     },
   });
