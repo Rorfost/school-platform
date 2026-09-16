@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Trash2, Upload } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { MaterialResponse, PageResponse } from "@/api/types";
+import type {
+  AcademicYearResponse,
+  MaterialResponse,
+  PageResponse,
+  StandardResponse,
+  StandardSubjectResponse,
+  SubjectResponse,
+} from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,6 +22,33 @@ export function AdminMaterialsPage() {
   const queryClient = useQueryClient();
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
+  const [selectedStandardId, setSelectedStandardId] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { data: years = [] } = useQuery<AcademicYearResponse[]>({
+    queryKey: queryKeys.adminAcademicYears,
+    queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
+  });
+
+  const { data: standards = [] } = useQuery<StandardResponse[]>({
+    queryKey: queryKeys.adminStandards,
+    queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
+  });
+
+  const { data: subjects = [] } = useQuery<SubjectResponse[]>({
+    queryKey: queryKeys.adminSubjects,
+    queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
+  });
+
+  const { data: mappings = [] } = useQuery<StandardSubjectResponse[]>({
+    queryKey: queryKeys.adminStandardSubjects(selectedStandardId),
+    queryFn: () =>
+      apiRequest<StandardSubjectResponse[]>(
+        `/api/v1/admin/standards/${selectedStandardId}/subjects`,
+      ),
+    enabled: Boolean(selectedStandardId),
+  });
 
   const { data, isLoading } = useQuery<PageResponse<MaterialResponse>>({
     queryKey: queryKeys.materials({ page: 0, size: 50 }),
@@ -22,7 +56,12 @@ export function AdminMaterialsPage() {
       apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
   });
 
-  const materials = data?.items ?? [];
+  const allMaterials = data?.items ?? [];
+  const materials = allMaterials.filter((item) => {
+    if (statusFilter === "PUBLISHED") return item.status === "PUBLISHED";
+    if (statusFilter === "DRAFT") return item.status === "DRAFT";
+    return true;
+  });
 
   const uploadMutation = useMutation({
     mutationFn: (formData: FormData) =>
@@ -33,6 +72,10 @@ export function AdminMaterialsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.materials() });
       setIsUploadOpen(false);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to upload study material.");
     },
   });
 
@@ -81,6 +124,23 @@ export function AdminMaterialsPage() {
           <Upload size={16} aria-hidden="true" />
           <span>Upload New Material</span>
         </Button>
+      </div>
+
+      {/* Status Filter Tabs */}
+      <div className="flex border-b border-slate-200 gap-4 text-sm font-semibold">
+        {(["ALL", "PUBLISHED", "DRAFT"] as const).map((st) => (
+          <button
+            key={st}
+            onClick={() => setStatusFilter(st)}
+            className={`pb-2 transition-colors border-b-2 ${
+              statusFilter === st
+                ? "border-blue-900 text-blue-900 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            {st} ({st === "ALL" ? allMaterials.length : allMaterials.filter((m) => m.status === st).length})
+          </button>
+        ))}
       </div>
 
       <Card className="overflow-hidden p-0">
@@ -161,15 +221,74 @@ export function AdminMaterialsPage() {
       {/* Upload Modal */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-slate-900">Upload Study Material</h2>
             <form onSubmit={handleUploadSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <Input
                 label="Title"
                 name="title"
                 required
                 placeholder="e.g. Std 3 Maths Worksheet 1"
               />
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Academic Session
+                </label>
+                <select
+                  name="academicYearId"
+                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
+                >
+                  <option value="">-- Optional Academic Year --</option>
+                  {years.map((y) => (
+                    <option key={y.id} value={y.id}>
+                      {y.name} {y.status === "CURRENT" ? "(Current)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Standard & Subject Mapping
+                </label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <select
+                    value={selectedStandardId}
+                    onChange={(e) => setSelectedStandardId(e.target.value)}
+                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 font-medium"
+                  >
+                    <option value="">-- Select Standard --</option>
+                    {standards.map((std) => (
+                      <option key={std.id} value={std.id}>
+                        {std.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    name="standardSubjectId"
+                    disabled={!selectedStandardId}
+                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 font-medium disabled:bg-slate-100 disabled:text-slate-400"
+                  >
+                    <option value="">-- Select Subject --</option>
+                    {mappings.map((m) => {
+                      const sub = subjects.find((s) => s.id === m.subjectId);
+                      return (
+                        <option key={m.id} value={m.id}>
+                          {sub?.name || m.subjectId}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Material Type
@@ -211,7 +330,10 @@ export function AdminMaterialsPage() {
                   variant="outline"
                   size="sm"
                   type="button"
-                  onClick={() => setIsUploadOpen(false)}
+                  onClick={() => {
+                    setIsUploadOpen(false);
+                    setErrorMessage(null);
+                  }}
                 >
                   Cancel
                 </Button>
