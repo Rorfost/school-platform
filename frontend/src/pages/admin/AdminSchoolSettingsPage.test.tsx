@@ -47,17 +47,13 @@ describe("AdminSchoolSettingsPage", () => {
     expect(screen.getByText("Official Identity & Code")).toBeInTheDocument();
     expect(screen.getByText("Address & Location")).toBeInTheDocument();
     expect(screen.getByText("Contact Details")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Save School Settings/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Save School Settings/i })).toBeInTheDocument();
   });
 
   it("renders form inputs pre-filled with school data from cache", () => {
     renderWithData(<AdminSchoolSettingsPage />);
 
-    expect(
-      screen.getByDisplayValue("PM Shri Dhadhana Primary School"),
-    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("PM Shri Dhadhana Primary School")).toBeInTheDocument();
     expect(screen.getByDisplayValue("24030401801")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Gujarat")).toBeInTheDocument();
   });

@@ -20,8 +20,7 @@ export function AdminNoticesPage() {
 
   const { data, isLoading } = useQuery<PageResponse<NoticeResponse>>({
     queryKey: queryKeys.adminNotices({ page: 0, size: 50 }),
-    queryFn: () =>
-      apiRequest<PageResponse<NoticeResponse>>("/api/v1/admin/notices?page=0&size=50"),
+    queryFn: () => apiRequest<PageResponse<NoticeResponse>>("/api/v1/admin/notices?page=0&size=50"),
   });
 
   const notices = data?.items ?? [];

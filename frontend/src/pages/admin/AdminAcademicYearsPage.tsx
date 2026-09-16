@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, Check, Edit, Plus, Star } from "lucide-react";
-import { ApiError, apiRequest } from "@/api/client";
+import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { AcademicYearRequest, AcademicYearResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";

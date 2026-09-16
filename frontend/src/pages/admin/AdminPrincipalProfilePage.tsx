@@ -142,7 +142,6 @@ export function AdminPrincipalProfilePage() {
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
               defaultValue={profile?.message ?? ""}
             />
-
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Edit } from "lucide-react";
-import { ApiError, apiRequest } from "@/api/client";
+import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { StandardRequest, StandardResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";

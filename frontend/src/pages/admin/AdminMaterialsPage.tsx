@@ -138,7 +138,11 @@ export function AdminMaterialsPage() {
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
           >
-            {st} ({st === "ALL" ? allMaterials.length : allMaterials.filter((m) => m.status === st).length})
+            {st} (
+            {st === "ALL"
+              ? allMaterials.length
+              : allMaterials.filter((m) => m.status === st).length}
+            )
           </button>
         ))}
       </div>

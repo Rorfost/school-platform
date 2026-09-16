@@ -41,7 +41,9 @@ describe("AdminLayout", () => {
     expect(screen.getByText("Principal Admin Panel")).toBeInTheDocument();
     expect(screen.getByText("PRINCIPAL")).toBeInTheDocument();
     expect(screen.getByText("principal@school.edu")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders warning banner when mustChangePassword is true", () => {

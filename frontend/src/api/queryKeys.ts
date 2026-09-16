@@ -31,4 +31,3 @@ export const queryKeys = {
   adminGalleryAlbumImages: (albumId: string) =>
     ["admin", "gallery", "albums", albumId, "images"] as const,
 };
-

@@ -263,7 +263,8 @@ public class ContentService {
   @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<StudyMaterial> adminMaterials(
       UUID school, int page, int size) {
-    return materials.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+    return materials.findBySchoolId(
+        school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
   @Transactional(readOnly = true)
@@ -276,8 +277,10 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
-  public org.springframework.data.domain.Page<Notice> adminNotices(UUID school, int page, int size) {
-    return notices.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  public org.springframework.data.domain.Page<Notice> adminNotices(
+      UUID school, int page, int size) {
+    return notices.findBySchoolId(
+        school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
   @Transactional(readOnly = true)
@@ -290,8 +293,10 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
-  public org.springframework.data.domain.Page<GalleryAlbum> adminAlbums(UUID school, int page, int size) {
-    return albums.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  public org.springframework.data.domain.Page<GalleryAlbum> adminAlbums(
+      UUID school, int page, int size) {
+    return albums.findBySchoolId(
+        school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
   @Transactional(readOnly = true)
@@ -304,8 +309,10 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
-  public org.springframework.data.domain.Page<Download> adminDownloads(UUID school, int page, int size) {
-    return downloads.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  public org.springframework.data.domain.Page<Download> adminDownloads(
+      UUID school, int page, int size) {
+    return downloads.findBySchoolId(
+        school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
   @Transactional(readOnly = true)
@@ -318,7 +325,9 @@ public class ContentService {
   @Transactional(readOnly = true)
   public List<GalleryImageResponse> adminAlbumImages(UUID school, UUID albumId) {
     album(school, albumId);
-    return images.findByGalleryAlbumIdOrderBySortOrder(albumId).stream().map(this::adminImage).toList();
+    return images.findByGalleryAlbumIdOrderBySortOrder(albumId).stream()
+        .map(this::adminImage)
+        .toList();
   }
 
   private PageRequest page(int page, int size, Sort sort) {
@@ -371,7 +380,8 @@ public class ContentService {
 
   private GalleryImageResponse adminImage(GalleryImage item) {
     String url = storage.publicUrl(item.getObjectKey());
-    return GalleryImageResponse.from(item, url, storage.publicImageThumbnailUrl(item.getObjectKey()));
+    return GalleryImageResponse.from(
+        item, url, storage.publicImageThumbnailUrl(item.getObjectKey()));
   }
 
   private Notice noticeItem(UUID school, UUID id) {

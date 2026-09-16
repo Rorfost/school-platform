@@ -190,9 +190,7 @@ export function AdminDownloadsPage() {
                 placeholder="e.g. Admission Application Form 2026-27"
               />
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Category
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                 <select
                   name="category"
                   required
