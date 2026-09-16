@@ -1,59 +1,72 @@
 # Rorfost School Portal
 
-A reusable, Gujarati-first school website and principal-admin portal for small schools (about 100–500 users). It is intentionally a simple, secure modular monolith—not a full ERP.
+A reusable, Gujarati-first public school portal with a focused principal-admin panel for small schools. It is intentionally a secure modular monolith, not a full ERP.
+
+**Live portal:** https://portal.dhadhana-school.workers.dev
 
 ## Current status
 
-The Gujarati public portal and the principal-admin workflows for school settings, academic configuration, assessments, materials, notices, gallery, downloads, account security, and JDBC-session authentication are implemented. Excel result import and public individual-result lookup are blocked until the school provides a privacy-safe, non-government student identifier together with a PIN workflow. Other result formats and both timetable features remain pending source material.
+The public portal and principal-admin workflows for school settings, academic configuration, assessments, study materials, notices, gallery, downloads, account security, and JDBC-session authentication are implemented. Excel result import and public individual-result lookup remain blocked until the school supplies a privacy-safe, non-government student identifier and PIN workflow. Exam timetable and school timetable features are pending input or sample data.
+
+## Features
+
+### Public portal
+
+- Gujarati-first, mobile-friendly school information, principal profile, notices, gallery, downloads, and contact details
+- Student Corner for published study materials, notices, and downloads
+- Published content is served through a controlled backend API
+
+### Principal admin panel
+
+- Secure principal session authentication, CSRF protection, password changes, and audit events
+- School settings and principal profile management
+- Academic years, standards, subjects, and standard-subject mapping
+- Generic assessment configuration with draft, publish, and archive states
+- Study material, notice, gallery, and download management with ImageKit-backed uploads
 
 ## Architecture
 
-React + TypeScript + Vite communicates over HTTPS REST with a Java 21 Spring Boot modular monolith. PostgreSQL stores relational data and session records; ImageKit stores public files. Production direction is Cloudflare for frontend/DNS, Render Free for the backend initially, ImageKit for public files, and Aiven PostgreSQL.
+React, TypeScript, and Vite provide the frontend. A Java 21 Spring Boot modular monolith exposes HTTPS REST APIs, uses PostgreSQL for relational data and JDBC-backed sessions, and stores public files in ImageKit. Cloudflare Workers serves the frontend and proxies API requests to the backend; the initial backend and database direction is Render and Aiven PostgreSQL.
 
-## Stack
+## Technology stack
 
-- Frontend: React, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, shadcn/ui where useful, Lucide
-- Backend: Spring Boot 4.x, Maven, Spring MVC, Spring Security, Spring Session JDBC, Spring Data JPA, Flyway, PostgreSQL, Apache POI (planned), ImageKit Java SDK, Actuator
-- Local infrastructure: PostgreSQL via Docker Compose
+- Frontend: React, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Zod, Tailwind CSS, and Lucide
+- Backend: Java 21, Spring Boot, Maven, Spring Security, Spring Session JDBC, Spring Data JPA, Flyway, PostgreSQL, ImageKit, and Actuator
+- Deployment: Cloudflare Workers, Render, Aiven PostgreSQL, and ImageKit
 
-## Repository layout
+## Repository structure
 
 ```text
-frontend/       React/Vite static application shell
-backend/        Spring Boot modular-monolith foundation
-docs/           Product, architecture, engineering, data, operations, and roadmap docs
-.github/        CI and dependency-management configuration
+frontend/       React/Vite SPA and Cloudflare Worker
+backend/        Spring Boot modular monolith
+docs/           Product, architecture, engineering, data, and operations documentation
+.github/        Continuous integration, Dependabot, and contribution templates
 ```
 
-## Start here
+## Local development
 
-1. Read [AGENT.md](AGENT.md) before modifying the repository.
-2. Review [local development](docs/operations/LOCAL_DEVELOPMENT.md).
-3. Use the [roadmap](docs/planning/ROADMAP.md) to choose the next scoped phase.
+Install Node 24+, Java 21, Maven, and Docker. Start PostgreSQL with `docker compose up -d`, then run `npm run dev` in `frontend` and `mvn spring-boot:run -Dspring-boot.run.profiles=local` in `backend`.
 
-For local development, start PostgreSQL with `docker compose up -d`, then run `npm run dev` in `frontend` and `mvn spring-boot:run -Dspring-boot.run.profiles=local` in `backend`. See the component READMEs for required local tools and commands.
+Copy the component `.env.example` files only to ignored local environment files. Never put secrets in frontend `VITE_*` variables; those values are embedded in the browser bundle.
 
-## Key principles
-
-- All user-facing UI is simple, natural Gujarati; source code and documentation are English.
-- Public experiences are mobile-first, accessible, calm, and school-friendly.
-- The sole initial administrative role is `PRINCIPAL`; students, parents, and teachers do not have accounts.
-- Result imports stay draft until explicit publication. Public individual results must never be cacheable.
-- The Excel result format is pending. Do not implement or infer its schema before the owner supplies the real workbook/template.
-- Avoid Redis, microservices, queues, GraphQL, and other unneeded infrastructure.
+See [local development](docs/operations/LOCAL_DEVELOPMENT.md) for full setup and commands.
 
 ## Documentation
 
-- [Product requirements](docs/product/PRD.md) and [stakeholders](docs/product/STAKEHOLDERS.md)
+- [Product requirements](docs/product/PRD.md), [requirements](docs/product/REQUIREMENTS.md), and [roadmap](docs/planning/ROADMAP.md)
 - [Architecture](docs/architecture/ARCHITECTURE.md), [flows](docs/architecture/FLOW.md), and [decisions](docs/architecture/DECISIONS.md)
-- [Engineering rules](docs/engineering/CODE_RULES.md), [configuration](docs/engineering/CONFIG.md), [API guidelines](docs/engineering/API_GUIDELINES.md), [security](docs/engineering/SECURITY.md), and [testing](docs/engineering/TESTING.md)
+- [Configuration](docs/engineering/CONFIG.md), [security](docs/engineering/SECURITY.md), and [testing](docs/engineering/TESTING.md)
 - [Data model](docs/data/DATABASE.md) and [result-import constraints](docs/data/RESULT_IMPORT.md)
-- [Operations](docs/operations/LOCAL_DEVELOPMENT.md) and [delivery roadmap](docs/planning/ROADMAP.md)
+- [Deployment](docs/operations/DEPLOYMENT.md) and [runbook](docs/operations/RUNBOOK.md)
 
-## Contribution workflow
+## Security and privacy
 
-Keep changes small and within the requested scope. Run relevant checks before each commit, update related documentation with behavioral changes, and use focused conventional commit messages. See [AGENT.md](AGENT.md) and [CODE_RULES.md](docs/engineering/CODE_RULES.md).
+Do not commit credentials, real student data, result workbooks, database dumps, backups, or private school documents. See [SECURITY.md](SECURITY.md) for private reporting guidance.
+
+## Contributing
+
+Read [AGENT.md](AGENT.md), [CODE_RULES.md](docs/engineering/CODE_RULES.md), and [CONTRIBUTING.md](CONTRIBUTING.md) before opening a change. Recommended protection for `main` includes pull requests, required CI checks, resolved conversations, and no direct or force pushes.
 
 ## License
 
-Copyright © 2026 Rorfost. All rights reserved. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+This repository is publicly viewable but is not open source. Copyright © 2026 Raj Patel / Rorfost. All rights reserved. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
