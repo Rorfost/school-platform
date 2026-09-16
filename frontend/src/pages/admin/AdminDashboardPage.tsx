@@ -159,7 +159,9 @@ export function AdminDashboardPage() {
 
           <Card className="p-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase">Published Materials</span>
+              <span className="text-xs font-bold text-slate-500 uppercase">
+                Published Materials
+              </span>
               <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
                 <GraduationCap size={18} aria-hidden="true" />
               </div>
@@ -231,7 +233,10 @@ export function AdminDashboardPage() {
           </div>
           <div className="divide-y divide-slate-100">
             {auditLogs.slice(0, 5).map((log) => (
-              <div key={log.id} className="py-3 flex items-center justify-between text-xs sm:text-sm">
+              <div
+                key={log.id}
+                className="py-3 flex items-center justify-between text-xs sm:text-sm"
+              >
                 <div>
                   <span className="font-semibold text-slate-900 uppercase">{log.action}</span>
                   <span className="text-slate-500 ml-2 font-mono text-xs">

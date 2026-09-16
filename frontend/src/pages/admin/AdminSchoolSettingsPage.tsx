@@ -109,16 +109,8 @@ export function AdminSchoolSettingsPage() {
               required
               defaultValue={school?.name ?? ""}
             />
-            <Input
-              label="Short Name"
-              name="shortName"
-              defaultValue={school?.shortName ?? ""}
-            />
-            <Input
-              label="DISE Code"
-              name="schoolCode"
-              defaultValue={school?.schoolCode ?? ""}
-            />
+            <Input label="Short Name" name="shortName" defaultValue={school?.shortName ?? ""} />
+            <Input label="DISE Code" name="schoolCode" defaultValue={school?.schoolCode ?? ""} />
             <Input
               label="Established Year"
               name="establishedYear"

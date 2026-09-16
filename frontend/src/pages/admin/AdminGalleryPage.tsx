@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, CheckCircle2, ChevronDown, ChevronUp, Image as ImageIcon, Plus, Upload } from "lucide-react";
+import {
+  Camera,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Image as ImageIcon,
+  Plus,
+  Upload,
+} from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type {
@@ -25,9 +33,7 @@ export function AdminGalleryPage() {
   const { data, isLoading } = useQuery<PageResponse<GalleryAlbumResponse>>({
     queryKey: queryKeys.adminGalleryAlbums({ page: 0, size: 50 }),
     queryFn: () =>
-      apiRequest<PageResponse<GalleryAlbumResponse>>(
-        "/api/v1/admin/gallery/albums?page=0&size=50",
-      ),
+      apiRequest<PageResponse<GalleryAlbumResponse>>("/api/v1/admin/gallery/albums?page=0&size=50"),
   });
 
   const albums = data?.items ?? [];
@@ -176,9 +182,7 @@ export function AdminGalleryPage() {
             </div>
 
             {/* Expanded Photos Grid */}
-            {expandedAlbumId === album.id && (
-              <AlbumImagesGrid albumId={album.id} />
-            )}
+            {expandedAlbumId === album.id && <AlbumImagesGrid albumId={album.id} />}
           </Card>
         ))}
         {albums.length === 0 && (
@@ -203,12 +207,7 @@ export function AdminGalleryPage() {
                   {errorMessage}
                 </div>
               )}
-              <Input
-                label="Album Title"
-                name="title"
-                required
-                placeholder="e.g. Sports Day 2026"
-              />
+              <Input label="Album Title" name="title" required placeholder="e.g. Sports Day 2026" />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Album Description
@@ -330,10 +329,13 @@ function AlbumImagesGrid({ albumId }: { albumId: string }) {
   return (
     <div className="grid grid-cols-3 gap-2 pt-2">
       {images.map((img) => (
-        <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+        <div
+          key={img.id}
+          className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200"
+        >
           {img.thumbnailUrl || img.url ? (
             <img
-              src={img.thumbnailUrl || img.url}
+              src={img.thumbnailUrl ?? img.url ?? undefined}
               alt={img.altText || "Gallery photo"}
               className="w-full h-full object-cover"
               loading="lazy"

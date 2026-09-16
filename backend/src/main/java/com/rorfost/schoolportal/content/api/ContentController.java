@@ -29,7 +29,8 @@ class ContentController {
       @AuthenticationPrincipal PrincipalSession p,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size) {
-    return PageResponse.from(service.adminMaterials(p.schoolId(), page, size).map(service::material));
+    return PageResponse.from(
+        service.adminMaterials(p.schoolId(), page, size).map(service::material));
   }
 
   @GetMapping("/notices")
@@ -60,7 +61,8 @@ class ContentController {
       @AuthenticationPrincipal PrincipalSession p,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size) {
-    return PageResponse.from(service.adminDownloads(p.schoolId(), page, size).map(service::download));
+    return PageResponse.from(
+        service.adminDownloads(p.schoolId(), page, size).map(service::download));
   }
 
   @PostMapping(value = "/materials", consumes = "multipart/form-data")

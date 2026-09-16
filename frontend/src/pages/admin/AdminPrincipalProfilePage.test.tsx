@@ -36,9 +36,7 @@ describe("AdminPrincipalProfilePage", () => {
 
     expect(screen.getByText("Principal Profile & Message")).toBeInTheDocument();
     expect(screen.getByText("Identity & Designation")).toBeInTheDocument();
-    expect(
-      screen.getByText("Principal's Desk Message (Gujarati / English)"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Principal's Desk Message (Gujarati / English)")).toBeInTheDocument();
     expect(screen.getByText("Public Visibility Options")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Save Profile/i })).toBeInTheDocument();
   });

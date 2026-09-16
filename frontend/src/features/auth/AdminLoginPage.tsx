@@ -22,7 +22,10 @@ export function AdminLoginPage() {
   const school = useEffectiveSchoolInfo();
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as { from?: { pathname?: string }; expired?: boolean } | null;
+  const locationState = location.state as {
+    from?: { pathname?: string };
+    expired?: boolean;
+  } | null;
   const from = locationState?.from?.pathname || "/admin";
   const isExpired = locationState?.expired ?? false;
   const [serverError, setServerError] = useState<string | null>(

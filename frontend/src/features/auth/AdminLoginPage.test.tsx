@@ -42,9 +42,7 @@ describe("AdminLoginPage", () => {
   it("displays expired session notice when redirected due to session expiration", () => {
     renderLoginPage({ expired: true });
 
-    expect(
-      screen.getByText("Your session has expired. Please sign in again."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Your session has expired. Please sign in again.")).toBeInTheDocument();
   });
 
   it("handles valid form submission and calls login handler", async () => {
