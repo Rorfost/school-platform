@@ -2,7 +2,7 @@
 
 Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/api/v1/admin` for authenticated principal operations. Do not create a broad public data endpoint simply for frontend convenience.
 
-## Implemented authentication endpoints
+## Implemented admin endpoints
 
 | Method and path | Access | Purpose |
 | --- | --- | --- |
@@ -11,6 +11,12 @@ Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/a
 | `POST /api/v1/admin/auth/logout` | Public + CSRF | Invalidates an existing session; repeated logout is safe. |
 | `GET /api/v1/admin/auth/me` | `PRINCIPAL` | Returns email, role, and `mustChangePassword`; never credentials or session data. |
 | `PUT /api/v1/admin/auth/password` | `PRINCIPAL` + CSRF | Verifies current password and sets a new 12–72 character password. |
+| `GET /api/v1/admin/dashboard/summary` | `PRINCIPAL` | Returns operational stats (students, standards, subjects, materials, notices, gallery). |
+| `GET /api/v1/admin/audit-logs` | `PRINCIPAL` | Returns paginated audit logs for principal security overview. |
+| `GET /api/v1/admin/academic/students` | `PRINCIPAL` | Lists students scoped to standard and academic year. |
+| `POST /api/v1/admin/academic/students` | `PRINCIPAL` + CSRF | Enrolls new student under standard and academic year. |
+| `PUT /api/v1/admin/academic/students/{id}` | `PRINCIPAL` + CSRF | Updates student name, roll number, or PIN hash. |
+| `GET /api/v1/admin/storage/upload-auth` | `PRINCIPAL` | Generates ImageKit client upload authentication parameters. |
 
 Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failures remain generic, and all frontend-visible text is represented by stable codes for Gujarati mapping.
 
@@ -23,7 +29,7 @@ Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failu
 
 ## Current endpoint inventory
 
-Authentication, school/profile, academic configuration, generic assessment configuration, and storage-backed materials, notices, gallery, and downloads have versioned DTO endpoints. Admin mutations require the principal session and CSRF. Public school/profile, current academic configuration, assessment-type, and public content routes expose published data only.
+Authentication, school/profile, academic configuration, student management, dashboard summary, audit logs, generic assessment configuration, storage authorization, and storage-backed materials, notices, gallery, and downloads have versioned DTO endpoints. Admin mutations require the principal session and CSRF. Public school/profile, current academic configuration, assessment-type, and public content routes expose published data only.
 
 Result import, result publication, available-result choices, and individual result lookup are blocked by the documented privacy-safe student-identity decision. Other exam formats and timetables have no endpoint contract until source material is supplied.
 
