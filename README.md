@@ -4,7 +4,7 @@ A reusable, Gujarati-first school website and principal-admin portal for small s
 
 ## Current status
 
-The technical foundation is initialized: a React/Vite Gujarati shell, Spring Boot service foundation, PostgreSQL Compose setup, Flyway-owned V1 database architecture, PostgreSQL-backed `PRINCIPAL` authentication, persistence models, formatting, tests, and CI. Product workflows, operational school data, and result import remain future phases.
+The Gujarati public portal and the principal-admin workflows for school settings, academic configuration, assessments, materials, notices, gallery, downloads, account security, and JDBC-session authentication are implemented. Excel result import and public individual-result lookup are blocked until the school provides a privacy-safe, non-government student identifier together with a PIN workflow. Other result formats and both timetable features remain pending source material.
 
 ## Architecture
 

@@ -1,11 +1,13 @@
 package com.rorfost.schoolportal.content.api;
 
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.api.PageResponse;
 import com.rorfost.schoolportal.content.application.ContentService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,45 @@ class ContentController {
 
   ContentController(ContentService service) {
     this.service = service;
+  }
+
+  @GetMapping("/materials")
+  PageResponse<MaterialResponse> materials(
+      @AuthenticationPrincipal PrincipalSession p,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return PageResponse.from(service.adminMaterials(p.schoolId(), page, size).map(service::material));
+  }
+
+  @GetMapping("/notices")
+  PageResponse<NoticeResponse> notices(
+      @AuthenticationPrincipal PrincipalSession p,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return PageResponse.from(service.adminNotices(p.schoolId(), page, size).map(service::notice));
+  }
+
+  @GetMapping("/gallery/albums")
+  PageResponse<GalleryAlbumResponse> albums(
+      @AuthenticationPrincipal PrincipalSession p,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return PageResponse.from(
+        service.adminAlbums(p.schoolId(), page, size).map(GalleryAlbumResponse::from));
+  }
+
+  @GetMapping("/gallery/albums/{id}/images")
+  java.util.List<GalleryImageResponse> images(
+      @AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+    return service.adminAlbumImages(p.schoolId(), id);
+  }
+
+  @GetMapping("/downloads")
+  PageResponse<DownloadResponse> downloads(
+      @AuthenticationPrincipal PrincipalSession p,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size) {
+    return PageResponse.from(service.adminDownloads(p.schoolId(), page, size).map(service::download));
   }
 
   @PostMapping(value = "/materials", consumes = "multipart/form-data")

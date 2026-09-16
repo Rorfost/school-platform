@@ -6,7 +6,7 @@ This document describes the implemented V1 schema. The only executable schema so
 backend/src/main/resources/db/migration/
 ```
 
-`V1__create_spring_session_tables.sql` owns Spring Session JDBC tables. `V2__create_domain_schema.sql` creates the domain schema, `V3__seed_assessment_types.sql` inserts stable generic assessment types, `V4__add_domain_indexes.sql` adds query-focused indexes, and `V5__add_admin_authentication_lifecycle.sql` adds the principal password-change lifecycle. Do not maintain a second schema script.
+`V1__create_spring_session_tables.sql` owns Spring Session JDBC tables. `V2__create_domain_schema.sql` creates the domain schema, `V3__seed_assessment_types.sql` inserts stable generic assessment types, `V4__add_domain_indexes.sql` adds query-focused indexes, `V5__add_admin_authentication_lifecycle.sql` adds the principal password-change lifecycle, `V6__extend_v1_content_and_assessment_metadata.sql` extends school/principal metadata, and `V7__add_admin_support_and_schema_fixes.sql` adds non-blank check constraints and student roster indexes. Do not maintain a second schema script.
 
 All domain identifiers are UUIDs, timestamps are `TIMESTAMPTZ`, and database names are `snake_case`. Hibernate validates this schema but never creates or updates it.
 

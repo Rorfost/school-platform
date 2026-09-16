@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Edit } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import type { StandardRequest, StandardResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -14,7 +15,7 @@ export function AdminStandardsPage() {
   const [editingStandard, setEditingStandard] = useState<StandardResponse | null>(null);
 
   const { data: standards = [], isLoading } = useQuery<StandardResponse[]>({
-    queryKey: ["admin", "standards"],
+    queryKey: queryKeys.adminStandards,
     queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
   });
 
@@ -25,7 +26,8 @@ export function AdminStandardsPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "standards"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminStandards });
+      queryClient.invalidateQueries({ queryKey: queryKeys.standards });
       setIsModalOpen(false);
       setEditingStandard(null);
     },
@@ -38,7 +40,8 @@ export function AdminStandardsPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "standards"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminStandards });
+      queryClient.invalidateQueries({ queryKey: queryKeys.standards });
       setIsModalOpen(false);
       setEditingStandard(null);
     },
@@ -144,14 +147,14 @@ export function AdminStandardsPage() {
                 label="Standard Code"
                 name="code"
                 required
-                defaultValue={editingStandard?.code || "STD_3"}
+                defaultValue={editingStandard?.code || ""}
                 placeholder="e.g. STD_3"
               />
               <Input
                 label="Display Name (Gujarati)"
                 name="displayName"
                 required
-                defaultValue={editingStandard?.name || "ધોરણ ૩"}
+                defaultValue={editingStandard?.name || ""}
                 placeholder="e.g. ધોરણ ૩"
               />
               <Input
@@ -159,7 +162,7 @@ export function AdminStandardsPage() {
                 name="sortOrder"
                 type="number"
                 required
-                defaultValue={editingStandard?.displayOrder || 3}
+                defaultValue={editingStandard?.displayOrder ?? 1}
               />
               <label className="flex items-center gap-2 text-sm text-slate-700 font-medium">
                 <input

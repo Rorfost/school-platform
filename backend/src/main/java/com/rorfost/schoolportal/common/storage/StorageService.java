@@ -44,6 +44,10 @@ public class StorageService {
     return properties.urlEndpoint().replaceAll("/$", "") + "/" + objectKey;
   }
 
+  public String publicImageThumbnailUrl(String objectKey) {
+    return publicUrl(objectKey) + "?tr=w-800,h-600,c-at_max,q-80";
+  }
+
   public void delete(StoredObject object) {
     delete(object.bucket(), object.objectKey());
   }

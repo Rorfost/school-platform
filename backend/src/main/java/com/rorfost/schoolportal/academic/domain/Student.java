@@ -33,4 +33,41 @@ public class Student extends AuditableUuidEntity {
     this.rollNumber = rollNumber;
     this.resultPinHash = resultPinHash;
   }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public UUID getAcademicYearId() {
+    return academicYearId;
+  }
+
+  public UUID getStandardId() {
+    return standardId;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public String getRollNumber() {
+    return rollNumber;
+  }
+
+  public String getResultPinHash() {
+    return resultPinHash;
+  }
+
+  public boolean isArchived() {
+    return isArchived;
+  }
+
+  public void update(String fullName, String rollNumber, String resultPinHash, boolean isArchived) {
+    this.fullName = fullName;
+    this.rollNumber = rollNumber;
+    if (resultPinHash != null && !resultPinHash.isBlank()) {
+      this.resultPinHash = resultPinHash;
+    }
+    this.isArchived = isArchived;
+  }
 }

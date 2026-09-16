@@ -97,16 +97,17 @@ export function Footer() {
 
         {/* Bottom Strip */}
         <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>
-            © {toGujaratiNumber(new Date().getFullYear())} {school.name}. સર્વ હક સુરક્ષિત.
-          </p>
+          <div className="space-y-1 text-center sm:text-left">
+            <p className="text-slate-500">© 2026 Rakesh Patel. All rights reserved.</p>
+            <p className="text-slate-500">Built by Raj Patel | Rorfost</p>
+          </div>
           <div className="flex items-center gap-4">
             <Link
               to="/admin/login"
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors"
             >
               <Lock size={12} aria-hidden="true" />
-              <span>{LABELS.adminLogin}</span>
+              <span>Admin Login</span>
             </Link>
           </div>
         </div>

@@ -12,6 +12,11 @@ export function GalleryAlbumPage() {
   const { albumId } = useParams<{ albumId: string }>();
   const { data: images, isLoading, error, refetch } = usePublicGalleryImages(albumId);
   const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
+  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
+
+  const markImageFailed = (imageId: string) => {
+    setFailedImageIds((current) => new Set(current).add(imageId));
+  };
 
   return (
     <div className="space-y-6">
@@ -49,11 +54,14 @@ export function GalleryAlbumPage() {
               }}
             >
               <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
-                {img.url ? (
+                {img.url && !failedImageIds.has(img.id) ? (
                   <img
-                    src={img.url}
+                    src={img.thumbnailUrl || img.url}
                     alt={img.altText || "ગેલેરી તસવીર"}
                     className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => markImageFailed(img.id)}
                   />
                 ) : (
                   <div className="size-full flex items-center justify-center text-slate-400">

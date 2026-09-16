@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit, Plus } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import type { SubjectRequest, SubjectResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -14,7 +15,7 @@ export function AdminSubjectsPage() {
   const [editingSubject, setEditingSubject] = useState<SubjectResponse | null>(null);
 
   const { data: subjects = [], isLoading } = useQuery<SubjectResponse[]>({
-    queryKey: ["admin", "subjects"],
+    queryKey: queryKeys.adminSubjects,
     queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
   });
 
@@ -25,7 +26,8 @@ export function AdminSubjectsPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "subjects"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminSubjects });
+      queryClient.invalidateQueries({ queryKey: queryKeys.subjects });
       setIsModalOpen(false);
       setEditingSubject(null);
     },
@@ -38,7 +40,8 @@ export function AdminSubjectsPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "subjects"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminSubjects });
+      queryClient.invalidateQueries({ queryKey: queryKeys.subjects });
       setIsModalOpen(false);
       setEditingSubject(null);
     },
@@ -144,14 +147,14 @@ export function AdminSubjectsPage() {
                 label="Subject Code"
                 name="code"
                 required
-                defaultValue={editingSubject?.code || "MATHS"}
+                defaultValue={editingSubject?.code || ""}
                 placeholder="e.g. MATHS"
               />
               <Input
                 label="Subject Name (Gujarati / English)"
                 name="name"
                 required
-                defaultValue={editingSubject?.name || "ગણિત"}
+                defaultValue={editingSubject?.name || ""}
                 placeholder="e.g. ગણિત"
               />
               <Input
@@ -159,7 +162,7 @@ export function AdminSubjectsPage() {
                 name="sortOrder"
                 type="number"
                 required
-                defaultValue={editingSubject?.displayOrder || 1}
+                defaultValue={editingSubject?.displayOrder ?? 1}
               />
               <label className="flex items-center gap-2 text-sm text-slate-700 font-medium">
                 <input

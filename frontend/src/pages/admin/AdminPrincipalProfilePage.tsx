@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Save, UserCheck } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalProfileResponse, PrincipalProfileUpdateRequest } from "@/api/types";
 import { Button } from "@/components/ui/Button";
@@ -26,6 +26,8 @@ export function AdminPrincipalProfilePage() {
       }),
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKeys.principalProfile, updated);
+      // Invalidate public principal profile so Principal's Desk page reflects changes
+      queryClient.invalidateQueries({ queryKey: queryKeys.principalProfile });
       setSuccessMsg("Principal profile updated successfully.");
       setTimeout(() => setSuccessMsg(null), 4000);
     },
@@ -50,6 +52,13 @@ export function AdminPrincipalProfilePage() {
     updateMutation.mutate(payload);
   };
 
+  const errorMessage =
+    updateMutation.error instanceof ApiError
+      ? updateMutation.error.message
+      : updateMutation.isError
+        ? "Failed to update profile."
+        : null;
+
   if (isLoading) {
     return <LoadingState message="Loading Principal profile..." />;
   }
@@ -71,14 +80,14 @@ export function AdminPrincipalProfilePage() {
         </div>
       )}
 
-      {updateMutation.isError && (
+      {errorMessage && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
-          Failed to update profile.{" "}
-          {updateMutation.error instanceof Error ? updateMutation.error.message : ""}
+          {errorMessage}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* key forces form to re-mount with fresh defaultValues once backend data arrives */}
+      <form key={profile ? "loaded" : "loading"} onSubmit={handleSubmit} className="space-y-6">
         {/* Personal & Professional Info */}
         <Card className="p-6 space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -90,29 +99,29 @@ export function AdminPrincipalProfilePage() {
               label="Full Name"
               name="fullName"
               required
-              defaultValue={profile?.fullName || "આચાર્યશ્રી"}
+              defaultValue={profile?.fullName ?? ""}
             />
             <Input
               label="Designation"
               name="designation"
-              defaultValue={profile?.designation || "મુખ્ય શિક્ષક / આચાર્ય"}
+              defaultValue={profile?.designation ?? ""}
             />
             <Input
               label="Qualifications"
               name="qualification"
-              defaultValue={profile?.qualification || "M.A., B.Ed."}
+              defaultValue={profile?.qualification ?? ""}
               placeholder="e.g. M.A., B.Ed."
             />
             <Input
               label="Contact Email"
               name="email"
               type="email"
-              defaultValue={profile?.email || "principal24030401801@ssguj.in"}
+              defaultValue={profile?.email ?? ""}
             />
             <Input
               label="Contact Phone"
               name="phone"
-              defaultValue={profile?.phone || ""}
+              defaultValue={profile?.phone ?? ""}
               placeholder="e.g. +91 9876543210"
             />
           </div>
@@ -131,11 +140,9 @@ export function AdminPrincipalProfilePage() {
               name="message"
               rows={6}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={
-                profile?.message ||
-                "પ્રિય વિદ્યાર્થીઓ અને વાલીશ્રીઓ,\n\nઅમારી શાળામાં આપ સૌનું હાર્દિક સ્વાગત છે."
-              }
+              defaultValue={profile?.message ?? ""}
             />
+
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -145,7 +152,7 @@ export function AdminPrincipalProfilePage() {
               name="biography"
               rows={3}
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-              defaultValue={profile?.biography || ""}
+              defaultValue={profile?.biography ?? ""}
               placeholder="Educational background and service journey..."
             />
           </div>

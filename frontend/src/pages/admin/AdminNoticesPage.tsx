@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Paperclip, Pin, Plus, Trash2 } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { NoticeRequest, NoticeResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
@@ -16,11 +16,12 @@ export function AdminNoticesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [attachTargetId, setAttachTargetId] = useState<string | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<PageResponse<NoticeResponse>>({
-    queryKey: queryKeys.notices({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminNotices({ page: 0, size: 50 }),
     queryFn: () =>
-      apiRequest<PageResponse<NoticeResponse>>("/api/v1/public/notices?page=0&size=50"),
+      apiRequest<PageResponse<NoticeResponse>>("/api/v1/admin/notices?page=0&size=50"),
   });
 
   const notices = data?.items ?? [];
@@ -32,8 +33,12 @@ export function AdminNoticesPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setIsCreateOpen(false);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to create notice.");
     },
   });
 
@@ -44,7 +49,7 @@ export function AdminNoticesPage() {
         body: formData,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setAttachTargetId(null);
     },
   });
@@ -55,7 +60,7 @@ export function AdminNoticesPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
     },
   });
 
@@ -65,7 +70,7 @@ export function AdminNoticesPage() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notices() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setDeleteTargetId(null);
     },
   });
@@ -208,11 +213,16 @@ export function AdminNoticesPage() {
           <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Create New Announcement</h2>
             <form onSubmit={handleCreateSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <Input
                 label="Title"
                 name="title"
                 required
-                placeholder="e.g. દિવાળી વેકેશન અંગે સૂચના"
+                placeholder="Notice announcement title..."
               />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">

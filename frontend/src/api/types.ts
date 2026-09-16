@@ -82,7 +82,7 @@ export interface MaterialResponse {
   filename: string;
   contentType: string;
   byteSize: number;
-  url: string;
+  url: string | null;
   status: string;
 }
 
@@ -95,7 +95,7 @@ export interface DownloadResponse {
   filename: string;
   contentType: string;
   byteSize: number;
-  url: string;
+  url: string | null;
   status: string;
 }
 
@@ -112,7 +112,8 @@ export interface GalleryImageResponse {
   altText: string;
   caption: string | null;
   sortOrder: number;
-  url: string;
+  url: string | null;
+  thumbnailUrl: string | null;
   status: string;
 }
 
@@ -255,4 +256,26 @@ export interface ProblemDetail {
   instance?: string;
   code?: string;
   requestId?: string;
+}
+
+export interface DashboardSummaryResponse {
+  totalStudents: number;
+  totalStandards: number;
+  totalSubjects: number;
+  publishedMaterials: number;
+  publishedNotices: number;
+  publishedGalleryAlbums: number;
+  totalDownloads: number;
+}
+
+export interface AuditLogResponse {
+  id: string;
+  schoolId: string;
+  actorAdminUserId: string | null;
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  requestId: string | null;
+  metadata: string;
+  createdAt: string;
 }

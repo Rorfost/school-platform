@@ -11,6 +11,8 @@ public interface StudyMaterialRepository extends JpaRepository<StudyMaterial, UU
   Page<StudyMaterial> findBySchoolIdAndStatus(
       UUID schoolId, PublicationStatus status, Pageable pageable);
 
+  Page<StudyMaterial> findBySchoolId(UUID schoolId, Pageable pageable);
+
   Page<StudyMaterial> findBySchoolIdAndStatusAndAcademicYearIdAndStandardSubjectId(
       UUID schoolId,
       PublicationStatus status,
@@ -19,4 +21,6 @@ public interface StudyMaterialRepository extends JpaRepository<StudyMaterial, UU
       Pageable pageable);
 
   java.util.Optional<StudyMaterial> findByIdAndSchoolId(UUID id, UUID schoolId);
+
+  long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);
 }

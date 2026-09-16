@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, CheckCircle2, Image as ImageIcon, Plus, Upload } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { Camera, CheckCircle2, ChevronDown, ChevronUp, Image as ImageIcon, Plus, Upload } from "lucide-react";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { GalleryAlbumRequest, GalleryAlbumResponse, PageResponse } from "@/api/types";
+import type {
+  GalleryAlbumRequest,
+  GalleryAlbumResponse,
+  GalleryImageResponse,
+  PageResponse,
+} from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -14,12 +19,14 @@ export function AdminGalleryPage() {
   const queryClient = useQueryClient();
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
   const [uploadImageAlbumId, setUploadImageAlbumId] = useState<string | null>(null);
+  const [expandedAlbumId, setExpandedAlbumId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<PageResponse<GalleryAlbumResponse>>({
-    queryKey: queryKeys.galleryAlbums({ page: 0, size: 50 }),
+    queryKey: queryKeys.adminGalleryAlbums({ page: 0, size: 50 }),
     queryFn: () =>
       apiRequest<PageResponse<GalleryAlbumResponse>>(
-        "/api/v1/public/gallery/albums?page=0&size=50",
+        "/api/v1/admin/gallery/albums?page=0&size=50",
       ),
   });
 
@@ -32,22 +39,30 @@ export function AdminGalleryPage() {
         body: payload,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
       setIsAlbumModalOpen(false);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to create album.");
     },
   });
 
   const uploadImageMutation = useMutation({
     mutationFn: ({ albumId, formData }: { albumId: string; formData: FormData }) =>
-      apiRequest<void>(`/api/v1/admin/gallery/albums/${albumId}/images`, {
+      apiRequest<GalleryImageResponse>(`/api/v1/admin/gallery/albums/${albumId}/images`, {
         method: "POST",
         body: formData,
       }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.galleryAlbumImages(variables.albumId),
+        queryKey: queryKeys.adminGalleryAlbumImages(variables.albumId),
       });
       setUploadImageAlbumId(null);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to upload photo.");
     },
   });
 
@@ -57,7 +72,7 @@ export function AdminGalleryPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
     },
   });
 
@@ -129,25 +144,41 @@ export function AdminGalleryPage() {
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={() => setUploadImageAlbumId(album.id)}
-                className="gap-1.5"
+                onClick={() => setExpandedAlbumId(expandedAlbumId === album.id ? null : album.id)}
+                className="gap-1 text-xs text-slate-600"
               >
-                <Upload size={14} />
-                <span>Add Photos</span>
+                {expandedAlbumId === album.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                <span>{expandedAlbumId === album.id ? "Hide Photos" : "View Photos"}</span>
               </Button>
-              {album.status !== "PUBLISHED" && (
+              <div className="flex items-center gap-1">
                 <Button
-                  variant="primary"
+                  variant="outline"
                   size="sm"
-                  onClick={() => publishAlbumMutation.mutate(album.id)}
-                  loading={publishAlbumMutation.isPending}
+                  onClick={() => setUploadImageAlbumId(album.id)}
+                  className="gap-1.5"
                 >
-                  Publish Album
+                  <Upload size={14} />
+                  <span>Add</span>
                 </Button>
-              )}
+                {album.status !== "PUBLISHED" && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => publishAlbumMutation.mutate(album.id)}
+                    loading={publishAlbumMutation.isPending}
+                  >
+                    Publish
+                  </Button>
+                )}
+              </div>
             </div>
+
+            {/* Expanded Photos Grid */}
+            {expandedAlbumId === album.id && (
+              <AlbumImagesGrid albumId={album.id} />
+            )}
           </Card>
         ))}
         {albums.length === 0 && (
@@ -167,11 +198,16 @@ export function AdminGalleryPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Create Photo Album</h2>
             <form onSubmit={handleCreateAlbumSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <Input
                 label="Album Title"
                 name="title"
                 required
-                placeholder="e.g. વાર્ષિક રમતગમત મહોત્સવ ૨૦૨૬"
+                placeholder="e.g. Sports Day 2026"
               />
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -190,7 +226,10 @@ export function AdminGalleryPage() {
                   variant="outline"
                   size="sm"
                   type="button"
-                  onClick={() => setIsAlbumModalOpen(false)}
+                  onClick={() => {
+                    setIsAlbumModalOpen(false);
+                    setErrorMessage(null);
+                  }}
                 >
                   Cancel
                 </Button>
@@ -214,11 +253,16 @@ export function AdminGalleryPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Upload Photo to Album</h2>
             <form onSubmit={handleUploadImageSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <Input
                 label="Alt Text / Title"
                 name="altText"
                 required
-                placeholder="e.g. વિજેતા વિદ્યાર્થીઓ"
+                placeholder="e.g. Winners ceremony"
               />
               <Input label="Caption (Optional)" name="caption" placeholder="Photo description..." />
               <Input label="Sort Order" name="sortOrder" type="number" defaultValue={1} />
@@ -240,7 +284,10 @@ export function AdminGalleryPage() {
                   variant="outline"
                   size="sm"
                   type="button"
-                  onClick={() => setUploadImageAlbumId(null)}
+                  onClick={() => {
+                    setUploadImageAlbumId(null);
+                    setErrorMessage(null);
+                  }}
                 >
                   Cancel
                 </Button>
@@ -257,6 +304,48 @@ export function AdminGalleryPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function AlbumImagesGrid({ albumId }: { albumId: string }) {
+  const { data: images = [], isLoading } = useQuery<GalleryImageResponse[]>({
+    queryKey: queryKeys.adminGalleryAlbumImages(albumId),
+    queryFn: () =>
+      apiRequest<GalleryImageResponse[]>(`/api/v1/admin/gallery/albums/${albumId}/images`),
+  });
+
+  if (isLoading) {
+    return <div className="text-xs text-slate-500 py-2">Loading photos...</div>;
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="text-xs text-slate-400 py-2 italic text-center">
+        No photos in this album yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-3 gap-2 pt-2">
+      {images.map((img) => (
+        <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+          {img.thumbnailUrl || img.url ? (
+            <img
+              src={img.thumbnailUrl || img.url}
+              alt={img.altText || "Gallery photo"}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-slate-400">
+              <ImageIcon size={28} aria-hidden="true" />
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

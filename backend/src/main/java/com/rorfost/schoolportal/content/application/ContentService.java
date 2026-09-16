@@ -261,12 +261,23 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
+  public org.springframework.data.domain.Page<StudyMaterial> adminMaterials(
+      UUID school, int page, int size) {
+    return materials.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  }
+
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<Notice> publicNotices(
       UUID school, int page, int size) {
     return notices.findVisibleBySchoolIdAndStatus(
         school,
         PublicationStatus.PUBLISHED,
         page(page, size, Sort.by(Sort.Order.desc("isPinned"), Sort.Order.desc("publishedAt"))));
+  }
+
+  @Transactional(readOnly = true)
+  public org.springframework.data.domain.Page<Notice> adminNotices(UUID school, int page, int size) {
+    return notices.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
   @Transactional(readOnly = true)
@@ -279,6 +290,11 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
+  public org.springframework.data.domain.Page<GalleryAlbum> adminAlbums(UUID school, int page, int size) {
+    return albums.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  }
+
+  @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<Download> publicDownloads(
       UUID school, int page, int size) {
     return downloads.findBySchoolIdAndStatus(
@@ -288,10 +304,21 @@ public class ContentService {
   }
 
   @Transactional(readOnly = true)
+  public org.springframework.data.domain.Page<Download> adminDownloads(UUID school, int page, int size) {
+    return downloads.findBySchoolId(school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+  }
+
+  @Transactional(readOnly = true)
   public List<GalleryImageResponse> publicAlbumImages(UUID school, UUID albumId) {
     GalleryAlbum album = album(school, albumId);
     if (album.getStatus() != PublicationStatus.PUBLISHED) throw notFound("gallery_album_not_found");
     return albumImages(albumId);
+  }
+
+  @Transactional(readOnly = true)
+  public List<GalleryImageResponse> adminAlbumImages(UUID school, UUID albumId) {
+    album(school, albumId);
+    return images.findByGalleryAlbumIdOrderBySortOrder(albumId).stream().map(this::adminImage).toList();
   }
 
   private PageRequest page(int page, int size, Sort sort) {
@@ -329,6 +356,9 @@ public class ContentService {
         item,
         item.getStatus() == PublicationStatus.PUBLISHED
             ? storage.publicUrl(item.getObjectKey())
+            : null,
+        item.getStatus() == PublicationStatus.PUBLISHED
+            ? storage.publicImageThumbnailUrl(item.getObjectKey())
             : null);
   }
 
@@ -337,6 +367,11 @@ public class ContentService {
         .filter(item -> item.getStatus() == PublicationStatus.PUBLISHED)
         .map(this::image)
         .toList();
+  }
+
+  private GalleryImageResponse adminImage(GalleryImage item) {
+    String url = storage.publicUrl(item.getObjectKey());
+    return GalleryImageResponse.from(item, url, storage.publicImageThumbnailUrl(item.getObjectKey()));
   }
 
   private Notice noticeItem(UUID school, UUID id) {
