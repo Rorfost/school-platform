@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Archive, Check, Plus, Star } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { Archive, Check, Edit, Plus, Star } from "lucide-react";
+import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { AcademicYearRequest, AcademicYearResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
@@ -29,7 +29,7 @@ export function AdminAcademicYearsPage() {
   });
 
   const { data: years = [], isLoading } = useQuery<AcademicYearResponse[]>({
-    queryKey: ["admin", "academic-years"],
+    queryKey: queryKeys.adminAcademicYears,
     queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
   });
 
@@ -65,7 +65,7 @@ export function AdminAcademicYearsPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "academic-years"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminAcademicYears });
       queryClient.invalidateQueries({ queryKey: queryKeys.currentAcademicYear });
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
@@ -77,7 +77,7 @@ export function AdminAcademicYearsPage() {
         method: "POST",
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "academic-years"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminAcademicYears });
       setConfirmModalState((prev) => ({ ...prev, isOpen: false }));
     },
   });
@@ -160,6 +160,20 @@ export function AdminAcademicYearsPage() {
                     )}
                   </td>
                   <td className="p-4 text-right space-x-2">
+                    {item.status !== "ARCHIVED" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingYear(item);
+                          setIsModalOpen(true);
+                        }}
+                        title="Edit Academic Year"
+                      >
+                        <Edit size={14} className="text-slate-700" />
+                        <span className="hidden sm:inline">Edit</span>
+                      </Button>
+                    )}
                     {item.status !== "CURRENT" && item.status !== "ARCHIVED" && (
                       <Button
                         variant="outline"

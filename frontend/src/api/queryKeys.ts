@@ -14,5 +14,12 @@ export const queryKeys = {
   authMe: ["admin", "auth", "me"] as const,
   adminDashboardSummary: ["admin", "dashboard", "summary"] as const,
   adminAuditLogs: ["admin", "audit-logs"] as const,
+  // Admin-scoped academic management keys
+  adminAcademicYears: ["admin", "academic-years"] as const,
+  adminStandards: ["admin", "standards"] as const,
+  adminSubjects: ["admin", "subjects"] as const,
+  adminStandardSubjects: (standardId: string) =>
+    ["admin", "standards", standardId, "subjects"] as const,
 };
+
 

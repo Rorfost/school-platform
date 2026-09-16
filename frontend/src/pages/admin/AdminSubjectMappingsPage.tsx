@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { apiRequest } from "@/api/client";
+import { ApiError, apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import type {
   StandardResponse,
   StandardSubjectRequest,
@@ -17,21 +18,22 @@ export function AdminSubjectMappingsPage() {
   const queryClient = useQueryClient();
   const [selectedStandardId, setSelectedStandardId] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: standards = [] } = useQuery<StandardResponse[]>({
-    queryKey: ["admin", "standards"],
+    queryKey: queryKeys.adminStandards,
     queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
   });
 
   const { data: subjects = [] } = useQuery<SubjectResponse[]>({
-    queryKey: ["admin", "subjects"],
+    queryKey: queryKeys.adminSubjects,
     queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
   });
 
   const effectiveStandardId = selectedStandardId || (standards[0]?.id ?? "");
 
   const { data: mappings = [], isLoading } = useQuery<StandardSubjectResponse[]>({
-    queryKey: ["admin", "standards", effectiveStandardId, "subjects"],
+    queryKey: queryKeys.adminStandardSubjects(effectiveStandardId),
     queryFn: () =>
       apiRequest<StandardSubjectResponse[]>(
         `/api/v1/admin/standards/${effectiveStandardId}/subjects`,
@@ -47,9 +49,13 @@ export function AdminSubjectMappingsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["admin", "standards", effectiveStandardId, "subjects"],
+        queryKey: queryKeys.adminStandardSubjects(effectiveStandardId),
       });
       setIsModalOpen(false);
+      setErrorMessage(null);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof ApiError ? err.message : "Failed to map subject.");
     },
   });
 
@@ -127,7 +133,7 @@ export function AdminSubjectMappingsPage() {
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
                   <th className="p-4">Sort Order</th>
                   <th className="p-4">Subject Name</th>
-                  <th className="p-4">Mapping ID</th>
+                  <th className="p-4">Subject Code</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -139,7 +145,9 @@ export function AdminSubjectMappingsPage() {
                       <td className="p-4 font-bold text-slate-900">
                         {subObj?.name || m.subjectId}
                       </td>
-                      <td className="p-4 font-mono text-xs text-slate-500">{m.id}</td>
+                      <td className="p-4 font-mono text-xs text-slate-600">
+                        {subObj?.code || "—"}
+                      </td>
                     </tr>
                   );
                 })}
@@ -165,6 +173,11 @@ export function AdminSubjectMappingsPage() {
               Map Subject to {activeStandard?.name}
             </h2>
             <form onSubmit={handleSave} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                  {errorMessage}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Select Subject
@@ -175,11 +188,13 @@ export function AdminSubjectMappingsPage() {
                   className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
                 >
                   <option value="">-- Choose Subject --</option>
-                  {subjects.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name} ({sub.code})
-                    </option>
-                  ))}
+                  {subjects
+                    .filter((sub) => !mappings.some((m) => m.subjectId === sub.id))
+                    .map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name} ({sub.code})
+                      </option>
+                    ))}
                 </select>
               </div>
 
