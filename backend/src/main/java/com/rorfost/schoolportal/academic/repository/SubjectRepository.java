@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SubjectRepository extends JpaRepository<Subject, UUID> {
   List<Subject> findBySchoolIdOrderBySortOrder(UUID schoolId);
 
+  List<Subject> findBySchoolIdAndIsArchivedFalseOrderBySortOrder(UUID schoolId);
+
   Optional<Subject> findByIdAndSchoolId(UUID id, UUID schoolId);
 
   long countBySchoolIdAndIsArchivedFalse(UUID schoolId);

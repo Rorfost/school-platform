@@ -60,6 +60,11 @@ class AcademicConfigurationController {
     return service.standards(principal.schoolId());
   }
 
+  @GetMapping("/academic-setup")
+  AcademicSetupResponse academicSetup(@AuthenticationPrincipal PrincipalSession principal) {
+    return service.academicSetup(principal.schoolId());
+  }
+
   @PostMapping("/standards")
   StandardResponse createStandard(
       @AuthenticationPrincipal PrincipalSession principal,
@@ -114,5 +119,14 @@ class AcademicConfigurationController {
       @PathVariable UUID id,
       @Valid @RequestBody StandardSubjectRequest request) {
     return service.updateMapping(principal.schoolId(), principal.adminUserId(), id, request);
+  }
+
+  @PutMapping("/standards/{standardId}/subjects")
+  List<SubjectResponse> replaceStandardSubjects(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @PathVariable UUID standardId,
+      @Valid @RequestBody StandardSubjectsUpdateRequest request) {
+    return service.replaceStandardSubjects(
+        principal.schoolId(), principal.adminUserId(), standardId, request);
   }
 }

@@ -1,11 +1,13 @@
 package com.rorfost.schoolportal.academic.application;
 
+import com.rorfost.schoolportal.academic.api.AcademicSetupResponse;
 import com.rorfost.schoolportal.academic.api.AcademicYearRequest;
 import com.rorfost.schoolportal.academic.api.AcademicYearResponse;
 import com.rorfost.schoolportal.academic.api.StandardRequest;
 import com.rorfost.schoolportal.academic.api.StandardResponse;
 import com.rorfost.schoolportal.academic.api.StandardSubjectRequest;
 import com.rorfost.schoolportal.academic.api.StandardSubjectResponse;
+import com.rorfost.schoolportal.academic.api.StandardSubjectsUpdateRequest;
 import com.rorfost.schoolportal.academic.api.SubjectRequest;
 import com.rorfost.schoolportal.academic.api.SubjectResponse;
 import com.rorfost.schoolportal.academic.domain.AcademicYear;
@@ -23,7 +25,11 @@ import com.rorfost.schoolportal.common.exception.DomainException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -108,9 +114,10 @@ public class AcademicConfigurationService {
     return AcademicYearResponse.from(year);
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public List<StandardResponse> standards(UUID schoolId) {
-    return standards.findBySchoolIdOrderBySortOrder(schoolId).stream()
+    ensureDefaultStandards(schoolId);
+    return standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
         .map(StandardResponse::from)
         .toList();
   }
@@ -145,9 +152,39 @@ public class AcademicConfigurationService {
 
   @Transactional(readOnly = true)
   public List<SubjectResponse> subjects(UUID schoolId) {
-    return subjects.findBySchoolIdOrderBySortOrder(schoolId).stream()
+    return subjects.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
         .map(SubjectResponse::from)
         .toList();
+  }
+
+  @Transactional
+  public AcademicSetupResponse academicSetup(UUID schoolId) {
+    ensureDefaultStandards(schoolId);
+    List<Standard> activeStandards =
+        standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId);
+    List<Subject> activeSubjects =
+        subjects.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId);
+    Map<UUID, SubjectResponse> subjectsById =
+        activeSubjects.stream()
+            .map(SubjectResponse::from)
+            .collect(java.util.stream.Collectors.toMap(SubjectResponse::id, Function.identity()));
+
+    List<AcademicSetupResponse.StandardSubjectsResponse> configuredStandards =
+        activeStandards.stream()
+            .map(
+                standard ->
+                    new AcademicSetupResponse.StandardSubjectsResponse(
+                        StandardResponse.from(standard),
+                        standardSubjects
+                            .findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standard.getId())
+                            .stream()
+                            .map(StandardSubject::getSubjectId)
+                            .map(subjectsById::get)
+                            .filter(java.util.Objects::nonNull)
+                            .toList()))
+            .toList();
+    return new AcademicSetupResponse(
+        configuredStandards, activeSubjects.stream().map(SubjectResponse::from).toList());
   }
 
   @Transactional
@@ -216,6 +253,63 @@ public class AcademicConfigurationService {
     mapping.setSortOrder(request.sortOrder());
     audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "STANDARD_SUBJECT", id);
     return StandardSubjectResponse.from(mapping);
+  }
+
+  @Transactional
+  public List<SubjectResponse> replaceStandardSubjects(
+      UUID schoolId, UUID actorId, UUID standardId, StandardSubjectsUpdateRequest request) {
+    Standard standard = requireStandard(schoolId, standardId);
+    if (standard.isArchived()) throw conflict("archived_academic_item");
+    Set<UUID> requestedSubjectIds = Set.copyOf(request.subjectIds());
+    if (requestedSubjectIds.size() != request.subjectIds().size())
+      throw conflict("standard_subject_duplicate");
+    for (UUID subjectId : requestedSubjectIds) {
+      if (requireSubject(schoolId, subjectId).isArchived())
+        throw conflict("archived_academic_item");
+    }
+
+    List<StandardSubject> existing =
+        standardSubjects.findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standardId);
+    Map<UUID, StandardSubject> mappingsBySubject =
+        existing.stream()
+            .collect(Collectors.toMap(StandardSubject::getSubjectId, Function.identity()));
+    for (StandardSubject mapping : existing) {
+      if (!requestedSubjectIds.contains(mapping.getSubjectId())) {
+        // Historical materials and assessment subjects retain this relation; never orphan them.
+        if (standardSubjects.isReferenced(mapping.getId()))
+          throw conflict("standard_subject_in_use");
+        standardSubjects.delete(mapping);
+      }
+    }
+    for (int index = 0; index < request.subjectIds().size(); index++) {
+      UUID subjectId = request.subjectIds().get(index);
+      StandardSubject mapping = mappingsBySubject.get(subjectId);
+      if (mapping == null) {
+        standardSubjects.save(
+            new StandardSubject(schoolId, standardId, subjectId, (short) (index + 1)));
+      } else {
+        mapping.setSortOrder((short) (index + 1));
+      }
+    }
+    audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "STANDARD", standardId);
+    return mappings(schoolId, standardId).stream()
+        .map(StandardSubjectResponse::subjectId)
+        .map(subjectId -> requireSubject(schoolId, subjectId))
+        .map(SubjectResponse::from)
+        .toList();
+  }
+
+  /**
+   * Seeds only the fixed primary-school range, allowing each school to keep its own configuration.
+   */
+  @Transactional
+  public void ensureDefaultStandards(UUID schoolId) {
+    for (short order = 1; order <= 8; order++) {
+      String code = "STD_" + order;
+      if (!standards.existsBySchoolIdAndCode(schoolId, code)) {
+        standards.save(new Standard(schoolId, code, "Standard " + order, order));
+      }
+    }
   }
 
   private void replaceCurrent(UUID schoolId, UUID keepId) {

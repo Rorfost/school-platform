@@ -1,5 +1,7 @@
 package com.rorfost.schoolportal.content.application;
 
+import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
+import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
 import com.rorfost.schoolportal.audit.domain.AuditAction;
 import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.common.exception.DomainException;
@@ -57,6 +59,8 @@ public class ContentService {
   private final GalleryImageRepository images;
   private final DownloadRepository downloads;
   private final SchoolRepository schools;
+  private final AcademicYearRepository academicYears;
+  private final StandardSubjectRepository standardSubjects;
   private final AuditLogService audit;
 
   public ContentService(
@@ -67,6 +71,8 @@ public class ContentService {
       GalleryImageRepository images,
       DownloadRepository downloads,
       SchoolRepository schools,
+      AcademicYearRepository academicYears,
+      StandardSubjectRepository standardSubjects,
       AuditLogService audit) {
     this.storage = storage;
     this.materials = materials;
@@ -75,12 +81,15 @@ public class ContentService {
     this.images = images;
     this.downloads = downloads;
     this.schools = schools;
+    this.academicYears = academicYears;
+    this.standardSubjects = standardSubjects;
     this.audit = audit;
   }
 
   @Transactional
   public MaterialResponse uploadMaterial(
       UUID school, UUID actor, MaterialMetadataRequest request, MultipartFile file) {
+    validateMaterialScope(school, request);
     StoredObject object = storage.uploadPublicDocument(storagePrefix("materials", school), file);
     try {
       StudyMaterial item =
@@ -638,6 +647,21 @@ public class ContentService {
             .map(school -> school.getSlug())
             .orElseThrow(() -> notFound("school_not_found"));
     return category + "/" + schoolSlug;
+  }
+
+  private void validateMaterialScope(UUID schoolId, MaterialMetadataRequest request) {
+    if (request.academicYearId() != null
+        && academicYears
+            .findById(request.academicYearId())
+            .filter(year -> year.getSchoolId().equals(schoolId))
+            .isEmpty()) {
+      throw badRequest("material_academic_year_invalid");
+    }
+    // Multipart field values are user-controlled; the backend owns the relational mapping boundary.
+    if (request.standardSubjectId() != null
+        && standardSubjects.findByIdAndSchoolId(request.standardSubjectId(), schoolId).isEmpty()) {
+      throw badRequest("material_standard_subject_invalid");
+    }
   }
 
   private String trim(String value) {
