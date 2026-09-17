@@ -14,7 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { Card } from "@/components/ui/Card";
 import { useAdminAuditLogs, useAdminDashboardSummary } from "@/features/admin/useAdminData";
 import { useAuth } from "@/features/auth/useAuth";
@@ -24,7 +24,12 @@ export function AdminDashboardPage() {
   const { principal } = useAuth();
   const school = useEffectiveSchoolInfo();
   const { data: profile } = usePublicPrincipalProfile();
-  const { data: summary, isLoading: isSummaryLoading } = useAdminDashboardSummary();
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+    refetch: refetchSummary,
+  } = useAdminDashboardSummary();
   const { data: auditLogs } = useAdminAuditLogs();
 
   const quickLinks = [
@@ -124,6 +129,8 @@ export function AdminDashboardPage() {
       {/* Real Summary Stats Grid */}
       {isSummaryLoading ? (
         <LoadingState message="Loading dashboard summary statistics..." />
+      ) : isSummaryError ? (
+        <ErrorState message="Could not load dashboard summary." onRetry={() => refetchSummary()} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="p-5">

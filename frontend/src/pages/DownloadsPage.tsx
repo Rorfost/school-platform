@@ -6,7 +6,7 @@ import { queryKeys } from "@/api/queryKeys";
 import type { DownloadResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import { ContentSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
@@ -66,7 +66,13 @@ export function DownloadsPage() {
       )}
 
       {isLoading ? (
-        <LoadingState message="ડાઉનલોડ ફાઈલો લોડ થઈ રહી છે..." />
+        <>
+          <LoadingState
+            message="ડાઉનલોડ ફાઈલો લોડ થઈ રહી છે..."
+            delayedMessage="થોડો સમય લાગી શકે છે."
+          />
+          <ContentSkeleton />
+        </>
       ) : error ? (
         <ErrorState onRetry={() => refetch()} />
       ) : filteredDownloads.length === 0 ? (

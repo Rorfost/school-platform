@@ -12,7 +12,7 @@ import type {
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminSubjectMappingsPage() {
   const queryClient = useQueryClient();
@@ -20,19 +20,34 @@ export function AdminSubjectMappingsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { data: standards = [] } = useQuery<StandardResponse[]>({
+  const {
+    data: standards = [],
+    isLoading: isStandardsLoading,
+    isError: isStandardsError,
+    refetch: refetchStandards,
+  } = useQuery<StandardResponse[]>({
     queryKey: queryKeys.adminStandards,
     queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
   });
 
-  const { data: subjects = [] } = useQuery<SubjectResponse[]>({
+  const {
+    data: subjects = [],
+    isLoading: isSubjectsLoading,
+    isError: isSubjectsError,
+    refetch: refetchSubjects,
+  } = useQuery<SubjectResponse[]>({
     queryKey: queryKeys.adminSubjects,
     queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
   });
 
   const effectiveStandardId = selectedStandardId || (standards[0]?.id ?? "");
 
-  const { data: mappings = [], isLoading } = useQuery<StandardSubjectResponse[]>({
+  const {
+    data: mappings = [],
+    isLoading: isMappingsLoading,
+    isError: isMappingsError,
+    refetch: refetchMappings,
+  } = useQuery<StandardSubjectResponse[]>({
     queryKey: queryKeys.adminStandardSubjects(effectiveStandardId),
     queryFn: () =>
       apiRequest<StandardSubjectResponse[]>(
@@ -72,6 +87,23 @@ export function AdminSubjectMappingsPage() {
   };
 
   const activeStandard = standards.find((s) => s.id === effectiveStandardId);
+
+  if (isStandardsLoading || isSubjectsLoading || (Boolean(effectiveStandardId) && isMappingsLoading)) {
+    return <LoadingState message="Loading subject mappings..." />;
+  }
+
+  if (isStandardsError || isSubjectsError || isMappingsError) {
+    return (
+      <ErrorState
+        message="Could not load subject mappings."
+        onRetry={() => {
+          void refetchStandards();
+          void refetchSubjects();
+          if (effectiveStandardId) void refetchMappings();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -115,10 +147,7 @@ export function AdminSubjectMappingsPage() {
       </Card>
 
       {/* Mappings Table */}
-      {isLoading ? (
-        <LoadingState message="Loading subject mappings..." />
-      ) : (
-        <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
           <div className="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
             <h2 className="font-bold text-slate-900 text-base">
               Mapped Subjects for {activeStandard?.name || "Selected Standard"}
@@ -162,8 +191,7 @@ export function AdminSubjectMappingsPage() {
               </tbody>
             </table>
           </div>
-        </Card>
-      )}
+      </Card>
 
       {/* Add Mapping Modal */}
       {isModalOpen && (

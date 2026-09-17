@@ -15,12 +15,14 @@ import { usePublicNotices } from "@/features/public/usePublicContent";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { ContentSkeleton, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function HomePage() {
   const school = useEffectiveSchoolInfo();
-  const { data: noticesData } = usePublicNotices(0, 3);
+  const { data: noticesData, isLoading: isNoticesLoading, error: noticesError, refetch: refetchNotices } =
+    usePublicNotices(0, 3);
   const recentNotices = noticesData?.items ?? [];
 
   const studentShortcuts = [
@@ -181,7 +183,17 @@ export function HomePage() {
           </Link>
         </div>
 
-        {recentNotices.length > 0 ? (
+        {isNoticesLoading ? (
+          <>
+            <LoadingState
+              message="સૂચનાઓ લોડ થઈ રહી છે..."
+              delayedMessage="થોડો સમય લાગી શકે છે."
+            />
+            <ContentSkeleton rows={2} />
+          </>
+        ) : noticesError ? (
+          <ErrorState onRetry={() => refetchNotices()} />
+        ) : recentNotices.length > 0 ? (
           <div className="space-y-3">
             {recentNotices.map((notice) => (
               <Card key={notice.id} className="p-4 sm:p-5">

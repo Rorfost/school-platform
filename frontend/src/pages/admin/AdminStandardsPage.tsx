@@ -7,14 +7,14 @@ import type { StandardRequest, StandardResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminStandardsPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStandard, setEditingStandard] = useState<StandardResponse | null>(null);
 
-  const { data: standards = [], isLoading } = useQuery<StandardResponse[]>({
+  const { data: standards = [], isLoading, isError, refetch } = useQuery<StandardResponse[]>({
     queryKey: queryKeys.adminStandards,
     queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
   });
@@ -66,6 +66,10 @@ export function AdminStandardsPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading standards..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load standards." onRetry={() => refetch()} />;
   }
 
   return (

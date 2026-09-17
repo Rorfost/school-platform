@@ -57,7 +57,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await refreshCsrfToken();
     } finally {
       queryClient.setQueryData(queryKeys.authMe, null);
-      queryClient.invalidateQueries();
+      queryClient.removeQueries({ queryKey: ["admin"] });
     }
   }, [queryClient]);
 

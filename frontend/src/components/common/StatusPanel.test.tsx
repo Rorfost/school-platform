@@ -10,6 +10,16 @@ describe("StatusPanel components", () => {
     expect(screen.getByText("વિગતો આવી રહી છે...")).toBeVisible();
   });
 
+  it("shows a delayed wake-up message only after the configured delay", () => {
+    vi.useFakeTimers();
+    render(<LoadingState message="Loading data..." delayedMessage="This may take a moment." delayMs={500} />);
+
+    expect(screen.queryByText("This may take a moment.")).not.toBeInTheDocument();
+    vi.advanceTimersByTime(500);
+    expect(screen.getByText("This may take a moment.")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
   it("renders ErrorState and triggers retry callback", () => {
     const handleRetry = vi.fn();
     render(<ErrorState message="કંઈક ખોટું થયું." onRetry={handleRetry} />);

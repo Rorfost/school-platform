@@ -7,14 +7,14 @@ import type { SubjectRequest, SubjectResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminSubjectsPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<SubjectResponse | null>(null);
 
-  const { data: subjects = [], isLoading } = useQuery<SubjectResponse[]>({
+  const { data: subjects = [], isLoading, isError, refetch } = useQuery<SubjectResponse[]>({
     queryKey: queryKeys.adminSubjects,
     queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
   });
@@ -66,6 +66,10 @@ export function AdminSubjectsPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading subjects..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load subjects." onRetry={() => refetch()} />;
   }
 
   return (

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Camera, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePublicGalleryAlbums } from "@/features/public/usePublicContent";
-import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import { CardGridSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
@@ -23,7 +23,13 @@ export function GalleryPage() {
       />
 
       {isLoading ? (
-        <LoadingState message="ફોટો ગેલેરી લોડ થઈ રહી છે..." />
+        <>
+          <LoadingState
+            message="ફોટો ગેલેરી લોડ થઈ રહી છે..."
+            delayedMessage="થોડો સમય લાગી શકે છે."
+          />
+          <CardGridSkeleton />
+        </>
       ) : error ? (
         <ErrorState onRetry={() => refetch()} />
       ) : albums.length === 0 ? (

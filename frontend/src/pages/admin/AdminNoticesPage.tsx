@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminNoticesPage() {
   const queryClient = useQueryClient();
@@ -18,7 +18,7 @@ export function AdminNoticesPage() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery<PageResponse<NoticeResponse>>({
+  const { data, isLoading, isError, refetch } = useQuery<PageResponse<NoticeResponse>>({
     queryKey: queryKeys.adminNotices({ page: 0, size: 50 }),
     queryFn: () => apiRequest<PageResponse<NoticeResponse>>("/api/v1/admin/notices?page=0&size=50"),
   });
@@ -94,6 +94,10 @@ export function AdminNoticesPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading notice board..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load the notice board." onRetry={() => refetch()} />;
   }
 
   return (
@@ -178,7 +182,7 @@ export function AdminNoticesPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => publishMutation.mutate(item.id)}
-                        loading={publishMutation.isPending}
+                        loading={publishMutation.isPending && publishMutation.variables === item.id}
                       >
                         Publish
                       </Button>

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { Button } from "./Button";
 
@@ -24,15 +25,28 @@ export function ConfirmModal({
   variant = "danger",
   isLoading = false,
 }: ConfirmModalProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    closeButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isLoading) onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isLoading, isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
-      onClick={onClose}
+      onClick={() => !isLoading && onClose()}
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
+      aria-describedby="confirm-modal-description"
     >
       <div
         className="relative max-w-md w-full bg-white rounded-2xl p-6 shadow-2xl space-y-4"
@@ -57,7 +71,9 @@ export function ConfirmModal({
           </div>
           <button
             type="button"
+            ref={closeButtonRef}
             onClick={onClose}
+            disabled={isLoading}
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
             aria-label="Close modal"
           >
@@ -65,7 +81,9 @@ export function ConfirmModal({
           </button>
         </div>
 
-        <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
+        <p id="confirm-modal-description" className="text-sm text-slate-600 leading-relaxed">
+          {description}
+        </p>
 
         <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>

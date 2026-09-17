@@ -19,7 +19,9 @@ export function AppProviders({ children }: PropsWithChildren) {
               return failureCount < 1;
             },
             refetchOnWindowFocus: false,
+            refetchOnMount: false,
             staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 30,
           },
         },
       }),

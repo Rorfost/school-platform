@@ -7,7 +7,7 @@ import type { SchoolResponse, SchoolUpdateRequest } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
 const MAX_LOGO_SIZE_BYTES = 10 * 1024 * 1024;
@@ -20,7 +20,7 @@ export function AdminSchoolSettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
 
-  const { data: school, isLoading } = useQuery<SchoolResponse>({
+  const { data: school, isLoading, isError, refetch } = useQuery<SchoolResponse>({
     queryKey: queryKeys.school,
     queryFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school"),
   });
@@ -128,6 +128,10 @@ export function AdminSchoolSettingsPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading school settings..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load school settings." onRetry={() => refetch()} />;
   }
 
   return (
