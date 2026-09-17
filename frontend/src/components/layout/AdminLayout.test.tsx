@@ -44,6 +44,7 @@ describe("AdminLayout", () => {
     expect(
       screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveClass("overflow-y-auto");
   });
 
   it("renders warning banner when mustChangePassword is true", () => {
@@ -91,6 +92,8 @@ describe("AdminLayout", () => {
     const toggleButton = screen.getByLabelText("Toggle Navigation Menu");
     fireEvent.click(toggleButton);
 
-    expect(screen.getByText("Navigation Menu")).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Navigation Menu" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close Navigation Menu" }));
+    expect(screen.queryByRole("dialog", { name: "Navigation Menu" })).not.toBeInTheDocument();
   });
 });

@@ -20,8 +20,8 @@ public record SchoolResponse(
     Short establishedYear,
     String medium,
     String schoolType,
-    String logoObjectKey) {
-  public static SchoolResponse from(School school) {
+    String logoUrl) {
+  public static SchoolResponse from(School school, String logoUrl) {
     return new SchoolResponse(
         school.getId(),
         school.getName(),
@@ -39,6 +39,6 @@ public record SchoolResponse(
         school.getEstablishedYear(),
         school.getMedium(),
         school.getSchoolType(),
-        school.getLogoObjectKey());
+        logoUrl);
   }
 }

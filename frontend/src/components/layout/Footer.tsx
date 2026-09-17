@@ -15,7 +15,11 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3">
               <img
-                src={schoolLogo}
+                src={school.logoUrl ?? schoolLogo}
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = schoolLogo;
+                }}
                 alt="શાળા લોગો"
                 className="size-11 rounded-full object-contain border border-blue-100"
               />

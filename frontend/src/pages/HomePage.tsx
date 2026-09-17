@@ -67,7 +67,11 @@ export function HomePage() {
       >
         <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
           <img
-            src={schoolLogo}
+            src={school.logoUrl ?? schoolLogo}
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = schoolLogo;
+            }}
             alt="શાળા પ્રતીક"
             className="size-24 sm:size-32 shrink-0 rounded-full object-contain border-2 border-blue-100 shadow-sm bg-white p-1"
           />

@@ -15,7 +15,7 @@ export interface SchoolResponse {
   establishedYear: number | null;
   medium: string | null;
   schoolType: string | null;
-  logoObjectKey: string | null;
+  logoUrl: string | null;
 }
 
 export interface PrincipalProfileResponse {
@@ -165,7 +165,6 @@ export interface SchoolUpdateRequest {
   establishedYear?: number | null;
   medium?: string | null;
   schoolType?: string | null;
-  logoObjectKey?: string | null;
 }
 
 export interface PrincipalProfileUpdateRequest {

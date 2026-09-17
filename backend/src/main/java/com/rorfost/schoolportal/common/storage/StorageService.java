@@ -52,6 +52,10 @@ public class StorageService {
     delete(object.bucket(), object.objectKey());
   }
 
+  public void deletePublicObject(String objectKey) {
+    delete(IMAGEKIT_STORAGE_BUCKET, objectKey);
+  }
+
   public void delete(String bucket, String key) {
     validateKey(key);
     storage.delete(bucket, key);

@@ -9,7 +9,7 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
 - **Principal Admin Panel (English)**:
   - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
   - Operational Dashboard with quick links.
-  - School Settings & Principal Profile management.
+  - School Settings & Principal Profile management, including ImageKit-backed school-logo replacement and removal.
   - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
   - Results & Marks setup (internally generic assessments), subject maximum/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
   - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.

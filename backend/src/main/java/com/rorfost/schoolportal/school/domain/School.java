@@ -121,8 +121,7 @@ public class School extends AuditableUuidEntity {
       String about,
       Short establishedYear,
       String medium,
-      String schoolType,
-      String logoObjectKey) {
+      String schoolType) {
     this.name = name;
     this.shortName = shortName;
     this.schoolCode = schoolCode;
@@ -138,6 +137,9 @@ public class School extends AuditableUuidEntity {
     this.establishedYear = establishedYear;
     this.medium = medium;
     this.schoolType = schoolType;
+  }
+
+  public void changeLogo(String logoObjectKey) {
     this.logoObjectKey = logoObjectKey;
   }
 }

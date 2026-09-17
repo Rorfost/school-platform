@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Save, School as SchoolIcon } from "lucide-react";
+import { CheckCircle2, ImageUp, Save, School as SchoolIcon, Trash2 } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { SchoolResponse, SchoolUpdateRequest } from "@/api/types";
@@ -8,10 +8,17 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { LoadingState } from "@/components/common/StatusPanel";
+import schoolLogo from "@/assets/school-logo.jpeg";
+
+const MAX_LOGO_SIZE_BYTES = 10 * 1024 * 1024;
+const LOGO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export function AdminSchoolSettingsPage() {
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
   const { data: school, isLoading } = useQuery<SchoolResponse>({
     queryKey: queryKeys.school,
@@ -25,13 +32,66 @@ export function AdminSchoolSettingsPage() {
         body: payload,
       }),
     onSuccess: (updated) => {
-      // Invalidate so public portal header/contact page reflects updated school name
       queryClient.setQueryData(queryKeys.school, updated);
       queryClient.invalidateQueries({ queryKey: queryKeys.school });
       setSuccessMessage("School identity settings updated successfully.");
       setTimeout(() => setSuccessMessage(null), 4000);
     },
   });
+
+  const updateBranding = (updated: SchoolResponse, message: string) => {
+    queryClient.setQueryData(queryKeys.school, updated);
+    queryClient.invalidateQueries({ queryKey: queryKeys.school });
+    setLogoFile(null);
+    setLogoPreview(null);
+    setLogoError(null);
+    setSuccessMessage(message);
+  };
+
+  const uploadLogoMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest<SchoolResponse>("/api/v1/admin/school/logo", {
+        method: "POST",
+        body: formData,
+      });
+    },
+    onSuccess: (updated) => updateBranding(updated, "School logo updated successfully."),
+    onError: () => setLogoError("Could not upload the logo. Please try again."),
+  });
+
+  const removeLogoMutation = useMutation({
+    mutationFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school/logo", { method: "DELETE" }),
+    onSuccess: (updated) => updateBranding(updated, "School logo removed successfully."),
+    onError: () => setLogoError("Could not remove the logo. Please try again."),
+  });
+
+  useEffect(
+    () => () => {
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
+    },
+    [logoPreview],
+  );
+
+  const selectLogo = (file: File | null) => {
+    setLogoError(null);
+    if (!file) return;
+    if (!LOGO_TYPES.has(file.type)) {
+      setLogoFile(null);
+      setLogoPreview(null);
+      setLogoError("Please choose a PNG, JPG or WebP image.");
+      return;
+    }
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
+      setLogoFile(null);
+      setLogoPreview(null);
+      setLogoError("The logo file is too large.");
+      return;
+    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +114,6 @@ export function AdminSchoolSettingsPage() {
         : null,
       medium: String(formData.get("medium") || "") || null,
       schoolType: String(formData.get("schoolType") || "") || null,
-      logoObjectKey: school?.logoObjectKey ?? null,
     };
 
     updateMutation.mutate(payload);
@@ -96,6 +155,65 @@ export function AdminSchoolSettingsPage() {
 
       {/* key forces form to re-mount with fresh defaultValues once backend data arrives */}
       <form key={school?.id ?? "loading"} onSubmit={handleSubmit} className="space-y-6">
+        <Card className="p-6 space-y-4">
+          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+            <ImageUp size={18} className="text-blue-900" />
+            <span>School Branding</span>
+          </h2>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <img
+              src={logoPreview ?? school?.logoUrl ?? schoolLogo}
+              alt="Current school logo"
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = schoolLogo;
+              }}
+              className="size-24 rounded-full border border-slate-200 bg-white object-contain p-1"
+            />
+            <div className="space-y-3">
+              <p className="text-sm text-slate-600">Choose a PNG, JPG or WebP image up to 10 MB.</p>
+              <div className="flex flex-wrap gap-2">
+                <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50">
+                  <ImageUp size={16} aria-hidden="true" />
+                  <span>Change Logo</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(event) => selectLogo(event.target.files?.[0] ?? null)}
+                  />
+                </label>
+                {logoFile && (
+                  <Button
+                    type="button"
+                    onClick={() => uploadLogoMutation.mutate(logoFile)}
+                    loading={uploadLogoMutation.isPending}
+                  >
+                    Upload Logo
+                  </Button>
+                )}
+                {school?.logoUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => removeLogoMutation.mutate()}
+                    loading={removeLogoMutation.isPending}
+                    className="text-red-700"
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                    Remove Logo
+                  </Button>
+                )}
+              </div>
+              {logoError && (
+                <p role="alert" className="text-sm text-red-700">
+                  {logoError}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+
         {/* Basic Identity */}
         <Card className="p-6 space-y-4">
           <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">

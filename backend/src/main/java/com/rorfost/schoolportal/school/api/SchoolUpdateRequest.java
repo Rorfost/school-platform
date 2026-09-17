@@ -19,5 +19,4 @@ public record SchoolUpdateRequest(
     String about,
     Short establishedYear,
     @Size(max = 80) String medium,
-    @Size(max = 80) String schoolType,
-    @Size(max = 512) String logoObjectKey) {}
+    @Size(max = 80) String schoolType) {}

@@ -21,7 +21,11 @@ export function AboutPage() {
       <Card className="p-6 sm:p-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8">
           <img
-            src={schoolLogo}
+            src={school.logoUrl ?? schoolLogo}
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = schoolLogo;
+            }}
             alt="શાળા લોગો"
             className="size-28 sm:size-36 rounded-full object-contain border border-blue-100 shadow-sm p-1"
           />

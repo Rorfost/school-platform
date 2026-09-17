@@ -11,6 +11,8 @@ Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/a
 | `POST /api/v1/admin/auth/logout` | Public + CSRF | Invalidates an existing session; repeated logout is safe. |
 | `GET /api/v1/admin/auth/me` | `PRINCIPAL` | Returns email, role, and `mustChangePassword`; never credentials or session data. |
 | `PUT /api/v1/admin/auth/password` | `PRINCIPAL` + CSRF | Verifies current password and sets a new 12–72 character password. |
+| `POST /api/v1/admin/school/logo` | `PRINCIPAL` + CSRF | Validates and stores a JPEG, PNG, or WebP school logo through ImageKit. |
+| `DELETE /api/v1/admin/school/logo` | `PRINCIPAL` + CSRF | Removes the configured school logo and attempts ImageKit cleanup. |
 | `GET /api/v1/admin/dashboard/summary` | `PRINCIPAL` | Returns operational stats (students, standards, subjects, materials, notices, gallery). |
 | `GET /api/v1/admin/audit-logs` | `PRINCIPAL` | Returns paginated audit logs for principal security overview. |
 | `GET /api/v1/admin/academic/students` | `PRINCIPAL` | Lists students scoped to standard and academic year. |
@@ -49,6 +51,8 @@ Authentication, school/profile, academic configuration, student management, dash
 ## ImageKit delivery
 
 The browser sends files only to authenticated backend multipart endpoints. The backend validates the upload, writes it to ImageKit through the storage abstraction, and stores only ImageKit bucket/key and file metadata in PostgreSQL. Published DTOs contain a URL derived from the configured ImageKit public endpoint; gallery-image DTOs also include an ImageKit transformation URL for responsive thumbnails. Draft and archived content is absent from public routes; the authenticated admin gallery route may return image URLs so the principal can preview draft uploads. There is no browser-direct upload-auth endpoint or R2 integration in the current implementation.
+
+School branding uses the same storage boundary. A logo is stored under `branding/<school-slug>/` with a generated filename; the database retains its object key and the school response exposes only a configured public URL. Replacing or removing a logo updates the database before best-effort cleanup of the previous ImageKit object, so a cleanup failure cannot leave the portal pointing to a missing logo.
 
 Result import, result publication, available-result choices, and individual result lookup are blocked by the documented privacy-safe student-identity decision. Other exam formats and timetables have no endpoint contract until source material is supplied.
 
