@@ -228,7 +228,7 @@ class DatabaseIntegrationTest {
         "image/jpeg",
         1,
         "School day photo",
-        0);
+        1);
 
     jdbcTemplate.update("DELETE FROM gallery_albums WHERE id = ?", albumId);
 
