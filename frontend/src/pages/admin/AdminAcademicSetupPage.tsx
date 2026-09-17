@@ -61,7 +61,13 @@ export function AdminAcademicSetupPage() {
     },
   });
   const saveStandardMutation = useMutation({
-    mutationFn: ({ standard, displayName }: { standard: StandardResponse | null; displayName: string }) => {
+    mutationFn: ({
+      standard,
+      displayName,
+    }: {
+      standard: StandardResponse | null;
+      displayName: string;
+    }) => {
       const body = {
         // Codes are an internal database key; principals manage the readable standard name only.
         code: standard?.code ?? `STANDARD_${Date.now()}`,
@@ -80,7 +86,8 @@ export function AdminAcademicSetupPage() {
       setStandardFormTarget(null);
       setErrorMessage(null);
     },
-    onError: (error) => setErrorMessage(error instanceof ApiError ? error.message : "Unable to save the standard."),
+    onError: (error) =>
+      setErrorMessage(error instanceof ApiError ? error.message : "Unable to save the standard."),
   });
   const archiveStandardMutation = useMutation({
     mutationFn: (standard: StandardResponse) =>
@@ -92,7 +99,10 @@ export function AdminAcademicSetupPage() {
       invalidateSetup();
       setErrorMessage(null);
     },
-    onError: (error) => setErrorMessage(error instanceof ApiError ? error.message : "Unable to deactivate the standard."),
+    onError: (error) =>
+      setErrorMessage(
+        error instanceof ApiError ? error.message : "Unable to deactivate the standard.",
+      ),
   });
 
   const openSubjectManager = (standard: AcademicSetupResponse["standards"][number]) => {
@@ -120,7 +130,14 @@ export function AdminAcademicSetupPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => { setStandardFormTarget(null); setIsStandardDialogOpen(true); }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setStandardFormTarget(null);
+              setIsStandardDialogOpen(true);
+            }}
+          >
             <Plus size={16} aria-hidden="true" /> Add standard
           </Button>
           <Button variant="primary" size="sm" onClick={() => setIsSubjectDialogOpen(true)}>
@@ -165,10 +182,26 @@ export function AdminAcademicSetupPage() {
               )}
             </div>
             <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
-              <Button variant="ghost" size="sm" onClick={() => { setStandardFormTarget(entry.standard); setIsStandardDialogOpen(true); }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStandardFormTarget(entry.standard);
+                  setIsStandardDialogOpen(true);
+                }}
+              >
                 <Pencil size={14} aria-hidden="true" /> Edit
               </Button>
-              <Button variant="ghost" size="sm" className="text-amber-800 hover:bg-amber-50" onClick={() => archiveStandardMutation.mutate(entry.standard)} loading={archiveStandardMutation.isPending && archiveStandardMutation.variables?.id === entry.standard.id}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-amber-800 hover:bg-amber-50"
+                onClick={() => archiveStandardMutation.mutate(entry.standard)}
+                loading={
+                  archiveStandardMutation.isPending &&
+                  archiveStandardMutation.variables?.id === entry.standard.id
+                }
+              >
                 <Archive size={14} aria-hidden="true" /> Deactivate
               </Button>
             </div>
@@ -277,10 +310,39 @@ export function AdminAcademicSetupPage() {
       {isStandardDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h2 className="text-lg font-bold text-slate-900">{standardFormTarget ? "Edit standard" : "Add standard"}</h2>
-            <form className="mt-4 space-y-4" onSubmit={(event) => { event.preventDefault(); const displayName = String(new FormData(event.currentTarget).get("displayName") ?? "").trim(); if (displayName) saveStandardMutation.mutate({ standard: standardFormTarget, displayName }); }}>
-              <Input label="Standard name" name="displayName" defaultValue={standardFormTarget?.displayName} required placeholder="e.g. Standard 3" />
-              <div className="flex justify-end gap-2 border-t border-slate-100 pt-4"><Button variant="outline" type="button" onClick={() => setIsStandardDialogOpen(false)}>Cancel</Button><Button type="submit" loading={saveStandardMutation.isPending}>Save standard</Button></div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {standardFormTarget ? "Edit standard" : "Add standard"}
+            </h2>
+            <form
+              className="mt-4 space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const displayName = String(
+                  new FormData(event.currentTarget).get("displayName") ?? "",
+                ).trim();
+                if (displayName)
+                  saveStandardMutation.mutate({ standard: standardFormTarget, displayName });
+              }}
+            >
+              <Input
+                label="Standard name"
+                name="displayName"
+                defaultValue={standardFormTarget?.displayName}
+                required
+                placeholder="e.g. Standard 3"
+              />
+              <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setIsStandardDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" loading={saveStandardMutation.isPending}>
+                  Save standard
+                </Button>
+              </div>
             </form>
           </div>
         </div>

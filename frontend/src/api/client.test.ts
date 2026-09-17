@@ -59,6 +59,8 @@ describe("api client & error utilities", () => {
     document.cookie = "XSRF-TOKEN=test-token-value; Path=/";
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(null, { status: 200 }));
 
-    await expect(apiRequest<void>("/api/v1/admin/materials/item", { method: "DELETE" })).resolves.toBeUndefined();
+    await expect(
+      apiRequest<void>("/api/v1/admin/materials/item", { method: "DELETE" }),
+    ).resolves.toBeUndefined();
   });
 });

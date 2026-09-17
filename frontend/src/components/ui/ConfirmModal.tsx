@@ -86,7 +86,13 @@ export function ConfirmModal({
         </p>
 
         <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading} className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
             {cancelText}
           </Button>
           <Button

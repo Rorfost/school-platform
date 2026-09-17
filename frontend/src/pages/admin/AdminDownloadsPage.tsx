@@ -66,7 +66,11 @@ export function AdminDownloadsPage() {
         queryKeys.adminDownloads({ page: 0, size: 50 }),
         (current) =>
           current
-            ? { ...current, items: current.items.filter((item) => item.id !== id), totalItems: current.totalItems - 1 }
+            ? {
+                ...current,
+                items: current.items.filter((item) => item.id !== id),
+                totalItems: current.totalItems - 1,
+              }
             : current,
       );
       queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });

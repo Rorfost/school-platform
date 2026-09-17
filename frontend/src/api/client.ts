@@ -91,10 +91,11 @@ export async function refreshCsrfToken(): Promise<string | null> {
 
 export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
+  skipCsrf?: boolean;
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  const { body, headers = {}, method = "GET", ...rest } = options;
+  const { body, headers = {}, method = "GET", skipCsrf = false, ...rest } = options;
   const upperMethod = method.toUpperCase();
   const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(upperMethod);
 
@@ -103,7 +104,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     requestHeaders.set("Accept", "application/json");
   }
 
-  if (isMutating) {
+  if (isMutating && !skipCsrf) {
     const csrfToken = await fetchCsrfToken();
     if (csrfToken && !requestHeaders.has(csrfHeaderName)) {
       requestHeaders.set(csrfHeaderName, csrfToken);

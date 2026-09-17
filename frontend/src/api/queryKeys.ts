@@ -1,6 +1,7 @@
 export const queryKeys = {
   school: ["school"] as const,
   principalProfile: ["principal-profile"] as const,
+  visits: ["visits"] as const,
   standards: ["standards"] as const,
   subjects: ["subjects"] as const,
   currentAcademicYear: ["academic-years", "current"] as const,

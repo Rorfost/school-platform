@@ -118,6 +118,20 @@ export function MaterialsPage() {
                     </Badge>
                   )}
                 </div>
+                {(item.standardName || item.subjectName) && (
+                  <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-700">
+                    {item.standardName && (
+                      <Badge variant="secondary" size="sm">
+                        {item.standardName}
+                      </Badge>
+                    )}
+                    {item.subjectName && (
+                      <Badge variant="secondary" size="sm">
+                        {item.subjectName}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                 <span className="min-w-0 truncate">{item.filename}</span>

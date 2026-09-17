@@ -68,6 +68,10 @@ export interface PageResponse<T> {
   totalPages: number;
 }
 
+export interface VisitResponse {
+  totalVisits: number;
+}
+
 export interface NoticeResponse {
   id: string;
   title: string;

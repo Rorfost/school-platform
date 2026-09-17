@@ -8,7 +8,9 @@ function renderContactPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter><ContactPage /></MemoryRouter>
+      <MemoryRouter>
+        <ContactPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -16,7 +18,13 @@ function renderContactPage() {
 describe("ContactPage", () => {
   it("offers direct call and WhatsApp actions instead of a nonfunctional enquiry form", () => {
     renderContactPage();
-    expect(screen.getByRole("link", { name: /કૉલ કરો/ })).toHaveAttribute("href", "tel:+919714862818");
-    expect(screen.getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/919714862818");
+    expect(screen.getByRole("link", { name: /કૉલ કરો/ })).toHaveAttribute(
+      "href",
+      "tel:+919714862818",
+    );
+    expect(screen.getByRole("link", { name: /WhatsApp/ })).toHaveAttribute(
+      "href",
+      "https://wa.me/919714862818",
+    );
   });
 });

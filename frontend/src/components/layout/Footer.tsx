@@ -1,11 +1,31 @@
+import { useEffect, useState } from "react";
 import { Lock, Mail, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+import { apiRequest } from "@/api/client";
+import type { VisitResponse } from "@/api/types";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function Footer() {
   const school = useEffectiveSchoolInfo();
+  const [visits, setVisits] = useState<number | null>(null);
+
+  useEffect(() => {
+    const marker = "school-portal-visit-counted";
+    const counted = window.sessionStorage.getItem(marker);
+    const request = counted
+      ? apiRequest<VisitResponse>("/api/v1/public/visits")
+      : apiRequest<VisitResponse>("/api/v1/public/visits", { method: "POST", skipCsrf: true });
+
+    // sessionStorage is deliberately scoped to a browsing session: this counts visits, not people.
+    void request
+      .then((response) => {
+        if (!counted) window.sessionStorage.setItem(marker, "1");
+        setVisits(response.totalVisits);
+      })
+      .catch(() => undefined);
+  }, []);
 
   return (
     <footer className="border-t border-slate-200 bg-white text-slate-700">
@@ -72,6 +92,7 @@ export function Footer() {
             <p className="text-slate-500">Built and maintained by Raj Patel | Rorfost</p>
           </div>
           <div className="flex items-center gap-4">
+            {visits !== null && <span>Visits: {visits.toLocaleString("en-IN")}</span>}
             <Link
               to="/admin/login"
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors"

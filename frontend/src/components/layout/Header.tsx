@@ -98,7 +98,6 @@ export function Header() {
               </NavLink>
             ))}
           </nav>
-
         </div>
       </header>
 

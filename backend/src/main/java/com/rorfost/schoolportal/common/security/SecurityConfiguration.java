@@ -34,7 +34,7 @@ public class SecurityConfiguration {
             csrf ->
                 csrf.spa()
                     .csrfTokenRepository(csrfTokenRepository)
-                    .ignoringRequestMatchers("/actuator/health"))
+                    .ignoringRequestMatchers("/actuator/health", "/api/v1/public/visits"))
         .sessionManagement(
             sessions ->
                 sessions

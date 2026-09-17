@@ -53,7 +53,9 @@ const StudentCornerPage = lazy(() =>
     default: StudentCornerPage,
   })),
 );
-const ToolsPage = lazy(() => import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })));
+const ToolsPage = lazy(() =>
+  import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })),
+);
 
 const AdminAcademicYearsPage = lazy(() =>
   import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({

@@ -495,10 +495,19 @@ public class ContentService {
     String subjectName = null;
     if (item.getStandardSubjectId() != null) {
       // The normalized mapping is the source of truth; only readable labels leave the API.
-      var mapping = standardSubjects.findByIdAndSchoolId(item.getStandardSubjectId(), item.getSchoolId());
+      var mapping =
+          standardSubjects.findByIdAndSchoolId(item.getStandardSubjectId(), item.getSchoolId());
       if (mapping.isPresent()) {
-        standardName = standards.findByIdAndSchoolId(mapping.get().getStandardId(), item.getSchoolId()).map(value -> value.getDisplayName()).orElse(null);
-        subjectName = subjects.findByIdAndSchoolId(mapping.get().getSubjectId(), item.getSchoolId()).map(value -> value.getName()).orElse(null);
+        standardName =
+            standards
+                .findByIdAndSchoolId(mapping.get().getStandardId(), item.getSchoolId())
+                .map(value -> value.getDisplayName())
+                .orElse(null);
+        subjectName =
+            subjects
+                .findByIdAndSchoolId(mapping.get().getSubjectId(), item.getSchoolId())
+                .map(value -> value.getName())
+                .orElse(null);
       }
     }
     return MaterialResponse.from(
