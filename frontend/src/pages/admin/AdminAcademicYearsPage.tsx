@@ -28,7 +28,12 @@ export function AdminAcademicYearsPage() {
     targetName: "",
   });
 
-  const { data: years = [], isLoading, isError, refetch } = useQuery<AcademicYearResponse[]>({
+  const {
+    data: years = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<AcademicYearResponse[]>({
     queryKey: queryKeys.adminAcademicYears,
     queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
   });

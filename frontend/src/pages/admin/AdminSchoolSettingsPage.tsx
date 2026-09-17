@@ -20,7 +20,12 @@ export function AdminSchoolSettingsPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
 
-  const { data: school, isLoading, isError, refetch } = useQuery<SchoolResponse>({
+  const {
+    data: school,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<SchoolResponse>({
     queryKey: queryKeys.school,
     queryFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school"),
   });

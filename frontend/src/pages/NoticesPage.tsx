@@ -3,7 +3,12 @@ import { Calendar, Download, Eye, FileText, Newspaper, Pin, Search } from "lucid
 import { Link } from "react-router-dom";
 import { usePublicNotices } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
-import { ContentSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  ContentSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -42,10 +47,7 @@ export function NoticesPage() {
 
       {isLoading ? (
         <>
-          <LoadingState
-            message="સૂચનાઓ લોડ થઈ રહી છે..."
-            delayedMessage="થોડો સમય લાગી શકે છે."
-          />
+          <LoadingState message="સૂચનાઓ લોડ થઈ રહી છે..." delayedMessage="થોડો સમય લાગી શકે છે." />
           <ContentSkeleton />
         </>
       ) : error ? (

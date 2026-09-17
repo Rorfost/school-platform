@@ -5,7 +5,12 @@ import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { MaterialResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
-import { ContentSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  ContentSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";

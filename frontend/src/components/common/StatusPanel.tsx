@@ -68,7 +68,10 @@ export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
       aria-label={LABELS.loading}
     >
       {Array.from({ length: cards }, (_, index) => (
-        <div key={index} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
+        <div
+          key={index}
+          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs"
+        >
           <div className="aspect-video bg-slate-200" />
           <div className="space-y-3 p-5">
             <div className="h-4 w-3/5 rounded bg-slate-200" />

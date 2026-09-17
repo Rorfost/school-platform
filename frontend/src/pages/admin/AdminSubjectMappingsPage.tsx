@@ -88,7 +88,11 @@ export function AdminSubjectMappingsPage() {
 
   const activeStandard = standards.find((s) => s.id === effectiveStandardId);
 
-  if (isStandardsLoading || isSubjectsLoading || (Boolean(effectiveStandardId) && isMappingsLoading)) {
+  if (
+    isStandardsLoading ||
+    isSubjectsLoading ||
+    (Boolean(effectiveStandardId) && isMappingsLoading)
+  ) {
     return <LoadingState message="Loading subject mappings..." />;
   }
 
@@ -148,49 +152,45 @@ export function AdminSubjectMappingsPage() {
 
       {/* Mappings Table */}
       <Card className="overflow-hidden p-0">
-          <div className="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
-            <h2 className="font-bold text-slate-900 text-base">
-              Mapped Subjects for {activeStandard?.name || "Selected Standard"}
-            </h2>
-            <span className="text-xs text-slate-500 font-medium">
-              {mappings.length} subject(s) mapped
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
-                  <th className="p-4">Sort Order</th>
-                  <th className="p-4">Subject Name</th>
-                  <th className="p-4">Subject Code</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {mappings.map((m) => {
-                  const subObj = subjects.find((s) => s.id === m.subjectId);
-                  return (
-                    <tr key={m.id} className="hover:bg-slate-50/50">
-                      <td className="p-4 font-mono font-bold text-blue-900">{m.sortOrder}</td>
-                      <td className="p-4 font-bold text-slate-900">
-                        {subObj?.name || m.subjectId}
-                      </td>
-                      <td className="p-4 font-mono text-xs text-slate-600">
-                        {subObj?.code || "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {mappings.length === 0 && (
-                  <tr>
-                    <td colSpan={3} className="p-8 text-center text-slate-500">
-                      No subjects mapped to this standard yet. Click 'Map Subject to Standard' to
-                      add one.
-                    </td>
+        <div className="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
+          <h2 className="font-bold text-slate-900 text-base">
+            Mapped Subjects for {activeStandard?.name || "Selected Standard"}
+          </h2>
+          <span className="text-xs text-slate-500 font-medium">
+            {mappings.length} subject(s) mapped
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                <th className="p-4">Sort Order</th>
+                <th className="p-4">Subject Name</th>
+                <th className="p-4">Subject Code</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {mappings.map((m) => {
+                const subObj = subjects.find((s) => s.id === m.subjectId);
+                return (
+                  <tr key={m.id} className="hover:bg-slate-50/50">
+                    <td className="p-4 font-mono font-bold text-blue-900">{m.sortOrder}</td>
+                    <td className="p-4 font-bold text-slate-900">{subObj?.name || m.subjectId}</td>
+                    <td className="p-4 font-mono text-xs text-slate-600">{subObj?.code || "—"}</td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+              {mappings.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="p-8 text-center text-slate-500">
+                    No subjects mapped to this standard yet. Click 'Map Subject to Standard' to add
+                    one.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
 
       {/* Add Mapping Modal */}

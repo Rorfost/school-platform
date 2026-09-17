@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Camera, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePublicGalleryAlbums } from "@/features/public/usePublicContent";
-import { CardGridSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  CardGridSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";

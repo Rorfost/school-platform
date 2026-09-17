@@ -3,7 +3,12 @@ import { Camera, Image as ImageIcon, X, ZoomIn } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { usePublicGalleryImages } from "@/features/public/usePublicContent";
 import type { GalleryImageResponse } from "@/api/types";
-import { CardGridSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  CardGridSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
@@ -29,10 +34,7 @@ export function GalleryAlbumPage() {
 
       {isLoading ? (
         <>
-          <LoadingState
-            message="તસવીરો લોડ થઈ રહી છે..."
-            delayedMessage="થોડો સમય લાગી શકે છે."
-          />
+          <LoadingState message="તસવીરો લોડ થઈ રહી છે..." delayedMessage="થોડો સમય લાગી શકે છે." />
           <CardGridSkeleton cards={9} />
         </>
       ) : error ? (

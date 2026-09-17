@@ -2,7 +2,12 @@ import { Calendar, Download, FileText, Newspaper, Pin } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { usePublicNotice } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
-import { ContentSkeleton, EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  ContentSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";

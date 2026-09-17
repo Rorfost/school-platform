@@ -14,7 +14,12 @@ export function AdminSubjectsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<SubjectResponse | null>(null);
 
-  const { data: subjects = [], isLoading, isError, refetch } = useQuery<SubjectResponse[]>({
+  const {
+    data: subjects = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<SubjectResponse[]>({
     queryKey: queryKeys.adminSubjects,
     queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
   });

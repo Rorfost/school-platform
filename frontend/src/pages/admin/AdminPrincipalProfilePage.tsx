@@ -13,7 +13,12 @@ export function AdminPrincipalProfilePage() {
   const queryClient = useQueryClient();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const { data: profile, isLoading, isError, refetch } = useQuery<PrincipalProfileResponse>({
+  const {
+    data: profile,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<PrincipalProfileResponse>({
     queryKey: queryKeys.principalProfile,
     queryFn: () => apiRequest<PrincipalProfileResponse>("/api/v1/admin/principal-profile"),
   });

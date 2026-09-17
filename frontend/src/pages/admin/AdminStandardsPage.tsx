@@ -14,7 +14,12 @@ export function AdminStandardsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStandard, setEditingStandard] = useState<StandardResponse | null>(null);
 
-  const { data: standards = [], isLoading, isError, refetch } = useQuery<StandardResponse[]>({
+  const {
+    data: standards = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<StandardResponse[]>({
     queryKey: queryKeys.adminStandards,
     queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
   });

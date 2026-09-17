@@ -21,8 +21,12 @@ import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function HomePage() {
   const school = useEffectiveSchoolInfo();
-  const { data: noticesData, isLoading: isNoticesLoading, error: noticesError, refetch: refetchNotices } =
-    usePublicNotices(0, 3);
+  const {
+    data: noticesData,
+    isLoading: isNoticesLoading,
+    error: noticesError,
+    refetch: refetchNotices,
+  } = usePublicNotices(0, 3);
   const recentNotices = noticesData?.items ?? [];
 
   const studentShortcuts = [
