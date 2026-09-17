@@ -48,11 +48,10 @@ export async function fetchCsrfToken(): Promise<string | null> {
           return null;
         }
 
-        // IMPORTANT:
-        // With Spring Security SPA CSRF configuration,
-        // use the plain token written to the XSRF-TOKEN cookie.
-        // Do not use the token returned in the response body.
-        return getCsrfTokenFromCookie();
+        const data = (await response.json()) as { token?: string; headerName?: string };
+        csrfHeaderName = data.headerName ?? defaultCsrfHeaderName;
+        csrfToken = getCsrfTokenFromCookie() ?? data.token ?? null;
+        return csrfToken;
       } catch {
         return null;
       } finally {
@@ -77,7 +76,7 @@ export async function refreshCsrfToken(): Promise<string | null> {
         }
         const data = (await response.json()) as { token?: string; headerName?: string };
         csrfHeaderName = data.headerName ?? defaultCsrfHeaderName;
-        csrfToken = data.token ?? getCsrfTokenFromCookie();
+        csrfToken = getCsrfTokenFromCookie() ?? data.token ?? null;
         return csrfToken;
       } catch {
         return null;

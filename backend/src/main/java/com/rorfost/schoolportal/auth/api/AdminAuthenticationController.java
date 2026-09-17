@@ -5,6 +5,7 @@ import com.rorfost.schoolportal.auth.application.AuthenticationFailedException;
 import com.rorfost.schoolportal.auth.application.LoginRateLimiter;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,15 +28,20 @@ public class AdminAuthenticationController {
 
   private final AdminAuthenticationService authenticationService;
   private final LoginRateLimiter loginRateLimiter;
+  private final CsrfTokenRepository csrfTokenRepository;
 
   public AdminAuthenticationController(
-      AdminAuthenticationService authenticationService, LoginRateLimiter loginRateLimiter) {
+      AdminAuthenticationService authenticationService,
+      LoginRateLimiter loginRateLimiter,
+      CsrfTokenRepository csrfTokenRepository) {
     this.authenticationService = authenticationService;
     this.loginRateLimiter = loginRateLimiter;
+    this.csrfTokenRepository = csrfTokenRepository;
   }
 
   @GetMapping("/csrf")
-  public CsrfTokenResponse csrf(CsrfToken token) {
+  public CsrfTokenResponse csrf(HttpServletRequest request, HttpServletResponse response) {
+    CsrfToken token = csrfTokenRepository.loadDeferredToken(request, response).get();
     return new CsrfTokenResponse(token.getToken(), token.getHeaderName());
   }
 

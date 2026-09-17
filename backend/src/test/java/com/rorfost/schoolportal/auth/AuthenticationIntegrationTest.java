@@ -98,7 +98,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  void acceptsTheCsrfEndpointTokenAndHeaderForLogin() throws Exception {
+  void issuesACsrfCookieAndTokenForSpaClients() throws Exception {
     createPrincipal(false);
 
     MvcResult csrf =
@@ -108,22 +108,16 @@ class AuthenticationIntegrationTest {
             .andExpect(jsonPath("$.token").isNotEmpty())
             .andReturn();
     Cookie sessionCookie = csrf.getResponse().getCookie("SESSION");
+    Cookie csrfCookie = csrf.getResponse().getCookie("XSRF-TOKEN");
     var csrfResponse = objectMapper.readTree(csrf.getResponse().getContentAsString());
     String token = csrfResponse.path("token").asText();
     String headerName = csrfResponse.path("headerName").asText();
 
     assertThat(sessionCookie).isNotNull();
-    assertThat(headerName).isNotBlank();
-    mockMvc
-        .perform(
-            post("/api/v1/admin/auth/login")
-                .cookie(sessionCookie)
-                .header(headerName, token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(
-                        java.util.Map.of("email", EMAIL, "password", PASSWORD))))
-        .andExpect(status().isOk());
+    assertThat(csrfCookie).isNotNull();
+    assertThat(csrfCookie.getValue()).isEqualTo(token);
+    assertThat(token).isNotBlank();
+    assertThat(headerName).isEqualTo("X-XSRF-TOKEN");
   }
 
   @Test
@@ -173,6 +167,10 @@ class AuthenticationIntegrationTest {
   void protectsAdminRoutesAndLeavesPublicRoutesOutsideAuthentication() throws Exception {
     mockMvc
         .perform(get("/api/v1/admin/auth/me"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("unauthenticated"));
+    mockMvc
+        .perform(get("/api/v1/admin/gallery/albums"))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.code").value("unauthenticated"));
     mockMvc.perform(get("/api/v1/public/not-implemented")).andExpect(status().isNotFound());
@@ -246,6 +244,14 @@ class AuthenticationIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     "{\"currentPassword\":\"InitialPassword12\",\"newPassword\":\"ChangedPassword12\"}"))
+        .andExpect(status().isForbidden())
+        .andExpect(jsonPath("$.code").value("csrf_invalid"));
+    mockMvc
+        .perform(
+            post("/api/v1/admin/gallery/albums")
+                .cookie(sessionCookie)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"School event\"}"))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.code").value("csrf_invalid"));
     mockMvc
