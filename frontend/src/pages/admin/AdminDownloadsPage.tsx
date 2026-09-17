@@ -61,10 +61,19 @@ export function AdminDownloadsPage() {
       apiRequest<void>(`/api/v1/admin/downloads/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<PageResponse<DownloadResponse>>(
+        queryKeys.adminDownloads({ page: 0, size: 50 }),
+        (current) =>
+          current
+            ? { ...current, items: current.items.filter((item) => item.id !== id), totalItems: current.totalItems - 1 }
+            : current,
+      );
       queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
       setDeleteTargetId(null);
     },
+    onError: (error) =>
+      setErrorMessage(error instanceof ApiError ? error.message : "Could not delete document."),
   });
 
   const handleUploadSubmit = (e: React.FormEvent<HTMLFormElement>) => {

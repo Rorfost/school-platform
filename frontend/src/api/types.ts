@@ -86,6 +86,8 @@ export interface MaterialResponse {
   materialType: string;
   academicYearId: string | null;
   standardSubjectId: string | null;
+  standardName: string | null;
+  subjectName: string | null;
   filename: string;
   contentType: string;
   byteSize: number;

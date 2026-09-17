@@ -151,9 +151,16 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     throw new ApiError(message, response.status, code, requestId);
   }
 
-  if (response.status === 204) {
+  // Spring returns an empty 200 response for several mutation endpoints. Parsing it as JSON
+  // turns a completed delete or publication change into a false client-side failure.
+  if (response.status === 204 || response.headers.get("Content-Length") === "0") {
     return undefined as unknown as T;
   }
 
-  return (await response.json()) as T;
+  const responseText = await response.text();
+  if (!responseText.trim()) {
+    return undefined as unknown as T;
+  }
+
+  return JSON.parse(responseText) as T;
 }

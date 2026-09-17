@@ -54,4 +54,11 @@ describe("api client & error utilities", () => {
     const headers = calledInit?.headers as Headers;
     expect(headers.get("X-CSRF-TOKEN")).toBe("csrf-token");
   });
+
+  it("accepts a successful response with no JSON body", async () => {
+    document.cookie = "XSRF-TOKEN=test-token-value; Path=/";
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(null, { status: 200 }));
+
+    await expect(apiRequest<void>("/api/v1/admin/materials/item", { method: "DELETE" })).resolves.toBeUndefined();
+  });
 });

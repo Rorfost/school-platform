@@ -95,10 +95,19 @@ export function AdminMaterialsPage() {
       apiRequest<void>(`/api/v1/admin/materials/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<PageResponse<MaterialResponse>>(
+        queryKeys.adminMaterials({ page: 0, size: 50 }),
+        (current) =>
+          current
+            ? { ...current, items: current.items.filter((item) => item.id !== id), totalItems: current.totalItems - 1 }
+            : current,
+      );
       queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
       setDeleteTargetId(null);
     },
+    onError: (error) =>
+      setErrorMessage(error instanceof ApiError ? error.message : "Could not delete study material."),
   });
 
   const handleUploadSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -172,6 +181,12 @@ export function AdminMaterialsPage() {
                     {item.description && (
                       <div className="text-xs text-slate-500 mt-0.5 truncate max-w-xs">
                         {item.description}
+                      </div>
+                    )}
+                    {(item.standardName || item.subjectName) && (
+                      <div className="mt-2 flex flex-wrap gap-1.5 text-xs font-medium text-slate-600">
+                        {item.standardName && <Badge variant="neutral" size="sm">{item.standardName}</Badge>}
+                        {item.subjectName && <Badge variant="neutral" size="sm">{item.subjectName}</Badge>}
                       </div>
                     )}
                   </td>

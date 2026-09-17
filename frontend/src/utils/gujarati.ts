@@ -9,6 +9,7 @@ export const DEFAULT_SCHOOL_INFO = {
   establishedDate: "૧૦/૧૦/૧૯૫૦",
   diseCode: "૨૪૦૩૦૪૦૧૮૦૧",
   email: "principal24030401801@ssguj.in",
+  phone: "+91 9714862818",
   motto: "સા વિદ્યા યા વિમુક્તયે",
 };
 

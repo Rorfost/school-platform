@@ -4,31 +4,19 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { ContactPage } from "@/pages/ContactPage";
 
-function renderWithProviders(ui: React.ReactElement) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+function renderContactPage() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
+      <MemoryRouter><ContactPage /></MemoryRouter>
     </QueryClientProvider>,
   );
 }
 
 describe("ContactPage", () => {
-  it("renders school contact info and address in Gujarati", () => {
-    renderWithProviders(<ContactPage />);
-
-    expect(screen.getByRole("heading", { level: 1, name: "સંપર્ક" })).toBeVisible();
-    expect(screen.getByText("પીએમ શ્રી ધધાણા પ્રાથમિક શાળા")).toBeVisible();
-    expect(screen.getByText("principal24030401801@ssguj.in")).toBeVisible();
-  });
-
-  it("renders interactive contact enquiry form", () => {
-    renderWithProviders(<ContactPage />);
-
-    expect(screen.getByText("આપનું નામ")).toBeVisible();
-    expect(screen.getByPlaceholderText("આપનો પ્રશ્ન અથવા સંદેશ અહીં લખો...")).toBeVisible();
-    expect(screen.getByRole("button", { name: "સંદેશ મોકલો" })).toBeVisible();
+  it("offers direct call and WhatsApp actions instead of a nonfunctional enquiry form", () => {
+    renderContactPage();
+    expect(screen.getByRole("link", { name: /કૉલ કરો/ })).toHaveAttribute("href", "tel:+919714862818");
+    expect(screen.getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/919714862818");
   });
 });
