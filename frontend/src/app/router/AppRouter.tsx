@@ -53,6 +53,7 @@ const StudentCornerPage = lazy(() =>
     default: StudentCornerPage,
   })),
 );
+const ToolsPage = lazy(() => import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })));
 
 const AdminAcademicYearsPage = lazy(() =>
   import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({
@@ -128,6 +129,7 @@ const router = createBrowserRouter([
       { path: "student/materials", element: <MaterialsPage /> },
       { path: "student/results", element: <ResultsInfoPage /> },
       { path: "student/downloads", element: <DownloadsPage /> },
+      { path: "tools", element: <ToolsPage /> },
       { path: "notices", element: <NoticesPage /> },
       { path: "notices/:id", element: <NoticeDetailPage /> },
       { path: "gallery", element: <GalleryPage /> },

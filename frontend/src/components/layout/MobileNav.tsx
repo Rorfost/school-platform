@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import {
   BookOpen,
+  Calculator,
   Camera,
   GraduationCap,
   Home,
@@ -119,6 +120,16 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
                 >
                   <BookOpen size={18} className="text-slate-500" aria-hidden="true" />
                   <span>{LABELS.materials}</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/tools"
+                  onClick={onClose}
+                  className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
+                >
+                  <Calculator size={18} className="text-slate-500" aria-hidden="true" />
+                  <span>શિક્ષક સાધનો</span>
                 </NavLink>
               </li>
               <li>

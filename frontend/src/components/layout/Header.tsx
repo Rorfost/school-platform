@@ -67,14 +67,15 @@ export function Header() {
                 event.currentTarget.src = schoolLogo;
               }}
               alt="શાળા લોગો"
-              className="size-11 sm:size-13 shrink-0 rounded-full object-contain shadow-xs border border-blue-100"
+              className="size-11 shrink-0 rounded-full border border-blue-100 object-contain shadow-xs lg:size-14"
             />
             <div className="flex min-w-0 flex-col">
-              <span className="line-clamp-2 text-sm font-bold leading-tight tracking-tight text-slate-900 sm:text-lg lg:text-base">
+              <span className="line-clamp-2 text-sm font-bold leading-tight tracking-tight text-slate-900 sm:text-lg lg:text-xl">
                 {school.name}
               </span>
-              <span className="hidden truncate text-xs font-medium text-slate-500 sm:block">
-                {school.address}
+              <span className="hidden text-xs font-medium text-slate-500 lg:block">
+                {LABELS.estLabel}: {toGujaratiNumber(school.establishedYear)} · {LABELS.diseLabel}:{" "}
+                {toGujaratiNumber(school.schoolCode)}
               </span>
             </div>
           </Link>
