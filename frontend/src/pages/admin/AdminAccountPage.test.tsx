@@ -59,4 +59,16 @@ describe("AdminAccountPage", () => {
 
     expect(screen.getByText("New password must be at least 12 characters long.")).toBeVisible();
   });
+
+  it("toggles each password field independently", () => {
+    renderWithProviders(<AdminAccountPage />);
+    const current = screen.getByLabelText("Current Password");
+    const next = screen.getByLabelText("New Password (min 12 characters)");
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Show password" })[0]);
+
+    expect(current).toHaveAttribute("type", "text");
+    expect(next).toHaveAttribute("type", "password");
+    expect(screen.getByRole("button", { name: "Hide password" })).toBeInTheDocument();
+  });
 });

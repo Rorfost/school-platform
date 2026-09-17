@@ -35,7 +35,7 @@ describe("AdminLoginPage", () => {
 
     expect(screen.getByText("Principal Admin Portal")).toBeInTheDocument();
     expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Sign in to Admin/i })).toBeInTheDocument();
   });
 
@@ -43,6 +43,18 @@ describe("AdminLoginPage", () => {
     renderLoginPage({ expired: true });
 
     expect(screen.getByText("Your session has expired. Please sign in again.")).toBeInTheDocument();
+  });
+
+  it("toggles password visibility without submitting the form", () => {
+    const mockLogin = vi.fn();
+    renderLoginPage(undefined, { login: mockLogin });
+    const password = screen.getByLabelText("Password");
+
+    expect(password).toHaveAttribute("type", "password");
+    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+    expect(password).toHaveAttribute("type", "text");
+    expect(screen.getByRole("button", { name: "Hide password" })).toBeInTheDocument();
+    expect(mockLogin).not.toHaveBeenCalled();
   });
 
   it("handles valid form submission and calls login handler", async () => {
@@ -59,7 +71,7 @@ describe("AdminLoginPage", () => {
     fireEvent.change(screen.getByLabelText(/Email Address/i), {
       target: { value: "principal@school.edu" },
     });
-    fireEvent.change(screen.getByLabelText(/Password/i), {
+    fireEvent.change(screen.getByLabelText(/^Password$/i), {
       target: { value: "SecurePassword123" },
     });
 

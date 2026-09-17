@@ -97,15 +97,24 @@ public class GalleryImage extends AuditableUuidEntity {
     return status;
   }
 
-  public void update(String altText, String caption, int sortOrder) {
+  public void updateMetadata(String altText, String caption) {
     this.altText = altText;
     this.caption = caption;
+  }
+
+  public void setSortOrder(int sortOrder) {
     this.sortOrder = sortOrder;
   }
 
   public void publish(Instant at) {
     status = PublicationStatus.PUBLISHED;
     publishedAt = at;
+    archivedAt = null;
+  }
+
+  public void unpublish() {
+    status = PublicationStatus.DRAFT;
+    publishedAt = null;
     archivedAt = null;
   }
 

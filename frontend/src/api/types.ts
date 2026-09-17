@@ -15,7 +15,7 @@ export interface SchoolResponse {
   establishedYear: number | null;
   medium: string | null;
   schoolType: string | null;
-  logoObjectKey: string | null;
+  logoUrl: string | null;
 }
 
 export interface PrincipalProfileResponse {
@@ -34,15 +34,22 @@ export interface PrincipalProfileResponse {
 export interface StandardResponse {
   id: string;
   code: string;
-  name: string;
-  displayOrder: number;
+  displayName: string;
+  sortOrder: number;
+  archived: boolean;
 }
 
 export interface SubjectResponse {
   id: string;
   code: string;
   name: string;
-  displayOrder: number;
+  sortOrder: number;
+  archived: boolean;
+}
+
+export interface AcademicSetupResponse {
+  standards: { standard: StandardResponse; subjects: SubjectResponse[] }[];
+  subjects: SubjectResponse[];
 }
 
 export interface AcademicYearResponse {
@@ -104,7 +111,14 @@ export interface GalleryAlbumResponse {
   title: string;
   description: string | null;
   coverImageId: string | null;
+  coverImageThumbnailUrl: string | null;
+  imageCount: number;
   status: string;
+}
+
+export interface GalleryAlbumUpdateRequest {
+  title: string;
+  description?: string | null;
 }
 
 export interface GalleryImageResponse {
@@ -158,7 +172,6 @@ export interface SchoolUpdateRequest {
   establishedYear?: number | null;
   medium?: string | null;
   schoolType?: string | null;
-  logoObjectKey?: string | null;
 }
 
 export interface PrincipalProfileUpdateRequest {

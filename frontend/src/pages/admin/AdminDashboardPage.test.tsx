@@ -39,9 +39,7 @@ describe("AdminDashboardPage", () => {
     expect(screen.getByText("Management Modules")).toBeVisible();
     expect(screen.getByText("School Identity")).toBeVisible();
     expect(screen.getByText("Principal Profile")).toBeVisible();
-    expect(screen.getByText("Academic Years")).toBeVisible();
-    expect(screen.getByText("Standards & Classes")).toBeVisible();
-    expect(screen.getByText("Subjects Catalog")).toBeVisible();
-    expect(screen.getByText("Assessments")).toBeVisible();
+    expect(screen.getByText("Academic Setup")).toBeVisible();
+    expect(screen.getByText("Results & Marks")).toBeVisible();
   });
 });

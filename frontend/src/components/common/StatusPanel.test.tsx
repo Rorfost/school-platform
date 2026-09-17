@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 describe("StatusPanel components", () => {
@@ -8,6 +8,22 @@ describe("StatusPanel components", () => {
     const statuses = screen.getAllByRole("status");
     expect(statuses[0]).toBeVisible();
     expect(screen.getByText("વિગતો આવી રહી છે...")).toBeVisible();
+  });
+
+  it("shows a delayed wake-up message only after the configured delay", () => {
+    vi.useFakeTimers();
+    render(
+      <LoadingState
+        message="Loading data..."
+        delayedMessage="This may take a moment."
+        delayMs={500}
+      />,
+    );
+
+    expect(screen.queryByText("This may take a moment.")).not.toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(500));
+    expect(screen.getByText("This may take a moment.")).toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it("renders ErrorState and triggers retry callback", () => {

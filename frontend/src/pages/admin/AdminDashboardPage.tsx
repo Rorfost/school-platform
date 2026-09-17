@@ -1,20 +1,18 @@
 import {
   Activity,
   Award,
-  BookOpen,
   Calendar,
   Camera,
   FileText,
   FolderDown,
   GraduationCap,
   Layers,
-  Network,
   Settings,
   UserCheck,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { Card } from "@/components/ui/Card";
 import { useAdminAuditLogs, useAdminDashboardSummary } from "@/features/admin/useAdminData";
 import { useAuth } from "@/features/auth/useAuth";
@@ -24,7 +22,12 @@ export function AdminDashboardPage() {
   const { principal } = useAuth();
   const school = useEffectiveSchoolInfo();
   const { data: profile } = usePublicPrincipalProfile();
-  const { data: summary, isLoading: isSummaryLoading } = useAdminDashboardSummary();
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+    refetch: refetchSummary,
+  } = useAdminDashboardSummary();
   const { data: auditLogs } = useAdminAuditLogs();
 
   const quickLinks = [
@@ -41,34 +44,16 @@ export function AdminDashboardPage() {
       desc: "Biography, message, designation",
     },
     {
-      to: "/admin/academic-years",
-      label: "Academic Years",
+      to: "/admin/academics",
+      label: "Academic Setup",
       icon: Calendar,
-      desc: "Manage sessions & current year",
-    },
-    {
-      to: "/admin/standards",
-      label: "Standards & Classes",
-      icon: Layers,
-      desc: "Standards 1 to 8 configuration",
-    },
-    {
-      to: "/admin/subjects",
-      label: "Subjects Catalog",
-      icon: BookOpen,
-      desc: "Curriculum subjects list",
-    },
-    {
-      to: "/admin/subject-mappings",
-      label: "Subject Mappings",
-      icon: Network,
-      desc: "Map subjects to standards",
+      desc: "Current year, standards, and subjects",
     },
     {
       to: "/admin/assessments",
-      label: "Assessments",
+      label: "Results & Marks",
       icon: Award,
-      desc: "Ekam Kasoti & exam setup",
+      desc: "Exam and marks setup",
     },
     {
       to: "/admin/materials",
@@ -124,6 +109,8 @@ export function AdminDashboardPage() {
       {/* Real Summary Stats Grid */}
       {isSummaryLoading ? (
         <LoadingState message="Loading dashboard summary statistics..." />
+      ) : isSummaryError ? (
+        <ErrorState message="Could not load dashboard summary." onRetry={() => refetchSummary()} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="p-5">
@@ -150,10 +137,10 @@ export function AdminDashboardPage() {
               {summary?.totalStandards ?? 0}
             </p>
             <Link
-              to="/admin/standards"
+              to="/admin/academics"
               className="text-xs font-semibold text-blue-900 hover:underline mt-1 block"
             >
-              Manage standards →
+              Manage academic setup →
             </Link>
           </Card>
 

@@ -15,7 +15,11 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3">
               <img
-                src={schoolLogo}
+                src={school.logoUrl ?? schoolLogo}
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = schoolLogo;
+                }}
                 alt="શાળા લોગો"
                 className="size-11 rounded-full object-contain border border-blue-100"
               />
@@ -102,7 +106,7 @@ export function Footer() {
               © 2026 Rakesh Patel, Principal at PM Shri Dhadhana Primary School. All rights
               reserved.
             </p>
-            <p className="text-slate-500">Built by Raj Patel | Rorfost</p>
+            <p className="text-slate-500">Built and maintained by Raj Patel | Rorfost</p>
           </div>
           <div className="flex items-center gap-4">
             <Link

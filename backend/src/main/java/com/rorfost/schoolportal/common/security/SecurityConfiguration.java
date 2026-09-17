@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -25,10 +26,15 @@ public class SecurityConfiguration {
   SecurityFilterChain securityFilterChain(
       HttpSecurity http,
       AuthenticationEntryPoint authenticationEntryPoint,
-      AccessDeniedHandler accessDeniedHandler)
+      AccessDeniedHandler accessDeniedHandler,
+      CookieCsrfTokenRepository csrfTokenRepository)
       throws Exception {
     http.cors(Customizer.withDefaults())
-        .csrf(csrf -> csrf.spa().ignoringRequestMatchers("/actuator/health"))
+        .csrf(
+            csrf ->
+                csrf.spa()
+                    .csrfTokenRepository(csrfTokenRepository)
+                    .ignoringRequestMatchers("/actuator/health"))
         .sessionManagement(
             sessions ->
                 sessions
@@ -81,6 +87,11 @@ public class SecurityConfiguration {
   @Bean
   PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  CookieCsrfTokenRepository csrfTokenRepository() {
+    return CookieCsrfTokenRepository.withHttpOnlyFalse();
   }
 
   @Bean

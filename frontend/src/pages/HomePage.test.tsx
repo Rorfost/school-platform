@@ -4,9 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { HomePage } from "@/pages/HomePage";
 
 function renderWithProviders(ui: React.ReactElement) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>{ui}</MemoryRouter>
@@ -15,13 +13,10 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe("HomePage", () => {
-  it("renders school identity and motto in Gujarati", () => {
+  it("keeps home focused on student actions rather than repeating school identity", () => {
     renderWithProviders(<HomePage />);
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા" }),
-    ).toBeVisible();
-    expect(screen.getByText("॥ સા વિદ્યા યા વિમુક્તયે ॥")).toBeVisible();
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
   });
 
   it("renders student quick access section with friendly cards", () => {
@@ -31,12 +26,5 @@ describe("HomePage", () => {
     expect(screen.getByText("અભ્યાસ સામગ્રી")).toBeVisible();
     expect(screen.getByText("પરીક્ષા પરિણામ")).toBeVisible();
     expect(screen.getAllByText("ડાઉનલોડ")[0]).toBeVisible();
-  });
-
-  it("renders school DISE code and establishment information", () => {
-    renderWithProviders(<HomePage />);
-
-    expect(screen.getAllByText(/ડાયસ કોડ:/)[0]).toBeVisible();
-    expect(screen.getAllByText(/સ્થાપના:/)[0]).toBeVisible();
   });
 });

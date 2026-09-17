@@ -1,5 +1,5 @@
 ﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { queryKeys } from "@/api/queryKeys";
@@ -35,11 +35,45 @@ describe("AdminMaterialsPage", () => {
       totalItems: 1,
       totalPages: 1,
     });
+    queryClient.setQueryData(queryKeys.adminAcademicYears, [
+      {
+        id: "year-current",
+        name: "2026-27",
+        startsOn: "2026-06-01",
+        endsOn: "2027-05-31",
+        status: "CURRENT",
+      },
+    ]);
 
     renderWithClient(<AdminMaterialsPage />, queryClient);
 
     expect(screen.getByRole("heading", { name: "Study Materials Management" })).toBeInTheDocument();
     expect(screen.getByText("Std 3 Maths Chapter 1")).toBeInTheDocument();
     expect(screen.getByText("TEXTBOOK")).toBeInTheDocument();
+  });
+
+  it("defaults a new material to the current academic year", () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(queryKeys.adminMaterials({ page: 0, size: 50 }), {
+      items: [],
+      page: 0,
+      size: 50,
+      totalItems: 0,
+      totalPages: 0,
+    });
+    queryClient.setQueryData(queryKeys.adminAcademicYears, [
+      {
+        id: "year-current",
+        name: "2026-27",
+        startsOn: "2026-06-01",
+        endsOn: "2027-05-31",
+        status: "CURRENT",
+      },
+    ]);
+
+    renderWithClient(<AdminMaterialsPage />, queryClient);
+    fireEvent.click(screen.getByRole("button", { name: "Upload New Material" }));
+
+    expect(screen.getByLabelText("Academic Session")).toHaveValue("year-current");
   });
 });

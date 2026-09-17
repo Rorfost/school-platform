@@ -18,7 +18,9 @@ flowchart LR
 - **Frontend:** React/Vite static SPA with a feature-oriented route/provider/API-client foundation, TanStack Query cache, Tailwind styling, and Gujarati-first shell. It never holds secrets.
 - **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, `PRINCIPAL` session authentication, CSRF/CORS/security headers, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an ImageKit-backed storage abstraction. Feature packages are added only when their roadmap phase starts.
 - **PostgreSQL:** relational source of truth, audit metadata, and Spring Session JDBC tables. Use Flyway for every schema change, `snake_case`, UUID external IDs, and `TIMESTAMPTZ` timestamps.
-- **Object storage:** ImageKit for public files. Database rows retain object keys and metadata, never binary file content.
+- **Object storage:** ImageKit for public files, including school branding. Database rows retain object keys and metadata, never binary file content; public DTOs derive URLs from the configured ImageKit endpoint.
+
+The desktop principal shell uses a viewport-height layout: its header and sidebar stay available while only the main admin content region scrolls. On smaller screens, the sidebar becomes a modal drawer that temporarily locks background scrolling.
 
 ## Security boundary
 

@@ -2,20 +2,38 @@ import { Calendar, Download, FileText, Newspaper, Pin } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { usePublicNotice } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
-import { EmptyState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  ContentSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
 
 export function NoticeDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: notice, isLoading } = usePublicNotice(id);
+  const { data: notice, isLoading, error } = usePublicNotice(id);
 
   if (isLoading) {
     return (
       <div className="space-y-6 max-w-3xl">
         <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
-        <LoadingState message="સૂચના વિગત લોડ થઈ રહી છે..." />
+        <LoadingState
+          message="સૂચના વિગત લોડ થઈ રહી છે..."
+          delayedMessage="થોડો સમય લાગી શકે છે."
+        />
+        <ContentSkeleton rows={1} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 max-w-3xl">
+        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
+        <ErrorState />
       </div>
     );
   }

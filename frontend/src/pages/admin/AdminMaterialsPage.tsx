@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminMaterialsPage() {
   const queryClient = useQueryClient();
@@ -50,13 +50,14 @@ export function AdminMaterialsPage() {
     enabled: Boolean(selectedStandardId),
   });
 
-  const { data, isLoading } = useQuery<PageResponse<MaterialResponse>>({
+  const { data, isLoading, isError, refetch } = useQuery<PageResponse<MaterialResponse>>({
     queryKey: queryKeys.adminMaterials({ page: 0, size: 50 }),
     queryFn: () =>
       apiRequest<PageResponse<MaterialResponse>>("/api/v1/admin/materials?page=0&size=50"),
   });
 
   const allMaterials = data?.items ?? [];
+  const currentAcademicYearId = years.find((year) => year.status === "CURRENT")?.id ?? "";
   const materials = allMaterials.filter((item) => {
     if (statusFilter === "PUBLISHED") return item.status === "PUBLISHED";
     if (statusFilter === "DRAFT") return item.status === "DRAFT";
@@ -109,6 +110,10 @@ export function AdminMaterialsPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading study materials..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load study materials." onRetry={() => refetch()} />;
   }
 
   return (
@@ -194,7 +199,7 @@ export function AdminMaterialsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => publishMutation.mutate(item.id)}
-                        loading={publishMutation.isPending}
+                        loading={publishMutation.isPending && publishMutation.variables === item.id}
                       >
                         Publish
                       </Button>
@@ -241,11 +246,16 @@ export function AdminMaterialsPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  htmlFor="material-academic-year"
+                  className="block text-sm font-medium text-slate-700 mb-1"
+                >
                   Academic Session
                 </label>
                 <select
+                  id="material-academic-year"
                   name="academicYearId"
+                  defaultValue={currentAcademicYearId}
                   className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
                 >
                   <option value="">-- Optional Academic Year --</option>
@@ -259,7 +269,7 @@ export function AdminMaterialsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Standard & Subject Mapping
+                  Standard and subject
                 </label>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   <select
@@ -270,7 +280,7 @@ export function AdminMaterialsPage() {
                     <option value="">-- Select Standard --</option>
                     {standards.map((std) => (
                       <option key={std.id} value={std.id}>
-                        {std.name}
+                        {std.displayName}
                       </option>
                     ))}
                   </select>
@@ -285,7 +295,7 @@ export function AdminMaterialsPage() {
                       const sub = subjects.find((s) => s.id === m.subjectId);
                       return (
                         <option key={m.id} value={m.id}>
-                          {sub?.name || m.subjectId}
+                          {sub?.name || "Subject"}
                         </option>
                       );
                     })}

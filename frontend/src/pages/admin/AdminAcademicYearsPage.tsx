@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminAcademicYearsPage() {
   const queryClient = useQueryClient();
@@ -28,7 +28,12 @@ export function AdminAcademicYearsPage() {
     targetName: "",
   });
 
-  const { data: years = [], isLoading } = useQuery<AcademicYearResponse[]>({
+  const {
+    data: years = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<AcademicYearResponse[]>({
     queryKey: queryKeys.adminAcademicYears,
     queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
   });
@@ -101,6 +106,10 @@ export function AdminAcademicYearsPage() {
 
   if (isLoading) {
     return <LoadingState message="Loading academic years..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load academic years." onRetry={() => refetch()} />;
   }
 
   return (

@@ -68,10 +68,11 @@ function renderPage() {
 }
 
 describe("AdminAssessmentsPage", () => {
-  it("filters assessments by standard and accurately explains the blocked result workflow", () => {
+  it("uses Results & Marks terminology and accurately explains the blocked result workflow", () => {
     renderPage();
 
-    expect(screen.getByText("Result import is not available yet")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Results & Marks" })).toBeVisible();
+    expect(screen.getByText("Result upload is not available yet")).toBeVisible();
     expect(screen.getByText("First unit test")).toBeVisible();
     expect(screen.getByText("Second unit test")).toBeVisible();
 

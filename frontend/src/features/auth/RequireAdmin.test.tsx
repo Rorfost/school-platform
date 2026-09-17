@@ -1,9 +1,34 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { RequireAdmin } from "@/features/auth/RequireAdmin";
 import * as UseAuthModule from "@/features/auth/useAuth";
 
 describe("RequireAdmin route guard", () => {
+  it("shows a session restoration state before deciding the route", () => {
+    vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
+      principal: null,
+      isAuthenticated: false,
+      isLoading: true,
+      login: vi.fn(),
+      logout: vi.fn(),
+      refetchSession: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <Routes>
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<div>Admin Secret Dashboard</div>} />
+          </Route>
+          <Route path="/admin/login" element={<div>Login Screen</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Checking administrator session...")).toBeInTheDocument();
+    expect(screen.queryByText("Login Screen")).not.toBeInTheDocument();
+  });
+
   it("redirects unauthenticated users to /admin/login", () => {
     vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
       principal: null,
@@ -27,6 +52,37 @@ describe("RequireAdmin route guard", () => {
 
     expect(screen.queryByText("Admin Secret Dashboard")).not.toBeInTheDocument();
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
+  });
+
+  it("keeps the route guard visible when session restoration has a recoverable error", () => {
+    const refetchSession = vi.fn();
+    vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
+      principal: null,
+      isAuthenticated: false,
+      isLoading: false,
+      sessionError: true,
+      login: vi.fn(),
+      logout: vi.fn(),
+      refetchSession,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <Routes>
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<div>Admin Secret Dashboard</div>} />
+          </Route>
+          <Route path="/admin/login" element={<div>Login Screen</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      screen.getByText("Could not restore the administrator session. Try again."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Login Screen")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "ફરી પ્રયત્ન કરો" }));
+    expect(refetchSession).toHaveBeenCalledTimes(1);
   });
 
   it("renders protected child route when authenticated", () => {

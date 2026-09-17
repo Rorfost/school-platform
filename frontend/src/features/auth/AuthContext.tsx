@@ -1,6 +1,6 @@
-import { createContext, useCallback, type PropsWithChildren } from "react";
+import { createContext, useCallback, useEffect, type PropsWithChildren } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest, refreshCsrfToken } from "@/api/client";
+import { ApiError, apiRequest, refreshCsrfToken } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalAccountResponse } from "@/api/types";
 
@@ -8,6 +8,7 @@ export interface AuthContextValue {
   principal: PrincipalAccountResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  sessionError?: boolean;
   login: (email: string, password: string) => Promise<PrincipalAccountResponse>;
   logout: () => Promise<void>;
   refetchSession: () => Promise<void>;
@@ -16,25 +17,41 @@ export interface AuthContextValue {
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function removeAdminDataQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.removeQueries({
+    predicate: (query) => query.queryKey[0] === "admin" && query.queryKey[1] !== "auth",
+  });
+}
+
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
 
   const {
     data: principal,
     isLoading,
+    isError,
     refetch,
   } = useQuery({
     queryKey: queryKeys.authMe,
     queryFn: async () => {
       try {
         return await apiRequest<PrincipalAccountResponse>("/api/v1/admin/auth/me");
-      } catch {
-        return null;
+      } catch (error) {
+        if (error instanceof ApiError && [401, 403].includes(error.status)) {
+          return null;
+        }
+        throw error;
       }
     },
     staleTime: 1000 * 60 * 10,
     retry: false,
   });
+
+  useEffect(() => {
+    if (!isLoading && !isError && !principal) {
+      removeAdminDataQueries(queryClient);
+    }
+  }, [isError, isLoading, principal, queryClient]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -57,7 +74,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await refreshCsrfToken();
     } finally {
       queryClient.setQueryData(queryKeys.authMe, null);
-      queryClient.invalidateQueries();
+      removeAdminDataQueries(queryClient);
     }
   }, [queryClient]);
 
@@ -71,6 +88,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         principal: principal ?? null,
         isAuthenticated: !!principal,
         isLoading,
+        sessionError: isError,
         login,
         logout,
         refetchSession,

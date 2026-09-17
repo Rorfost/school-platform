@@ -55,9 +55,12 @@ public class GalleryAlbum extends AuditableUuidEntity {
     return publishedAt;
   }
 
-  public void update(String title, String description, UUID coverImageId) {
+  public void update(String title, String description) {
     this.title = title;
     this.description = description;
+  }
+
+  public void setCoverImageId(UUID coverImageId) {
     this.coverImageId = coverImageId;
   }
 

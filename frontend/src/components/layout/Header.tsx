@@ -51,7 +51,11 @@ export function Header() {
             className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
           >
             <img
-              src={schoolLogo}
+              src={school.logoUrl ?? schoolLogo}
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = schoolLogo;
+              }}
               alt="શાળા લોગો"
               className="size-11 sm:size-13 shrink-0 rounded-full object-contain shadow-xs border border-blue-100"
             />

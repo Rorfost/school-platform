@@ -42,7 +42,7 @@ class PublicContentController {
   PageResponse<GalleryAlbumResponse> galleryAlbums(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     return PageResponse.from(
-        contentService.publicAlbums(schoolId(), page, size).map(GalleryAlbumResponse::from));
+        contentService.publicAlbums(schoolId(), page, size).map(contentService::publicAlbum));
   }
 
   @GetMapping("/gallery/albums/{albumId}/images")

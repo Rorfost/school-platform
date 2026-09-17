@@ -63,6 +63,22 @@ class StorageServiceTest {
   }
 
   @Test
+  void uploadsSignatureCheckedPngImagesForSchoolBranding() {
+    StorageService service = service(DataSize.ofMegabytes(10));
+    MockMultipartFile file =
+        new MockMultipartFile(
+            "file",
+            "school.png",
+            "image/png",
+            new byte[] {(byte) 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a});
+
+    StoredObject object = service.uploadPublicImage("branding/school-slug", file);
+
+    assertThat(object.objectKey()).matches("branding/school-slug/[0-9a-f-]{36}\\.png");
+    assertThat(object.contentType()).isEqualTo("image/png");
+  }
+
+  @Test
   void delegatesDeleteAndExistsToStorage() {
     StorageService service = service(DataSize.ofMegabytes(10));
     when(objectStorage.exists("imagekit", "downloads/school-slug/file.pdf")).thenReturn(true);

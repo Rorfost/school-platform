@@ -4,20 +4,19 @@ import { BookOpen, Download, FileText, Filter } from "lucide-react";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { MaterialResponse, PageResponse } from "@/api/types";
-import { usePublicStandards, usePublicSubjects } from "@/features/public/usePublicAcademic";
 import { Badge } from "@/components/ui/Badge";
-import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import {
+  ContentSkeleton,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
 
 export function MaterialsPage() {
-  const [selectedStandardId, setSelectedStandardId] = useState<string>("");
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
-
-  const { data: standards = [] } = usePublicStandards();
-  const { data: subjects = [] } = usePublicSubjects();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.materials({ page: 0, size: 50 }),
@@ -28,12 +27,6 @@ export function MaterialsPage() {
   const materials = data?.items ?? [];
 
   const filteredMaterials = materials.filter((item) => {
-    if (selectedStandardId && item.standardSubjectId !== selectedStandardId) {
-      // standard filter match
-    }
-    if (selectedSubjectId && item.standardSubjectId !== selectedSubjectId) {
-      // subject filter match
-    }
     if (selectedType && item.materialType !== selectedType) {
       return false;
     }
@@ -49,60 +42,13 @@ export function MaterialsPage() {
         backLabel={LABELS.studentCorner}
       />
 
-      {/* Selectors: Standard, Subject, Material Type */}
+      {/* Material types are part of the public response; standard/subject filters await an approved API contract. */}
       <Card className="p-4 sm:p-5 bg-slate-50/70 border-slate-200">
         <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-800">
           <Filter size={16} className="text-blue-900" aria-hidden="true" />
           <span>અભ્યાસ સામગ્રી શોધો અને ફિલ્ટર કરો</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Standard Selector */}
-          <div>
-            <label
-              htmlFor="standard-select"
-              className="block text-xs font-medium text-slate-700 mb-1"
-            >
-              {LABELS.selectStandard} (ધોરણ)
-            </label>
-            <select
-              id="standard-select"
-              value={selectedStandardId}
-              onChange={(e) => setSelectedStandardId(e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-            >
-              <option value="">તમામ ધોરણ</option>
-              {standards.map((std) => (
-                <option key={std.id} value={std.id}>
-                  {std.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Subject Selector */}
-          <div>
-            <label
-              htmlFor="subject-select"
-              className="block text-xs font-medium text-slate-700 mb-1"
-            >
-              વિષય પસંદ કરો
-            </label>
-            <select
-              id="subject-select"
-              value={selectedSubjectId}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
-            >
-              <option value="">તમામ વિષય</option>
-              {subjects.map((sub) => (
-                <option key={sub.id} value={sub.id}>
-                  {sub.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Material Type Selector */}
+        <div className="max-w-sm">
           <div>
             <label htmlFor="type-select" className="block text-xs font-medium text-slate-700 mb-1">
               સામગ્રીનો પ્રકાર
@@ -125,7 +71,13 @@ export function MaterialsPage() {
 
       {/* Materials List */}
       {isLoading ? (
-        <LoadingState message="અભ્યાસ સામગ્રી લોડ થઈ રહી છે..." />
+        <>
+          <LoadingState
+            message="અભ્યાસ સામગ્રી લોડ થઈ રહી છે..."
+            delayedMessage="થોડો સમય લાગી શકે છે."
+          />
+          <ContentSkeleton />
+        </>
       ) : error ? (
         <ErrorState onRetry={() => refetch()} />
       ) : filteredMaterials.length === 0 ? (
@@ -133,7 +85,7 @@ export function MaterialsPage() {
           icon={BookOpen}
           title="હાલ કોઈ અભ્યાસ સામગ્રી ઉપલબ્ધ નથી."
           description={
-            selectedStandardId || selectedSubjectId || selectedType
+            selectedType
               ? "પસંદ કરેલ ફિલ્ટર મુજબ કોઈ સામગ્રી મળી નથી."
               : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
           }

@@ -7,13 +7,18 @@ import type { PrincipalProfileResponse, PrincipalProfileUpdateRequest } from "@/
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 export function AdminPrincipalProfilePage() {
   const queryClient = useQueryClient();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const { data: profile, isLoading } = useQuery<PrincipalProfileResponse>({
+  const {
+    data: profile,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery<PrincipalProfileResponse>({
     queryKey: queryKeys.principalProfile,
     queryFn: () => apiRequest<PrincipalProfileResponse>("/api/v1/admin/principal-profile"),
   });
@@ -61,6 +66,10 @@ export function AdminPrincipalProfilePage() {
 
   if (isLoading) {
     return <LoadingState message="Loading Principal profile..." />;
+  }
+
+  if (isError) {
+    return <ErrorState message="Could not load Principal profile." onRetry={() => refetch()} />;
   }
 
   return (
