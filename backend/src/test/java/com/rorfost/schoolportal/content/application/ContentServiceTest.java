@@ -11,7 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
+import com.rorfost.schoolportal.academic.repository.StandardRepository;
 import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
+import com.rorfost.schoolportal.academic.repository.SubjectRepository;
 import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.common.storage.StorageService;
@@ -64,6 +66,8 @@ class ContentServiceTest {
             schools,
             Mockito.mock(AcademicYearRepository.class),
             Mockito.mock(StandardSubjectRepository.class),
+            Mockito.mock(StandardRepository.class),
+            Mockito.mock(SubjectRepository.class),
             Mockito.mock(AuditLogService.class));
     album = album();
 

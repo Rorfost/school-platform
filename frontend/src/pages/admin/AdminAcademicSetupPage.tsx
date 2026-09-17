@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookOpen, Plus, Settings2 } from "lucide-react";
+import { Archive, BookOpen, Pencil, Plus, Settings2 } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { AcademicSetupResponse, SubjectResponse } from "@/api/types";
+import type { AcademicSetupResponse, StandardResponse, SubjectResponse } from "@/api/types";
 import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { Link } from "react-router-dom";
 
 export function AdminAcademicSetupPage() {
   const queryClient = useQueryClient();
@@ -18,6 +17,8 @@ export function AdminAcademicSetupPage() {
   >(null);
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]);
   const [isSubjectDialogOpen, setIsSubjectDialogOpen] = useState(false);
+  const [standardFormTarget, setStandardFormTarget] = useState<StandardResponse | null>(null);
+  const [isStandardDialogOpen, setIsStandardDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const setupQuery = useQuery<AcademicSetupResponse>({
     queryKey: queryKeys.adminAcademicSetup,
@@ -59,6 +60,50 @@ export function AdminAcademicSetupPage() {
       setErrorMessage(error instanceof ApiError ? error.message : "Unable to add the subject.");
     },
   });
+  const saveStandardMutation = useMutation({
+    mutationFn: ({
+      standard,
+      displayName,
+    }: {
+      standard: StandardResponse | null;
+      displayName: string;
+    }) => {
+      const body = {
+        // Codes are an internal database key; principals manage the readable standard name only.
+        code: standard?.code ?? `STANDARD_${Date.now()}`,
+        displayName,
+        sortOrder: standard?.sortOrder ?? (setupQuery.data?.standards.length ?? 0) + 1,
+        archived: false,
+      };
+      return apiRequest<StandardResponse>(
+        standard ? `/api/v1/admin/standards/${standard.id}` : "/api/v1/admin/standards",
+        { method: standard ? "PUT" : "POST", body },
+      );
+    },
+    onSuccess: () => {
+      invalidateSetup();
+      setIsStandardDialogOpen(false);
+      setStandardFormTarget(null);
+      setErrorMessage(null);
+    },
+    onError: (error) =>
+      setErrorMessage(error instanceof ApiError ? error.message : "Unable to save the standard."),
+  });
+  const archiveStandardMutation = useMutation({
+    mutationFn: (standard: StandardResponse) =>
+      apiRequest<StandardResponse>(`/api/v1/admin/standards/${standard.id}`, {
+        method: "PUT",
+        body: { ...standard, archived: true },
+      }),
+    onSuccess: () => {
+      invalidateSetup();
+      setErrorMessage(null);
+    },
+    onError: (error) =>
+      setErrorMessage(
+        error instanceof ApiError ? error.message : "Unable to deactivate the standard.",
+      ),
+  });
 
   const openSubjectManager = (standard: AcademicSetupResponse["standards"][number]) => {
     setEditingStandard(standard);
@@ -81,16 +126,20 @@ export function AdminAcademicSetupPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900">Academic Setup</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Standards 1 to 8 are ready. Choose the subjects taught in each standard.
+            Add the standards your school uses, then choose the subjects taught in each one.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link
-            to="/admin/academic-years"
-            className="inline-flex h-9 items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setStandardFormTarget(null);
+              setIsStandardDialogOpen(true);
+            }}
           >
-            Manage academic years
-          </Link>
+            <Plus size={16} aria-hidden="true" /> Add standard
+          </Button>
           <Button variant="primary" size="sm" onClick={() => setIsSubjectDialogOpen(true)}>
             <Plus size={16} aria-hidden="true" /> Add subject
           </Button>
@@ -131,6 +180,30 @@ export function AdminAcademicSetupPage() {
               ) : (
                 <span className="text-sm text-slate-500">Select subjects for this standard.</span>
               )}
+            </div>
+            <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStandardFormTarget(entry.standard);
+                  setIsStandardDialogOpen(true);
+                }}
+              >
+                <Pencil size={14} aria-hidden="true" /> Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-amber-800 hover:bg-amber-50"
+                onClick={() => archiveStandardMutation.mutate(entry.standard)}
+                loading={
+                  archiveStandardMutation.isPending &&
+                  archiveStandardMutation.variables?.id === entry.standard.id
+                }
+              >
+                <Archive size={14} aria-hidden="true" /> Deactivate
+              </Button>
             </div>
           </Card>
         ))}
@@ -228,6 +301,46 @@ export function AdminAcademicSetupPage() {
                 </Button>
                 <Button type="submit" loading={createSubjectMutation.isPending}>
                   Add subject
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {isStandardDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-slate-900">
+              {standardFormTarget ? "Edit standard" : "Add standard"}
+            </h2>
+            <form
+              className="mt-4 space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const displayName = String(
+                  new FormData(event.currentTarget).get("displayName") ?? "",
+                ).trim();
+                if (displayName)
+                  saveStandardMutation.mutate({ standard: standardFormTarget, displayName });
+              }}
+            >
+              <Input
+                label="Standard name"
+                name="displayName"
+                defaultValue={standardFormTarget?.displayName}
+                required
+                placeholder="e.g. Standard 3"
+              />
+              <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setIsStandardDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" loading={saveStandardMutation.isPending}>
+                  Save standard
                 </Button>
               </div>
             </form>

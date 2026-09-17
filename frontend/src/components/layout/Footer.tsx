@@ -1,16 +1,36 @@
+import { useEffect, useState } from "react";
 import { Lock, Mail, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+import { apiRequest } from "@/api/client";
+import type { VisitResponse } from "@/api/types";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function Footer() {
   const school = useEffectiveSchoolInfo();
+  const [visits, setVisits] = useState<number | null>(null);
+
+  useEffect(() => {
+    const marker = "school-portal-visit-counted";
+    const counted = window.sessionStorage.getItem(marker);
+    const request = counted
+      ? apiRequest<VisitResponse>("/api/v1/public/visits")
+      : apiRequest<VisitResponse>("/api/v1/public/visits", { method: "POST", skipCsrf: true });
+
+    // sessionStorage is deliberately scoped to a browsing session: this counts visits, not people.
+    void request
+      .then((response) => {
+        if (!counted) window.sessionStorage.setItem(marker, "1");
+        setVisits(response.totalVisits);
+      })
+      .catch(() => undefined);
+  }, []);
 
   return (
     <footer className="border-t border-slate-200 bg-white text-slate-700">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* School Brand & Motto */}
           <div>
             <div className="flex items-center gap-3">
@@ -38,43 +58,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900 mb-3">ઉપયોગી લિંક્સ</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/" className="hover:text-blue-900 transition-colors">
-                  {LABELS.home}
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-blue-900 transition-colors">
-                  {LABELS.about}
-                </Link>
-              </li>
-              <li>
-                <Link to="/student" className="hover:text-blue-900 transition-colors">
-                  {LABELS.studentCorner}
-                </Link>
-              </li>
-              <li>
-                <Link to="/notices" className="hover:text-blue-900 transition-colors">
-                  {LABELS.notices}
-                </Link>
-              </li>
-              <li>
-                <Link to="/gallery" className="hover:text-blue-900 transition-colors">
-                  {LABELS.gallery}
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-blue-900 transition-colors">
-                  {LABELS.contact}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Details */}
           <div>
             <h4 className="text-sm font-semibold text-slate-900 mb-3">{LABELS.contact}</h4>
@@ -100,7 +83,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Strip */}
-        <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-5 text-xs text-slate-500 sm:flex-row">
           <div className="space-y-1 text-center sm:text-left">
             <p className="text-slate-500">
               © 2026 Rakesh Patel, Principal at PM SHRI Dhadhana Primary School. All rights
@@ -109,6 +92,7 @@ export function Footer() {
             <p className="text-slate-500">Built and maintained by Raj Patel | Rorfost</p>
           </div>
           <div className="flex items-center gap-4">
+            {visits !== null && <span>Visits: {visits.toLocaleString("en-IN")}</span>}
             <Link
               to="/admin/login"
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors"

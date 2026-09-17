@@ -32,7 +32,7 @@ export function useEffectiveSchoolInfo() {
     state: school?.state || "ગુજરાત",
     postalCode: school?.postalCode || "",
     email: school?.email || DEFAULT_SCHOOL_INFO.email,
-    phone: school?.phone || "",
+    phone: school?.phone || DEFAULT_SCHOOL_INFO.phone,
     about: school?.about || "",
     establishedYear: school?.establishedYear ?? DEFAULT_SCHOOL_INFO.establishedYear,
     logoUrl: school?.logoUrl ?? null,

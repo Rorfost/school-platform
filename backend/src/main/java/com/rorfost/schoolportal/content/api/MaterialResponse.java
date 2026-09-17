@@ -10,12 +10,15 @@ public record MaterialResponse(
     String materialType,
     UUID academicYearId,
     UUID standardSubjectId,
+    String standardName,
+    String subjectName,
     String filename,
     String contentType,
     long byteSize,
     String url,
     String status) {
-  public static MaterialResponse from(StudyMaterial item, String url) {
+  public static MaterialResponse from(
+      StudyMaterial item, String url, String standardName, String subjectName) {
     return new MaterialResponse(
         item.getId(),
         item.getTitle(),
@@ -23,6 +26,8 @@ public record MaterialResponse(
         item.getMaterialType(),
         item.getAcademicYearId(),
         item.getStandardSubjectId(),
+        standardName,
+        subjectName,
         item.getOriginalFilename(),
         item.getContentType(),
         item.getByteSize(),

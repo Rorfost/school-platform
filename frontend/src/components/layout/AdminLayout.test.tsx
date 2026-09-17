@@ -45,6 +45,8 @@ describe("AdminLayout", () => {
       screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveClass("overflow-y-auto");
+    expect(screen.getByRole("main").parentElement).toHaveClass("w-full");
+    expect(screen.getByRole("main").parentElement).not.toHaveClass("max-w-7xl");
   });
 
   it("renders warning banner when mustChangePassword is true", () => {

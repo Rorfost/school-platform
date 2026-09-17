@@ -68,10 +68,23 @@ export function AdminNoticesPage() {
       apiRequest<void>(`/api/v1/admin/notices/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<PageResponse<NoticeResponse>>(
+        queryKeys.adminNotices({ page: 0, size: 50 }),
+        (current) =>
+          current
+            ? {
+                ...current,
+                items: current.items.filter((item) => item.id !== id),
+                totalItems: current.totalItems - 1,
+              }
+            : current,
+      );
       queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setDeleteTargetId(null);
     },
+    onError: (error) =>
+      setErrorMessage(error instanceof ApiError ? error.message : "Could not delete notice."),
   });
 
   const handleCreateSubmit = (e: React.FormEvent<HTMLFormElement>) => {

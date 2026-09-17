@@ -68,6 +68,10 @@ export interface PageResponse<T> {
   totalPages: number;
 }
 
+export interface VisitResponse {
+  totalVisits: number;
+}
+
 export interface NoticeResponse {
   id: string;
   title: string;
@@ -86,6 +90,8 @@ export interface MaterialResponse {
   materialType: string;
   academicYearId: string | null;
   standardSubjectId: string | null;
+  standardName: string | null;
+  subjectName: string | null;
   filename: string;
   contentType: string;
   byteSize: number;

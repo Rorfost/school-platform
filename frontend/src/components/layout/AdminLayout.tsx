@@ -212,7 +212,7 @@ export function AdminLayout() {
       </header>
 
       {/* Main Layout Container (Sidebar + Content) */}
-      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1">
+      <div className="flex min-h-0 w-full flex-1">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-4 py-6 md:block">
           <nav aria-label="Admin Sidebar Navigation">{renderNavLinks()}</nav>

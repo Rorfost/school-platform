@@ -91,10 +91,11 @@ export async function refreshCsrfToken(): Promise<string | null> {
 
 export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
+  skipCsrf?: boolean;
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  const { body, headers = {}, method = "GET", ...rest } = options;
+  const { body, headers = {}, method = "GET", skipCsrf = false, ...rest } = options;
   const upperMethod = method.toUpperCase();
   const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(upperMethod);
 
@@ -103,7 +104,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     requestHeaders.set("Accept", "application/json");
   }
 
-  if (isMutating) {
+  if (isMutating && !skipCsrf) {
     const csrfToken = await fetchCsrfToken();
     if (csrfToken && !requestHeaders.has(csrfHeaderName)) {
       requestHeaders.set(csrfHeaderName, csrfToken);
@@ -151,9 +152,16 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     throw new ApiError(message, response.status, code, requestId);
   }
 
-  if (response.status === 204) {
+  // Spring returns an empty 200 response for several mutation endpoints. Parsing it as JSON
+  // turns a completed delete or publication change into a false client-side failure.
+  if (response.status === 204 || response.headers.get("Content-Length") === "0") {
     return undefined as unknown as T;
   }
 
-  return (await response.json()) as T;
+  const responseText = await response.text();
+  if (!responseText.trim()) {
+    return undefined as unknown as T;
+  }
+
+  return JSON.parse(responseText) as T;
 }

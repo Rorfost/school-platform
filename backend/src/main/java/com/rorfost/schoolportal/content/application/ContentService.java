@@ -1,7 +1,9 @@
 package com.rorfost.schoolportal.content.application;
 
 import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
+import com.rorfost.schoolportal.academic.repository.StandardRepository;
 import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
+import com.rorfost.schoolportal.academic.repository.SubjectRepository;
 import com.rorfost.schoolportal.audit.domain.AuditAction;
 import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.common.exception.DomainException;
@@ -61,6 +63,8 @@ public class ContentService {
   private final SchoolRepository schools;
   private final AcademicYearRepository academicYears;
   private final StandardSubjectRepository standardSubjects;
+  private final StandardRepository standards;
+  private final SubjectRepository subjects;
   private final AuditLogService audit;
 
   public ContentService(
@@ -73,6 +77,8 @@ public class ContentService {
       SchoolRepository schools,
       AcademicYearRepository academicYears,
       StandardSubjectRepository standardSubjects,
+      StandardRepository standards,
+      SubjectRepository subjects,
       AuditLogService audit) {
     this.storage = storage;
     this.materials = materials;
@@ -83,6 +89,8 @@ public class ContentService {
     this.schools = schools;
     this.academicYears = academicYears;
     this.standardSubjects = standardSubjects;
+    this.standards = standards;
+    this.subjects = subjects;
     this.audit = audit;
   }
 
@@ -483,11 +491,32 @@ public class ContentService {
   }
 
   public MaterialResponse material(StudyMaterial item) {
+    String standardName = null;
+    String subjectName = null;
+    if (item.getStandardSubjectId() != null) {
+      // The normalized mapping is the source of truth; only readable labels leave the API.
+      var mapping =
+          standardSubjects.findByIdAndSchoolId(item.getStandardSubjectId(), item.getSchoolId());
+      if (mapping.isPresent()) {
+        standardName =
+            standards
+                .findByIdAndSchoolId(mapping.get().getStandardId(), item.getSchoolId())
+                .map(value -> value.getDisplayName())
+                .orElse(null);
+        subjectName =
+            subjects
+                .findByIdAndSchoolId(mapping.get().getSubjectId(), item.getSchoolId())
+                .map(value -> value.getName())
+                .orElse(null);
+      }
+    }
     return MaterialResponse.from(
         item,
         item.getStatus() == PublicationStatus.PUBLISHED
             ? storage.publicUrl(item.getObjectKey())
-            : null);
+            : null,
+        standardName,
+        subjectName);
   }
 
   public NoticeResponse notice(Notice item) {
