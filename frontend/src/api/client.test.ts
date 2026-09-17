@@ -17,22 +17,6 @@ describe("api client & error utilities", () => {
     expect(getCsrfTokenFromCookie()).toBeNull();
   });
 
-  it("refreshes the CSRF token after an authentication lifecycle event", async () => {
-    document.cookie = "XSRF-TOKEN=stale-token; Path=/";
-    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      new Response(JSON.stringify({ token: "fresh-token" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
-
-    await expect(refreshCsrfToken()).resolves.toBe("fresh-token");
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "/api/v1/admin/auth/csrf",
-      expect.objectContaining({ credentials: "include" }),
-    );
-  });
-
   it("maps known backend error codes to natural Gujarati", () => {
     expect(getGujaratiErrorMessage("authentication_failed")).toBe("ઈમેઈલ અથવા પાસવર્ડ ખોટો છે.");
     expect(getGujaratiErrorMessage("login_rate_limited")).toBe(
@@ -43,24 +27,31 @@ describe("api client & error utilities", () => {
     );
   });
 
-  it("attaches CSRF header on mutating requests when cookie exists", async () => {
-    document.cookie = "XSRF-TOKEN=csrf-secret-123; Path=/";
-
-    const mockFetch = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
+  it("uses the CSRF header name returned by the server", async () => {
+    const mockFetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ token: "csrf-token", headerName: "X-CSRF-TOKEN" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
 
     await apiRequest("/test-endpoint", {
       method: "POST",
       body: { sample: "data" },
     });
 
-    expect(mockFetch).toHaveBeenCalledTimes(1);
-    const calledInit = mockFetch.mock.calls[0][1];
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch.mock.calls[0][0]).toBe("/api/v1/admin/auth/csrf");
+    const calledInit = mockFetch.mock.calls[1][1];
     const headers = calledInit?.headers as Headers;
-    expect(headers.get("X-XSRF-TOKEN")).toBe("csrf-secret-123");
+    expect(headers.get("X-CSRF-TOKEN")).toBe("csrf-token");
   });
 });

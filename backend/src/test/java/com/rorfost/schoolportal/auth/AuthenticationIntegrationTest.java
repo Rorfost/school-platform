@@ -98,7 +98,7 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
-  void acceptsTheSpaCsrfCookieAndHeaderForLogin() throws Exception {
+  void acceptsTheCsrfEndpointTokenAndHeaderForLogin() throws Exception {
     createPrincipal(false);
 
     MvcResult csrf =
@@ -107,16 +107,18 @@ class AuthenticationIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.token").isNotEmpty())
             .andReturn();
-    Cookie csrfCookie = csrf.getResponse().getCookie("XSRF-TOKEN");
-    String token =
-        objectMapper.readTree(csrf.getResponse().getContentAsString()).path("token").asText();
+    Cookie sessionCookie = csrf.getResponse().getCookie("SESSION");
+    var csrfResponse = objectMapper.readTree(csrf.getResponse().getContentAsString());
+    String token = csrfResponse.path("token").asText();
+    String headerName = csrfResponse.path("headerName").asText();
 
-    assertThat(csrfCookie).isNotNull();
+    assertThat(sessionCookie).isNotNull();
+    assertThat(headerName).isNotBlank();
     mockMvc
         .perform(
             post("/api/v1/admin/auth/login")
-                .cookie(csrfCookie)
-                .header("X-XSRF-TOKEN", token)
+                .cookie(sessionCookie)
+                .header(headerName, token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(

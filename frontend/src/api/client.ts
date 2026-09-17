@@ -22,12 +22,14 @@ export function getCsrfTokenFromCookie(): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
+const defaultCsrfHeaderName = "X-XSRF-TOKEN";
+let csrfToken: string | null = null;
+let csrfHeaderName = defaultCsrfHeaderName;
 let csrfTokenPromise: Promise<string | null> | null = null;
 
 export async function fetchCsrfToken(): Promise<string | null> {
-  const existingCookie = getCsrfTokenFromCookie();
-  if (existingCookie) {
-    return existingCookie;
+  if (csrfToken) {
+    return csrfToken;
   }
 
   return refreshCsrfToken();
@@ -44,8 +46,10 @@ export async function refreshCsrfToken(): Promise<string | null> {
         if (!response.ok) {
           return null;
         }
-        const data = (await response.json()) as { token?: string };
-        return data.token ?? getCsrfTokenFromCookie();
+        const data = (await response.json()) as { token?: string; headerName?: string };
+        csrfHeaderName = data.headerName ?? defaultCsrfHeaderName;
+        csrfToken = data.token ?? getCsrfTokenFromCookie();
+        return csrfToken;
       } catch {
         return null;
       } finally {
@@ -72,12 +76,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   if (isMutating) {
-    let csrfToken = getCsrfTokenFromCookie();
-    if (!csrfToken) {
-      csrfToken = await fetchCsrfToken();
-    }
-    if (csrfToken && !requestHeaders.has("X-XSRF-TOKEN")) {
-      requestHeaders.set("X-XSRF-TOKEN", csrfToken);
+    const csrfToken = await fetchCsrfToken();
+    if (csrfToken && !requestHeaders.has(csrfHeaderName)) {
+      requestHeaders.set(csrfHeaderName, csrfToken);
     }
   }
 
