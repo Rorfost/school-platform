@@ -35,7 +35,13 @@ class SchoolServiceTest {
     school.changeLogo("branding/example-school/old.jpg");
     StoredObject uploaded =
         new StoredObject(
-            "imagekit", "branding/example-school/new.jpg", "new.jpg", "image/jpeg", 3, "checksum");
+            "imagekit",
+            "branding/example-school/new.jpg",
+            "new.jpg",
+            "image/jpeg",
+            3,
+            "checksum",
+            "file-id");
     when(schools.findById(schoolId)).thenReturn(Optional.of(school));
     when(storage.uploadPublicImage(eq("branding/example-school"), any())).thenReturn(uploaded);
     when(storage.publicUrl(uploaded.objectKey())).thenReturn("https://assets.example/new.jpg");

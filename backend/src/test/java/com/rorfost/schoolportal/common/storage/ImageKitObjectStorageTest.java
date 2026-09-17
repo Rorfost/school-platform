@@ -41,12 +41,13 @@ class ImageKitObjectStorageTest {
         .thenReturn(
             FileUploadResponse.builder().fileId("file-id").filePath("/" + objectKey).build());
 
-    storage.put(
-        "imagekit",
-        objectKey,
-        new ByteArrayInputStream("%PDF-test".getBytes(StandardCharsets.UTF_8)),
-        9,
-        "application/pdf");
+    String fileId =
+        storage.put(
+            "imagekit",
+            objectKey,
+            new ByteArrayInputStream("%PDF-test".getBytes(StandardCharsets.UTF_8)),
+            9,
+            "application/pdf");
 
     ArgumentCaptor<FileUploadParams> request = ArgumentCaptor.forClass(FileUploadParams.class);
     verify(files).upload(request.capture());
@@ -54,6 +55,17 @@ class ImageKitObjectStorageTest {
     assertThat(request.getValue().fileName()).isEqualTo("123e4567-e89b-12d3-a456-426614174000.pdf");
     assertThat(request.getValue().useUniqueFileName()).contains(false);
     assertThat(request.getValue().overwriteFile()).contains(false);
+    assertThat(fileId).isEqualTo("file-id");
+  }
+
+  @Test
+  void deletesNewMediaUsingItsPersistedImageKitFileIdWithoutSearching() {
+    storage.delete("imagekit", "materials/school-slug/new.pdf", "stored-file-id");
+
+    ArgumentCaptor<FileDeleteParams> delete = ArgumentCaptor.forClass(FileDeleteParams.class);
+    verify(files).delete(delete.capture());
+    assertThat(delete.getValue().fileId()).contains("stored-file-id");
+    verify(assets, org.mockito.Mockito.never()).list(any(AssetListParams.class));
   }
 
   @Test
@@ -62,7 +74,7 @@ class ImageKitObjectStorageTest {
     when(assets.list(any(AssetListParams.class)))
         .thenReturn(List.of(AssetListResponse.ofFile(file("file-id", "/" + objectKey))));
 
-    storage.delete("imagekit", objectKey);
+    storage.delete("imagekit", objectKey, null);
 
     ArgumentCaptor<FileDeleteParams> delete = ArgumentCaptor.forClass(FileDeleteParams.class);
     verify(files).delete(delete.capture());

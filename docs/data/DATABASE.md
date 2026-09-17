@@ -55,11 +55,11 @@ erDiagram
 | `assessments` | One generic assessment, scoped to school, academic year, and standard. It has `DRAFT`, `PUBLISHED`, and `ARCHIVED` lifecycle states. Publication/archival timestamps are database-checked. |
 | `assessment_subjects` | Subjects included in an assessment. Each entry references a permitted `standard_subject`; duplicate assessment/subject pairs are rejected. |
 | `marks` | One numeric score per student, assessment, and assessment subject. Composite foreign keys prove that student and assessment share school, year, and standard; scores cannot be negative. No totals, percentages, grades, maximum marks, absence conventions, or Excel-derived values are stored. |
-| `study_materials` | Object-storage metadata for materials, optionally scoped to a year and standard-subject mapping. Binary content is never stored in PostgreSQL. |
-| `notices` | Notice body plus one optional complete attachment metadata set. Partial attachment metadata is rejected. |
+| `study_materials` | Object-storage metadata for materials, optionally scoped to a year and standard-subject mapping. Binary content is never stored in PostgreSQL. New ImageKit uploads retain the provider file ID for direct deletion. |
+| `notices` | Notice body plus one optional complete attachment metadata set. Partial attachment metadata is rejected; owned attachments retain their ImageKit file ID for deletion. |
 | `gallery_albums` | School gallery groups with publication lifecycle and an optional cover image constrained to the same album. |
-| `gallery_images` | Ordered image metadata and required accessible alt text. Image order is positive, unique, and normalized inside an album. |
-| `downloads` | Published document/timetable-style file metadata, optionally scoped to an academic year. `category` remains free text until a product vocabulary is approved. |
+| `gallery_images` | Ordered image metadata and required accessible alt text. Image order is positive, unique, and normalized inside an album. New uploads retain an ImageKit file ID for direct deletion. |
+| `downloads` | Published document/timetable-style file metadata, optionally scoped to an academic year. New uploads retain an ImageKit file ID for direct deletion; `category` remains free text until a product vocabulary is approved. |
 | `audit_logs` | Append-only administrative event record: safe action/target metadata, request ID, and optional actor. The implemented actions are `LOGIN_SUCCESS`, `LOGIN_FAILED`, and `PASSWORD_CHANGED`. Metadata must be a JSON object and must not contain credentials, PINs, cookies, session IDs, or sensitive payloads. |
 | `spring_session`, `spring_session_attributes` | Spring Session JDBC implementation tables. They are not domain tables; deleting a session cascades only to its attributes. |
 
@@ -109,7 +109,7 @@ Future services, not controllers, own transactions.
 | --- | --- |
 | Result import | Validate/preview before mutation. Confirmation writes assessment-result records in one database transaction. Excel parsing, duplicate policy, temporary-file retention, and rollback workflow wait for the real workbook contract. |
 | Bulk student or marks update | One explicit service transaction with database constraints left enabled; record a safe audit event after success. |
-| File metadata and storage | Write the object first to private storage, persist metadata in a transaction, and attempt compensating object cleanup if persistence fails. Publication is a separate audited transition. |
+| File metadata and storage | Write the object first to storage, persist metadata including the ImageKit file ID in a transaction, and attempt compensating object cleanup if persistence fails. Deletes remove the provider object first, then metadata; legacy records without a file ID use an exact ImageKit path lookup, and an already-missing legacy object does not block DB cleanup. |
 | Publication transition | Change the content or assessment state and audit the event in one transaction. Public endpoints query only committed published state. |
 | Academic-year transition | Explicitly create/select the next current year and archive the former one in one service transaction. The partial unique index is the final guard against two current years. |
 

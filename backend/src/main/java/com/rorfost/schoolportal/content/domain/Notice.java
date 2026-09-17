@@ -20,6 +20,7 @@ public class Notice extends AuditableUuidEntity {
   private String attachmentFilename;
   private String attachmentContentType;
   private Long attachmentByteSize;
+  private String attachmentImagekitFileId;
   private boolean isPinned;
   private Instant expiresAt;
 
@@ -69,6 +70,10 @@ public class Notice extends AuditableUuidEntity {
     return attachmentByteSize;
   }
 
+  public String getAttachmentImagekitFileId() {
+    return attachmentImagekitFileId;
+  }
+
   public boolean isPinned() {
     return isPinned;
   }
@@ -93,12 +98,18 @@ public class Notice extends AuditableUuidEntity {
   }
 
   public void setAttachment(
-      String bucket, String key, String filename, String contentType, long byteSize) {
+      String bucket,
+      String key,
+      String filename,
+      String contentType,
+      long byteSize,
+      String imagekitFileId) {
     attachmentBucket = bucket;
     attachmentObjectKey = key;
     attachmentFilename = filename;
     attachmentContentType = contentType;
     attachmentByteSize = byteSize;
+    attachmentImagekitFileId = imagekitFileId;
   }
 
   public void publish(Instant at) {

@@ -20,6 +20,7 @@ public class GalleryImage extends AuditableUuidEntity {
   private String contentType;
   private long byteSize;
   private String checksumSha256;
+  private String imagekitFileId;
   private String altText;
   private String caption;
   private int sortOrder;
@@ -41,6 +42,7 @@ public class GalleryImage extends AuditableUuidEntity {
       String contentType,
       long byteSize,
       String checksumSha256,
+      String imagekitFileId,
       String altText,
       String caption,
       int sortOrder) {
@@ -52,6 +54,7 @@ public class GalleryImage extends AuditableUuidEntity {
     this.contentType = contentType;
     this.byteSize = byteSize;
     this.checksumSha256 = checksumSha256;
+    this.imagekitFileId = imagekitFileId;
     this.altText = altText;
     this.caption = caption;
     this.sortOrder = sortOrder;
@@ -67,6 +70,10 @@ public class GalleryImage extends AuditableUuidEntity {
 
   public String getStorageBucket() {
     return storageBucket;
+  }
+
+  public String getImagekitFileId() {
+    return imagekitFileId;
   }
 
   public String getOriginalFilename() {

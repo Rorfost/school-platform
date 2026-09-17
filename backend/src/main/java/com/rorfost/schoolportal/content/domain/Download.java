@@ -23,6 +23,7 @@ public class Download extends AuditableUuidEntity {
   private String contentType;
   private long byteSize;
   private String checksumSha256;
+  private String imagekitFileId;
 
   @Enumerated(EnumType.STRING)
   private PublicationStatus status = PublicationStatus.DRAFT;
@@ -43,7 +44,8 @@ public class Download extends AuditableUuidEntity {
       String filename,
       String contentType,
       long byteSize,
-      String checksumSha256) {
+      String checksumSha256,
+      String imagekitFileId) {
     this.schoolId = schoolId;
     this.academicYearId = academicYearId;
     this.title = title;
@@ -55,6 +57,7 @@ public class Download extends AuditableUuidEntity {
     this.contentType = contentType;
     this.byteSize = byteSize;
     this.checksumSha256 = checksumSha256;
+    this.imagekitFileId = imagekitFileId;
   }
 
   public UUID getSchoolId() {
@@ -87,6 +90,10 @@ public class Download extends AuditableUuidEntity {
 
   public String getOriginalFilename() {
     return originalFilename;
+  }
+
+  public String getImagekitFileId() {
+    return imagekitFileId;
   }
 
   public String getContentType() {

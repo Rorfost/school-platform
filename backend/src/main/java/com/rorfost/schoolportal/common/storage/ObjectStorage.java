@@ -4,10 +4,10 @@ import java.io.InputStream;
 
 public interface ObjectStorage {
 
-  void put(
+  String put(
       String bucket, String objectKey, InputStream content, long contentLength, String contentType);
 
-  void delete(String bucket, String objectKey);
+  void delete(String bucket, String objectKey, String providerFileId);
 
   boolean exists(String bucket, String objectKey);
 }

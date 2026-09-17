@@ -49,7 +49,7 @@ public class StorageService {
   }
 
   public void delete(StoredObject object) {
-    delete(object.bucket(), object.objectKey());
+    delete(object.bucket(), object.objectKey(), object.providerFileId());
   }
 
   public void deletePublicObject(String objectKey) {
@@ -57,8 +57,12 @@ public class StorageService {
   }
 
   public void delete(String bucket, String key) {
+    delete(bucket, key, null);
+  }
+
+  public void delete(String bucket, String key, String providerFileId) {
     validateKey(key);
-    storage.delete(bucket, key);
+    storage.delete(bucket, key, providerFileId);
   }
 
   public boolean exists(String bucket, String key) {
@@ -82,14 +86,21 @@ public class StorageService {
         throw new DomainException(HttpStatus.BAD_REQUEST, "upload_content_invalid");
       String key = prefix + "/" + UUID.randomUUID() + extension(type);
       validateKey(key);
-      storage.put(
+      String providerFileId =
+          storage.put(
+              IMAGEKIT_STORAGE_BUCKET,
+              key,
+              new java.io.ByteArrayInputStream(bytes),
+              bytes.length,
+              type);
+      return new StoredObject(
           IMAGEKIT_STORAGE_BUCKET,
           key,
-          new java.io.ByteArrayInputStream(bytes),
+          filename,
+          type,
           bytes.length,
-          type);
-      return new StoredObject(
-          IMAGEKIT_STORAGE_BUCKET, key, filename, type, bytes.length, sha256(bytes));
+          sha256(bytes),
+          providerFileId);
     } catch (IOException exception) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "upload_unreadable");
     }

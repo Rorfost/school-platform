@@ -6,4 +6,5 @@ public record StoredObject(
     String originalFilename,
     String contentType,
     long byteSize,
-    String checksumSha256) {}
+    String checksumSha256,
+    String providerFileId) {}

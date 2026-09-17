@@ -30,15 +30,17 @@ public class StorageConfiguration {
   ObjectStorage testObjectStorage() {
     return new ObjectStorage() {
       @Override
-      public void put(
+      public String put(
           String bucket,
           String objectKey,
           InputStream content,
           long contentLength,
-          String contentType) {}
+          String contentType) {
+        return "test-file-id";
+      }
 
       @Override
-      public void delete(String bucket, String objectKey) {}
+      public void delete(String bucket, String objectKey, String providerFileId) {}
 
       @Override
       public boolean exists(String bucket, String objectKey) {

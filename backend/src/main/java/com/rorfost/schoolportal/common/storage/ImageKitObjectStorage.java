@@ -20,7 +20,7 @@ public class ImageKitObjectStorage implements ObjectStorage {
   }
 
   @Override
-  public void put(
+  public String put(
       String bucket,
       String objectKey,
       InputStream content,
@@ -50,14 +50,24 @@ public class ImageKitObjectStorage implements ObjectStorage {
                     .build());
 
     String expectedPath = imageKitPath(objectKey);
+    String fileId =
+        response
+            .fileId()
+            .orElseThrow(() -> new IllegalStateException("ImageKit upload returned no file ID"));
     if (!expectedPath.equals(response.filePath().orElse(null))) {
-      response.fileId().ifPresent(fileId -> client.files().delete(fileId));
+      response.fileId().ifPresent(uploadedFileId -> client.files().delete(uploadedFileId));
       throw new IllegalStateException("ImageKit upload did not retain the requested object path");
     }
+    return fileId;
   }
 
   @Override
-  public void delete(String bucket, String objectKey) {
+  public void delete(String bucket, String objectKey, String providerFileId) {
+    if (providerFileId != null && !providerFileId.isBlank()) {
+      client.files().delete(FileDeleteParams.builder().fileId(providerFileId).build());
+      return;
+    }
+    // Legacy records use an exact documented filePath lookup. A missing object is already clean.
     findExactFile(objectKey)
         .flatMap(File::fileId)
         .ifPresent(

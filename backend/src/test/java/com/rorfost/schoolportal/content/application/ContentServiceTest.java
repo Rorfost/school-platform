@@ -200,7 +200,8 @@ class ContentServiceTest {
 
     assertThat(album.getCoverImageId()).isEqualTo(second.getId());
     assertThat(second.getSortOrder()).isEqualTo(1);
-    verify(storage).delete(first.getStorageBucket(), first.getObjectKey());
+    verify(storage)
+        .delete(first.getStorageBucket(), first.getObjectKey(), first.getImagekitFileId());
 
     service.deleteImage(schoolId, actorId, albumId, second.getId());
 
@@ -236,7 +237,7 @@ class ContentServiceTest {
     GalleryImage image = addImage(1);
     doThrow(new IllegalStateException("ImageKit unavailable"))
         .when(storage)
-        .delete(image.getStorageBucket(), image.getObjectKey());
+        .delete(image.getStorageBucket(), image.getObjectKey(), image.getImagekitFileId());
 
     assertThatThrownBy(() -> service.deleteImage(schoolId, actorId, albumId, image.getId()))
         .isInstanceOf(IllegalStateException.class);
@@ -278,6 +279,7 @@ class ContentServiceTest {
             "image/jpeg",
             10,
             "a".repeat(64),
+            "file-" + order,
             "Photo " + order,
             null,
             order);
@@ -293,7 +295,8 @@ class ContentServiceTest {
         "photo.jpg",
         "image/jpeg",
         10,
-        "a".repeat(64));
+        "a".repeat(64),
+        "file-" + index);
   }
 
   private MockMultipartFile imageFile(String filename) {
