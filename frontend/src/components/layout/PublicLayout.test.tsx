@@ -29,6 +29,7 @@ describe("PublicLayout", () => {
     expect(screen.getAllByText("પીએમ શ્રી ધધાણા પ્રાથમિક શાળા")[0]).toBeVisible();
     expect(screen.getByText("મુખ્ય સામગ્રી")).toBeVisible();
     expect(screen.getByText(/principal24030401801@ssguj.in/)).toBeVisible();
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
   });
 
   it("opens and closes mobile navigation drawer on toggle", () => {

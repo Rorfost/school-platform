@@ -14,7 +14,7 @@ import { Link, useParams } from "react-router-dom";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { GalleryAlbumResponse, GalleryImageResponse, PageResponse } from "@/api/types";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -42,6 +42,7 @@ export function AdminGalleryAlbumPage() {
     data: albumData,
     isLoading: isAlbumLoading,
     error: albumError,
+    refetch: refetchAlbum,
   } = useQuery<PageResponse<GalleryAlbumResponse>>({
     queryKey: queryKeys.adminGalleryAlbums({ page: 0, size: 50 }),
     queryFn: () =>
@@ -53,6 +54,7 @@ export function AdminGalleryAlbumPage() {
     data: imagesData,
     isLoading: isImagesLoading,
     error: imagesError,
+    refetch: refetchImages,
   } = useQuery<GalleryImageResponse[]>({
     queryKey: queryKeys.adminGalleryAlbumImages(albumId ?? ""),
     queryFn: () =>
@@ -247,12 +249,13 @@ export function AdminGalleryAlbumPage() {
   if (isAlbumLoading || isImagesLoading) return <LoadingState message="Loading album photos..." />;
   if (albumError || imagesError || !album) {
     return (
-      <div className="space-y-4 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-        <p>Could not load this album. It may have been deleted.</p>
-        <Link to="/admin/gallery" className="font-semibold underline">
-          Return to gallery
-        </Link>
-      </div>
+      <ErrorState
+        message="Could not load this album. It may have been deleted."
+        onRetry={() => {
+          void refetchAlbum();
+          void refetchImages();
+        }}
+      />
     );
   }
   const isReadOnly = album.status === "ARCHIVED";
@@ -499,6 +502,7 @@ function PhotoCard({
             alt={image.altText || "Gallery photo"}
             className="size-full object-cover"
             loading="lazy"
+            decoding="async"
             onError={() => setFailed(true)}
           />
         ) : (

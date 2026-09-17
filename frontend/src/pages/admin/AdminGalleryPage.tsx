@@ -10,7 +10,7 @@ import type {
   GalleryAlbumUpdateRequest,
   PageResponse,
 } from "@/api/types";
-import { LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -105,14 +105,7 @@ export function AdminGalleryPage() {
   if (isLoading) return <LoadingState message="Loading gallery albums..." />;
 
   if (error) {
-    return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-        Could not load gallery.{" "}
-        <button onClick={() => refetch()} className="font-semibold underline">
-          Try again.
-        </button>
-      </div>
-    );
+    return <ErrorState message="Could not load gallery." onRetry={() => refetch()} />;
   }
 
   return (
@@ -249,6 +242,7 @@ function AlbumCover({ album }: { album: GalleryAlbumResponse }) {
           alt={`Cover for ${album.title}`}
           className="size-full object-cover"
           loading="lazy"
+          decoding="async"
           onError={() => setFailed(true)}
         />
       ) : (
