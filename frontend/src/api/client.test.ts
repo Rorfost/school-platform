@@ -1,4 +1,4 @@
-import { apiRequest, getCsrfTokenFromCookie, refreshCsrfToken } from "@/api/client";
+import { apiRequest, getCsrfTokenFromCookie } from "@/api/client";
 import { getGujaratiErrorMessage } from "@/utils/errors";
 
 describe("api client & error utilities", () => {
