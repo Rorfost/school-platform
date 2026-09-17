@@ -86,7 +86,7 @@ class StorageServiceTest {
     service.delete("imagekit", "downloads/school-slug/file.pdf");
 
     assertThat(service.exists("imagekit", "downloads/school-slug/file.pdf")).isTrue();
-    verify(objectStorage).delete("imagekit", "downloads/school-slug/file.pdf");
+    verify(objectStorage).delete("imagekit", "downloads/school-slug/file.pdf", null);
   }
 
   @Test

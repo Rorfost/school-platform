@@ -12,7 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import { ErrorState } from "@/components/common/StatusPanel";
 import { Card } from "@/components/ui/Card";
 import { useAdminAuditLogs, useAdminDashboardSummary } from "@/features/admin/useAdminData";
 import { useAuth } from "@/features/auth/useAuth";
@@ -108,7 +108,7 @@ export function AdminDashboardPage() {
 
       {/* Real Summary Stats Grid */}
       {isSummaryLoading ? (
-        <LoadingState message="Loading dashboard summary statistics..." />
+        <DashboardSummarySkeleton />
       ) : isSummaryError ? (
         <ErrorState message="Could not load dashboard summary." onRetry={() => refetchSummary()} />
       ) : (
@@ -238,6 +238,24 @@ export function AdminDashboardPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function DashboardSummarySkeleton() {
+  return (
+    <div
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      aria-busy="true"
+      aria-label="Loading dashboard summary"
+    >
+      {Array.from({ length: 4 }, (_, index) => (
+        <Card key={index} className="space-y-3 p-5">
+          <div className="h-3 w-2/3 rounded bg-slate-200" />
+          <div className="h-8 w-1/3 rounded bg-slate-100" />
+          <div className="h-3 w-4/5 rounded bg-slate-100" />
+        </Card>
+      ))}
     </div>
   );
 }

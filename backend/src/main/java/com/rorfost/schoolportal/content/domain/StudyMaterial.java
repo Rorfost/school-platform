@@ -24,6 +24,7 @@ public class StudyMaterial extends AuditableUuidEntity {
   private String contentType;
   private long byteSize;
   private String checksumSha256;
+  private String imagekitFileId;
 
   @Enumerated(EnumType.STRING)
   private PublicationStatus status = PublicationStatus.DRAFT;
@@ -45,7 +46,8 @@ public class StudyMaterial extends AuditableUuidEntity {
       String originalFilename,
       String contentType,
       long byteSize,
-      String checksumSha256) {
+      String checksumSha256,
+      String imagekitFileId) {
     this.schoolId = schoolId;
     this.academicYearId = academicYearId;
     this.standardSubjectId = standardSubjectId;
@@ -58,6 +60,7 @@ public class StudyMaterial extends AuditableUuidEntity {
     this.contentType = contentType;
     this.byteSize = byteSize;
     this.checksumSha256 = checksumSha256;
+    this.imagekitFileId = imagekitFileId;
   }
 
   public UUID getSchoolId() {
@@ -94,6 +97,10 @@ public class StudyMaterial extends AuditableUuidEntity {
 
   public String getOriginalFilename() {
     return originalFilename;
+  }
+
+  public String getImagekitFileId() {
+    return imagekitFileId;
   }
 
   public String getContentType() {

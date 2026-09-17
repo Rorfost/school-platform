@@ -117,6 +117,22 @@ class DatabaseIntegrationTest {
   }
 
   @Test
+  void rejectsDuplicateStandardNamesAndDisplayOrderWithinASchool() {
+    AcademicScope scope = createScope();
+
+    assertThatThrownBy(
+            () ->
+                standardRepository.saveAndFlush(
+                    new Standard(scope.schoolId(), "ONE_AGAIN", "standard 1", (short) 2)))
+        .isInstanceOf(DataIntegrityViolationException.class);
+    assertThatThrownBy(
+            () ->
+                standardRepository.saveAndFlush(
+                    new Standard(scope.schoolId(), "TWO", "Standard 2", (short) 1)))
+        .isInstanceOf(DataIntegrityViolationException.class);
+  }
+
+  @Test
   void rejectsDuplicateMarksForTheSameStudentAssessmentAndSubject() {
     AcademicScope scope = createScope();
     Student student = studentRepository.saveAndFlush(student(scope, "7"));

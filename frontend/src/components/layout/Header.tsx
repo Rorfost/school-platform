@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
-import { Badge } from "@/components/ui/Badge";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
@@ -24,7 +23,7 @@ export function Header() {
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xs">
         {/* Top Info Strip */}
-        <div className="border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-xs text-slate-600 sm:px-6">
+        {/* <div className="border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-xs text-slate-600 sm:px-6">
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Badge variant="primary" size="sm" className="font-semibold">
@@ -41,7 +40,7 @@ export function Header() {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Main Header Bar */}
         <div className="mx-auto flex min-h-16 max-w-6xl items-center gap-3 px-4 py-2 sm:min-h-18 sm:px-6">

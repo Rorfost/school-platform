@@ -13,7 +13,11 @@ public interface SubjectRepository extends JpaRepository<Subject, UUID> {
 
   Optional<Subject> findByIdAndSchoolId(UUID id, UUID schoolId);
 
+  Optional<Subject> findFirstBySchoolIdOrderBySortOrderDesc(UUID schoolId);
+
   boolean existsBySchoolIdAndNameIgnoreCase(UUID schoolId, String name);
+
+  boolean existsBySchoolIdAndNameIgnoreCaseAndIdNot(UUID schoolId, String name, UUID id);
 
   long countBySchoolIdAndIsArchivedFalse(UUID schoolId);
 }

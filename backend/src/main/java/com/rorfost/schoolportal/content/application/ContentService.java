@@ -114,7 +114,8 @@ public class ContentService {
                   object.originalFilename(),
                   object.contentType(),
                   object.byteSize(),
-                  object.checksumSha256()));
+                  object.checksumSha256(),
+                  object.providerFileId()));
       audit(school, actor, AuditAction.MATERIAL_UPLOADED, "STUDY_MATERIAL", item.getId());
       return material(item);
     } catch (RuntimeException exception) {
@@ -141,7 +142,8 @@ public class ContentService {
         object.objectKey(),
         object.originalFilename(),
         object.contentType(),
-        object.byteSize());
+        object.byteSize(),
+        object.providerFileId());
     try {
       notices.saveAndFlush(item);
       audit(school, actor, AuditAction.NOTICE_UPDATED, "NOTICE", id);
@@ -208,6 +210,7 @@ public class ContentService {
                 object.contentType(),
                 object.byteSize(),
                 object.checksumSha256(),
+                object.providerFileId(),
                 requiredTrim(altTexts.get(index), "gallery_image_alt_text_required"),
                 trim(captions == null ? null : captions.get(index)),
                 nextSortOrder++);
@@ -278,7 +281,7 @@ public class ContentService {
       album.setCoverImageId(remaining.isEmpty() ? null : remaining.get(0).getId());
       albums.saveAndFlush(album);
     }
-    storage.delete(item.getStorageBucket(), item.getObjectKey());
+    deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
     images.delete(item);
     images.flush();
     normalizeOrder(remaining, remaining.stream().map(GalleryImage::getId).toList());
@@ -290,7 +293,7 @@ public class ContentService {
     GalleryAlbum album = albumForUpdate(school, albumId);
     List<GalleryImage> albumImages = images.findByGalleryAlbumIdOrderBySortOrder(albumId);
     for (GalleryImage image : albumImages)
-      storage.delete(image.getStorageBucket(), image.getObjectKey());
+      deleteStoredObject(image.getStorageBucket(), image.getObjectKey(), image.getImagekitFileId());
     album.setCoverImageId(null);
     albums.saveAndFlush(album);
     images.deleteAll(albumImages);
@@ -317,7 +320,8 @@ public class ContentService {
                   object.originalFilename(),
                   object.contentType(),
                   object.byteSize(),
-                  object.checksumSha256()));
+                  object.checksumSha256(),
+                  object.providerFileId()));
       audit(school, actor, AuditAction.DOWNLOAD_UPLOADED, "DOWNLOAD", item.getId());
       return download(item);
     } catch (RuntimeException exception) {
@@ -330,7 +334,7 @@ public class ContentService {
   public void deleteMaterial(UUID school, UUID actor, UUID id) {
     StudyMaterial item =
         materials.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("material_not_found"));
-    storage.delete(item.getStorageBucket(), item.getObjectKey());
+    deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
     materials.delete(item);
     audit(school, actor, AuditAction.MATERIAL_DELETED, "STUDY_MATERIAL", id);
   }
@@ -339,7 +343,10 @@ public class ContentService {
   public void deleteNotice(UUID school, UUID actor, UUID id) {
     Notice item = noticeItem(school, id);
     if (item.getAttachmentObjectKey() != null)
-      storage.delete(item.getAttachmentBucket(), item.getAttachmentObjectKey());
+      deleteStoredObject(
+          item.getAttachmentBucket(),
+          item.getAttachmentObjectKey(),
+          item.getAttachmentImagekitFileId());
     notices.delete(item);
     audit(school, actor, AuditAction.NOTICE_DELETED, "NOTICE", id);
   }
@@ -348,7 +355,7 @@ public class ContentService {
   public void deleteDownload(UUID school, UUID actor, UUID id) {
     Download item =
         downloads.findByIdAndSchoolId(id, school).orElseThrow(() -> notFound("download_not_found"));
-    storage.delete(item.getStorageBucket(), item.getObjectKey());
+    deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
     downloads.delete(item);
     audit(school, actor, AuditAction.DOWNLOAD_DELETED, "DOWNLOAD", id);
   }
@@ -655,6 +662,10 @@ public class ContentService {
             cleanupFailure);
       }
     }
+  }
+
+  private void deleteStoredObject(String bucket, String objectKey, String imagekitFileId) {
+    storage.delete(bucket, objectKey, imagekitFileId);
   }
 
   private DomainException notFound(String code) {

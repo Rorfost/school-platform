@@ -3,6 +3,7 @@ package com.rorfost.schoolportal.academic.application;
 import com.rorfost.schoolportal.academic.api.AcademicSetupResponse;
 import com.rorfost.schoolportal.academic.api.AcademicYearRequest;
 import com.rorfost.schoolportal.academic.api.AcademicYearResponse;
+import com.rorfost.schoolportal.academic.api.StandardNameRequest;
 import com.rorfost.schoolportal.academic.api.StandardRequest;
 import com.rorfost.schoolportal.academic.api.StandardResponse;
 import com.rorfost.schoolportal.academic.api.StandardSubjectRequest;
@@ -117,7 +118,6 @@ public class AcademicConfigurationService {
 
   @Transactional
   public List<StandardResponse> standards(UUID schoolId) {
-    ensureDefaultStandards(schoolId);
     return standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
         .map(StandardResponse::from)
         .toList();
@@ -125,15 +125,33 @@ public class AcademicConfigurationService {
 
   @Transactional
   public StandardResponse createStandard(UUID schoolId, UUID actorId, StandardRequest request) {
+    String displayName = request.displayName().trim();
+    if (standards.existsBySchoolIdAndDisplayNameIgnoreCase(schoolId, displayName))
+      throw conflict("standard_duplicate");
+    if (standards.existsBySchoolIdAndSortOrder(schoolId, request.sortOrder()))
+      throw conflict("standard_sort_order_duplicate");
+    Standard standard =
+        standards.save(
+            new Standard(schoolId, request.code().trim(), displayName, request.sortOrder()));
+    standard.update(
+        standard.getCode(), standard.getDisplayName(), standard.getSortOrder(), request.archived());
+    audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", standard.getId());
+    return StandardResponse.from(standard);
+  }
+
+  @Transactional
+  public StandardResponse createCatalogStandard(
+      UUID schoolId, UUID actorId, StandardNameRequest request) {
+    String displayName = request.displayName().trim();
+    if (standards.existsBySchoolIdAndDisplayNameIgnoreCase(schoolId, displayName))
+      throw conflict("standard_duplicate");
     Standard standard =
         standards.save(
             new Standard(
                 schoolId,
-                request.code().trim(),
-                request.displayName().trim(),
-                request.sortOrder()));
-    standard.update(
-        standard.getCode(), standard.getDisplayName(), standard.getSortOrder(), request.archived());
+                "STANDARD_" + UUID.randomUUID().toString().replace("-", "").substring(0, 11),
+                displayName,
+                nextStandardSortOrder(schoolId)));
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", standard.getId());
     return StandardResponse.from(standard);
   }
@@ -142,12 +160,35 @@ public class AcademicConfigurationService {
   public StandardResponse updateStandard(
       UUID schoolId, UUID actorId, UUID id, StandardRequest request) {
     Standard standard = requireStandard(schoolId, id);
-    standard.update(
-        request.code().trim(),
-        request.displayName().trim(),
-        request.sortOrder(),
-        request.archived());
+    String displayName = request.displayName().trim();
+    if (standards.existsBySchoolIdAndDisplayNameIgnoreCaseAndIdNot(schoolId, displayName, id))
+      throw conflict("standard_duplicate");
+    if (standard.getSortOrder() != request.sortOrder()
+        && standards.existsBySchoolIdAndSortOrder(schoolId, request.sortOrder()))
+      throw conflict("standard_sort_order_duplicate");
+    standard.update(request.code().trim(), displayName, request.sortOrder(), request.archived());
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", id);
+    return StandardResponse.from(standard);
+  }
+
+  @Transactional
+  public void deleteStandard(UUID schoolId, UUID actorId, UUID id) {
+    Standard standard = requireStandard(schoolId, id);
+    List<StandardSubject> mappings =
+        standardSubjects.findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, id);
+    if (standards.isReferenced(id)
+        || mappings.stream().anyMatch(mapping -> standardSubjects.isReferenced(mapping.getId())))
+      throw conflict("standard_in_use");
+    standardSubjects.deleteAll(mappings);
+    standards.delete(standard);
+    audit(schoolId, actorId, AuditAction.STANDARD_DELETED, "STANDARD", id);
+  }
+
+  @Transactional
+  public StandardResponse archiveStandard(UUID schoolId, UUID actorId, UUID id) {
+    Standard standard = requireStandard(schoolId, id);
+    standard.update(standard.getCode(), standard.getDisplayName(), standard.getSortOrder(), true);
+    audit(schoolId, actorId, AuditAction.STANDARD_ARCHIVED, "STANDARD", id);
     return StandardResponse.from(standard);
   }
 
@@ -160,7 +201,6 @@ public class AcademicConfigurationService {
 
   @Transactional
   public AcademicSetupResponse academicSetup(UUID schoolId) {
-    ensureDefaultStandards(schoolId);
     List<Standard> activeStandards =
         standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId);
     List<Subject> activeSubjects =
@@ -233,6 +273,26 @@ public class AcademicConfigurationService {
         request.sortOrder(),
         request.archived());
     audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "SUBJECT", id);
+    return SubjectResponse.from(subject);
+  }
+
+  @Transactional
+  public void deleteSubject(UUID schoolId, UUID actorId, UUID id) {
+    Subject subject = requireSubject(schoolId, id);
+    List<StandardSubject> mappings = standardSubjects.findBySchoolIdAndSubjectId(schoolId, id);
+    // A mapping may be removed with its subject only when no material or assessment relies on it.
+    if (mappings.stream().anyMatch(mapping -> standardSubjects.isReferenced(mapping.getId())))
+      throw conflict("subject_in_use");
+    standardSubjects.deleteAll(mappings);
+    subjects.delete(subject);
+    audit(schoolId, actorId, AuditAction.SUBJECT_DELETED, "SUBJECT", id);
+  }
+
+  @Transactional
+  public SubjectResponse archiveSubject(UUID schoolId, UUID actorId, UUID id) {
+    Subject subject = requireSubject(schoolId, id);
+    subject.update(subject.getCode(), subject.getName(), subject.getSortOrder(), true);
+    audit(schoolId, actorId, AuditAction.SUBJECT_ARCHIVED, "SUBJECT", id);
     return SubjectResponse.from(subject);
   }
 
@@ -320,17 +380,12 @@ public class AcademicConfigurationService {
         .toList();
   }
 
-  /**
-   * Seeds only the fixed primary-school range, allowing each school to keep its own configuration.
-   */
-  @Transactional
-  public void ensureDefaultStandards(UUID schoolId) {
-    for (short order = 1; order <= 8; order++) {
-      String code = "STD_" + order;
-      if (!standards.existsBySchoolIdAndCode(schoolId, code)) {
-        standards.save(new Standard(schoolId, code, "Standard " + order, order));
-      }
-    }
+  private short nextStandardSortOrder(UUID schoolId) {
+    return standards
+        .findFirstBySchoolIdOrderBySortOrderDesc(schoolId)
+        .map(Standard::getSortOrder)
+        .map(order -> (short) (order + 1))
+        .orElse((short) 1);
   }
 
   private void replaceCurrent(UUID schoolId, UUID keepId) {
