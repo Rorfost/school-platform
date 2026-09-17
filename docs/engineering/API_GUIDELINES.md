@@ -70,3 +70,7 @@ An album uses an image in the same album as its cover. The first image becomes t
 deleting the cover selects the next image in display order, and deleting the last image clears it.
 ImageKit deletion occurs before metadata deletion. Storage failures are returned to the caller so the
 database reference remains available for retry rather than being silently removed.
+
+Album list DTOs include `coverImageThumbnailUrl` and `imageCount`. Admin lists count every image
+the principal can manage; public lists count only published images and return a cover thumbnail only
+when that cover is published. This lets album cards render without per-album image-list requests.

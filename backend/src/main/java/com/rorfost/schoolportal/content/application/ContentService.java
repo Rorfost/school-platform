@@ -141,7 +141,7 @@ public class ContentService {
     GalleryAlbum item =
         albums.save(new GalleryAlbum(school, request.title().trim(), trim(request.description())));
     audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", item.getId());
-    return GalleryAlbumResponse.from(item);
+    return albumResponse(item, false);
   }
 
   @Transactional
@@ -214,7 +214,7 @@ public class ContentService {
     GalleryAlbum item = editableAlbumForUpdate(school, id);
     item.update(request.title().trim(), trim(request.description()));
     audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", id);
-    return GalleryAlbumResponse.from(item);
+    return albumResponse(item, false);
   }
 
   @Transactional
@@ -223,7 +223,7 @@ public class ContentService {
     imageInAlbum(albumId, imageId);
     item.setCoverImageId(imageId);
     audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", albumId);
-    return GalleryAlbumResponse.from(item);
+    return albumResponse(item, false);
   }
 
   @Transactional
@@ -428,6 +428,14 @@ public class ContentService {
         school, page(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
   }
 
+  public GalleryAlbumResponse adminAlbum(GalleryAlbum album) {
+    return albumResponse(album, false);
+  }
+
+  public GalleryAlbumResponse publicAlbum(GalleryAlbum album) {
+    return albumResponse(album, true);
+  }
+
   @Transactional(readOnly = true)
   public org.springframework.data.domain.Page<Download> publicDownloads(
       UUID school, int page, int size) {
@@ -511,6 +519,27 @@ public class ContentService {
     String url = storage.publicUrl(item.getObjectKey());
     return GalleryImageResponse.from(
         item, url, storage.publicImageThumbnailUrl(item.getObjectKey()));
+  }
+
+  private GalleryAlbumResponse albumResponse(GalleryAlbum album, boolean publicView) {
+    String coverImageThumbnailUrl = null;
+    if (album.getCoverImageId() != null) {
+      GalleryImage cover =
+          images.findByIdAndGalleryAlbumId(album.getCoverImageId(), album.getId()).orElse(null);
+      if (cover != null && (!publicView || cover.getStatus() == PublicationStatus.PUBLISHED)) {
+        coverImageThumbnailUrl = storage.publicImageThumbnailUrl(cover.getObjectKey());
+      }
+    }
+    return new GalleryAlbumResponse(
+        album.getId(),
+        album.getTitle(),
+        album.getDescription(),
+        album.getCoverImageId(),
+        coverImageThumbnailUrl,
+        publicView
+            ? images.countByGalleryAlbumIdAndStatus(album.getId(), PublicationStatus.PUBLISHED)
+            : images.countByGalleryAlbumId(album.getId()),
+        album.getStatus().name());
   }
 
   private Notice noticeItem(UUID school, UUID id) {

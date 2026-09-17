@@ -50,7 +50,7 @@ class ContentController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "20") int size) {
     return PageResponse.from(
-        service.adminAlbums(p.schoolId(), page, size).map(GalleryAlbumResponse::from));
+        service.adminAlbums(p.schoolId(), page, size).map(service::adminAlbum));
   }
 
   @GetMapping("/gallery/albums/{id}/images")
