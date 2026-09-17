@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   BookOpen,
   Camera,
@@ -28,9 +28,13 @@ const NAV_ITEMS = [
 ];
 
 export function MobileNav({ isOpen, onClose }: MobileNavProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
+      closeButtonRef.current?.focus();
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === "Escape") {
           onClose();
@@ -38,7 +42,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
       };
       window.addEventListener("keydown", handleKeyDown);
       return () => {
-        document.body.style.overflow = "";
+        document.body.style.overflow = originalOverflow;
         window.removeEventListener("keydown", handleKeyDown);
       };
     }
@@ -59,7 +63,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 
       {/* Slide-out Menu */}
       <div
-        className="fixed inset-y-0 right-0 w-full max-w-xs bg-white shadow-xl flex flex-col"
+        className="fixed inset-y-0 left-0 flex w-full max-w-xs flex-col bg-white shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-label="મુખ્ય મેનૂ"
@@ -68,6 +72,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
           <span className="text-base font-semibold text-slate-900">મેનૂ</span>
           <button
             type="button"
+            ref={closeButtonRef}
             onClick={onClose}
             aria-label="મેનૂ બંધ કરો"
             className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"

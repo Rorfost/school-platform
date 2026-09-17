@@ -162,7 +162,7 @@ export function AdminGalleryPage() {
                 <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
                   <Link
                     to={`/admin/gallery/${album.id}`}
-                    className="inline-flex min-h-9 items-center justify-center rounded-md bg-blue-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2"
+                    className="inline-flex min-h-11 items-center justify-center rounded-md bg-blue-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2"
                   >
                     Manage Photos
                   </Link>

@@ -99,7 +99,7 @@ export function NoticesPage() {
                 </div>
                 <Link
                   to={`/notices/${item.id}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue-900 hover:underline shrink-0"
+                  className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-blue-900 hover:bg-blue-50 hover:underline shrink-0"
                 >
                   <Eye size={14} aria-hidden="true" />
                   <span>વિગત જુઓ</span>
@@ -111,13 +111,13 @@ export function NoticesPage() {
               </div>
 
               {item.attachmentFilename && item.attachmentUrl && (
-                <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between text-xs text-slate-500">
-                  <span>જોડાણ: {item.attachmentFilename}</span>
+                <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="break-words">જોડાણ: {item.attachmentFilename}</span>
                   <a
                     href={item.attachmentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-blue-900 hover:underline inline-flex items-center gap-1"
+                    className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-semibold text-blue-900 hover:bg-blue-50 hover:underline"
                   >
                     <Download size={13} aria-hidden="true" />
                     <span>ડાઉનલોડ કરો</span>

@@ -43,6 +43,12 @@ describe("PublicLayout", () => {
 
     const dialog = screen.getByRole("dialog", { name: "મુખ્ય મેનૂ" });
     expect(dialog).toBeVisible();
+    expect(dialog).toHaveClass("left-0");
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog", { name: "મુખ્ય મેનૂ" })).not.toBeInTheDocument();
+
+    fireEvent.click(menuButton);
 
     // Close menu
     const closeButton = screen.getByRole("button", { name: "મેનૂ બંધ કરો" });

@@ -32,11 +32,22 @@
   }
 
   body {
-    @apply min-w-80 bg-stone-50 font-sans text-slate-900 antialiased;
+    @apply min-w-80 overflow-x-hidden bg-stone-50 font-sans text-slate-900 antialiased;
     letter-spacing: 0.01em;
   }
 
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-blue-900;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
   }
 }

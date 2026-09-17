@@ -9,8 +9,8 @@ export function Footer() {
 
   return (
     <footer className="border-t border-slate-200 bg-white text-slate-700">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* School Brand & Motto */}
           <div>
             <div className="flex items-center gap-3">
@@ -103,7 +103,7 @@ export function Footer() {
         <div className="mt-10 border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="space-y-1 text-center sm:text-left">
             <p className="text-slate-500">
-              © 2026 Rakesh Patel, Principal at PM Shri Dhadhana Primary School. All rights
+              © 2026 Rakesh Patel, Principal at PM SHRI Dhadhana Primary School. All rights
               reserved.
             </p>
             <p className="text-slate-500">Built and maintained by Raj Patel | Rorfost</p>

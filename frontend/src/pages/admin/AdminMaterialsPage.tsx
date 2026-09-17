@@ -275,7 +275,7 @@ export function AdminMaterialsPage() {
                   <select
                     value={selectedStandardId}
                     onChange={(e) => setSelectedStandardId(e.target.value)}
-                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 font-medium"
+                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-900"
                   >
                     <option value="">-- Select Standard --</option>
                     {standards.map((std) => (
@@ -288,7 +288,7 @@ export function AdminMaterialsPage() {
                   <select
                     name="standardSubjectId"
                     disabled={!selectedStandardId}
-                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-2.5 text-xs text-slate-900 font-medium disabled:bg-slate-100 disabled:text-slate-400"
+                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
                   >
                     <option value="">-- Select Subject --</option>
                     {mappings.map((m) => {

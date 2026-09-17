@@ -72,6 +72,7 @@ export function AdminLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mainContentRef = useRef<HTMLElement>(null);
+  const drawerCloseButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     mainContentRef.current?.scrollTo?.({ top: 0 });
@@ -81,8 +82,14 @@ export function AdminLayout() {
     if (!isMobileMenuOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    drawerCloseButtonRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMobileMenuOpen]);
 
@@ -108,7 +115,7 @@ export function AdminLayout() {
                   end={item.end}
                   onClick={onItemClick}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-blue-900 text-white font-semibold shadow-xs"
                         : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
@@ -151,7 +158,7 @@ export function AdminLayout() {
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100"
+              className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               aria-label="Toggle Navigation Menu"
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -240,7 +247,8 @@ export function AdminLayout() {
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 text-slate-500 hover:text-slate-900"
+                  ref={drawerCloseButtonRef}
+                  className="flex size-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                   aria-label="Close Navigation Menu"
                 >
                   <X size={20} />

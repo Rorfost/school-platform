@@ -14,7 +14,7 @@ export function Card({ children, variant = "default", className = "", ...rest }:
   }[variant];
 
   return (
-    <div className={`rounded-xl border p-5 sm:p-6 ${variantStyles} ${className}`} {...rest}>
+    <div className={`rounded-xl border p-4 sm:p-6 ${variantStyles} ${className}`} {...rest}>
       {children}
     </div>
   );
