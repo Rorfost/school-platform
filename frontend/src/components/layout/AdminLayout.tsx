@@ -44,7 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Management",
     items: [
-      { to: "/admin/assessments", label: "Assessments", icon: Award },
+      { to: "/admin/assessments", label: "Results & Marks", icon: Award },
       { to: "/admin/materials", label: "Study Materials", icon: GraduationCap },
       { to: "/admin/notices", label: "Notices & Circulars", icon: FileText },
       { to: "/admin/gallery", label: "Photo Gallery", icon: Camera },

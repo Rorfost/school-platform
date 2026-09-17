@@ -172,11 +172,11 @@ export function AdminAssessmentsPage() {
     saveMutation.mutate({ id: formAssessment?.id, payload });
   };
 
-  if (assessmentsQuery.isLoading) return <LoadingState message="Loading assessments..." />;
+  if (assessmentsQuery.isLoading) return <LoadingState message="Loading results and marks..." />;
   if (assessmentsQuery.isError)
     return (
       <ErrorState
-        message="Unable to load assessments."
+        message="Unable to load results and marks."
         onRetry={() => assessmentsQuery.refetch()}
       />
     );
@@ -185,9 +185,9 @@ export function AdminAssessmentsPage() {
     <div className="max-w-6xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Assessments</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Results &amp; Marks</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Set up standard-wise assessment subjects and mark limits.
+            Set up exams and tests, subjects, and mark limits.
           </p>
         </div>
         <Button
@@ -196,7 +196,7 @@ export function AdminAssessmentsPage() {
           disabled={!standards.length}
           className="shrink-0"
         >
-          <Plus size={16} aria-hidden="true" /> New Assessment
+          <Plus size={16} aria-hidden="true" /> Add Exam / Test
         </Button>
       </div>
 
@@ -208,12 +208,11 @@ export function AdminAssessmentsPage() {
             aria-hidden="true"
           />
           <div>
-            <h2 className="font-semibold text-slate-900">Result import is not available yet</h2>
+            <h2 className="font-semibold text-slate-900">Result upload is not available yet</h2>
             <p className="mt-1 text-sm leading-relaxed text-slate-700">
-              The approved workbook uses Aadhaar as its only student identifier. Import and public
-              result lookup remain disabled until the school supplies a safe roll-number and PIN
-              workflow. Publishing an assessment only publishes its configuration; it does not
-              publish student results.
+              The school must first approve a safe roll-number and PIN process. Result upload and
+              public result lookup remain unavailable until then. Publishing an exam or test only
+              publishes its setup; it does not publish student results.
             </p>
           </div>
         </div>
@@ -248,12 +247,12 @@ export function AdminAssessmentsPage() {
             ))}
           </select>
           <select
-            aria-label="Filter by assessment type"
+            aria-label="Filter by exam or test type"
             value={typeFilter}
             onChange={(event) => setTypeFilter(event.target.value)}
             className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
-            <option value="all">All assessment types</option>
+            <option value="all">All exam / test types</option>
             {types.map((type) => (
               <option key={type.id} value={type.id}>
                 {type.displayName}
@@ -261,12 +260,12 @@ export function AdminAssessmentsPage() {
             ))}
           </select>
           <select
-            aria-label="Filter by status"
+            aria-label="Filter by result status"
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
             className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
-            <option value="all">All statuses</option>
+            <option value="all">All result statuses</option>
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
             <option value="ARCHIVED">Archived</option>
@@ -276,11 +275,11 @@ export function AdminAssessmentsPage() {
 
       {visibleAssessments.length === 0 ? (
         <EmptyState
-          title="No assessments found"
-          description="Create an assessment or adjust the filters."
+          title="No exams or tests found"
+          description="Add an exam or test, or adjust the filters."
           action={
             <Button size="sm" onClick={openCreate} disabled={!standards.length}>
-              New Assessment
+              Add Exam / Test
             </Button>
           }
         />
@@ -290,10 +289,10 @@ export function AdminAssessmentsPage() {
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-slate-700">
-                  <th className="p-4">Assessment</th>
-                  <th className="p-4">Academic year</th>
+                  <th className="p-4">Exam / Test</th>
+                  <th className="p-4">Academic Year</th>
                   <th className="p-4">Standard</th>
-                  <th className="p-4">Status</th>
+                  <th className="p-4">Result Status</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -304,7 +303,7 @@ export function AdminAssessmentsPage() {
                       <p className="font-bold text-slate-900">{assessment.title}</p>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {types.find((type) => type.id === assessment.assessmentTypeId)
-                          ?.displayName ?? "Assessment type"}
+                          ?.displayName ?? "Exam / Test type"}
                         {assessment.assessmentDate ? ` · ${assessment.assessmentDate}` : ""}
                       </p>
                     </td>
@@ -321,7 +320,7 @@ export function AdminAssessmentsPage() {
                       <div className="flex justify-end gap-2">
                         {assessment.status !== "ARCHIVED" && (
                           <Button variant="outline" size="sm" onClick={() => openEdit(assessment)}>
-                            <Pencil size={14} aria-hidden="true" /> Edit
+                            <Pencil size={14} aria-hidden="true" /> Edit Exam / Test
                           </Button>
                         )}
                         {assessment.status === "DRAFT" && (
@@ -330,7 +329,7 @@ export function AdminAssessmentsPage() {
                             size="sm"
                             onClick={() => setConfirm({ action: "publish", assessment })}
                           >
-                            Publish
+                            Publish Setup
                           </Button>
                         )}
                         {assessment.status !== "ARCHIVED" && (
@@ -356,12 +355,12 @@ export function AdminAssessmentsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4">
           <div className="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
             <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
-              {formAssessment ? "Edit Assessment" : "New Assessment"}
+              {formAssessment ? "Edit Exam / Test" : "Add Exam / Test"}
             </h2>
             <form onSubmit={saveAssessment} className="mt-4 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="text-sm font-medium text-slate-700">
-                  Academic year
+                  Academic Year
                   <select
                     name="academicYearId"
                     required
@@ -377,7 +376,7 @@ export function AdminAssessmentsPage() {
                   </select>
                 </label>
                 <label className="text-sm font-medium text-slate-700">
-                  Assessment type
+                  Exam / Test Type
                   <select
                     name="assessmentTypeId"
                     required
@@ -410,7 +409,7 @@ export function AdminAssessmentsPage() {
                   </select>
                 </label>
                 <Input
-                  label="Assessment date"
+                  label="Exam / Test Date"
                   name="assessmentDate"
                   type="date"
                   defaultValue={formAssessment?.assessmentDate ?? ""}
@@ -418,11 +417,11 @@ export function AdminAssessmentsPage() {
               </div>
               {formAssessment && (
                 <p className="text-xs text-slate-500">
-                  Academic year, type, and standard cannot be changed after creation.
+                  Academic Year, Exam / Test Type, and Standard cannot be changed after creation.
                 </p>
               )}
               <Input
-                label="Assessment title"
+                label="Exam / Test Name"
                 name="title"
                 required
                 defaultValue={formAssessment?.title ?? ""}
@@ -438,10 +437,10 @@ export function AdminAssessmentsPage() {
                 />
               </label>
               <div className="border-t border-slate-200 pt-4">
-                <h3 className="font-semibold text-slate-900">Subject mark limits</h3>
+                <h3 className="font-semibold text-slate-900">Marks setup</h3>
                 {editableSubjects.length === 0 ? (
                   <p className="mt-2 text-sm text-amber-700">
-                    Map at least one subject to this standard before creating an assessment.
+                    Map at least one subject to this Standard before adding an exam or test.
                   </p>
                 ) : (
                   <div className="mt-3 space-y-2">
@@ -495,7 +494,7 @@ export function AdminAssessmentsPage() {
               </div>
               {saveMutation.isError && (
                 <p role="alert" className="text-sm text-red-700">
-                  Unable to save the assessment. Check the selected subjects and mark limits.
+                  Unable to save the exam or test. Check the selected subjects and mark limits.
                 </p>
               )}
               <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
@@ -511,7 +510,7 @@ export function AdminAssessmentsPage() {
                   disabled={editableSubjects.length === 0}
                   loading={saveMutation.isPending}
                 >
-                  {formAssessment ? "Save changes" : "Create assessment"}
+                  {formAssessment ? "Save changes" : "Add Exam / Test"}
                 </Button>
               </div>
             </form>
@@ -530,15 +529,15 @@ export function AdminAssessmentsPage() {
         }
         title={
           confirm?.action === "publish"
-            ? `Publish ${confirm.assessment.title}?`
-            : `Archive ${confirm?.assessment.title ?? "assessment"}?`
+            ? `Publish ${confirm.assessment.title} setup?`
+            : `Archive ${confirm?.assessment.title ?? "exam or test"}?`
         }
         description={
           confirm?.action === "publish"
-            ? "This publishes the assessment configuration only. Student results cannot be imported or published yet."
-            : "Archiving removes this assessment from active management. This cannot be undone from the portal."
+            ? "This publishes the exam or test setup only. Student results cannot be uploaded or published yet."
+            : "Archiving removes this exam or test from active management. This cannot be undone from the portal."
         }
-        confirmText={confirm?.action === "publish" ? "Publish assessment" : "Archive assessment"}
+        confirmText={confirm?.action === "publish" ? "Publish Setup" : "Archive Exam / Test"}
         variant={confirm?.action === "publish" ? "primary" : "warning"}
         isLoading={publishMutation.isPending || archiveMutation.isPending}
       />

@@ -54,6 +54,14 @@ Result import, result publication, available-result choices, and individual resu
 
 All `/api/v1/admin/**` responses use `Cache-Control: no-store`.
 
+## Principal-facing terminology
+
+The backend keeps `Assessment` as the generic domain, DTO, and route concept so it can support
+multiple exam formats without a schema rename. The principal-facing admin UI calls this area
+**Results & Marks** and calls an individual assessment an **Exam / Test**. Result upload and public
+lookup are explicitly unavailable until the documented privacy-safe roll-number and PIN workflow is
+approved; publishing an Exam / Test currently publishes setup metadata only.
+
 ## Gallery lifecycle
 
 The album is the gallery publication boundary. Draft albums are absent from public routes. Publishing

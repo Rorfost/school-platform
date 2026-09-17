@@ -66,9 +66,9 @@ export function AdminDashboardPage() {
     },
     {
       to: "/admin/assessments",
-      label: "Assessments",
+      label: "Results & Marks",
       icon: Award,
-      desc: "Ekam Kasoti & exam setup",
+      desc: "Exam and marks setup",
     },
     {
       to: "/admin/materials",

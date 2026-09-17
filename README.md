@@ -21,7 +21,7 @@ The public portal and principal-admin workflows for school settings, academic co
 - Secure principal session authentication, CSRF protection, password changes, and audit events
 - School settings and principal profile management
 - Academic years, standards, subjects, and standard-subject mapping
-- Generic assessment configuration with draft, publish, and archive states
+- Results & Marks setup with draft, publish, and archive states (using the internal generic assessment model)
 - Study material, notice, gallery, and download management with ImageKit-backed uploads
 
 ## Architecture

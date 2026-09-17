@@ -42,6 +42,6 @@ describe("AdminDashboardPage", () => {
     expect(screen.getByText("Academic Years")).toBeVisible();
     expect(screen.getByText("Standards & Classes")).toBeVisible();
     expect(screen.getByText("Subjects Catalog")).toBeVisible();
-    expect(screen.getByText("Assessments")).toBeVisible();
+    expect(screen.getByText("Results & Marks")).toBeVisible();
   });
 });
