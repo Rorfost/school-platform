@@ -50,15 +50,13 @@ public class ImageKitObjectStorage implements ObjectStorage {
                     .build());
 
     String expectedPath = imageKitPath(objectKey);
-    String fileId =
-        response
-            .fileId()
-            .orElseThrow(() -> new IllegalStateException("ImageKit upload returned no file ID"));
     if (!expectedPath.equals(response.filePath().orElse(null))) {
       response.fileId().ifPresent(uploadedFileId -> client.files().delete(uploadedFileId));
       throw new IllegalStateException("ImageKit upload did not retain the requested object path");
     }
-    return fileId;
+    return response
+        .fileId()
+        .orElseThrow(() -> new IllegalStateException("ImageKit upload returned no file ID"));
   }
 
   @Override
