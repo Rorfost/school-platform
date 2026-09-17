@@ -28,11 +28,40 @@ let csrfHeaderName = defaultCsrfHeaderName;
 let csrfTokenPromise: Promise<string | null> | null = null;
 
 export async function fetchCsrfToken(): Promise<string | null> {
-  if (csrfToken) {
-    return csrfToken;
+  const existingCookie = getCsrfTokenFromCookie();
+
+  if (existingCookie) {
+    return existingCookie;
   }
 
-  return refreshCsrfToken();
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = (async () => {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/v1/admin/auth/csrf`, {
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          return null;
+        }
+
+        // IMPORTANT:
+        // With Spring Security SPA CSRF configuration,
+        // use the plain token written to the XSRF-TOKEN cookie.
+        // Do not use the token returned in the response body.
+        return getCsrfTokenFromCookie();
+      } catch {
+        return null;
+      } finally {
+        csrfTokenPromise = null;
+      }
+    })();
+  }
+
+  return csrfTokenPromise;
 }
 
 export async function refreshCsrfToken(): Promise<string | null> {
