@@ -86,7 +86,7 @@ export function NoticeDetailPage() {
         </div>
 
         {notice.attachmentFilename && notice.attachmentUrl && (
-          <div className="border-t border-slate-100 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-blue-50/50 p-4 rounded-xl border">
+          <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-blue-50/50 p-4 sm:flex-row sm:items-center">
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 સામેલ ફાઈલ / જોડાણ
@@ -99,7 +99,7 @@ export function NoticeDetailPage() {
               href={notice.attachmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-900 text-white text-sm font-medium hover:bg-blue-950 transition-colors shrink-0"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-950 shrink-0"
             >
               <Download size={16} aria-hidden="true" />
               <span>ફાઈલ ડાઉનલોડ કરો</span>

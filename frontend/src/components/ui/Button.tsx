@@ -27,7 +27,7 @@ export function Button({
   }[variant];
 
   const sizeStyles = {
-    sm: "min-h-9 px-3 py-1.5 text-xs rounded-md",
+    sm: "min-h-10 px-3 py-1.5 text-xs rounded-md",
     md: "min-h-11 px-4 py-2 text-sm rounded-lg",
     lg: "min-h-12 px-6 py-3 text-base rounded-lg",
   }[size];

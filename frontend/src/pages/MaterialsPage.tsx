@@ -57,7 +57,7 @@ export function MaterialsPage() {
               id="type-select"
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
+              className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
             >
               <option value="">તમામ પ્રકાર</option>
               <option value="TEXTBOOK">પાઠ્યપુસ્તક</option>
@@ -119,14 +119,14 @@ export function MaterialsPage() {
                   )}
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span className="truncate max-w-[200px]">{item.filename}</span>
+              <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                <span className="min-w-0 truncate">{item.filename}</span>
                 {item.url ? (
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-blue-900 hover:underline flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-blue-50 px-3 py-1.5 font-semibold text-blue-900 transition-colors hover:bg-blue-100 hover:underline"
                   >
                     <Download size={14} aria-hidden="true" />
                     <span>ડાઉનલોડ કરો</span>

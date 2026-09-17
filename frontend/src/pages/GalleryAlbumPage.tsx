@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Camera, Image as ImageIcon, X, ZoomIn } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { usePublicGalleryImages } from "@/features/public/usePublicContent";
@@ -23,6 +23,20 @@ export function GalleryAlbumPage() {
     setFailedImageIds((current) => new Set(current).add(imageId));
   };
 
+  useEffect(() => {
+    if (!selectedImage) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedImage(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedImage]);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -46,12 +60,14 @@ export function GalleryAlbumPage() {
           description="ટૂંક સમયમાં નવી તસવીરો અહીં ઉમેરવામાં આવશે."
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {images.map((img) => (
             <Card
               key={img.id}
               variant="interactive"
               className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
+              role="button"
+              aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
               onClick={() => setSelectedImage(img)}
               tabIndex={0}
               onKeyDown={(e) => {
@@ -111,17 +127,17 @@ export function GalleryAlbumPage() {
                 type="button"
                 onClick={() => setSelectedImage(null)}
                 aria-label="બંધ કરો"
-                className="flex size-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+                className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
               >
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
-            <div className="p-4 bg-slate-950 flex items-center justify-center max-h-[75vh]">
+            <div className="flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
               {selectedImage.url ? (
                 <img
                   src={selectedImage.url}
                   alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
-                  className="max-h-[70vh] w-auto max-w-full object-contain rounded-lg"
+                  className="max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-lg"
                 />
               ) : (
                 <div className="p-12 text-slate-400 text-center">

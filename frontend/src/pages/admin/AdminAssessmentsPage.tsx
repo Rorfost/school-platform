@@ -231,7 +231,7 @@ export function AdminAssessmentsPage() {
             aria-label="Filter by academic year"
             value={yearFilter}
             onChange={(event) => setYearFilter(event.target.value)}
-            className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
             <option value="all">All academic years</option>
             {years.map((year) => (
@@ -244,7 +244,7 @@ export function AdminAssessmentsPage() {
             aria-label="Filter by standard"
             value={standardFilter}
             onChange={(event) => setStandardFilter(event.target.value)}
-            className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
             <option value="all">All standards</option>
             {standards.map((standard) => (
@@ -257,7 +257,7 @@ export function AdminAssessmentsPage() {
             aria-label="Filter by exam or test type"
             value={typeFilter}
             onChange={(event) => setTypeFilter(event.target.value)}
-            className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
             <option value="all">All exam / test types</option>
             {types.map((type) => (
@@ -270,7 +270,7 @@ export function AdminAssessmentsPage() {
             aria-label="Filter by result status"
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
           >
             <option value="all">All result statuses</option>
             <option value="DRAFT">Draft</option>

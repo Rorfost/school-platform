@@ -49,7 +49,7 @@ export function ConfirmModal({
       aria-describedby="confirm-modal-description"
     >
       <div
-        className="relative max-w-md w-full bg-white rounded-2xl p-6 shadow-2xl space-y-4"
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl space-y-4 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
@@ -74,7 +74,7 @@ export function ConfirmModal({
             ref={closeButtonRef}
             onClick={onClose}
             disabled={isLoading}
-            className="text-slate-400 hover:text-slate-600 rounded-lg p-1"
+            className="flex size-11 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600"
             aria-label="Close modal"
           >
             <X size={18} />
@@ -85,8 +85,8 @@ export function ConfirmModal({
           {description}
         </p>
 
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
+        <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading} className="w-full sm:w-auto">
             {cancelText}
           </Button>
           <Button
@@ -94,6 +94,7 @@ export function ConfirmModal({
             size="sm"
             onClick={onConfirm}
             loading={isLoading}
+            className="w-full sm:w-auto"
           >
             {confirmText}
           </Button>

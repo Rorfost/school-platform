@@ -93,6 +93,10 @@ describe("AdminLayout", () => {
     fireEvent.click(toggleButton);
 
     expect(screen.getByRole("dialog", { name: "Navigation Menu" })).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog", { name: "Navigation Menu" })).not.toBeInTheDocument();
+
+    fireEvent.click(toggleButton);
     fireEvent.click(screen.getByRole("button", { name: "Close Navigation Menu" }));
     expect(screen.queryByRole("dialog", { name: "Navigation Menu" })).not.toBeInTheDocument();
   });
