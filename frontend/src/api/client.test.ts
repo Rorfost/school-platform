@@ -1,4 +1,4 @@
-import { apiRequest, getCsrfTokenFromCookie } from "@/api/client";
+import { apiRequest, getCsrfTokenFromCookie, refreshCsrfToken } from "@/api/client";
 import { getGujaratiErrorMessage } from "@/utils/errors";
 
 describe("api client & error utilities", () => {
@@ -15,6 +15,22 @@ describe("api client & error utilities", () => {
   it("returns null when XSRF-TOKEN cookie is not present", () => {
     document.cookie = "XSRF-TOKEN=; Max-Age=0; Path=/";
     expect(getCsrfTokenFromCookie()).toBeNull();
+  });
+
+  it("refreshes the CSRF token after an authentication lifecycle event", async () => {
+    document.cookie = "XSRF-TOKEN=stale-token; Path=/";
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ token: "fresh-token" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(refreshCsrfToken()).resolves.toBe("fresh-token");
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/v1/admin/auth/csrf",
+      expect.objectContaining({ credentials: "include" }),
+    );
   });
 
   it("maps known backend error codes to natural Gujarati", () => {

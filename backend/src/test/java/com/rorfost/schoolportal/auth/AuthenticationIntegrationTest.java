@@ -98,6 +98,33 @@ class AuthenticationIntegrationTest {
   }
 
   @Test
+  void acceptsTheSpaCsrfCookieAndHeaderForLogin() throws Exception {
+    createPrincipal(false);
+
+    MvcResult csrf =
+        mockMvc
+            .perform(get("/api/v1/admin/auth/csrf"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").isNotEmpty())
+            .andReturn();
+    Cookie csrfCookie = csrf.getResponse().getCookie("XSRF-TOKEN");
+    String token =
+        objectMapper.readTree(csrf.getResponse().getContentAsString()).path("token").asText();
+
+    assertThat(csrfCookie).isNotNull();
+    mockMvc
+        .perform(
+            post("/api/v1/admin/auth/login")
+                .cookie(csrfCookie)
+                .header("X-XSRF-TOKEN", token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        java.util.Map.of("email", EMAIL, "password", PASSWORD))))
+        .andExpect(status().isOk());
+  }
+
+  @Test
   void rejectsUnknownInactiveAndIncorrectCredentialsWithTheSameResponse() throws Exception {
     createPrincipal(false);
 

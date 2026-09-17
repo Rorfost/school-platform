@@ -30,6 +30,10 @@ export async function fetchCsrfToken(): Promise<string | null> {
     return existingCookie;
   }
 
+  return refreshCsrfToken();
+}
+
+export async function refreshCsrfToken(): Promise<string | null> {
   if (!csrfTokenPromise) {
     csrfTokenPromise = (async () => {
       try {

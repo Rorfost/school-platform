@@ -1,6 +1,6 @@
 import { createContext, useCallback, type PropsWithChildren } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/api/client";
+import { apiRequest, refreshCsrfToken } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalAccountResponse } from "@/api/types";
 
@@ -42,6 +42,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         method: "POST",
         body: { email, password },
       });
+      await refreshCsrfToken();
       queryClient.setQueryData(queryKeys.authMe, response);
       return response;
     },
@@ -53,6 +54,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await apiRequest<void>("/api/v1/admin/auth/logout", {
         method: "POST",
       });
+      await refreshCsrfToken();
     } finally {
       queryClient.setQueryData(queryKeys.authMe, null);
       queryClient.invalidateQueries();
