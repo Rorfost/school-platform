@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Image as ImageIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ApiError, apiRequest } from "@/api/client";
+import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type {
   GalleryAlbumRequest,
@@ -328,6 +328,6 @@ function AlbumFormModal({
   );
 }
 
-function messageFor(error: unknown, fallback: string) {
-  return error instanceof ApiError ? error.message : fallback;
+function messageFor(_error: unknown, fallback: string) {
+  return fallback;
 }

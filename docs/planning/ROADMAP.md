@@ -53,7 +53,8 @@ Each phase is independently scoped. Do not start a phase until its dependencies 
 ## Current backend status
 
 - **DONE:** principal authentication/session foundation, Flyway/PostgreSQL foundation, school/profile APIs, academic configuration APIs, generic assessment configuration, ImageKit-backed storage abstraction, and health/security baseline.
-- **IN PROGRESS:** materials, notices, gallery, and download API lifecycle coverage; their public API foundation is implemented but complete feature-level integration coverage is not.
+- **DONE:** gallery album lifecycle, ImageKit-backed photo management, publication synchronization, responsive public browsing, and focused frontend/backend coverage.
+- **IN PROGRESS:** materials, notices, and download API lifecycle coverage; their public API foundation is implemented but complete feature-level integration coverage is not.
 - **BLOCKED — INPUT REQUIRED:** Tri-masik Ekam Kasoti import and secure result lookup. The observed workbook has no privacy-safe school-controlled student identifier or PIN. See `docs/data/RESULT_IMPORT.md`.
 
 ## Pending input from project owner

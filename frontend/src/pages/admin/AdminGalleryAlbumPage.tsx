@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { ApiError, apiRequest } from "@/api/client";
+import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { GalleryAlbumResponse, GalleryImageResponse, PageResponse } from "@/api/types";
 import { LoadingState } from "@/components/common/StatusPanel";
@@ -631,6 +631,6 @@ function humanizeFilename(filename: string) {
   );
 }
 
-function messageFor(error: unknown, fallback: string) {
-  return error instanceof ApiError ? error.message : fallback;
+function messageFor(_error: unknown, fallback: string) {
+  return fallback;
 }
