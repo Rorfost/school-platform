@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 public interface StandardSubjectRepository extends JpaRepository<StandardSubject, UUID> {
   List<StandardSubject> findBySchoolIdAndStandardIdOrderBySortOrder(UUID schoolId, UUID standardId);
 
+  List<StandardSubject> findBySchoolIdAndSubjectId(UUID schoolId, UUID subjectId);
+
   Optional<StandardSubject> findByIdAndSchoolId(UUID id, UUID schoolId);
 
   boolean existsByStandardIdAndSubjectId(UUID standardId, UUID subjectId);

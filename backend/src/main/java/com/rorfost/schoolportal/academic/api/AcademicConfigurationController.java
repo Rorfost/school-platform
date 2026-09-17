@@ -5,13 +5,16 @@ import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -72,12 +75,31 @@ class AcademicConfigurationController {
     return service.createStandard(principal.schoolId(), principal.adminUserId(), request);
   }
 
+  @PostMapping("/standards/catalog")
+  StandardResponse createCatalogStandard(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @Valid @RequestBody StandardNameRequest request) {
+    return service.createCatalogStandard(principal.schoolId(), principal.adminUserId(), request);
+  }
+
   @PutMapping("/standards/{id}")
   StandardResponse updateStandard(
       @AuthenticationPrincipal PrincipalSession principal,
       @PathVariable UUID id,
       @Valid @RequestBody StandardRequest request) {
     return service.updateStandard(principal.schoolId(), principal.adminUserId(), id, request);
+  }
+
+  @DeleteMapping("/standards/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void deleteStandard(@AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
+    service.deleteStandard(principal.schoolId(), principal.adminUserId(), id);
+  }
+
+  @PostMapping("/standards/{id}/archive")
+  StandardResponse archiveStandard(
+      @AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
+    return service.archiveStandard(principal.schoolId(), principal.adminUserId(), id);
   }
 
   @GetMapping("/subjects")
@@ -105,6 +127,18 @@ class AcademicConfigurationController {
       @PathVariable UUID id,
       @Valid @RequestBody SubjectRequest request) {
     return service.updateSubject(principal.schoolId(), principal.adminUserId(), id, request);
+  }
+
+  @DeleteMapping("/subjects/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void deleteSubject(@AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
+    service.deleteSubject(principal.schoolId(), principal.adminUserId(), id);
+  }
+
+  @PostMapping("/subjects/{id}/archive")
+  SubjectResponse archiveSubject(
+      @AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
+    return service.archiveSubject(principal.schoolId(), principal.adminUserId(), id);
   }
 
   @GetMapping("/standards/{standardId}/subjects")
