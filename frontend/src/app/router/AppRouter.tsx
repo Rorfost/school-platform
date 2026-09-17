@@ -26,6 +26,7 @@ import { AdminAssessmentsPage } from "@/pages/admin/AdminAssessmentsPage";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import { AdminDownloadsPage } from "@/pages/admin/AdminDownloadsPage";
 import { AdminGalleryPage } from "@/pages/admin/AdminGalleryPage";
+import { AdminGalleryAlbumPage } from "@/pages/admin/AdminGalleryAlbumPage";
 import { AdminMaterialsPage } from "@/pages/admin/AdminMaterialsPage";
 import { AdminNoticesPage } from "@/pages/admin/AdminNoticesPage";
 import { AdminPrincipalProfilePage } from "@/pages/admin/AdminPrincipalProfilePage";
@@ -79,6 +80,7 @@ const router = createBrowserRouter([
           { path: "materials", element: <AdminMaterialsPage /> },
           { path: "notices", element: <AdminNoticesPage /> },
           { path: "gallery", element: <AdminGalleryPage /> },
+          { path: "gallery/:albumId", element: <AdminGalleryAlbumPage /> },
           { path: "downloads", element: <AdminDownloadsPage /> },
           { path: "account", element: <AdminAccountPage /> },
         ],

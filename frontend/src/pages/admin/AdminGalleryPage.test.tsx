@@ -20,13 +20,12 @@ describe("AdminGalleryPage", () => {
       items: [
         {
           id: "album-1",
-          schoolId: "school-1",
           title: "Sports Day 2026",
           description: "Annual sports day celebration",
+          coverImageId: "image-1",
+          coverImageThumbnailUrl: "https://images.example/sports-thumb.jpg",
+          imageCount: 12,
           status: "PUBLISHED",
-          publishedAt: "2026-02-15T00:00:00Z",
-          createdAt: "2026-02-15T00:00:00Z",
-          updatedAt: "2026-02-15T00:00:00Z",
         },
       ],
       page: 0,
@@ -40,5 +39,14 @@ describe("AdminGalleryPage", () => {
     expect(screen.getByRole("heading", { name: "Photo Gallery Management" })).toBeInTheDocument();
     expect(screen.getByText("Sports Day 2026")).toBeInTheDocument();
     expect(screen.getByText("Annual sports day celebration")).toBeInTheDocument();
+    expect(screen.getByText("12 photos")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Manage Photos" })).toHaveAttribute(
+      "href",
+      "/admin/gallery/album-1",
+    );
+    expect(screen.getByAltText("Cover for Sports Day 2026")).toHaveAttribute(
+      "src",
+      "https://images.example/sports-thumb.jpg",
+    );
   });
 });

@@ -12,7 +12,7 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
   - School Settings & Principal Profile management.
   - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
   - Generic Assessments CRUD, subject max/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
-  - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums & Image Upload, Downloads management.
+  - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.
   - Account & Security management.
 
 ## Pending Inputs

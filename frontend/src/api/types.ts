@@ -104,7 +104,14 @@ export interface GalleryAlbumResponse {
   title: string;
   description: string | null;
   coverImageId: string | null;
+  coverImageThumbnailUrl: string | null;
+  imageCount: number;
   status: string;
+}
+
+export interface GalleryAlbumUpdateRequest {
+  title: string;
+  description?: string | null;
 }
 
 export interface GalleryImageResponse {
