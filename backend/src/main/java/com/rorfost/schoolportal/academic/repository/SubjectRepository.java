@@ -13,5 +13,7 @@ public interface SubjectRepository extends JpaRepository<Subject, UUID> {
 
   Optional<Subject> findByIdAndSchoolId(UUID id, UUID schoolId);
 
+  boolean existsBySchoolIdAndNameIgnoreCase(UUID schoolId, String name);
+
   long countBySchoolIdAndIsArchivedFalse(UUID schoolId);
 }

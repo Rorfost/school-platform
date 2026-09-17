@@ -92,6 +92,13 @@ class AcademicConfigurationController {
     return service.createSubject(principal.schoolId(), principal.adminUserId(), request);
   }
 
+  @PostMapping("/subjects/catalog")
+  SubjectResponse createCatalogSubject(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @Valid @RequestBody SubjectNameRequest request) {
+    return service.createCatalogSubject(principal.schoolId(), principal.adminUserId(), request);
+  }
+
   @PutMapping("/subjects/{id}")
   SubjectResponse updateSubject(
       @AuthenticationPrincipal PrincipalSession principal,

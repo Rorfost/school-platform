@@ -1,14 +1,12 @@
 import {
   Activity,
   Award,
-  BookOpen,
   Calendar,
   Camera,
   FileText,
   FolderDown,
   GraduationCap,
   Layers,
-  Network,
   Settings,
   UserCheck,
   Users,
@@ -46,28 +44,10 @@ export function AdminDashboardPage() {
       desc: "Biography, message, designation",
     },
     {
-      to: "/admin/academic-years",
-      label: "Academic Years",
+      to: "/admin/academics",
+      label: "Academic Setup",
       icon: Calendar,
-      desc: "Manage sessions & current year",
-    },
-    {
-      to: "/admin/standards",
-      label: "Standards & Classes",
-      icon: Layers,
-      desc: "Standards 1 to 8 configuration",
-    },
-    {
-      to: "/admin/subjects",
-      label: "Subjects Catalog",
-      icon: BookOpen,
-      desc: "Curriculum subjects list",
-    },
-    {
-      to: "/admin/subject-mappings",
-      label: "Subject Mappings",
-      icon: Network,
-      desc: "Map subjects to standards",
+      desc: "Current year, standards, and subjects",
     },
     {
       to: "/admin/assessments",
@@ -157,10 +137,10 @@ export function AdminDashboardPage() {
               {summary?.totalStandards ?? 0}
             </p>
             <Link
-              to="/admin/standards"
+              to="/admin/academics"
               className="text-xs font-semibold text-blue-900 hover:underline mt-1 block"
             >
-              Manage standards →
+              Manage academic setup →
             </Link>
           </Card>
 

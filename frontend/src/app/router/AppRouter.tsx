@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { AdminLoginPage } from "@/features/auth/AdminLoginPage";
@@ -109,19 +109,9 @@ const AdminSchoolSettingsPage = lazy(() =>
     default: AdminSchoolSettingsPage,
   })),
 );
-const AdminStandardsPage = lazy(() =>
-  import("@/pages/admin/AdminStandardsPage").then(({ AdminStandardsPage }) => ({
-    default: AdminStandardsPage,
-  })),
-);
-const AdminSubjectMappingsPage = lazy(() =>
-  import("@/pages/admin/AdminSubjectMappingsPage").then(({ AdminSubjectMappingsPage }) => ({
-    default: AdminSubjectMappingsPage,
-  })),
-);
-const AdminSubjectsPage = lazy(() =>
-  import("@/pages/admin/AdminSubjectsPage").then(({ AdminSubjectsPage }) => ({
-    default: AdminSubjectsPage,
+const AdminAcademicSetupPage = lazy(() =>
+  import("@/pages/admin/AdminAcademicSetupPage").then(({ AdminAcademicSetupPage }) => ({
+    default: AdminAcademicSetupPage,
   })),
 );
 
@@ -163,9 +153,10 @@ const router = createBrowserRouter([
           { path: "school", element: <AdminSchoolSettingsPage /> },
           { path: "principal", element: <AdminPrincipalProfilePage /> },
           { path: "academic-years", element: <AdminAcademicYearsPage /> },
-          { path: "standards", element: <AdminStandardsPage /> },
-          { path: "subjects", element: <AdminSubjectsPage /> },
-          { path: "subject-mappings", element: <AdminSubjectMappingsPage /> },
+          { path: "academics", element: <AdminAcademicSetupPage /> },
+          { path: "standards", element: <Navigate to="/admin/academics" replace /> },
+          { path: "subjects", element: <Navigate to="/admin/academics" replace /> },
+          { path: "subject-mappings", element: <Navigate to="/admin/academics" replace /> },
           { path: "assessments", element: <AdminAssessmentsPage /> },
           { path: "materials", element: <AdminMaterialsPage /> },
           { path: "notices", element: <AdminNoticesPage /> },

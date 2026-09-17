@@ -8,16 +8,14 @@ import {
   Mail,
   MapPin,
   Newspaper,
-  Shield,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePublicNotices } from "@/features/public/usePublicContent";
-import schoolLogo from "@/assets/school-logo.jpeg";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ContentSkeleton, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
-import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
+import { LABELS } from "@/utils/gujarati";
 
 export function HomePage() {
   const school = useEffectiveSchoolInfo();
@@ -66,44 +64,6 @@ export function HomePage() {
 
   return (
     <div className="space-y-10 sm:space-y-14">
-      {/* Hero Welcome Card */}
-      <section
-        aria-labelledby="hero-heading"
-        className="relative overflow-hidden rounded-2xl border border-blue-100 bg-linear-to-b from-white to-blue-50/40 p-6 sm:p-10 shadow-xs"
-      >
-        <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
-          <img
-            src={school.logoUrl ?? schoolLogo}
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = schoolLogo;
-            }}
-            alt="શાળા પ્રતીક"
-            className="size-24 sm:size-32 shrink-0 rounded-full object-contain border-2 border-blue-100 shadow-sm bg-white p-1"
-          />
-          <div className="text-center md:text-left flex-1">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2.5">
-              <Badge variant="primary" size="md">
-                {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode)}
-              </Badge>
-              <Badge variant="secondary" size="md">
-                {LABELS.estLabel}: {toGujaratiNumber(school.establishedYear)}
-              </Badge>
-            </div>
-            <h1
-              id="hero-heading"
-              className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight"
-            >
-              {school.name}
-            </h1>
-            <p className="mt-2 text-sm sm:text-base font-medium text-slate-600">{school.address}</p>
-            <p className="mt-3 text-xs sm:text-sm text-blue-900 font-semibold tracking-wide">
-              ॥ સા વિદ્યા યા વિમુક્તયે ॥
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Student Quick Access Section */}
       <section aria-labelledby="student-corner-heading">
         <div className="flex items-center justify-between gap-4 mb-5">
@@ -243,7 +203,7 @@ export function HomePage() {
         >
           શાળા સંપર્ક અને સ્થાન
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+        <div className="grid grid-cols-1 gap-6 text-sm md:grid-cols-2">
           <div className="flex items-start gap-3">
             <MapPin className="text-blue-900 shrink-0 mt-1" size={20} aria-hidden="true" />
             <div>
@@ -261,16 +221,6 @@ export function HomePage() {
               >
                 {school.email}
               </a>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Shield className="text-blue-900 shrink-0 mt-1" size={20} aria-hidden="true" />
-            <div>
-              <p className="font-semibold text-slate-800">માન્યતા અને કોડ</p>
-              <p className="text-slate-600 mt-0.5">
-                {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode)}
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">ધોરણ ૧ થી ૮ પ્રાથમિક શિક્ષણ</p>
             </div>
           </div>
         </div>

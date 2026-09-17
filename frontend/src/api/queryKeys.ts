@@ -18,6 +18,7 @@ export const queryKeys = {
   adminAcademicYears: ["admin", "academic-years"] as const,
   adminStandards: ["admin", "standards"] as const,
   adminSubjects: ["admin", "subjects"] as const,
+  adminAcademicSetup: ["admin", "academic-setup"] as const,
   adminStandardSubjects: (standardId: string) =>
     ["admin", "standards", standardId, "subjects"] as const,
   adminMaterials: (filters?: { page?: number; size?: number }) =>

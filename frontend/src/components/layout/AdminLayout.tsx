@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   Award,
-  BookOpen,
-  Calendar,
   Camera,
   ExternalLink,
   FileText,
@@ -13,7 +11,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Network,
   Settings,
   ShieldCheck,
   UserCheck,
@@ -53,12 +50,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     title: "Academics",
-    items: [
-      { to: "/admin/academic-years", label: "Academic Years", icon: Calendar },
-      { to: "/admin/standards", label: "Standards", icon: Layers },
-      { to: "/admin/subjects", label: "Subjects Catalog", icon: BookOpen },
-      { to: "/admin/subject-mappings", label: "Subject Mappings", icon: Network },
-    ],
+    items: [{ to: "/admin/academics", label: "Academic Setup", icon: Layers }],
   },
   {
     title: "School Settings",

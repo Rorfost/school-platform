@@ -34,15 +34,22 @@ export interface PrincipalProfileResponse {
 export interface StandardResponse {
   id: string;
   code: string;
-  name: string;
-  displayOrder: number;
+  displayName: string;
+  sortOrder: number;
+  archived: boolean;
 }
 
 export interface SubjectResponse {
   id: string;
   code: string;
   name: string;
-  displayOrder: number;
+  sortOrder: number;
+  archived: boolean;
+}
+
+export interface AcademicSetupResponse {
+  standards: { standard: StandardResponse; subjects: SubjectResponse[] }[];
+  subjects: SubjectResponse[];
 }
 
 export interface AcademicYearResponse {

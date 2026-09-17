@@ -8,6 +8,7 @@ import com.rorfost.schoolportal.academic.api.StandardResponse;
 import com.rorfost.schoolportal.academic.api.StandardSubjectRequest;
 import com.rorfost.schoolportal.academic.api.StandardSubjectResponse;
 import com.rorfost.schoolportal.academic.api.StandardSubjectsUpdateRequest;
+import com.rorfost.schoolportal.academic.api.SubjectNameRequest;
 import com.rorfost.schoolportal.academic.api.SubjectRequest;
 import com.rorfost.schoolportal.academic.api.SubjectResponse;
 import com.rorfost.schoolportal.academic.domain.AcademicYear;
@@ -198,6 +199,26 @@ public class AcademicConfigurationService {
                 request.sortOrder()));
     subject.update(
         subject.getCode(), subject.getName(), subject.getSortOrder(), request.archived());
+    audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "SUBJECT", subject.getId());
+    return SubjectResponse.from(subject);
+  }
+
+  @Transactional
+  public SubjectResponse createCatalogSubject(
+      UUID schoolId, UUID actorId, SubjectNameRequest request) {
+    String name = request.name().trim();
+    if (subjects.existsBySchoolIdAndNameIgnoreCase(schoolId, name))
+      throw conflict("subject_duplicate");
+    // Codes remain normalized database keys, but principals only need to name their curriculum.
+    String code =
+        "SUBJECT_"
+            + UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 20)
+                .toUpperCase(Locale.ROOT);
+    short sortOrder = (short) (subjects.findBySchoolIdOrderBySortOrder(schoolId).size() + 1);
+    Subject subject = subjects.save(new Subject(schoolId, code, name, sortOrder));
     audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "SUBJECT", subject.getId());
     return SubjectResponse.from(subject);
   }

@@ -47,6 +47,7 @@ export function AdminAssessmentsPage() {
     undefined,
   );
   const [selectedStandardId, setSelectedStandardId] = useState("");
+  const [selectedSubjectMappingIds, setSelectedSubjectMappingIds] = useState<string[] | null>(null);
   const [yearFilter, setYearFilter] = useState("all");
   const [standardFilter, setStandardFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -91,11 +92,16 @@ export function AdminAssessmentsPage() {
   const subjects = subjectsQuery.data ?? [];
   const editableSubjects =
     formAssessment?.subjects ??
-    (mappingsQuery.data ?? []).map((mapping) => ({
-      ...mapping,
-      maximumMarks: 40,
-      passingMarks: 0,
-    }));
+    (mappingsQuery.data ?? [])
+      .filter(
+        (mapping) =>
+          selectedSubjectMappingIds === null || selectedSubjectMappingIds.includes(mapping.id),
+      )
+      .map((mapping) => ({
+        ...mapping,
+        maximumMarks: 40,
+        passingMarks: 0,
+      }));
   const visibleAssessments = useMemo(
     () =>
       (assessmentsQuery.data ?? []).filter(
@@ -143,6 +149,7 @@ export function AdminAssessmentsPage() {
 
   const openCreate = () => {
     setSelectedStandardId(standards[0]?.id ?? "");
+    setSelectedSubjectMappingIds(null);
     setFormAssessment(null);
   };
   const openEdit = (assessment: AssessmentResponse) => {
@@ -242,7 +249,7 @@ export function AdminAssessmentsPage() {
             <option value="all">All standards</option>
             {standards.map((standard) => (
               <option key={standard.id} value={standard.id}>
-                {standard.name}
+                {standard.displayName}
               </option>
             ))}
           </select>
@@ -312,8 +319,8 @@ export function AdminAssessmentsPage() {
                         "Unknown year"}
                     </td>
                     <td className="p-4 text-slate-700">
-                      {standards.find((standard) => standard.id === assessment.standardId)?.name ??
-                        "Unknown standard"}
+                      {standards.find((standard) => standard.id === assessment.standardId)
+                        ?.displayName ?? "Unknown standard"}
                     </td>
                     <td className="p-4">{statusBadge(assessment.status)}</td>
                     <td className="p-4">
@@ -398,12 +405,15 @@ export function AdminAssessmentsPage() {
                     required
                     disabled={Boolean(formAssessment)}
                     value={formAssessment?.standardId ?? selectedStandardId}
-                    onChange={(event) => setSelectedStandardId(event.target.value)}
+                    onChange={(event) => {
+                      setSelectedStandardId(event.target.value);
+                      setSelectedSubjectMappingIds(null);
+                    }}
                     className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
                   >
                     {standards.map((standard) => (
                       <option key={standard.id} value={standard.id}>
-                        {standard.name}
+                        {standard.displayName}
                       </option>
                     ))}
                   </select>
@@ -459,9 +469,28 @@ export function AdminAssessmentsPage() {
                           key={mappingId}
                           className="grid grid-cols-[1fr_7rem_7rem] items-end gap-3 rounded-lg bg-slate-50 p-3"
                         >
-                          <span className="pb-2 text-sm font-medium text-slate-800">
+                          <label className="flex items-center gap-2 pb-2 text-sm font-medium text-slate-800">
+                            {!formAssessment && (
+                              <input
+                                type="checkbox"
+                                checked={
+                                  selectedSubjectMappingIds === null ||
+                                  selectedSubjectMappingIds.includes(mappingId)
+                                }
+                                onChange={() =>
+                                  setSelectedSubjectMappingIds((selected) => {
+                                    const current =
+                                      selected ?? (mappingsQuery.data ?? []).map((item) => item.id);
+                                    return current.includes(mappingId)
+                                      ? current.filter((id) => id !== mappingId)
+                                      : [...current, mappingId];
+                                  })
+                                }
+                                className="size-4 rounded border-slate-300 text-blue-900"
+                              />
+                            )}
                             {subjectName}
-                          </span>
+                          </label>
                           <label className="text-xs text-slate-600">
                             Maximum
                             <input
