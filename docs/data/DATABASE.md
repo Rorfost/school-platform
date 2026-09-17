@@ -57,8 +57,8 @@ erDiagram
 | `marks` | One numeric score per student, assessment, and assessment subject. Composite foreign keys prove that student and assessment share school, year, and standard; scores cannot be negative. No totals, percentages, grades, maximum marks, absence conventions, or Excel-derived values are stored. |
 | `study_materials` | Object-storage metadata for materials, optionally scoped to a year and standard-subject mapping. Binary content is never stored in PostgreSQL. |
 | `notices` | Notice body plus one optional complete attachment metadata set. Partial attachment metadata is rejected. |
-| `gallery_albums` | School gallery groups with publication lifecycle. |
-| `gallery_images` | Ordered image metadata and required accessible alt text. Image order is unique inside an album. |
+| `gallery_albums` | School gallery groups with publication lifecycle and an optional cover image constrained to the same album. |
+| `gallery_images` | Ordered image metadata and required accessible alt text. Image order is positive, unique, and normalized inside an album. |
 | `downloads` | Published document/timetable-style file metadata, optionally scoped to an academic year. `category` remains free text until a product vocabulary is approved. |
 | `audit_logs` | Append-only administrative event record: safe action/target metadata, request ID, and optional actor. The implemented actions are `LOGIN_SUCCESS`, `LOGIN_FAILED`, and `PASSWORD_CHANGED`. Metadata must be a JSON object and must not contain credentials, PINs, cookies, session IDs, or sensitive payloads. |
 | `spring_session`, `spring_session_attributes` | Spring Session JDBC implementation tables. They are not domain tables; deleting a session cascades only to its attributes. |
@@ -75,9 +75,9 @@ erDiagram
 
 ### Publication and archive behavior
 
-`assessments`, `study_materials`, `notices`, `gallery_albums`, `gallery_images`, and `downloads` use `DRAFT`, `PUBLISHED`, and `ARCHIVED`. A draft cannot have lifecycle timestamps; published records require `published_at`; archived records require `archived_at`. Public queries must filter to `PUBLISHED` and observe parent visibility, such as an album's state for gallery images.
+`assessments`, `study_materials`, `notices`, `gallery_albums`, `gallery_images`, and `downloads` use `DRAFT`, `PUBLISHED`, and `ARCHIVED`. A draft cannot have lifecycle timestamps; published records require `published_at`; archived records require `archived_at`. Public queries must filter to `PUBLISHED` and observe parent visibility, such as an album's state for gallery images. For galleries, the album is the principal publication boundary: publishing synchronizes non-archived image status, and unpublishing synchronizes published images back to draft.
 
-Important academic and result records use `ON DELETE RESTRICT`. Their historical references must be archived rather than removed. Gallery images use `ON DELETE CASCADE` from their album because images have no independent meaning; service code may delete only a draft album after object-storage cleanup. The database intentionally does not attempt to coordinate object deletion with ImageKit.
+Important academic and result records use `ON DELETE RESTRICT`. Their historical references must be archived rather than removed. Gallery images use `ON DELETE CASCADE` from their album because images have no independent meaning. Gallery deletion removes ImageKit objects before corresponding metadata and surfaces storage errors for retry; the database intentionally does not attempt to coordinate object deletion with ImageKit. `cover_image_id` uses a composite foreign key so an album cannot reference an image from another album, and its `ON DELETE SET NULL` behavior remains a final database safeguard.
 
 ### Result PIN and privacy
 

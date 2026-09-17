@@ -20,6 +20,17 @@ Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/a
 | `GET /api/v1/admin/notices` | `PRINCIPAL` | Lists every school-scoped notice, including drafts and archived records. |
 | `GET /api/v1/admin/gallery/albums` | `PRINCIPAL` | Lists every school-scoped gallery album, including drafts and archived records. |
 | `GET /api/v1/admin/gallery/albums/{id}/images` | `PRINCIPAL` | Lists images for a school-scoped album, including drafts. |
+| `POST /api/v1/admin/gallery/albums` | `PRINCIPAL` + CSRF | Creates a draft gallery album. |
+| `PUT /api/v1/admin/gallery/albums/{id}` | `PRINCIPAL` + CSRF | Updates a non-archived album title and description. |
+| `POST /api/v1/admin/gallery/albums/{id}/publish` | `PRINCIPAL` + CSRF | Publishes the album and all non-archived images in it. |
+| `POST /api/v1/admin/gallery/albums/{id}/unpublish` | `PRINCIPAL` + CSRF | Returns the album and its published images to draft visibility. |
+| `DELETE /api/v1/admin/gallery/albums/{id}` | `PRINCIPAL` + CSRF | Deletes album metadata and its ImageKit objects. |
+| `POST /api/v1/admin/gallery/albums/{id}/images` | `PRINCIPAL` + CSRF | Uploads one image; the server assigns its next display order. |
+| `POST /api/v1/admin/gallery/albums/{id}/images/batch` | `PRINCIPAL` + CSRF | Uploads ordered files using matching `altTexts` and optional `captions` multipart fields. |
+| `PUT /api/v1/admin/gallery/albums/{id}/cover` | `PRINCIPAL` + CSRF | Selects an image from that album as its cover. |
+| `PUT /api/v1/admin/gallery/albums/{albumId}/images/{imageId}` | `PRINCIPAL` + CSRF | Updates image alt text and caption. |
+| `PATCH /api/v1/admin/gallery/albums/{id}/images/reorder` | `PRINCIPAL` + CSRF | Replaces the complete image order with a validated `imageIds` list. |
+| `DELETE /api/v1/admin/gallery/albums/{albumId}/images/{imageId}` | `PRINCIPAL` + CSRF | Deletes the ImageKit object and image metadata, then normalizes order. |
 | `GET /api/v1/admin/downloads` | `PRINCIPAL` | Lists every school-scoped download, including drafts and archived records. |
 
 Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failures remain generic, and all frontend-visible text is represented by stable codes for Gujarati mapping.
@@ -42,3 +53,20 @@ The browser sends files only to authenticated backend multipart endpoints. The b
 Result import, result publication, available-result choices, and individual result lookup are blocked by the documented privacy-safe student-identity decision. Other exam formats and timetables have no endpoint contract until source material is supplied.
 
 All `/api/v1/admin/**` responses use `Cache-Control: no-store`.
+
+## Gallery lifecycle
+
+The album is the gallery publication boundary. Draft albums are absent from public routes. Publishing
+an album publishes all of its non-archived images; an image uploaded later to that album is published
+automatically. Unpublishing returns both the album and its published images to draft state, so public
+gallery APIs cannot expose them.
+
+Image order is assigned server-side as `1..N`. Batch upload preserves multipart file order. Reorder
+requests must name every image in the target album exactly once; duplicate, missing, or foreign image
+IDs are rejected before any update. The database unique constraint remains in force while the service
+uses a temporary non-conflicting range during order changes.
+
+An album uses an image in the same album as its cover. The first image becomes the default cover;
+deleting the cover selects the next image in display order, and deleting the last image clears it.
+ImageKit deletion occurs before metadata deletion. Storage failures are returned to the caller so the
+database reference remains available for retry rather than being silently removed.
