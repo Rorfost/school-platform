@@ -6,7 +6,7 @@ import { apiRequest } from "@/api/client";
 import type { PasswordChangeRequest, PrincipalAccountResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuth } from "@/features/auth/useAuth";
 
 export function AdminAccountPage() {
@@ -141,26 +141,23 @@ export function AdminAccountPage() {
         )}
 
         <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
-          <Input
+          <PasswordInput
             label="Current Password"
-            type="password"
             required
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
 
-          <Input
+          <PasswordInput
             label="New Password (min 12 characters)"
-            type="password"
             required
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             helperText="Password must be between 12 and 72 characters long."
           />
 
-          <Input
+          <PasswordInput
             label="Confirm New Password"
-            type="password"
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

@@ -6,6 +6,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   leftIcon?: ReactNode;
+  rightElement?: ReactNode;
 }
 
 export function Input({
@@ -13,6 +14,7 @@ export function Input({
   error,
   helperText,
   leftIcon,
+  rightElement,
   id,
   className = "",
   ...rest
@@ -40,14 +42,15 @@ export function Input({
           aria-invalid={!!error}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
           className={`w-full min-h-11 rounded-lg border py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors ${
-            leftIcon ? "pl-10 pr-3.5" : "px-3.5"
-          } ${
+            leftIcon ? "pl-10" : "pl-3.5"
+          } ${rightElement ? "pr-11" : "pr-3.5"} ${
             error
               ? "border-red-500 focus-visible:ring-red-600"
               : "border-slate-300 hover:border-slate-400"
           } ${className}`}
           {...rest}
         />
+        {rightElement && <div className="absolute right-1.5">{rightElement}</div>}
       </div>
       {error ? (
         <p id={errorId} className="mt-1.5 text-xs font-medium text-red-600" role="alert">

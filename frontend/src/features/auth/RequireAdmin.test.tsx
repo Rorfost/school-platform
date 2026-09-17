@@ -4,6 +4,31 @@ import { RequireAdmin } from "@/features/auth/RequireAdmin";
 import * as UseAuthModule from "@/features/auth/useAuth";
 
 describe("RequireAdmin route guard", () => {
+  it("shows a session restoration state before deciding the route", () => {
+    vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
+      principal: null,
+      isAuthenticated: false,
+      isLoading: true,
+      login: vi.fn(),
+      logout: vi.fn(),
+      refetchSession: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/admin"]}>
+        <Routes>
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<div>Admin Secret Dashboard</div>} />
+          </Route>
+          <Route path="/admin/login" element={<div>Login Screen</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Checking administrator session...")).toBeInTheDocument();
+    expect(screen.queryByText("Login Screen")).not.toBeInTheDocument();
+  });
+
   it("redirects unauthenticated users to /admin/login", () => {
     vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
       principal: null,

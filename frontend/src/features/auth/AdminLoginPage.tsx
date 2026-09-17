@@ -7,6 +7,7 @@ import { z } from "zod";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
@@ -63,7 +64,11 @@ export function AdminLoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <img
-            src={schoolLogo}
+            src={school.logoUrl ?? schoolLogo}
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = schoolLogo;
+            }}
             alt="School Logo"
             className="size-16 rounded-full object-contain border border-slate-200 shadow-sm"
           />
@@ -96,9 +101,8 @@ export function AdminLoginPage() {
               {...register("email")}
             />
 
-            <Input
+            <PasswordInput
               label="Password"
-              type="password"
               autoComplete="current-password"
               placeholder="••••••••••••"
               error={errors.password?.message}
