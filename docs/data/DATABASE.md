@@ -47,7 +47,7 @@ erDiagram
 | `principal_profiles` | One optional public principal profile per school. `school_id` is unique. |
 | `admin_users` | Principal authentication identity. Email is lowercase and unique within a school. The only allowed V1 role is `PRINCIPAL`; BCrypt password hashes are never exposed by APIs. `must_change_password` starts true for bootstrap accounts and is cleared only after a successful password change. |
 | `academic_years` | School-owned date-bounded years. `CURRENT` and `ARCHIVED` are the only states; a partial unique index permits only one current year per school. Archiving requires `archived_at`. |
-| `standards` | School-configured standard code, display name, ordering, and archive flag. V1 does not seed standards because operational school configuration must not enter shared migrations. |
+| `standards` | School-configured standard code, display name, ordering, and archive flag. Names are case-insensitively unique per school and new display order is assigned by the service. Standards are never seeded implicitly. |
 | `subjects` | School-configured normalized uppercase code, name, ordering, and archive flag. Case-insensitive duplicate names are rejected per school. |
 | `standard_subjects` | The allowed standard/subject mapping. A pair is unique and both parents must belong to the same school. |
 | `students` | Minimum result identity only: full name, roll number, academic year, standard, archive state, and BCrypt result-PIN hash. There are no addresses, DOBs, parent data, phones, or government IDs. |
@@ -78,6 +78,12 @@ erDiagram
 `assessments`, `study_materials`, `notices`, `gallery_albums`, `gallery_images`, and `downloads` use `DRAFT`, `PUBLISHED`, and `ARCHIVED`. A draft cannot have lifecycle timestamps; published records require `published_at`; archived records require `archived_at`. Public queries must filter to `PUBLISHED` and observe parent visibility, such as an album's state for gallery images. For galleries, the album is the principal publication boundary: publishing synchronizes non-archived image status, and unpublishing synchronizes published images back to draft.
 
 Important academic and result records use `ON DELETE RESTRICT`. Their historical references must be archived rather than removed. Gallery images use `ON DELETE CASCADE` from their album because images have no independent meaning. Gallery deletion removes ImageKit objects before corresponding metadata and surfaces storage errors for retry; the database intentionally does not attempt to coordinate object deletion with ImageKit. `cover_image_id` uses a composite foreign key so an album cannot reference an image from another album, and its `ON DELETE SET NULL` behavior remains a final database safeguard.
+
+### Academic configuration lifecycle
+
+- An unused Standard may be deleted together with its unused standard-subject mappings. Standards referenced by students, assessments, materials, or assessment subjects cannot be deleted and may instead be archived.
+- An unused Subject may be deleted with its unused standard-subject mappings. A Subject whose mapping is used by materials or assessments cannot be deleted; archiving keeps historical records intact while removing it from future assignment.
+- Removing a Subject from one Standard deletes only that mapping, never the global Subject catalogue record. The service rejects that removal when the mapping is historically referenced.
 
 ### Result PIN and privacy
 
