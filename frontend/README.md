@@ -6,6 +6,7 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
 
 - **Public School Website (Gujarati)**: Home, About School, Principal's Desk, Notices & Notice Details, Photo Gallery & Album Viewer, Contact Page, and Footer/Header navigation.
 - **Student Corner (Gujarati)**: Study Materials (filtered by Standard & Subject), Examination Results Lookup (with privacy PIN verification & printable marksheet view), Downloads, and Student Notices.
+- **School Tools (Gujarati)**: Client-side age/date, attendance, marks, multiplication-table, and number-to-words utilities for teachers, parents, and children. Entered calculation values are not stored.
 - **Principal Admin Panel (English)**:
   - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
   - Operational Dashboard with quick links.

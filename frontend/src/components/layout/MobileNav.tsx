@@ -129,7 +129,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
                   className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
                 >
                   <Calculator size={18} className="text-slate-500" aria-hidden="true" />
-                  <span>શિક્ષક સાધનો</span>
+                  <span>{LABELS.tools}</span>
                 </NavLink>
               </li>
               <li>

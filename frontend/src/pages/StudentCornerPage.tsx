@@ -1,4 +1,4 @@
-import { BookOpen, Download, GraduationCap } from "lucide-react";
+import { BookOpen, Calculator, Download, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -28,6 +28,13 @@ export function StudentCornerPage() {
       icon: Download,
       badgeText: "ફાઈલો",
     },
+    {
+      to: "/tools",
+      title: LABELS.tools,
+      description: "ઉંમર, તારીખ, હાજરી, ગુણ, પાડા અને નંબરને શબ્દોમાં લખવા માટેના સરળ સાધનો.",
+      icon: Calculator,
+      badgeText: "ઉપયોગી",
+    },
   ];
 
   return (
@@ -39,7 +46,7 @@ export function StudentCornerPage() {
         backLabel={LABELS.home}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         {sections.map((section) => {
           const Icon = section.icon;
           return (
