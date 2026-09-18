@@ -28,6 +28,7 @@ export const LABELS = {
   studentCorner: "વિદ્યાર્થી વિભાગ",
   materials: "અભ્યાસ સામગ્રી",
   results: "પરીક્ષા પરિણામ",
+  tools: "શાળા ઉપયોગી સાધનો",
   downloads: "ડાઉનલોડ",
   notices: "સૂચનાઓ",
   gallery: "ફોટો ગેલેરી",

@@ -13,7 +13,7 @@ The public portal and principal-admin workflows for school settings, academic co
 ### Public portal
 
 - Gujarati-first, mobile-friendly school information, principal profile, notices, gallery, downloads, and contact details
-- Student Corner for published study materials, notices, and downloads
+- Student Corner for published study materials, notices, downloads, and client-side School Tools
 - Published content is served through a controlled backend API
 
 ### Principal admin panel
