@@ -40,19 +40,76 @@ export function MultiplicationTable() {
   return (
     <ToolCard title="પાડા" description="બાળકો માટે 1 થી 20 સુધીના પાડા બનાવો." icon={Grid2X2}>
       <div className="grid gap-3 sm:grid-cols-3">
-        <Input type="number" inputMode="numeric" min="1" step="1" label="નંબર" value={number} onChange={(event) => { setNumber(event.target.value); clearResult(); }} />
-        <Input type="number" inputMode="numeric" min="1" max="20" step="1" label="થી" value={from} onChange={(event) => { setFrom(event.target.value); clearResult(); }} />
-        <Input type="number" inputMode="numeric" min="1" max="20" step="1" label="સુધી" value={to} onChange={(event) => { setTo(event.target.value); clearResult(); }} />
+        <Input
+          type="number"
+          inputMode="numeric"
+          min="1"
+          step="1"
+          label="નંબર"
+          value={number}
+          onChange={(event) => {
+            setNumber(event.target.value);
+            clearResult();
+          }}
+        />
+        <Input
+          type="number"
+          inputMode="numeric"
+          min="1"
+          max="20"
+          step="1"
+          label="થી"
+          value={from}
+          onChange={(event) => {
+            setFrom(event.target.value);
+            clearResult();
+          }}
+        />
+        <Input
+          type="number"
+          inputMode="numeric"
+          min="1"
+          max="20"
+          step="1"
+          label="સુધી"
+          value={to}
+          onChange={(event) => {
+            setTo(event.target.value);
+            clearResult();
+          }}
+        />
       </div>
-      {error && <p className="text-sm font-medium text-red-600" role="alert">{error}</p>}
+      {error && (
+        <p className="text-sm font-medium text-red-600" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="button" className="w-full sm:w-auto" onClick={calculate}>પાડો બનાવો</Button>
-        <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={() => { setNumber(""); setFrom("1"); setTo("10"); clearResult(); }}><RotateCcw size={16} aria-hidden="true" /> ફરીથી શરૂ કરો</Button>
+        <Button type="button" className="w-full sm:w-auto" onClick={calculate}>
+          પાડો બનાવો
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full sm:w-auto"
+          onClick={() => {
+            setNumber("");
+            setFrom("1");
+            setTo("10");
+            clearResult();
+          }}
+        >
+          <RotateCcw size={16} aria-hidden="true" /> ફરીથી શરૂ કરો
+        </Button>
       </div>
       {rows.length > 0 && (
         <ToolResult>
           <ol className="grid gap-1.5 font-semibold sm:grid-cols-2" aria-label="ગુણાકારનો પાડો">
-            {rows.map((row) => <li key={row.multiplier}>{number} × {row.multiplier} = {row.product}</li>)}
+            {rows.map((row) => (
+              <li key={row.multiplier}>
+                {number} × {row.multiplier} = {row.product}
+              </li>
+            ))}
           </ol>
         </ToolResult>
       )}

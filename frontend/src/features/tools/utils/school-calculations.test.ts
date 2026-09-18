@@ -8,7 +8,10 @@ import {
 
 describe("school calculations", () => {
   it("calculates attendance and formats decimal percentages", () => {
-    expect(calculateAttendance(220, 205)).toEqual({ absentDays: 15, percentage: 93.18181818181817 });
+    expect(calculateAttendance(220, 205)).toEqual({
+      absentDays: 15,
+      percentage: 93.18181818181817,
+    });
     expect(formatPercentage(calculateAttendance(220, 205)?.percentage ?? 0)).toBe("93.18%");
     expect(calculateAttendance(10, 10)).toMatchObject({ percentage: 100 });
     expect(calculateAttendance(10, 0)).toMatchObject({ percentage: 0 });
@@ -34,6 +37,11 @@ describe("school calculations", () => {
         { obtained: 40, maximum: 50 },
         { obtained: 30, maximum: 40 },
       ]),
-    ).toEqual({ totalObtained: 70, totalMaximum: 90, overallPercentage: 77.77777777777779, averagePercentage: 77.5 });
+    ).toEqual({
+      totalObtained: 70,
+      totalMaximum: 90,
+      overallPercentage: 77.77777777777779,
+      averagePercentage: 77.5,
+    });
   });
 });

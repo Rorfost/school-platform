@@ -19,7 +19,10 @@ export interface MultiSubjectMarksResult {
   averagePercentage: number;
 }
 
-export function calculateAttendance(workingDays: number, presentDays: number): AttendanceResult | null {
+export function calculateAttendance(
+  workingDays: number,
+  presentDays: number,
+): AttendanceResult | null {
   if (
     !Number.isInteger(workingDays) ||
     !Number.isInteger(presentDays) ||
@@ -67,7 +70,8 @@ export function calculateMultiSubjectMarks(
     totalMaximum,
     overallPercentage: overall.percentage,
     averagePercentage:
-      percentages.reduce((total, result) => total + (result?.percentage ?? 0), 0) / percentages.length,
+      percentages.reduce((total, result) => total + (result?.percentage ?? 0), 0) /
+      percentages.length,
   };
 }
 

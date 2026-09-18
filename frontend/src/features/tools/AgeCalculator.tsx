@@ -72,7 +72,11 @@ export function AgeCalculator() {
   }
 
   return (
-    <ToolCard title="ઉંમર ગણતરી" description="પ્રવેશ અને શાળાના રેકોર્ડ માટે ચોક્કસ ઉંમર જાણો." icon={CalendarDays}>
+    <ToolCard
+      title="ઉંમર ગણતરી"
+      description="પ્રવેશ અને શાળાના રેકોર્ડ માટે ચોક્કસ ઉંમર જાણો."
+      icon={CalendarDays}
+    >
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
           type="date"
@@ -95,19 +99,49 @@ export function AgeCalculator() {
         />
       </div>
       <div className="flex flex-wrap gap-2" aria-label="ઝડપી તારીખ પસંદગી">
-        <Button type="button" size="sm" variant="outline" onClick={() => { setAsOnDate(todayCalendarDate()); clearResult(); }}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setAsOnDate(todayCalendarDate());
+            clearResult();
+          }}
+        >
           આજની તારીખ
         </Button>
-        <Button type="button" size="sm" variant="outline" onClick={() => { setAsOnDate(cutoffDate(5, 31)); clearResult(); }}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setAsOnDate(cutoffDate(5, 31));
+            clearResult();
+          }}
+        >
           31 મે
         </Button>
-        <Button type="button" size="sm" variant="outline" onClick={() => { setAsOnDate(cutoffDate(6, 1)); clearResult(); }}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setAsOnDate(cutoffDate(6, 1));
+            clearResult();
+          }}
+        >
           1 જૂન
         </Button>
       </div>
-      {error && dateOfBirth && <p className="text-sm font-medium text-red-600" role="alert">{error}</p>}
+      {error && dateOfBirth && (
+        <p className="text-sm font-medium text-red-600" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="button" className="w-full sm:w-auto" onClick={calculate}>ગણતરી કરો</Button>
+        <Button type="button" className="w-full sm:w-auto" onClick={calculate}>
+          ગણતરી કરો
+        </Button>
         <Button
           type="button"
           variant="outline"
@@ -125,15 +159,35 @@ export function AgeCalculator() {
         <ToolResult>
           <p className="font-bold">ઉંમર</p>
           <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-md bg-white p-2"><dt className="text-xs text-slate-600">વર્ષ</dt><dd className="mt-1 text-lg font-bold">{result.years}</dd></div>
-            <div className="rounded-md bg-white p-2"><dt className="text-xs text-slate-600">મહિના</dt><dd className="mt-1 text-lg font-bold">{result.months}</dd></div>
-            <div className="rounded-md bg-white p-2"><dt className="text-xs text-slate-600">દિવસ</dt><dd className="mt-1 text-lg font-bold">{result.days}</dd></div>
+            <div className="rounded-md bg-white p-2">
+              <dt className="text-xs text-slate-600">વર્ષ</dt>
+              <dd className="mt-1 text-lg font-bold">{result.years}</dd>
+            </div>
+            <div className="rounded-md bg-white p-2">
+              <dt className="text-xs text-slate-600">મહિના</dt>
+              <dd className="mt-1 text-lg font-bold">{result.months}</dd>
+            </div>
+            <div className="rounded-md bg-white p-2">
+              <dt className="text-xs text-slate-600">દિવસ</dt>
+              <dd className="mt-1 text-lg font-bold">{result.days}</dd>
+            </div>
           </dl>
-          <p className="mt-3">કુલ મહિના: <strong>{result.totalMonths}</strong> · કુલ દિવસ: <strong>{result.totalDays}</strong></p>
-          <p className="mt-1 text-xs text-slate-600">પસંદ કરેલી તારીખનો દિવસ: {getDayOfWeek(asOnDate)}</p>
+          <p className="mt-3">
+            કુલ મહિના: <strong>{result.totalMonths}</strong> · કુલ દિવસ:{" "}
+            <strong>{result.totalDays}</strong>
+          </p>
+          <p className="mt-1 text-xs text-slate-600">
+            પસંદ કરેલી તારીખનો દિવસ: {getDayOfWeek(asOnDate)}
+          </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Button type="button" size="sm" variant="outline" onClick={copyResult}><Copy size={15} aria-hidden="true" /> પરિણામ કૉપી કરો</Button>
-            {copyMessage && <span className="text-xs font-medium text-slate-700" role="status">{copyMessage}</span>}
+            <Button type="button" size="sm" variant="outline" onClick={copyResult}>
+              <Copy size={15} aria-hidden="true" /> પરિણામ કૉપી કરો
+            </Button>
+            {copyMessage && (
+              <span className="text-xs font-medium text-slate-700" role="status">
+                {copyMessage}
+              </span>
+            )}
           </div>
         </ToolResult>
       )}

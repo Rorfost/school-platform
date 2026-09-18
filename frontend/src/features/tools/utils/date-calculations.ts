@@ -86,7 +86,7 @@ function addYearsClamped(date: CalendarDate, years: number): CalendarDate {
 function addMonthsClamped(date: CalendarDate, months: number): CalendarDate {
   const monthIndex = date.month - 1 + months;
   const year = date.year + Math.floor(monthIndex / 12);
-  const month = ((monthIndex % 12) + 12) % 12 + 1;
+  const month = (((monthIndex % 12) + 12) % 12) + 1;
   return createClampedDate(year, month, date.day);
 }
 
