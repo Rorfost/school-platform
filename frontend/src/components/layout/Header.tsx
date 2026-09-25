@@ -20,52 +20,68 @@ export interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps = {}) {
   const school = useEffectiveSchoolInfo();
 
+  const estText = school.establishedYear
+    ? `${LABELS.estLabel}: ${toGujaratiNumber(school.establishedYear)}`
+    : "";
+  const diseText = school.schoolCode
+    ? `${LABELS.diseLabel}: ${toGujaratiNumber(school.schoolCode)}`
+    : "";
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-sm">
-      <div className="flex min-h-[64px] items-center gap-3 px-4 sm:px-5">
+      <div className="flex min-h-[64px] items-center justify-between gap-3 px-3 py-2 sm:px-6">
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          onClick={onMenuClick}
-          aria-label="મેનૂ ખોલો"
-          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
-        >
-          <Menu size={22} aria-hidden="true" />
-        </button>
+        {/* Left Side: Mobile Hamburger + Logo + School Info */}
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3.5">
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={onMenuClick}
+            aria-label="મેનૂ ખોલો"
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
+          >
+            <Menu size={22} aria-hidden="true" />
+          </button>
 
-        {/* Logo + school info — appears once only */}
-        <Link
-          to="/"
-          className="flex flex-1 min-w-0 items-center gap-2.5 sm:gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
-        >
-          <img
-            src={school.logoUrl ?? schoolLogo}
-            onError={(e) => {
-              e.currentTarget.onerror = null;
-              e.currentTarget.src = schoolLogo;
-            }}
-            alt="શાળા લોગો"
-            className="size-9 sm:size-11 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
-          />
+          <Link
+            to="/"
+            className="flex min-w-0 items-center gap-2.5 sm:gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+          >
+            <img
+              src={school.logoUrl ?? schoolLogo}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = schoolLogo;
+              }}
+              alt="શાળા લોગો"
+              className="size-10 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
+            />
 
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-xs font-bold leading-snug text-slate-900 sm:text-base lg:text-lg">
-              {school.name}
-            </span>
-            <span className="truncate text-[10px] text-slate-500 sm:text-xs">
-              તા. સમી, જિ. પાટણ
-              <span className="hidden sm:inline">
-                {school.establishedYear
-                  ? ` · ${LABELS.estLabel}: ${toGujaratiNumber(school.establishedYear)}`
-                  : ""}
-                {school.schoolCode
-                  ? ` · ${LABELS.diseLabel}: ${toGujaratiNumber(school.schoolCode)}`
-                  : ""}
+            <div className="flex min-w-0 flex-col leading-tight">
+              {/* Line 1: School Name */}
+              <span className="truncate text-xs font-bold text-slate-900 sm:text-base lg:text-lg">
+                {school.name}
               </span>
-            </span>
-          </div>
-        </Link>
+
+              {/* Line 2: Location */}
+              <span className="truncate text-[10px] font-medium text-slate-600 sm:text-xs">
+                મુ. પો. ધાણા, તા. સમી, જિ. પાટણ
+              </span>
+
+              {/* Line 3 (Mobile only): EST Year & DISE Code */}
+              <span className="truncate text-[9px] text-slate-500 font-medium sm:hidden">
+                {[estText, diseText].filter(Boolean).join(" · ")}
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Right Side (Laptop/Desktop view): 2 lines for EST Year & DISE Code */}
+        <div className="hidden sm:flex shrink-0 flex-col text-right text-xs text-slate-500 font-medium leading-snug border-l border-slate-200 pl-4">
+          {estText && <span>{estText}</span>}
+          {diseText && <span>{diseText}</span>}
+        </div>
+
       </div>
     </header>
   );
