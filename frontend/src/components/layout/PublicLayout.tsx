@@ -244,8 +244,10 @@ export function PublicLayout() {
       {/* Body: sidebar + content, together */}
       <div className="flex flex-1">
         {/* Desktop sidebar */}
-        <aside className="hidden w-56 shrink-0 sticky top-16 self-start max-h-[calc(100dvh-64px)] overflow-y-auto border-r border-slate-200 bg-white lg:block xl:w-64">
-          <PublicSidebar />
+        <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-64">
+          <div className="sticky top-16 max-h-[calc(100dvh-64px)] overflow-y-auto">
+            <PublicSidebar />
+          </div>
         </aside>
 
         {/* Main scrollable content */}
