@@ -66,21 +66,21 @@ export function HomePage() {
     <div className="space-y-8 sm:space-y-12">
       {/* Student Quick Access Section */}
       <section aria-labelledby="student-corner-heading">
-        <div className="flex items-center justify-between gap-4 mb-5">
-          <div>
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4">
+          <div className="min-w-0 flex-1">
             <h2
               id="student-corner-heading"
-              className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900"
+              className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 truncate"
             >
               {LABELS.studentCorner}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">
               વિદ્યાર્થીઓ અને વાલીઓ માટે જરૂરી વિભાગો
             </p>
           </div>
           <Link
             to="/student"
-            className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
+            className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
           >
             <span>બધું જુઓ</span>
             <ArrowRight size={15} aria-hidden="true" />
@@ -128,19 +128,19 @@ export function HomePage() {
 
       {/* Notice Board Preview */}
       <section aria-labelledby="notices-heading">
-        <div className="flex items-center justify-between gap-4 mb-5">
-          <div>
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4">
+          <div className="min-w-0 flex-1">
             <h2
               id="notices-heading"
-              className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900"
+              className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900 truncate"
             >
               {LABELS.notices}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">શાળાની તાજેતરની જાહેરાતો</p>
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">શાળાની તાજેતરની જાહેરાતો</p>
           </div>
           <Link
             to="/notices"
-            className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
+            className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
           >
             <span>તમામ સૂચનાઓ</span>
             <ArrowRight size={15} aria-hidden="true" />

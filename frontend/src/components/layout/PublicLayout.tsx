@@ -242,7 +242,7 @@ export function PublicLayout() {
       <Header onMenuClick={() => setDrawerOpen(true)} />
 
       {/* Body: sidebar + content, together */}
-      <div className="flex flex-1">
+      <div className="flex w-full max-w-full min-w-0 flex-1">
         {/* Desktop sidebar */}
         <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-64">
           <div className="sticky top-16 max-h-[calc(100dvh-64px)] overflow-y-auto">
@@ -254,9 +254,9 @@ export function PublicLayout() {
         <main
           id="main-content"
           tabIndex={-1}
-          className="min-w-0 flex-1 focus:outline-none"
+          className="w-full max-w-full min-w-0 flex-1 focus:outline-none overflow-x-hidden"
         >
-          <div className="w-full px-4 py-6 sm:px-6 sm:py-8 pb-24 lg:pb-10">
+          <div className="w-full max-w-full px-3.5 py-5 sm:px-6 sm:py-8 pb-24 lg:pb-10">
             <Outlet />
           </div>
         </main>
