@@ -249,8 +249,8 @@ export function PublicLayout() {
 
       {/* Sidebar + content row — fills available height, scrolls internally */}
       <div className="flex flex-1">
-        {/* Desktop sidebar: fixed width, full height, sticky */}
-        <aside className="hidden w-60 shrink-0 sticky top-[var(--header-h,64px)] self-start max-h-[calc(100dvh-var(--header-h,64px))] overflow-y-auto border-r border-slate-200 bg-white px-3 py-5 lg:block xl:w-72">
+        {/* Desktop sidebar: matches header logo zone widths exactly */}
+        <aside className="hidden w-60 shrink-0 sticky top-16 self-start max-h-[calc(100dvh-64px)] overflow-y-auto border-r border-slate-200 bg-white px-3 py-5 lg:block xl:w-72">
           <PublicSidebar />
         </aside>
 
@@ -260,8 +260,8 @@ export function PublicLayout() {
           tabIndex={-1}
           className="min-w-0 flex-1 focus:outline-none"
         >
-          {/* Inner content area — constrained width on huge screens for readability */}
-          <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8 pb-24 lg:pb-8">
+          {/* Inner content — full width, generous padding */}
+          <div className="w-full px-4 py-6 sm:px-6 sm:py-8 pb-24 lg:pb-8">
             <Outlet />
           </div>
         </main>

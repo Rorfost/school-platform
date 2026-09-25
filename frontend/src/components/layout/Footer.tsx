@@ -18,7 +18,6 @@ export function Footer() {
       ? apiRequest<VisitResponse>("/api/v1/public/visits")
       : apiRequest<VisitResponse>("/api/v1/public/visits", { method: "POST", skipCsrf: true });
 
-    // sessionStorage is deliberately scoped to a browsing session: this counts visits, not people.
     void request
       .then((response) => {
         if (!counted) window.sessionStorage.setItem(marker, "1");
@@ -29,79 +28,114 @@ export function Footer() {
 
   return (
     <footer className="w-full border-t border-slate-200 bg-white text-slate-700">
-      <div className="mx-auto w-full max-w-screen-xl px-4 py-8 sm:px-6 lg:px-10 sm:py-10">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* School Brand & Motto */}
-          <div>
-            <div className="flex items-center gap-3">
-              <img
-                src={school.logoUrl ?? schoolLogo}
-                onError={(event) => {
-                  event.currentTarget.onerror = null;
-                  event.currentTarget.src = schoolLogo;
-                }}
-                alt="શાળા લોગો"
-                className="size-11 rounded-full object-contain border border-blue-100"
-              />
-              <div>
-                <h3 className="text-base font-bold text-slate-900 leading-tight">{school.name}</h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  {LABELS.estLabel}: {toGujaratiNumber(school.establishedYear)}
+      {/*
+        Two-zone layout on desktop to mirror the header + sidebar:
+          LEFT  — same width as sidebar (w-60 / xl:w-72) + border-r — school brand
+          RIGHT — contact info, links, copyright
+        On mobile: single column.
+      */}
+      <div className="flex flex-col lg:flex-row">
+
+        {/* ── SIDEBAR-ALIGNED BRAND ZONE ── */}
+        <div className="flex w-full shrink-0 flex-col gap-3 border-b border-slate-100 px-5 py-6 lg:w-60 lg:border-b-0 lg:border-r lg:border-slate-200 xl:w-72">
+          <div className="flex items-center gap-3">
+            <img
+              src={school.logoUrl ?? schoolLogo}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = schoolLogo;
+              }}
+              alt="શાળા લોગો"
+              className="size-12 rounded-full border-2 border-blue-100 object-contain shadow-sm shrink-0"
+            />
+            <div>
+              <h3 className="text-sm font-bold leading-snug text-slate-900">{school.name}</h3>
+              <p className="mt-0.5 text-[11px] text-slate-500 font-medium">
+                {LABELS.estLabel}: {toGujaratiNumber(school.establishedYear || "")}
+              </p>
+            </div>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન.
+          </p>
+          <p className="text-xs font-bold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p>
+        </div>
+
+        {/* ── MAIN FOOTER CONTENT ZONE ── */}
+        <div className="flex flex-1 flex-col justify-between px-5 py-6 sm:px-7">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* Contact */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-slate-900">{LABELS.contact}</h4>
+              <div className="space-y-2 text-xs text-slate-600">
+                {school.address && (
+                  <div className="flex items-start gap-2">
+                    <MapPin size={14} className="mt-0.5 shrink-0 text-blue-800" aria-hidden="true" />
+                    <span>{school.address}</span>
+                  </div>
+                )}
+                {school.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
+                    <a
+                      href={`mailto:${school.email}`}
+                      className="hover:text-blue-900 transition-colors break-all"
+                    >
+                      {school.email}
+                    </a>
+                  </div>
+                )}
+                <p className="text-slate-400">
+                  {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode || "")}
                 </p>
               </div>
             </div>
-            <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-              પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન.
-            </p>
-            <div className="mt-3 text-xs font-semibold text-blue-900">
-              ॥ સા વિદ્યા યા વિમુક્તયે ॥
+
+            {/* Quick links */}
+            <div>
+              <h4 className="mb-3 text-sm font-semibold text-slate-900">ઝડપી લિંક</h4>
+              <ul className="space-y-1.5 text-xs text-slate-600">
+                {[
+                  { to: "/notices", label: LABELS.notices },
+                  { to: "/gallery", label: LABELS.gallery },
+                  { to: "/student/materials", label: LABELS.materials },
+                  { to: "/student/results", label: LABELS.results },
+                  { to: "/contact", label: LABELS.contact },
+                ].map((link) => (
+                  <li key={link.to}>
+                    <Link
+                      to={link.to}
+                      className="hover:text-blue-900 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          {/* Contact Details */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-900 mb-3">{LABELS.contact}</h4>
-            <div className="space-y-2.5 text-xs sm:text-sm text-slate-600">
-              <div className="flex items-start gap-2">
-                <MapPin size={16} className="mt-0.5 shrink-0 text-blue-900" aria-hidden="true" />
-                <span>{school.address}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail size={16} className="shrink-0 text-blue-900" aria-hidden="true" />
-                <a
-                  href={`mailto:${school.email}`}
-                  className="hover:text-blue-900 transition-colors break-all"
-                >
-                  {school.email}
-                </a>
-              </div>
-              <div className="pt-2 text-xs text-slate-500">
-                {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode)}
-              </div>
+          {/* Bottom strip */}
+          <div className="mt-6 flex flex-col gap-2 border-t border-slate-100 pt-4 text-[11px] text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-0.5">
+              <p>© 2026 Rakesh Patel, Principal — PM SHRI Dhadhana Primary School</p>
+              <p>Built and maintained by Raj Patel | Rorfost</p>
+            </div>
+            <div className="flex items-center gap-4">
+              {visits !== null && (
+                <span>Visits: {visits.toLocaleString("en-IN")}</span>
+              )}
+              <Link
+                to="/admin/login"
+                className="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                <Lock size={11} aria-hidden="true" />
+                <span>Admin</span>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Bottom Strip */}
-        <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-5 text-xs text-slate-500 sm:flex-row">
-          <div className="space-y-1 text-center sm:text-left">
-            <p className="text-slate-500">
-              © 2026 Rakesh Patel, Principal at PM SHRI Dhadhana Primary School. All rights
-              reserved.
-            </p>
-            <p className="text-slate-500">Built and maintained by Raj Patel | Rorfost</p>
-          </div>
-          <div className="flex items-center gap-4">
-            {visits !== null && <span>Visits: {visits.toLocaleString("en-IN")}</span>}
-            <Link
-              to="/admin/login"
-              className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors"
-            >
-              <Lock size={12} aria-hidden="true" />
-              <span>Admin Login</span>
-            </Link>
-          </div>
-        </div>
       </div>
     </footer>
   );
