@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse } from "@/api/types";
@@ -14,11 +13,7 @@ export function ExamResultViewer({
   schoolName: string;
   logoUrl?: string | null;
 }) {
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   return (
     <div className="space-y-4">
@@ -29,7 +24,7 @@ export function ExamResultViewer({
       </div>
 
       <div
-        ref={printRef}
+        id="exam-result-print"
         className="mx-auto bg-white p-2 sm:p-4 text-black print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
         style={{ maxWidth: "210mm" }}
       >
@@ -153,40 +148,19 @@ export function ExamResultViewer({
       </div>
       <style>{`
         @media print {
-          body * {
-            visibility: hidden;
-          }
-          #main-content {
-            overflow: visible !important;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-          .print\\:block {
-            visibility: visible !important;
-          }
-          .print\\:p-0 {
-            padding: 0 !important;
-          }
-          .print\\:m-0 {
-            margin: 0 !important;
-          }
-          .print\\:w-full {
-            width: 100% !important;
+          body > *:not(#print-root) { display: none !important; }
+          #exam-result-print {
+            position: fixed !important;
+            inset: 0 !important;
             max-width: 100% !important;
-          }
-          .print\\:shadow-none {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 8px !important;
+            background: white !important;
             box-shadow: none !important;
+            z-index: 9999;
           }
-          .mx-auto.bg-white {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          .mx-auto.bg-white, .mx-auto.bg-white * {
-            visibility: visible;
-          }
+          .print-hide { display: none !important; }
         }
       `}</style>
     </div>

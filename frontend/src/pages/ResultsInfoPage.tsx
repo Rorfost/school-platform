@@ -43,7 +43,7 @@ export function ResultsInfoPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="પરિણામ" description="પરીક્ષા પરિણામ ડાઉનલોડ કરો" />
+      <PageHeader title="પરીક્ષા પરિણામ" description="ધોરણ અને રોલ નંબર દ્વારા વાર્ષિક પરીક્ષાનું પરિણામ જુઓ" />
       
       {!result && (
         <Card className="mx-auto max-w-lg p-6">

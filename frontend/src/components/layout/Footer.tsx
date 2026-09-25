@@ -35,7 +35,7 @@ export function Footer() {
 
           {/* Brand */}
           <div className="flex flex-col gap-4 md:max-w-xs">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="size-14 shrink-0 overflow-hidden rounded-full border-2 border-white/20 bg-white/10">
                 <img
                   src={school.logoUrl ?? schoolLogo}
