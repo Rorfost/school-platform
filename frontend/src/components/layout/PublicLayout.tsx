@@ -193,7 +193,7 @@ export function PublicLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-dvh w-full max-w-full flex-col overflow-x-hidden bg-slate-50 text-slate-900">
+    <div className="flex h-dvh w-full max-w-full flex-col overflow-hidden bg-slate-50 text-slate-900">
       <SkipToContent targetId="main-content" />
 
       {/* Fixed top header */}
@@ -201,17 +201,15 @@ export function PublicLayout() {
       {/* Spacer so content starts below fixed header */}
       <div className="h-[68px] sm:h-[76px] shrink-0" aria-hidden="true" />
 
-      {/* Body: sidebar + content, together */}
-      <div className="flex w-full max-w-full min-w-0 flex-1">
-        {/* Desktop sidebar - locked to viewport height */}
-        <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-64">
-          <div className="sticky top-[76px] h-[calc(100dvh-76px)] overflow-y-auto">
-            <PublicSidebar />
-          </div>
+      {/* Body: sidebar + main content panel */}
+      <div className="flex min-h-0 w-full max-w-full flex-1 overflow-hidden">
+        {/* Desktop sidebar - fixed panel */}
+        <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white overflow-y-auto lg:block xl:w-64">
+          <PublicSidebar />
         </aside>
 
-        {/* Main scrollable content column + Footer */}
-        <div className="flex min-w-0 flex-1 flex-col justify-between overflow-x-hidden">
+        {/* Main scrollable content panel */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between overflow-y-auto overflow-x-hidden">
           <main
             id="main-content"
             tabIndex={-1}
@@ -222,7 +220,7 @@ export function PublicLayout() {
             </div>
           </main>
 
-          {/* Footer aligned with main content column */}
+          {/* Footer inside main scroll panel */}
           <Footer />
         </div>
       </div>
