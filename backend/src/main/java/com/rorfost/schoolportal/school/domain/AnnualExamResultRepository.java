@@ -18,7 +18,9 @@ public interface AnnualExamResultRepository extends JpaRepository<AnnualExamResu
   List<AnnualExamResult> findBySchoolIdAndAcademicYearId(UUID schoolId, UUID academicYearId);
 
   @Modifying
-  @Query("DELETE FROM AnnualExamResult r WHERE r.schoolId = :schoolId AND r.academicYearId = :academicYearId")
+  @Query(
+      "DELETE FROM AnnualExamResult r WHERE r.schoolId = :schoolId AND r.academicYearId ="
+          + " :academicYearId")
   void deleteBySchoolIdAndAcademicYearId(
       @Param("schoolId") UUID schoolId, @Param("academicYearId") UUID academicYearId);
 }

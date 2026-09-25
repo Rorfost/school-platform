@@ -11,8 +11,6 @@ export function Footer() {
   const school = useEffectiveSchoolInfo();
   const [visits, setVisits] = useState<number | null>(null);
 
-
-
   useEffect(() => {
     const marker = "school-portal-visit-counted";
     const counted = window.sessionStorage.getItem(marker);
