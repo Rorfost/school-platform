@@ -4,6 +4,7 @@ import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const NAV_LINKS = [
   { to: "/", label: LABELS.home },
   { to: "/about", label: LABELS.about },
@@ -30,14 +31,13 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
   return (
     <header className="fixed top-0 inset-x-0 z-40 w-full border-b border-slate-200 bg-white/95 shadow-xs backdrop-blur-sm">
       <div className="flex min-h-[64px] sm:min-h-[72px] items-center justify-between gap-3 px-3.5 py-2 sm:px-6">
-
         {/* Left Side: Mobile Hamburger + Logo + School Info */}
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3.5 overflow-hidden">
           {/* Mobile hamburger */}
           <button
             type="button"
             onClick={onMenuClick}
-            aria-label="મેનૂ ખોલો"
+            aria-label="મુખ્ય મેનૂ ખોલો"
             className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
           >
             <Menu size={22} aria-hidden="true" />
@@ -81,7 +81,6 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
           {estText && <span>{estText}</span>}
           {diseText && <span>{diseText}</span>}
         </div>
-
       </div>
     </header>
   );

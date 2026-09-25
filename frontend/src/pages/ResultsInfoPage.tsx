@@ -27,7 +27,7 @@ export function ResultsInfoPage() {
 
     try {
       const data = await apiRequest<ExamResultResponse>(
-        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}`
+        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}`,
       );
       setResult(data);
     } catch (err) {
@@ -43,8 +43,11 @@ export function ResultsInfoPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="પરીક્ષા પરિણામ" description="ધોરણ અને રોલ નંબર દ્વારા વાર્ષિક પરીક્ષાનું પરિણામ જુઓ" />
-      
+      <PageHeader
+        title="પરીક્ષા પરિણામ"
+        description="ધોરણ અને રોલ નંબર દ્વારા વાર્ષિક પરીક્ષાનું પરિણામ જુઓ"
+      />
+
       {!result && (
         <Card className="mx-auto max-w-lg p-6">
           <form onSubmit={handleSearch} className="space-y-4">
@@ -68,11 +71,9 @@ export function ResultsInfoPage() {
                 />
               </div>
             </div>
-            
+
             {error && (
-              <p className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">
-                {error}
-              </p>
+              <p className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
             )}
 
             <Button
@@ -94,20 +95,12 @@ export function ResultsInfoPage() {
             <span className="font-semibold text-blue-900">
               ધોરણ: {standard} | રોલ નંબર: {rollNumber}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setResult(null)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setResult(null)}>
               બીજું પરિણામ શોધો
             </Button>
           </div>
-          
-          <ExamResultViewer 
-            result={result} 
-            schoolName={school.name} 
-            logoUrl={school.logoUrl} 
-          />
+
+          <ExamResultViewer result={result} schoolName={school.name} logoUrl={school.logoUrl} />
         </div>
       )}
     </div>

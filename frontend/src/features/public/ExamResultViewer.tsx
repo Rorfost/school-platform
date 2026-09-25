@@ -71,19 +71,31 @@ export function ExamResultViewer({
 
             <div className="grid grid-cols-[auto_1fr_auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr_80px_100px] border-b-2 border-slate-800 text-sm">
               <div className="p-1.5 px-3 font-bold border-r border-slate-800">જનરલ રજી.નંબર :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">{result.generalRegisterNumber || "-"}</div>
+              <div className="p-1.5 px-3 border-r-2 border-slate-800">
+                {result.generalRegisterNumber || "-"}
+              </div>
               <div className="p-1.5 px-3 font-bold border-r border-slate-800">જન્મ તારીખ :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800 sm:col-span-1 col-span-3 border-b-2 sm:border-b-0">{result.birthDate || "-"}</div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800 hidden sm:block">રોલ નં :</div>
+              <div className="p-1.5 px-3 border-r-2 border-slate-800 sm:col-span-1 col-span-3 border-b-2 sm:border-b-0">
+                {result.birthDate || "-"}
+              </div>
+              <div className="p-1.5 px-3 font-bold border-r border-slate-800 hidden sm:block">
+                રોલ નં :
+              </div>
               <div className="p-1.5 px-3 hidden sm:block">{result.rollNumber}</div>
             </div>
 
             <div className="grid grid-cols-[auto_1fr_auto_1fr_auto_1fr] border-b-2 border-slate-800 text-sm">
               <div className="p-1.5 px-3 font-bold border-r border-slate-800">કુલ કાર્ય દિવસ :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">{result.totalWorkingDays ?? "-"}</div>
+              <div className="p-1.5 px-3 border-r-2 border-slate-800">
+                {result.totalWorkingDays ?? "-"}
+              </div>
               <div className="p-1.5 px-3 font-bold border-r border-slate-800">માંથી હાજર દિવસ</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">{result.attendedDays ?? "-"} છે.</div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800 sm:hidden block">રોલ નં :</div>
+              <div className="p-1.5 px-3 border-r-2 border-slate-800">
+                {result.attendedDays ?? "-"} છે.
+              </div>
+              <div className="p-1.5 px-3 font-bold border-r border-slate-800 sm:hidden block">
+                રોલ નં :
+              </div>
               <div className="p-1.5 px-3 sm:hidden block">{result.rollNumber}</div>
             </div>
 
@@ -103,20 +115,37 @@ export function ExamResultViewer({
                 {result.subjects.map((sub, idx) => (
                   <tr key={sub.id}>
                     <td className="border-b border-r-2 border-slate-800 p-1.5">{idx + 1}</td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5 text-left pl-3">{sub.subjectName}</td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">{sub.maximumMarks}</td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">{sub.obtainedMarks ?? "-"}</td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">{sub.grade ?? "-"}</td>
+                    <td className="border-b border-r-2 border-slate-800 p-1.5 text-left pl-3">
+                      {sub.subjectName}
+                    </td>
+                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                      {sub.maximumMarks}
+                    </td>
+                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                      {sub.obtainedMarks ?? "-"}
+                    </td>
+                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                      {sub.grade ?? "-"}
+                    </td>
                     <td className="border-b border-slate-800 p-1.5"></td>
                   </tr>
                 ))}
                 <tr className="bg-yellow-100 border-y-2 border-slate-800 text-blue-900">
-                  <td colSpan={2} className="border-r-2 border-slate-800 p-2 text-right pr-4 font-bold">
+                  <td
+                    colSpan={2}
+                    className="border-r-2 border-slate-800 p-2 text-right pr-4 font-bold"
+                  >
                     મેળવેલ કુલ ગુણ / ગ્રેડ
                   </td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">{result.totalMarks ?? "-"}</td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">{result.obtainedMarks ?? "-"}</td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">{result.overallGrade ?? "-"}</td>
+                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                    {result.totalMarks ?? "-"}
+                  </td>
+                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                    {result.obtainedMarks ?? "-"}
+                  </td>
+                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                    {result.overallGrade ?? "-"}
+                  </td>
                   <td className="p-2 text-left pl-3 font-bold">
                     ટકા : &nbsp;&nbsp;&nbsp;{result.percentage ?? "-"} %
                   </td>
@@ -137,10 +166,12 @@ export function ExamResultViewer({
 
             <div className="bg-cyan-50 p-3 text-sm font-medium space-y-2">
               <p>
-                ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે.
+                ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા
+                રાબેતા મુજબ શરુ થશે.
               </p>
               <p className="text-center text-xs mt-2 text-slate-700">
-                80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
+                80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
+                વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
               </p>
             </div>
           </div>

@@ -130,6 +130,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         className="absolute inset-y-0 left-0 flex w-[80vw] max-w-sm flex-col bg-white shadow-2xl"
         role="dialog"
         aria-modal="true"
+        aria-label="મુખ્ય મેનૂ"
       >
         {/* Drawer header */}
         <div className="flex items-center justify-between bg-[#0d2461] px-4 py-4">
@@ -137,7 +138,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           <button
             onClick={onClose}
             className="flex size-9 items-center justify-center rounded-lg text-white/70 hover:bg-white/10"
-            aria-label="બંધ"
+            aria-label="મેનૂ બંધ કરો"
           >
             <X size={20} />
           </button>
@@ -153,9 +154,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                   onClick={onClose}
                   className={({ isActive }) =>
                     `flex min-h-[48px] items-center gap-3.5 rounded-xl px-4 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-[#0d2461] text-white"
-                        : "text-slate-700 hover:bg-slate-100"
+                      isActive ? "bg-[#0d2461] text-white" : "text-slate-700 hover:bg-slate-100"
                     }`
                   }
                 >
@@ -182,14 +181,11 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 // ── Public Layout ──────────────────────────────────────────────────────────────
 export function PublicLayout() {
   const location = useLocation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpenPath, setDrawerOpenPath] = useState<string | null>(null);
+  const drawerOpen = drawerOpenPath === location.pathname;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
-  }, [location.pathname]);
-
-  useEffect(() => {
-    setDrawerOpen(false);
   }, [location.pathname]);
 
   return (
@@ -197,7 +193,7 @@ export function PublicLayout() {
       <SkipToContent targetId="main-content" />
 
       {/* Fixed top header */}
-      <Header onMenuClick={() => setDrawerOpen(true)} />
+      <Header onMenuClick={() => setDrawerOpenPath(location.pathname)} />
       {/* Spacer so content starts below fixed header */}
       <div className="h-[68px] sm:h-[76px] shrink-0" aria-hidden="true" />
 
@@ -226,7 +222,7 @@ export function PublicLayout() {
       </div>
 
       {/* Mobile nav elements */}
-      <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpenPath(null)} />
     </div>
   );
 }

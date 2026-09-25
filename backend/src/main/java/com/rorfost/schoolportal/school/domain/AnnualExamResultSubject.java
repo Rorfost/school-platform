@@ -39,22 +39,75 @@ public class AnnualExamResultSubject {
   private Instant updatedAt;
 
   // Getters and Setters
-  public UUID getId() { return id; }
-  public void setId(UUID id) { this.id = id; }
-  public AnnualExamResult getExamResult() { return examResult; }
-  public void setExamResult(AnnualExamResult examResult) { this.examResult = examResult; }
-  public String getSubjectName() { return subjectName; }
-  public void setSubjectName(String subjectName) { this.subjectName = subjectName; }
-  public Integer getMaximumMarks() { return maximumMarks; }
-  public void setMaximumMarks(Integer maximumMarks) { this.maximumMarks = maximumMarks; }
-  public Integer getObtainedMarks() { return obtainedMarks; }
-  public void setObtainedMarks(Integer obtainedMarks) { this.obtainedMarks = obtainedMarks; }
-  public String getGrade() { return grade; }
-  public void setGrade(String grade) { this.grade = grade; }
-  public Integer getSortOrder() { return sortOrder; }
-  public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
-  public Instant getCreatedAt() { return createdAt; }
-  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-  public Instant getUpdatedAt() { return updatedAt; }
-  public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+  public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public AnnualExamResult getExamResult() {
+    return examResult;
+  }
+
+  public void setExamResult(AnnualExamResult examResult) {
+    this.examResult = examResult;
+  }
+
+  public String getSubjectName() {
+    return subjectName;
+  }
+
+  public void setSubjectName(String subjectName) {
+    this.subjectName = subjectName;
+  }
+
+  public Integer getMaximumMarks() {
+    return maximumMarks;
+  }
+
+  public void setMaximumMarks(Integer maximumMarks) {
+    this.maximumMarks = maximumMarks;
+  }
+
+  public Integer getObtainedMarks() {
+    return obtainedMarks;
+  }
+
+  public void setObtainedMarks(Integer obtainedMarks) {
+    this.obtainedMarks = obtainedMarks;
+  }
+
+  public String getGrade() {
+    return grade;
+  }
+
+  public void setGrade(String grade) {
+    this.grade = grade;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 }

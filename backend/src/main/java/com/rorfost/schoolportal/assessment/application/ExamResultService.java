@@ -1,24 +1,24 @@
 package com.rorfost.schoolportal.assessment.application;
 
+import com.rorfost.schoolportal.academic.domain.AcademicYear;
+import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
+import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
 import com.rorfost.schoolportal.assessment.api.ExamResultResponse;
 import com.rorfost.schoolportal.assessment.api.ExamResultSubjectResponse;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultSubject;
-import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
-import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import com.rorfost.schoolportal.school.domain.School;
-import com.rorfost.schoolportal.academic.domain.AcademicYear;
-import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
+import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -38,15 +38,17 @@ public class ExamResultService {
   }
 
   private School getSchool() {
-      return schoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()
-          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "School not found"));
+    return schoolRepository
+        .findFirstByIsActiveTrueOrderByCreatedAtAsc()
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "School not found"));
   }
 
   private AcademicYear getAcademicYear(UUID schoolId) {
-      return academicYearRepository.findBySchoolIdOrderByStartsOnDesc(schoolId).stream()
-          .filter(y -> y.getStatus() == AcademicYearStatus.CURRENT)
-          .findFirst()
-          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Academic year not found"));
+    return academicYearRepository.findBySchoolIdOrderByStartsOnDesc(schoolId).stream()
+        .filter(y -> y.getStatus() == AcademicYearStatus.CURRENT)
+        .findFirst()
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Academic year not found"));
   }
 
   @Transactional(readOnly = true)
@@ -69,7 +71,7 @@ public class ExamResultService {
     resultRepository.deleteBySchoolIdAndAcademicYearId(school.getId(), academicYear.getId());
 
     try (InputStream is = file.getInputStream();
-         Workbook workbook = WorkbookFactory.create(is)) {
+        Workbook workbook = WorkbookFactory.create(is)) {
 
       Sheet sheet = workbook.getSheetAt(0);
       Map<String, Integer> standardRollCounts = new HashMap<>();
@@ -99,12 +101,13 @@ public class ExamResultService {
         result.setGeneralRegisterNumber(getCellString(row.getCell(1)));
         result.setBirthDate(getCellString(row.getCell(4)));
         result.setTotalWorkingDays(totalWorkingDays);
-        
+
         String hajar = getCellString(row.getCell(5));
         if (hajar != null && !hajar.isBlank()) {
           try {
-             result.setAttendedDays((int) Double.parseDouble(hajar));
-          } catch(Exception ignored) {}
+            result.setAttendedDays((int) Double.parseDouble(hajar));
+          } catch (Exception ignored) {
+          }
         }
 
         int totalObtained = 0;
@@ -116,38 +119,47 @@ public class ExamResultService {
         // Math
         totalMax += addSubject(result, "ગણિત", 200, row.getCell(8), row.getCell(9), sortOrder++);
         // Science
-        totalMax += addSubject(result, "વિજ્ઞાન", 200, row.getCell(10), row.getCell(11), sortOrder++);
+        totalMax +=
+            addSubject(result, "વિજ્ઞાન", 200, row.getCell(10), row.getCell(11), sortOrder++);
         // Hindi
-        totalMax += addSubject(result, "હિન્દી", 200, row.getCell(12), row.getCell(13), sortOrder++);
+        totalMax +=
+            addSubject(result, "હિન્દી", 200, row.getCell(12), row.getCell(13), sortOrder++);
         // English
-        totalMax += addSubject(result, "અંગ્રેજી", 200, row.getCell(14), row.getCell(15), sortOrder++);
+        totalMax +=
+            addSubject(result, "અંગ્રેજી", 200, row.getCell(14), row.getCell(15), sortOrder++);
         // SS
-        totalMax += addSubject(result, "સામાજીક વિજ્ઞાન", 200, row.getCell(16), row.getCell(17), sortOrder++);
+        totalMax +=
+            addSubject(
+                result, "સામાજીક વિજ્ઞાન", 200, row.getCell(16), row.getCell(17), sortOrder++);
         // Sanskrit
-        totalMax += addSubject(result, "સંસ્કૃત", 200, row.getCell(18), row.getCell(19), sortOrder++);
+        totalMax +=
+            addSubject(result, "સંસ્કૃત", 200, row.getCell(18), row.getCell(19), sortOrder++);
         // VV
-        totalMax += addSubject(result, "વ્યક્તિત્વ વિકાસ", 400, row.getCell(20), row.getCell(21), sortOrder++);
+        totalMax +=
+            addSubject(
+                result, "વ્યક્તિત્વ વિકાસ", 400, row.getCell(20), row.getCell(21), sortOrder++);
         // Paryavaran
-        totalMax += addSubject(result, "પર્યાવરણ", 200, row.getCell(22), row.getCell(23), sortOrder++);
+        totalMax +=
+            addSubject(result, "પર્યાવરણ", 200, row.getCell(22), row.getCell(23), sortOrder++);
 
         for (AnnualExamResultSubject sub : result.getSubjects()) {
-           if (sub.getObtainedMarks() != null) {
-               totalObtained += sub.getObtainedMarks();
-           }
+          if (sub.getObtainedMarks() != null) {
+            totalObtained += sub.getObtainedMarks();
+          }
         }
 
         result.setTotalMarks(totalMax);
         result.setObtainedMarks(totalObtained);
-        
+
         if (totalMax > 0) {
-            double p = (totalObtained * 100.0) / totalMax;
-            result.setPercentage(BigDecimal.valueOf(p).setScale(2, java.math.RoundingMode.HALF_UP));
-            result.setOverallGrade(calculateGrade(p));
+          double p = (totalObtained * 100.0) / totalMax;
+          result.setPercentage(BigDecimal.valueOf(p).setScale(2, java.math.RoundingMode.HALF_UP));
+          result.setOverallGrade(calculateGrade(p));
         }
 
         results.add(result);
       }
-      
+
       resultRepository.saveAll(results);
 
     } catch (Exception e) {
@@ -163,23 +175,31 @@ public class ExamResultService {
     return "E";
   }
 
-  private int addSubject(AnnualExamResult result, String name, int max, Cell marksCell, Cell gradeCell, int sortOrder) {
-      String marks = getCellString(marksCell);
-      String grade = getCellString(gradeCell);
-      if (marks == null || marks.isBlank()) return 0; // Skip subject if marks are empty (e.g. Std 3 no English)
-      
-      AnnualExamResultSubject sub = new AnnualExamResultSubject();
-      sub.setId(UUID.randomUUID());
-      sub.setSubjectName(name);
-      sub.setMaximumMarks(max);
-      sub.setSortOrder(sortOrder);
-      sub.setGrade(grade);
-      try {
-          sub.setObtainedMarks((int) Double.parseDouble(marks));
-      } catch(Exception ignored) {}
-      
-      result.addSubject(sub);
-      return max;
+  private int addSubject(
+      AnnualExamResult result,
+      String name,
+      int max,
+      Cell marksCell,
+      Cell gradeCell,
+      int sortOrder) {
+    String marks = getCellString(marksCell);
+    String grade = getCellString(gradeCell);
+    if (marks == null || marks.isBlank())
+      return 0; // Skip subject if marks are empty (e.g. Std 3 no English)
+
+    AnnualExamResultSubject sub = new AnnualExamResultSubject();
+    sub.setId(UUID.randomUUID());
+    sub.setSubjectName(name);
+    sub.setMaximumMarks(max);
+    sub.setSortOrder(sortOrder);
+    sub.setGrade(grade);
+    try {
+      sub.setObtainedMarks((int) Double.parseDouble(marks));
+    } catch (Exception ignored) {
+    }
+
+    result.addSubject(sub);
+    return max;
   }
 
   private String getCellString(Cell cell) {
@@ -189,11 +209,19 @@ public class ExamResultService {
   }
 
   private ExamResultResponse mapToResponse(AnnualExamResult entity) {
-    List<ExamResultSubjectResponse> subjects = entity.getSubjects().stream()
-        .sorted(Comparator.comparingInt(AnnualExamResultSubject::getSortOrder))
-        .map(s -> new ExamResultSubjectResponse(
-            s.getId(), s.getSubjectName(), s.getMaximumMarks(), s.getObtainedMarks(), s.getGrade(), s.getSortOrder()
-        )).collect(Collectors.toList());
+    List<ExamResultSubjectResponse> subjects =
+        entity.getSubjects().stream()
+            .sorted(Comparator.comparingInt(AnnualExamResultSubject::getSortOrder))
+            .map(
+                s ->
+                    new ExamResultSubjectResponse(
+                        s.getId(),
+                        s.getSubjectName(),
+                        s.getMaximumMarks(),
+                        s.getObtainedMarks(),
+                        s.getGrade(),
+                        s.getSortOrder()))
+            .collect(Collectors.toList());
 
     return new ExamResultResponse(
         entity.getId(),
@@ -210,7 +238,6 @@ public class ExamResultService {
         entity.getObtainedMarks(),
         entity.getPercentage(),
         entity.getOverallGrade(),
-        subjects
-    );
+        subjects);
   }
 }

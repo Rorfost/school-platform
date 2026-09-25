@@ -39,7 +39,7 @@ export function AdminExamResultsTab() {
     <div className="space-y-6">
       <Card className="p-6 max-w-2xl">
         <h2 className="text-lg font-bold text-slate-900 mb-4">વાર્ષિક પરીક્ષા પરિણામ અપલોડ કરો</h2>
-        
+
         {successMsg && (
           <div className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
             <CheckCircle2 size={18} className="text-emerald-600" />
@@ -56,7 +56,7 @@ export function AdminExamResultsTab() {
             placeholder="દા.ત. 230"
             required
           />
-          
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
               એક્સેલ ફાઈલ (Excel Sheet)

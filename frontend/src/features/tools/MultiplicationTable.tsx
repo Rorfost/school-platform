@@ -38,7 +38,7 @@ export function MultiplicationTable() {
   }
 
   return (
-    <ToolCard title="ઘડિયા" description="બાળકો માટે 1 થી 20 સુધીના ઘડિયા બનાવો." icon={Grid2X2}>
+    <ToolCard title="પાડા" description="બાળકો માટે 1 થી 20 સુધીના પાડા બનાવો." icon={Grid2X2}>
       <div className="grid gap-3 sm:grid-cols-3">
         <Input
           type="number"

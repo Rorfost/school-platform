@@ -65,40 +65,142 @@ public class AnnualExamResult {
 
   // Getters and Setters
 
-  public UUID getId() { return id; }
-  public void setId(UUID id) { this.id = id; }
-  public UUID getSchoolId() { return schoolId; }
-  public void setSchoolId(UUID schoolId) { this.schoolId = schoolId; }
-  public UUID getAcademicYearId() { return academicYearId; }
-  public void setAcademicYearId(UUID academicYearId) { this.academicYearId = academicYearId; }
-  public String getStudentName() { return studentName; }
-  public void setStudentName(String studentName) { this.studentName = studentName; }
-  public String getStandard() { return standard; }
-  public void setStandard(String standard) { this.standard = standard; }
-  public Integer getRollNumber() { return rollNumber; }
-  public void setRollNumber(Integer rollNumber) { this.rollNumber = rollNumber; }
-  public String getGeneralRegisterNumber() { return generalRegisterNumber; }
-  public void setGeneralRegisterNumber(String generalRegisterNumber) { this.generalRegisterNumber = generalRegisterNumber; }
-  public String getBirthDate() { return birthDate; }
-  public void setBirthDate(String birthDate) { this.birthDate = birthDate; }
-  public Integer getTotalWorkingDays() { return totalWorkingDays; }
-  public void setTotalWorkingDays(Integer totalWorkingDays) { this.totalWorkingDays = totalWorkingDays; }
-  public Integer getAttendedDays() { return attendedDays; }
-  public void setAttendedDays(Integer attendedDays) { this.attendedDays = attendedDays; }
-  public Integer getTotalMarks() { return totalMarks; }
-  public void setTotalMarks(Integer totalMarks) { this.totalMarks = totalMarks; }
-  public Integer getObtainedMarks() { return obtainedMarks; }
-  public void setObtainedMarks(Integer obtainedMarks) { this.obtainedMarks = obtainedMarks; }
-  public BigDecimal getPercentage() { return percentage; }
-  public void setPercentage(BigDecimal percentage) { this.percentage = percentage; }
-  public String getOverallGrade() { return overallGrade; }
-  public void setOverallGrade(String overallGrade) { this.overallGrade = overallGrade; }
-  public Instant getCreatedAt() { return createdAt; }
-  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-  public Instant getUpdatedAt() { return updatedAt; }
-  public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
-  public List<AnnualExamResultSubject> getSubjects() { return subjects; }
-  public void setSubjects(List<AnnualExamResultSubject> subjects) { this.subjects = subjects; }
+  public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public UUID getSchoolId() {
+    return schoolId;
+  }
+
+  public void setSchoolId(UUID schoolId) {
+    this.schoolId = schoolId;
+  }
+
+  public UUID getAcademicYearId() {
+    return academicYearId;
+  }
+
+  public void setAcademicYearId(UUID academicYearId) {
+    this.academicYearId = academicYearId;
+  }
+
+  public String getStudentName() {
+    return studentName;
+  }
+
+  public void setStudentName(String studentName) {
+    this.studentName = studentName;
+  }
+
+  public String getStandard() {
+    return standard;
+  }
+
+  public void setStandard(String standard) {
+    this.standard = standard;
+  }
+
+  public Integer getRollNumber() {
+    return rollNumber;
+  }
+
+  public void setRollNumber(Integer rollNumber) {
+    this.rollNumber = rollNumber;
+  }
+
+  public String getGeneralRegisterNumber() {
+    return generalRegisterNumber;
+  }
+
+  public void setGeneralRegisterNumber(String generalRegisterNumber) {
+    this.generalRegisterNumber = generalRegisterNumber;
+  }
+
+  public String getBirthDate() {
+    return birthDate;
+  }
+
+  public void setBirthDate(String birthDate) {
+    this.birthDate = birthDate;
+  }
+
+  public Integer getTotalWorkingDays() {
+    return totalWorkingDays;
+  }
+
+  public void setTotalWorkingDays(Integer totalWorkingDays) {
+    this.totalWorkingDays = totalWorkingDays;
+  }
+
+  public Integer getAttendedDays() {
+    return attendedDays;
+  }
+
+  public void setAttendedDays(Integer attendedDays) {
+    this.attendedDays = attendedDays;
+  }
+
+  public Integer getTotalMarks() {
+    return totalMarks;
+  }
+
+  public void setTotalMarks(Integer totalMarks) {
+    this.totalMarks = totalMarks;
+  }
+
+  public Integer getObtainedMarks() {
+    return obtainedMarks;
+  }
+
+  public void setObtainedMarks(Integer obtainedMarks) {
+    this.obtainedMarks = obtainedMarks;
+  }
+
+  public BigDecimal getPercentage() {
+    return percentage;
+  }
+
+  public void setPercentage(BigDecimal percentage) {
+    this.percentage = percentage;
+  }
+
+  public String getOverallGrade() {
+    return overallGrade;
+  }
+
+  public void setOverallGrade(String overallGrade) {
+    this.overallGrade = overallGrade;
+  }
+
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public List<AnnualExamResultSubject> getSubjects() {
+    return subjects;
+  }
+
+  public void setSubjects(List<AnnualExamResultSubject> subjects) {
+    this.subjects = subjects;
+  }
+
   public void addSubject(AnnualExamResultSubject subject) {
     subjects.add(subject);
     subject.setExamResult(this);
