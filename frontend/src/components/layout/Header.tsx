@@ -59,17 +59,17 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
 
             <div className="flex min-w-0 flex-1 flex-col leading-tight overflow-hidden">
               {/* Line 1: School Name */}
-              <span className="truncate text-xs sm:text-base lg:text-lg font-bold text-slate-900">
+              <span className="truncate text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug">
                 {school.name}
               </span>
 
               {/* Line 2: Location */}
-              <span className="truncate text-[10px] sm:text-xs font-semibold text-slate-600">
+              <span className="truncate text-xs sm:text-xs font-semibold text-slate-600">
                 {school.address}
               </span>
 
               {/* Line 3 (Mobile only): EST Year & DISE Code */}
-              <span className="truncate text-[9px] sm:hidden font-medium text-slate-500">
+              <span className="truncate text-[11px] sm:hidden font-medium text-slate-500">
                 {[estText, diseText].filter(Boolean).join(" · ")}
               </span>
             </div>
