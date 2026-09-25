@@ -14,75 +14,82 @@ import {
   Newspaper,
   UserCheck,
   Menu,
+  Phone,
   X,
 } from "lucide-react";
 import { LABELS } from "@/utils/gujarati";
 
+// Icons for each main nav link (matched to NAV_LINKS order)
+const NAV_ICONS = [Home, Info, UserCheck, Newspaper, Camera, Phone];
+
 // Desktop sidebar navigation
 function PublicSidebar() {
   return (
-    <nav className="flex flex-col gap-1" aria-label="મુખ્ય માર્ગદર્શન">
-      {NAV_LINKS.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.to === "/"}
-          className={({ isActive }) =>
-            `flex min-h-10 items-center rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
-              isActive
-                ? "bg-blue-700 text-white shadow-sm font-semibold"
-                : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-            }`
-          }
-        >
-          {item.label}
-        </NavLink>
-      ))}
+    <nav className="flex flex-col gap-0.5" aria-label="મુખ્ય માર્ગદર્શન">
+      {NAV_LINKS.map((item, idx) => {
+        const Icon = NAV_ICONS[idx];
+        return (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/"}
+            className={({ isActive }) =>
+              `flex min-h-10 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
+                isActive
+                  ? "bg-blue-700 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon
+                  size={17}
+                  strokeWidth={isActive ? 2.5 : 1.75}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+                <span>{item.label}</span>
+              </>
+            )}
+          </NavLink>
+        );
+      })}
 
-      <div className="mt-5 border-t border-slate-200 pt-5">
-        <p className="px-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+      <div className="mt-5 border-t border-slate-200 pt-4">
+        <p className="px-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
           {LABELS.studentCorner}
         </p>
-        <div className="flex flex-col gap-1">
-          <NavLink
-            to="/student/materials"
-            className={({ isActive }) =>
-              `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm transition-all ${
-                isActive
-                  ? "bg-blue-700 text-white font-semibold"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`
-            }
-          >
-            <BookOpen size={16} className="shrink-0" />
-            <span>{LABELS.materials}</span>
-          </NavLink>
-          <NavLink
-            to="/tools"
-            className={({ isActive }) =>
-              `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm transition-all ${
-                isActive
-                  ? "bg-blue-700 text-white font-semibold"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`
-            }
-          >
-            <Calculator size={16} className="shrink-0" />
-            <span>{LABELS.tools}</span>
-          </NavLink>
-          <NavLink
-            to="/student/results"
-            className={({ isActive }) =>
-              `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm transition-all ${
-                isActive
-                  ? "bg-blue-700 text-white font-semibold"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`
-            }
-          >
-            <GraduationCap size={16} className="shrink-0" />
-            <span>{LABELS.results}</span>
-          </NavLink>
+        <div className="flex flex-col gap-0.5">
+          {[
+            { to: "/student/materials", icon: BookOpen, label: LABELS.materials },
+            { to: "/tools", icon: Calculator, label: LABELS.tools },
+            { to: "/student/results", icon: GraduationCap, label: LABELS.results },
+          ].map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm transition-all ${
+                  isActive
+                    ? "bg-blue-700 text-white font-semibold"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    size={17}
+                    strokeWidth={isActive ? 2.5 : 1.75}
+                    className="shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>{label}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
         </div>
       </div>
     </nav>
