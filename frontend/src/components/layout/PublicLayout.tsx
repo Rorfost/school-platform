@@ -235,7 +235,7 @@ export function PublicLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-dvh flex-col bg-slate-50 text-slate-900">
+    <div className="flex min-h-dvh w-full max-w-full flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <SkipToContent targetId="main-content" />
 
       {/* Full-width sticky header */}

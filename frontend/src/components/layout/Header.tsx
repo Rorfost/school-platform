@@ -37,7 +37,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
         {/* Logo + school info — appears once only */}
         <Link
           to="/"
-          className="flex flex-1 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+          className="flex flex-1 min-w-0 items-center gap-2.5 sm:gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
         >
           <img
             src={school.logoUrl ?? schoolLogo}
@@ -46,21 +46,23 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
               e.currentTarget.src = schoolLogo;
             }}
             alt="શાળા લોગો"
-            className="size-10 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
+            className="size-9 sm:size-11 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
           />
 
           <div className="flex min-w-0 flex-col">
-            <span className="line-clamp-1 text-sm font-bold leading-snug text-slate-900 sm:text-base lg:text-lg">
+            <span className="truncate text-xs font-bold leading-snug text-slate-900 sm:text-base lg:text-lg">
               {school.name}
             </span>
-            <span className="line-clamp-1 text-[10px] text-slate-500 sm:text-xs">
+            <span className="truncate text-[10px] text-slate-500 sm:text-xs">
               તા. સમી, જિ. પાટણ
-              {school.establishedYear
-                ? ` · ${LABELS.estLabel}: ${toGujaratiNumber(school.establishedYear)}`
-                : ""}
-              {school.schoolCode
-                ? ` · ${LABELS.diseLabel}: ${toGujaratiNumber(school.schoolCode)}`
-                : ""}
+              <span className="hidden sm:inline">
+                {school.establishedYear
+                  ? ` · ${LABELS.estLabel}: ${toGujaratiNumber(school.establishedYear)}`
+                  : ""}
+                {school.schoolCode
+                  ? ` · ${LABELS.diseLabel}: ${toGujaratiNumber(school.schoolCode)}`
+                  : ""}
+              </span>
             </span>
           </div>
         </Link>

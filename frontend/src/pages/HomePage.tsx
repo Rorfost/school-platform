@@ -94,7 +94,7 @@ export function HomePage() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="group flex min-h-44 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 sm:p-5"
+                className="group flex w-full min-w-0 min-h-44 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 sm:p-5"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
