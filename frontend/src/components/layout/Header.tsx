@@ -28,8 +28,8 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
     : "";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-sm">
-      <div className="flex min-h-[64px] items-center justify-between gap-3 px-3 py-2 sm:px-6">
+    <header className="fixed top-0 inset-x-0 z-40 w-full border-b border-slate-200 bg-white/95 shadow-xs backdrop-blur-sm">
+      <div className="flex min-h-[64px] sm:min-h-[72px] items-center justify-between gap-3 px-3.5 py-2 sm:px-6">
 
         {/* Left Side: Mobile Hamburger + Logo + School Info */}
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3.5">
@@ -38,7 +38,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
             type="button"
             onClick={onMenuClick}
             aria-label="મેનૂ ખોલો"
-            className="flex size-9 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
+            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
           >
             <Menu size={22} aria-hidden="true" />
           </button>
@@ -59,17 +59,17 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
 
             <div className="flex min-w-0 flex-col leading-tight">
               {/* Line 1: School Name */}
-              <span className="truncate text-xs font-bold text-slate-900 sm:text-base lg:text-lg">
+              <span className="truncate text-sm font-bold text-slate-900 sm:text-base lg:text-lg">
                 {school.name}
               </span>
 
               {/* Line 2: Location */}
-              <span className="truncate text-[10px] font-medium text-slate-600 sm:text-xs">
+              <span className="truncate text-xs font-semibold text-slate-600 sm:text-xs">
                 મુ. પો. ધાણા, તા. સમી, જિ. પાટણ
               </span>
 
               {/* Line 3 (Mobile only): EST Year & DISE Code */}
-              <span className="truncate text-[9px] text-slate-500 font-medium sm:hidden">
+              <span className="truncate text-[11px] text-slate-500 font-medium sm:hidden">
                 {[estText, diseText].filter(Boolean).join(" · ")}
               </span>
             </div>

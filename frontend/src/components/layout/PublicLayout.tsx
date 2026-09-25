@@ -118,15 +118,15 @@ function MobileBottomNav() {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center justify-center gap-0.5 py-2 px-1 text-[10px] font-medium transition-colors min-h-[56px] ${
-                isActive ? "text-[#0d2461]" : "text-slate-400"
+              `flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 px-1 text-xs font-semibold transition-colors min-h-[56px] ${
+                isActive ? "text-[#0d2461]" : "text-slate-500"
               }`
             }
           >
             {({ isActive }) => (
               <>
                 <div className={`rounded-lg p-1 ${isActive ? "bg-blue-50" : ""}`}>
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} aria-hidden="true" />
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} aria-hidden="true" />
                 </div>
                 <span>{label}</span>
               </>
@@ -238,14 +238,16 @@ export function PublicLayout() {
     <div className="flex min-h-dvh w-full max-w-full flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <SkipToContent targetId="main-content" />
 
-      {/* Full-width sticky header */}
+      {/* Fixed top header */}
       <Header onMenuClick={() => setDrawerOpen(true)} />
+      {/* Spacer so content starts below fixed header */}
+      <div className="h-[68px] sm:h-[76px] shrink-0" aria-hidden="true" />
 
       {/* Body: sidebar + content, together */}
       <div className="flex w-full max-w-full min-w-0 flex-1">
         {/* Desktop sidebar */}
         <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-64">
-          <div className="sticky top-16 max-h-[calc(100dvh-64px)] overflow-y-auto">
+          <div className="sticky top-[76px] max-h-[calc(100dvh-76px)] overflow-y-auto">
             <PublicSidebar />
           </div>
         </aside>
