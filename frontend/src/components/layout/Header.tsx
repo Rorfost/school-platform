@@ -32,20 +32,20 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
       <div className="flex min-h-[64px] sm:min-h-[72px] items-center justify-between gap-3 px-3.5 py-2 sm:px-6">
 
         {/* Left Side: Mobile Hamburger + Logo + School Info */}
-        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3.5">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3.5 overflow-hidden">
           {/* Mobile hamburger */}
           <button
             type="button"
             onClick={onMenuClick}
             aria-label="મેનૂ ખોલો"
-            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
+            className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
           >
             <Menu size={22} aria-hidden="true" />
           </button>
 
           <Link
             to="/"
-            className="flex min-w-0 items-center gap-2.5 sm:gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+            className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
           >
             <img
               src={school.logoUrl ?? schoolLogo}
@@ -54,22 +54,22 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
                 e.currentTarget.src = schoolLogo;
               }}
               alt="શાળા લોગો"
-              className="size-10 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
+              className="size-9 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
             />
 
-            <div className="flex min-w-0 flex-col leading-tight">
+            <div className="flex min-w-0 flex-1 flex-col leading-tight overflow-hidden">
               {/* Line 1: School Name */}
-              <span className="truncate text-sm font-bold text-slate-900 sm:text-base lg:text-lg">
+              <span className="truncate text-xs sm:text-base lg:text-lg font-bold text-slate-900">
                 {school.name}
               </span>
 
               {/* Line 2: Location */}
-              <span className="truncate text-xs font-semibold text-slate-600 sm:text-xs">
+              <span className="truncate text-[10px] sm:text-xs font-semibold text-slate-600">
                 {school.address}
               </span>
 
               {/* Line 3 (Mobile only): EST Year & DISE Code */}
-              <span className="truncate text-[11px] text-slate-500 font-medium sm:hidden">
+              <span className="truncate text-[9px] sm:hidden font-medium text-slate-500">
                 {[estText, diseText].filter(Boolean).join(" · ")}
               </span>
             </div>

@@ -97,10 +97,10 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            {visits !== null && (
+            {(
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-900 border border-blue-200">
-                <Eye size={13} className="text-blue-800" aria-hidden="true" />
-                <span>Visits: {visits}</span>
+                <Eye size={12} className="text-blue-800" aria-hidden="true" />
+                <span>Visits: {(visits == null ? 0 : visits)}</span>
               </span>
             )}
             <Link
