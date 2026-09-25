@@ -65,7 +65,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
 
               {/* Line 2: Location */}
               <span className="truncate text-xs font-semibold text-slate-600 sm:text-xs">
-                મુ. પો. ધાણા, તા. સમી, જિ. પાટણ
+                મુ. પો. ધધાણા, તા. સમી, જિ. પાટણ
               </span>
 
               {/* Line 3 (Mobile only): EST Year & DISE Code */}
