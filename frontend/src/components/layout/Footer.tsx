@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { Lock, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
-import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+import { useEffectiveSchoolInfo, usePublicPrincipalProfile } from "@/features/school/useSchoolData";
 import { apiRequest } from "@/api/client";
 import type { VisitResponse } from "@/api/types";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function Footer() {
   const school = useEffectiveSchoolInfo();
+  const { data: principal } = usePublicPrincipalProfile();
   const [visits, setVisits] = useState<number | null>(null);
+
+  const principalName = principal?.fullName ? `${principal.fullName}, Principal — ` : "";
 
   useEffect(() => {
     const marker = "school-portal-visit-counted";
@@ -89,7 +92,7 @@ export function Footer() {
         {/* Bottom copyright & admin link */}
         <div className="w-full border-t border-slate-100 pt-3 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="text-center sm:text-left">
-            <p>© 2026 Rakesh Patel, Principal at PM Shri Dhadhana Primary School</p>
+            <p>© 2026 {principalName}{school.name}</p>
             <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p>
           </div>
 
