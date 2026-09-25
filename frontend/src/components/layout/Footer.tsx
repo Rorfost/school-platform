@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Lock, Mail, MapPin, Phone } from "lucide-react";
+import { Eye, Lock, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo, usePublicPrincipalProfile } from "@/features/school/useSchoolData";
@@ -90,15 +90,18 @@ export function Footer() {
         </div>
 
         {/* Bottom copyright & admin link */}
-        <div className="w-full border-t border-slate-100 pt-3 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="w-full border-t border-slate-100 pt-3 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
             <p>© 2026 {principalName}{school.name}</p>
-            <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p>
+            <p className="text-slate-400">Built & Maintained by Raj Patel | Rorfost</p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {visits !== null && (
-              <span>મુલાકાતો: {toGujaratiNumber(visits.toString())}</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-900 border border-blue-200">
+                <Eye size={13} className="text-blue-800" aria-hidden="true" />
+                <span>મુલાકાતો: {toGujaratiNumber(visits.toString())}</span>
+              </span>
             )}
             <Link
               to="/admin/login"
