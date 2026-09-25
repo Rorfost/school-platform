@@ -12,20 +12,25 @@ import {
   Info,
   Mail,
   Newspaper,
-  UserCheck,
-  Menu,
   Phone,
+  UserCheck,
   X,
 } from "lucide-react";
 import { LABELS } from "@/utils/gujarati";
 
-// Icons for each main nav link (matched to NAV_LINKS order)
+// Icon mapped to each NAV_LINKS entry by index
 const NAV_ICONS = [Home, Info, UserCheck, Newspaper, Camera, Phone];
 
-// Desktop sidebar navigation
+const STUDENT_LINKS = [
+  { to: "/student/materials", icon: BookOpen, label: LABELS.materials },
+  { to: "/tools", icon: Calculator, label: LABELS.tools },
+  { to: "/student/results", icon: GraduationCap, label: LABELS.results },
+];
+
+// Desktop sidebar
 function PublicSidebar() {
   return (
-    <nav className="flex flex-col gap-0.5" aria-label="મુખ્ય માર્ગદર્શન">
+    <nav className="flex flex-col gap-0.5 px-2 py-4" aria-label="મુખ્ય નેવ">
       {NAV_LINKS.map((item, idx) => {
         const Icon = NAV_ICONS[idx];
         return (
@@ -34,9 +39,9 @@ function PublicSidebar() {
             to={item.to}
             end={item.to === "/"}
             className={({ isActive }) =>
-              `flex min-h-10 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all ${
+              `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
                 isActive
-                  ? "bg-blue-700 text-white shadow-sm"
+                  ? "bg-[#0d2461] text-white shadow-md"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`
             }
@@ -46,7 +51,7 @@ function PublicSidebar() {
                 <Icon
                   size={17}
                   strokeWidth={isActive ? 2.5 : 1.75}
-                  className="shrink-0"
+                  className={`shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"}`}
                   aria-hidden="true"
                 />
                 <span>{item.label}</span>
@@ -56,176 +61,159 @@ function PublicSidebar() {
         );
       })}
 
-      <div className="mt-5 border-t border-slate-200 pt-4">
-        <p className="px-3.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-          {LABELS.studentCorner}
-        </p>
-        <div className="flex flex-col gap-0.5">
-          {[
-            { to: "/student/materials", icon: BookOpen, label: LABELS.materials },
-            { to: "/tools", icon: Calculator, label: LABELS.tools },
-            { to: "/student/results", icon: GraduationCap, label: LABELS.results },
-          ].map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `flex min-h-10 items-center gap-3 rounded-xl px-3.5 text-sm transition-all ${
-                  isActive
-                    ? "bg-blue-700 text-white font-semibold"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    size={17}
-                    strokeWidth={isActive ? 2.5 : 1.75}
-                    className="shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span>{label}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div>
-      </div>
+      <div className="mx-3 mt-4 border-t border-slate-200" />
+
+      <p className="px-3.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        {LABELS.studentCorner}
+      </p>
+
+      {STUDENT_LINKS.map(({ to, icon: Icon, label }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) =>
+            `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
+              isActive
+                ? "bg-[#0d2461] text-white shadow-md"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Icon
+                size={17}
+                strokeWidth={isActive ? 2.5 : 1.75}
+                className={`shrink-0 transition-colors ${isActive ? "text-yellow-400" : "text-slate-400 group-hover:text-slate-700"}`}
+                aria-hidden="true"
+              />
+              <span>{label}</span>
+            </>
+          )}
+        </NavLink>
+      ))}
     </nav>
   );
 }
 
-// Mobile bottom tab bar — thumb-friendly, replaces hamburger as primary nav for mobile
+// Mobile bottom tab bar
 const BOTTOM_TABS = [
-  { to: "/", label: LABELS.home, icon: Home, end: true },
-  { to: "/notices", label: LABELS.notices, icon: Newspaper, end: false },
-  { to: "/gallery", label: LABELS.gallery, icon: Camera, end: false },
+  { to: "/", label: "હોમ", icon: Home, end: true },
+  { to: "/notices", label: "સૂચના", icon: Newspaper, end: false },
+  { to: "/gallery", label: "ગેલેરી", icon: Camera, end: false },
   { to: "/student/results", label: "પરિણામ", icon: GraduationCap, end: false },
-  { to: "/contact", label: LABELS.contact, icon: Mail, end: false },
+  { to: "/contact", label: "સંપર્ક", icon: Phone, end: false },
 ];
 
 function MobileBottomNav() {
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-sm lg:hidden safe-area-bottom"
-      aria-label="ટેબ નેવિગેશન"
+      className="fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-sm lg:hidden"
+      aria-label="ટેબ નેવ"
     >
-      <div className="flex items-stretch">
-        {BOTTOM_TABS.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <NavLink
-              key={tab.to}
-              to={tab.to}
-              end={tab.end}
-              className={({ isActive }) =>
-                `flex flex-1 flex-col items-center justify-center gap-0.5 py-2 px-1 text-[10px] font-medium transition-colors min-h-[56px] ${
-                  isActive ? "text-blue-800" : "text-slate-500"
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <div
-                    className={`rounded-lg p-1 transition-colors ${
-                      isActive ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <Icon
-                      size={22}
-                      strokeWidth={isActive ? 2.5 : 1.75}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <span>{tab.label}</span>
-                </>
-              )}
-            </NavLink>
-          );
-        })}
+      <div className="flex">
+        {BOTTOM_TABS.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `flex flex-1 flex-col items-center justify-center gap-0.5 py-2 px-1 text-[10px] font-medium transition-colors min-h-[56px] ${
+                isActive ? "text-[#0d2461]" : "text-slate-400"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <div className={`rounded-lg p-1 ${isActive ? "bg-blue-50" : ""}`}>
+                  <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} aria-hidden="true" />
+                </div>
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
       </div>
     </nav>
   );
 }
 
-// Mobile slide-out drawer for "More" links (about, principal, etc.)
-function MobileDrawer({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+// Mobile slide-out drawer
+const DRAWER_LINKS = [
+  { to: "/", label: LABELS.home, icon: Home },
+  { to: "/about", label: LABELS.about, icon: Info },
+  { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
+  { to: "/notices", label: LABELS.notices, icon: Newspaper },
+  { to: "/gallery", label: LABELS.gallery, icon: Camera },
+  { to: "/contact", label: LABELS.contact, icon: Mail },
+  { to: "/student/materials", label: LABELS.materials, icon: BookOpen },
+  { to: "/tools", label: LABELS.tools, icon: Calculator },
+  { to: "/student/results", label: LABELS.results, icon: GraduationCap },
+];
+
+function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   useEffect(() => {
     if (!isOpen) return;
-    const handle = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", handle);
-    return () => window.removeEventListener("keydown", handle);
+    const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  const ALL_LINKS = [
-    { to: "/", label: LABELS.home, icon: Home },
-    { to: "/about", label: LABELS.about, icon: Info },
-    { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
-    { to: "/notices", label: LABELS.notices, icon: Newspaper },
-    { to: "/gallery", label: LABELS.gallery, icon: Camera },
-    { to: "/contact", label: LABELS.contact, icon: Mail },
-    { to: "/student/materials", label: LABELS.materials, icon: BookOpen },
-    { to: "/tools", label: LABELS.tools, icon: Calculator },
-    { to: "/student/results", label: LABELS.results, icon: GraduationCap },
-  ];
-
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
       <div
-        className="fixed inset-y-0 left-0 flex w-[85vw] max-w-sm flex-col bg-white shadow-2xl"
+        className="absolute inset-y-0 left-0 flex w-[80vw] max-w-sm flex-col bg-white shadow-2xl"
         role="dialog"
         aria-modal="true"
-        aria-label="બધા મેનૂ"
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <span className="text-base font-bold text-slate-900">મેનૂ</span>
+        {/* Drawer header */}
+        <div className="flex items-center justify-between bg-[#0d2461] px-4 py-4">
+          <span className="text-base font-bold text-white">મેનૂ</span>
           <button
-            type="button"
             onClick={onClose}
-            aria-label="મેનૂ બંધ કરો"
-            className="flex size-10 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100"
+            className="flex size-9 items-center justify-center rounded-lg text-white/70 hover:bg-white/10"
+            aria-label="બંધ"
           >
-            <X size={22} aria-hidden="true" />
+            <X size={20} />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto p-4" aria-label="ડ્રોઅર નેવ">
-          <ul className="space-y-1">
-            {ALL_LINKS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <li key={item.to}>
-                  <NavLink
-                    to={item.to}
-                    end={item.to === "/"}
-                    onClick={onClose}
-                    className={({ isActive }) =>
-                      `flex min-h-12 items-center gap-3.5 rounded-xl px-4 text-base font-medium transition-colors ${
-                        isActive
-                          ? "bg-blue-700 text-white"
-                          : "text-slate-700 hover:bg-slate-50"
-                      }`
-                    }
-                  >
-                    <Icon size={20} className="shrink-0" aria-hidden="true" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                </li>
-              );
-            })}
+
+        <nav className="flex-1 overflow-y-auto p-3" aria-label="ડ્રોઅર">
+          <ul className="space-y-0.5">
+            {DRAWER_LINKS.map(({ to, label, icon: Icon }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={to === "/"}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex min-h-[48px] items-center gap-3.5 rounded-xl px-4 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-[#0d2461] text-white"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        size={18}
+                        className={`shrink-0 ${isActive ? "text-yellow-400" : "text-slate-400"}`}
+                        aria-hidden="true"
+                      />
+                      {label}
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
@@ -233,6 +221,7 @@ function MobileDrawer({
   );
 }
 
+// ── Public Layout ──────────────────────────────────────────────────────────────
 export function PublicLayout() {
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -241,49 +230,44 @@ export function PublicLayout() {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [location.pathname]);
 
-  // Close drawer on route change
   useEffect(() => {
     setDrawerOpen(false);
   }, [location.pathname]);
 
   return (
-    // Full-viewport shell — NO max-width cap here so header + footer go edge-to-edge
-    <div className="flex min-h-dvh flex-col bg-stone-50 text-slate-900">
+    <div className="flex min-h-dvh flex-col bg-slate-50 text-slate-900">
       <SkipToContent targetId="main-content" />
 
-      {/* Sticky full-width header */}
+      {/* Full-width sticky header */}
       <Header onMenuClick={() => setDrawerOpen(true)} />
 
-      {/* Sidebar + content row — fills available height, scrolls internally */}
+      {/* Body: sidebar + content, together */}
       <div className="flex flex-1">
-        {/* Desktop sidebar: matches header logo zone widths exactly */}
-        <aside className="hidden w-60 shrink-0 sticky top-16 self-start max-h-[calc(100dvh-64px)] overflow-y-auto border-r border-slate-200 bg-white px-3 py-5 lg:block xl:w-72">
+        {/* Desktop sidebar */}
+        <aside className="hidden w-56 shrink-0 sticky top-16 self-start max-h-[calc(100dvh-64px)] overflow-y-auto border-r border-slate-200 bg-white lg:block xl:w-64">
           <PublicSidebar />
         </aside>
 
-        {/* Scrollable content column */}
+        {/* Main scrollable content */}
         <main
           id="main-content"
           tabIndex={-1}
           className="min-w-0 flex-1 focus:outline-none"
         >
-          {/* Inner content — full width, generous padding */}
-          <div className="w-full px-4 py-6 sm:px-6 sm:py-8 pb-24 lg:pb-8">
+          <div className="w-full px-4 py-6 sm:px-6 sm:py-8 pb-24 lg:pb-10">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* Footer spans 100% width — outside the flex row */}
+      {/* Full-width footer */}
       <Footer />
 
-      {/* Mobile: extra bottom padding so content clears the fixed tab bar */}
+      {/* Spacer for mobile tab bar */}
       <div className="h-14 lg:hidden" aria-hidden="true" />
 
-      {/* Mobile bottom tab bar */}
+      {/* Mobile nav elements */}
       <MobileBottomNav />
-
-      {/* Mobile slide-out drawer */}
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
