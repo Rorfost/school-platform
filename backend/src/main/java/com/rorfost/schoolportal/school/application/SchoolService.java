@@ -66,7 +66,7 @@ public class SchoolService {
         trim(request.website()),
         trim(request.mapsUrl()),
         trim(request.about()),
-        request.establishedYear(),
+        trim(request.establishedYear()),
         trim(request.medium()),
         trim(request.schoolType()));
     auditLogService.record(

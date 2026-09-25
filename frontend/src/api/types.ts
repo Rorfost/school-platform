@@ -12,7 +12,7 @@ export interface SchoolResponse {
   website: string | null;
   mapsUrl: string | null;
   about: string | null;
-  establishedYear: number | null;
+  establishedYear: string | null;
   medium: string | null;
   schoolType: string | null;
   logoUrl: string | null;
@@ -175,7 +175,7 @@ export interface SchoolUpdateRequest {
   website?: string | null;
   mapsUrl?: string | null;
   about?: string | null;
-  establishedYear?: number | null;
+  establishedYear?: string | null;
   medium?: string | null;
   schoolType?: string | null;
 }
@@ -297,4 +297,31 @@ export interface AuditLogResponse {
   requestId: string | null;
   metadata: string;
   createdAt: string;
+}
+
+export interface ExamResultSubjectResponse {
+  id: string;
+  subjectName: string;
+  maximumMarks: number;
+  obtainedMarks: number | null;
+  grade: string | null;
+  sortOrder: number;
+}
+
+export interface ExamResultResponse {
+  id: string;
+  schoolId: string;
+  academicYearId: string;
+  studentName: string;
+  standard: string;
+  rollNumber: number;
+  generalRegisterNumber: string | null;
+  birthDate: string | null;
+  totalWorkingDays: number | null;
+  attendedDays: number | null;
+  totalMarks: number | null;
+  obtainedMarks: number | null;
+  percentage: number | null;
+  overallGrade: string | null;
+  subjects: ExamResultSubjectResponse[];
 }

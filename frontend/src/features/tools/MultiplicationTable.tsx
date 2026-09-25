@@ -38,7 +38,7 @@ export function MultiplicationTable() {
   }
 
   return (
-    <ToolCard title="પાડા" description="બાળકો માટે 1 થી 20 સુધીના પાડા બનાવો." icon={Grid2X2}>
+    <ToolCard title="ઘડિયા" description="બાળકો માટે 1 થી 20 સુધીના ઘડિયા બનાવો." icon={Grid2X2}>
       <div className="grid gap-3 sm:grid-cols-3">
         <Input
           type="number"
@@ -86,7 +86,7 @@ export function MultiplicationTable() {
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button type="button" className="w-full sm:w-auto" onClick={calculate}>
-          પાડો બનાવો
+          ઘડિયો બનાવો
         </Button>
         <Button
           type="button"
@@ -104,7 +104,7 @@ export function MultiplicationTable() {
       </div>
       {rows.length > 0 && (
         <ToolResult>
-          <ol className="grid gap-1.5 font-semibold sm:grid-cols-2" aria-label="ગુણાકારનો પાડો">
+          <ol className="grid gap-1.5 font-semibold sm:grid-cols-2" aria-label="ગુણાકારનો ઘડિયો">
             {rows.map((row) => (
               <li key={row.multiplier}>
                 {number} × {row.multiplier} = {row.product}

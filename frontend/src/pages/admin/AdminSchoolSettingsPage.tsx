@@ -114,9 +114,7 @@ export function AdminSchoolSettingsPage() {
       website: String(formData.get("website") || "") || null,
       mapsUrl: String(formData.get("mapsUrl") || "") || null,
       about: String(formData.get("about") || "") || null,
-      establishedYear: formData.get("establishedYear")
-        ? Number(formData.get("establishedYear"))
-        : null,
+      establishedYear: String(formData.get("establishedYear") || "") || null,
       medium: String(formData.get("medium") || "") || null,
       schoolType: String(formData.get("schoolType") || "") || null,
     };
@@ -241,7 +239,6 @@ export function AdminSchoolSettingsPage() {
             <Input
               label="Established Year"
               name="establishedYear"
-              type="number"
               defaultValue={school?.establishedYear ?? ""}
             />
             <Input
