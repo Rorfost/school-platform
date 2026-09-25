@@ -203,27 +203,29 @@ export function PublicLayout() {
 
       {/* Body: sidebar + content, together */}
       <div className="flex w-full max-w-full min-w-0 flex-1">
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar - locked to viewport height */}
         <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:block xl:w-64">
-          <div className="sticky top-[76px] max-h-[calc(100dvh-76px)] overflow-y-auto">
+          <div className="sticky top-[76px] h-[calc(100dvh-76px)] overflow-y-auto">
             <PublicSidebar />
           </div>
         </aside>
 
-        {/* Main scrollable content */}
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="w-full max-w-full min-w-0 flex-1 focus:outline-none overflow-x-hidden"
-        >
-          <div className="w-full max-w-full px-3.5 py-5 sm:px-6 sm:py-8">
-            <Outlet />
-          </div>
-        </main>
-      </div>
+        {/* Main scrollable content column + Footer */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between overflow-x-hidden">
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="w-full max-w-full min-w-0 flex-1 focus:outline-none"
+          >
+            <div className="w-full max-w-full px-3.5 py-5 sm:px-6 sm:py-8">
+              <Outlet />
+            </div>
+          </main>
 
-      {/* Full-width footer */}
-      <Footer />
+          {/* Footer aligned with main content column */}
+          <Footer />
+        </div>
+      </div>
 
       {/* Mobile nav elements */}
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
