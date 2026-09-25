@@ -298,3 +298,30 @@ export interface AuditLogResponse {
   metadata: string;
   createdAt: string;
 }
+
+export interface ExamResultSubjectResponse {
+  id: string;
+  subjectName: string;
+  maximumMarks: number;
+  obtainedMarks: number | null;
+  grade: string | null;
+  sortOrder: number;
+}
+
+export interface ExamResultResponse {
+  id: string;
+  schoolId: string;
+  academicYearId: string;
+  studentName: string;
+  standard: string;
+  rollNumber: number;
+  generalRegisterNumber: string | null;
+  birthDate: string | null;
+  totalWorkingDays: number | null;
+  attendedDays: number | null;
+  totalMarks: number | null;
+  obtainedMarks: number | null;
+  percentage: number | null;
+  overallGrade: string | null;
+  subjects: ExamResultSubjectResponse[];
+}

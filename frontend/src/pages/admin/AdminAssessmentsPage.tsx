@@ -17,6 +17,8 @@ import { Card } from "@/components/ui/Card";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
+import { AdminExamResultsTab } from "./AdminExamResultsTab";
+import { AdminEkamKasotiTab } from "./AdminEkamKasotiTab";
 
 type ConfirmAction = "publish" | "archive";
 
@@ -56,6 +58,7 @@ export function AdminAssessmentsPage() {
     action: ConfirmAction;
     assessment: AssessmentResponse;
   } | null>(null);
+  const [activeTab, setActiveTab] = useState("setup");
 
   const assessmentsQuery = useQuery<AssessmentResponse[]>({
     queryKey: ["admin", "assessments"],
@@ -179,35 +182,19 @@ export function AdminAssessmentsPage() {
     saveMutation.mutate({ id: formAssessment?.id, payload });
   };
 
-  if (assessmentsQuery.isLoading) return <LoadingState message="Loading results and marks..." />;
-  if (assessmentsQuery.isError)
+  const renderSetupTab = () => {
+    if (assessmentsQuery.isLoading) return <LoadingState message="Loading results and marks..." />;
+    if (assessmentsQuery.isError)
+      return (
+        <ErrorState
+          message="Unable to load results and marks."
+          onRetry={() => assessmentsQuery.refetch()}
+        />
+      );
+
     return (
-      <ErrorState
-        message="Unable to load results and marks."
-        onRetry={() => assessmentsQuery.refetch()}
-      />
-    );
-
-  return (
-    <div className="max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Results &amp; Marks</h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Set up exams and tests, subjects, and mark limits.
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={openCreate}
-          disabled={!standards.length}
-          className="shrink-0"
-        >
-          <Plus size={16} aria-hidden="true" /> Add Exam / Test
-        </Button>
-      </div>
-
-      <Card className="border-amber-200 bg-amber-50/60">
+      <div className="space-y-6">
+        <Card className="border-amber-200 bg-amber-50/60">
         <div className="flex gap-3">
           <FileSpreadsheet
             className="mt-0.5 shrink-0 text-amber-700"
@@ -570,6 +557,61 @@ export function AdminAssessmentsPage() {
         variant={confirm?.action === "publish" ? "primary" : "warning"}
         isLoading={publishMutation.isPending || archiveMutation.isPending}
       />
+      </div>
+    );
+  };
+
+  return (
+    <div className="max-w-6xl space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900">Results &amp; Marks</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Set up exams and tests, upload results, and manage student marks.
+          </p>
+        </div>
+        {activeTab === "setup" && (
+          <Button
+            variant="primary"
+            onClick={openCreate}
+            disabled={!standards.length}
+            className="shrink-0"
+          >
+            <Plus size={16} aria-hidden="true" /> Add Exam / Test
+          </Button>
+        )}
+      </div>
+
+      <div className="flex gap-2 border-b border-slate-200 pb-px">
+        <button
+          onClick={() => setActiveTab("setup")}
+          className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
+            activeTab === "setup" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+          }`}
+        >
+          Exam Setup
+        </button>
+        <button
+          onClick={() => setActiveTab("exam-results")}
+          className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
+            activeTab === "exam-results" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+          }`}
+        >
+          Exam Results (Upload)
+        </button>
+        <button
+          onClick={() => setActiveTab("ekam-kasoti")}
+          className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
+            activeTab === "ekam-kasoti" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+          }`}
+        >
+          Ekam Kasoti (Upload)
+        </button>
+      </div>
+
+      {activeTab === "setup" && renderSetupTab()}
+      {activeTab === "exam-results" && <AdminExamResultsTab />}
+      {activeTab === "ekam-kasoti" && <AdminEkamKasotiTab />}
     </div>
   );
 }
