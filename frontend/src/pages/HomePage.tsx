@@ -136,7 +136,9 @@ export function HomePage() {
             >
               {LABELS.notices}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">શાળાની તાજેતરની જાહેરાતો</p>
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 truncate">
+              શાળાની તાજેતરની જાહેરાતો
+            </p>
           </div>
           <Link
             to="/notices"

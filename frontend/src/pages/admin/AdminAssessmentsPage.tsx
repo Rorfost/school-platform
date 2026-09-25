@@ -195,368 +195,373 @@ export function AdminAssessmentsPage() {
     return (
       <div className="space-y-6">
         <Card className="border-amber-200 bg-amber-50/60">
-        <div className="flex gap-3">
-          <FileSpreadsheet
-            className="mt-0.5 shrink-0 text-amber-700"
-            size={20}
-            aria-hidden="true"
-          />
-          <div>
-            <h2 className="font-semibold text-slate-900">Result upload is not available yet</h2>
-            <p className="mt-1 text-sm leading-relaxed text-slate-700">
-              The school must first approve a safe roll-number and PIN process. Result upload and
-              public result lookup remain unavailable until then. Publishing an exam or test only
-              publishes its setup; it does not publish student results.
-            </p>
-          </div>
-        </div>
-      </Card>
-
-      <Card>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <select
-            aria-label="Filter by academic year"
-            value={yearFilter}
-            onChange={(event) => setYearFilter(event.target.value)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="all">All academic years</option>
-            {years.map((year) => (
-              <option key={year.id} value={year.id}>
-                {year.name}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Filter by standard"
-            value={standardFilter}
-            onChange={(event) => setStandardFilter(event.target.value)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="all">All standards</option>
-            {standards.map((standard) => (
-              <option key={standard.id} value={standard.id}>
-                {standard.displayName}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Filter by exam or test type"
-            value={typeFilter}
-            onChange={(event) => setTypeFilter(event.target.value)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="all">All exam / test types</option>
-            {types.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.displayName}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label="Filter by result status"
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="all">All result statuses</option>
-            <option value="DRAFT">Draft</option>
-            <option value="PUBLISHED">Published</option>
-            <option value="ARCHIVED">Archived</option>
-          </select>
-        </div>
-      </Card>
-
-      {visibleAssessments.length === 0 ? (
-        <EmptyState
-          title="No exams or tests found"
-          description="Add an exam or test, or adjust the filters."
-          action={
-            <Button size="sm" onClick={openCreate} disabled={!standards.length}>
-              Add Exam / Test
-            </Button>
-          }
-        />
-      ) : (
-        <Card className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-slate-700">
-                  <th className="p-4">Exam / Test</th>
-                  <th className="p-4">Academic Year</th>
-                  <th className="p-4">Standard</th>
-                  <th className="p-4">Result Status</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {visibleAssessments.map((assessment) => (
-                  <tr key={assessment.id}>
-                    <td className="p-4">
-                      <p className="font-bold text-slate-900">{assessment.title}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {types.find((type) => type.id === assessment.assessmentTypeId)
-                          ?.displayName ?? "Exam / Test type"}
-                        {assessment.assessmentDate ? ` · ${assessment.assessmentDate}` : ""}
-                      </p>
-                    </td>
-                    <td className="p-4 text-slate-700">
-                      {years.find((year) => year.id === assessment.academicYearId)?.name ??
-                        "Unknown year"}
-                    </td>
-                    <td className="p-4 text-slate-700">
-                      {standards.find((standard) => standard.id === assessment.standardId)
-                        ?.displayName ?? "Unknown standard"}
-                    </td>
-                    <td className="p-4">{statusBadge(assessment.status)}</td>
-                    <td className="p-4">
-                      <div className="flex justify-end gap-2">
-                        {assessment.status !== "ARCHIVED" && (
-                          <Button variant="outline" size="sm" onClick={() => openEdit(assessment)}>
-                            <Pencil size={14} aria-hidden="true" /> Edit Exam / Test
-                          </Button>
-                        )}
-                        {assessment.status === "DRAFT" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setConfirm({ action: "publish", assessment })}
-                          >
-                            Publish Setup
-                          </Button>
-                        )}
-                        {assessment.status !== "ARCHIVED" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setConfirm({ action: "archive", assessment })}
-                          >
-                            <Archive size={14} aria-hidden="true" /> Archive
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex gap-3">
+            <FileSpreadsheet
+              className="mt-0.5 shrink-0 text-amber-700"
+              size={20}
+              aria-hidden="true"
+            />
+            <div>
+              <h2 className="font-semibold text-slate-900">Result upload is not available yet</h2>
+              <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                The school must first approve a safe roll-number and PIN process. Result upload and
+                public result lookup remain unavailable until then. Publishing an exam or test only
+                publishes its setup; it does not publish student results.
+              </p>
+            </div>
           </div>
         </Card>
-      )}
 
-      {formAssessment !== undefined && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4">
-          <div className="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
-            <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
-              {formAssessment ? "Edit Exam / Test" : "Add Exam / Test"}
-            </h2>
-            <form onSubmit={saveAssessment} className="mt-4 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                  Academic Year
-                  <select
-                    name="academicYearId"
-                    required
-                    disabled={Boolean(formAssessment)}
-                    defaultValue={formAssessment?.academicYearId ?? years[0]?.id}
-                    className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
-                  >
-                    {years.map((year) => (
-                      <option key={year.id} value={year.id}>
-                        {year.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm font-medium text-slate-700">
-                  Exam / Test Type
-                  <select
-                    name="assessmentTypeId"
-                    required
-                    disabled={Boolean(formAssessment)}
-                    defaultValue={formAssessment?.assessmentTypeId ?? types[0]?.id}
-                    className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
-                  >
-                    {types.map((type) => (
-                      <option key={type.id} value={type.id}>
-                        {type.displayName}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm font-medium text-slate-700">
-                  Standard
-                  <select
-                    name="standardId"
-                    required
-                    disabled={Boolean(formAssessment)}
-                    value={formAssessment?.standardId ?? selectedStandardId}
-                    onChange={(event) => {
-                      setSelectedStandardId(event.target.value);
-                      setSelectedSubjectMappingIds(null);
-                    }}
-                    className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
-                  >
-                    {standards.map((standard) => (
-                      <option key={standard.id} value={standard.id}>
-                        {standard.displayName}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <Input
-                  label="Exam / Test Date"
-                  name="assessmentDate"
-                  type="date"
-                  defaultValue={formAssessment?.assessmentDate ?? ""}
-                />
-              </div>
-              {formAssessment && (
-                <p className="text-xs text-slate-500">
-                  Academic Year, Exam / Test Type, and Standard cannot be changed after creation.
-                </p>
-              )}
-              <Input
-                label="Exam / Test Name"
-                name="title"
-                required
-                defaultValue={formAssessment?.title ?? ""}
-                placeholder="e.g. First unit test"
-              />
-              <label className="block text-sm font-medium text-slate-700">
-                Description
-                <textarea
-                  name="description"
-                  rows={3}
-                  defaultValue={formAssessment?.description ?? ""}
-                  className="mt-1 w-full rounded-lg border border-slate-300 p-3"
-                />
-              </label>
-              <div className="border-t border-slate-200 pt-4">
-                <h3 className="font-semibold text-slate-900">Marks setup</h3>
-                {editableSubjects.length === 0 ? (
-                  <p className="mt-2 text-sm text-amber-700">
-                    Map at least one subject to this Standard before adding an exam or test.
-                  </p>
-                ) : (
-                  <div className="mt-3 space-y-2">
-                    {editableSubjects.map((subject) => {
-                      const mappingId =
-                        "standardSubjectId" in subject ? subject.standardSubjectId : subject.id;
-                      const mapping =
-                        "subjectId" in subject
-                          ? subject
-                          : (mappingsQuery.data ?? []).find((item) => item.id === mappingId);
-                      const subjectName =
-                        subjects.find((item) => item.id === mapping?.subjectId)?.name ??
-                        "Mapped subject";
-                      return (
-                        <div
-                          key={mappingId}
-                          className="grid grid-cols-[1fr_7rem_7rem] items-end gap-3 rounded-lg bg-slate-50 p-3"
-                        >
-                          <label className="flex items-center gap-2 pb-2 text-sm font-medium text-slate-800">
-                            {!formAssessment && (
-                              <input
-                                type="checkbox"
-                                checked={
-                                  selectedSubjectMappingIds === null ||
-                                  selectedSubjectMappingIds.includes(mappingId)
-                                }
-                                onChange={() =>
-                                  setSelectedSubjectMappingIds((selected) => {
-                                    const current =
-                                      selected ?? (mappingsQuery.data ?? []).map((item) => item.id);
-                                    return current.includes(mappingId)
-                                      ? current.filter((id) => id !== mappingId)
-                                      : [...current, mappingId];
-                                  })
-                                }
-                                className="size-4 rounded border-slate-300 text-blue-900"
-                              />
-                            )}
-                            {subjectName}
-                          </label>
-                          <label className="text-xs text-slate-600">
-                            Maximum
-                            <input
-                              name={`max_${mappingId}`}
-                              type="number"
-                              min="0.01"
-                              step="0.01"
-                              required
-                              defaultValue={subject.maximumMarks ?? 40}
-                              className="mt-1 h-9 w-full rounded border border-slate-300 px-2 text-sm"
-                            />
-                          </label>
-                          <label className="text-xs text-slate-600">
-                            Passing
-                            <input
-                              name={`pass_${mappingId}`}
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              required
-                              defaultValue={subject.passingMarks ?? 0}
-                              className="mt-1 h-9 w-full rounded border border-slate-300 px-2 text-sm"
-                            />
-                          </label>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-              {saveMutation.isError && (
-                <p role="alert" className="text-sm text-red-700">
-                  Unable to save the exam or test. Check the selected subjects and mark limits.
-                </p>
-              )}
-              <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setFormAssessment(undefined)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={editableSubjects.length === 0}
-                  loading={saveMutation.isPending}
-                >
-                  {formAssessment ? "Save changes" : "Add Exam / Test"}
-                </Button>
-              </div>
-            </form>
+        <Card>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <select
+              aria-label="Filter by academic year"
+              value={yearFilter}
+              onChange={(event) => setYearFilter(event.target.value)}
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="all">All academic years</option>
+              {years.map((year) => (
+                <option key={year.id} value={year.id}>
+                  {year.name}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Filter by standard"
+              value={standardFilter}
+              onChange={(event) => setStandardFilter(event.target.value)}
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="all">All standards</option>
+              {standards.map((standard) => (
+                <option key={standard.id} value={standard.id}>
+                  {standard.displayName}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Filter by exam or test type"
+              value={typeFilter}
+              onChange={(event) => setTypeFilter(event.target.value)}
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="all">All exam / test types</option>
+              {types.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.displayName}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Filter by result status"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="all">All result statuses</option>
+              <option value="DRAFT">Draft</option>
+              <option value="PUBLISHED">Published</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
           </div>
-        </div>
-      )}
+        </Card>
 
-      <ConfirmModal
-        isOpen={Boolean(confirm)}
-        onClose={() => setConfirm(null)}
-        onConfirm={() =>
-          confirm &&
-          (confirm.action === "publish"
-            ? publishMutation.mutate(confirm.assessment.id)
-            : archiveMutation.mutate(confirm.assessment.id))
-        }
-        title={
-          confirm?.action === "publish"
-            ? `Publish ${confirm.assessment.title} setup?`
-            : `Archive ${confirm?.assessment.title ?? "exam or test"}?`
-        }
-        description={
-          confirm?.action === "publish"
-            ? "This publishes the exam or test setup only. Student results cannot be uploaded or published yet."
-            : "Archiving removes this exam or test from active management. This cannot be undone from the portal."
-        }
-        confirmText={confirm?.action === "publish" ? "Publish Setup" : "Archive Exam / Test"}
-        variant={confirm?.action === "publish" ? "primary" : "warning"}
-        isLoading={publishMutation.isPending || archiveMutation.isPending}
-      />
+        {visibleAssessments.length === 0 ? (
+          <EmptyState
+            title="No exams or tests found"
+            description="Add an exam or test, or adjust the filters."
+            action={
+              <Button size="sm" onClick={openCreate} disabled={!standards.length}>
+                Add Exam / Test
+              </Button>
+            }
+          />
+        ) : (
+          <Card className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-700">
+                    <th className="p-4">Exam / Test</th>
+                    <th className="p-4">Academic Year</th>
+                    <th className="p-4">Standard</th>
+                    <th className="p-4">Result Status</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {visibleAssessments.map((assessment) => (
+                    <tr key={assessment.id}>
+                      <td className="p-4">
+                        <p className="font-bold text-slate-900">{assessment.title}</p>
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          {types.find((type) => type.id === assessment.assessmentTypeId)
+                            ?.displayName ?? "Exam / Test type"}
+                          {assessment.assessmentDate ? ` · ${assessment.assessmentDate}` : ""}
+                        </p>
+                      </td>
+                      <td className="p-4 text-slate-700">
+                        {years.find((year) => year.id === assessment.academicYearId)?.name ??
+                          "Unknown year"}
+                      </td>
+                      <td className="p-4 text-slate-700">
+                        {standards.find((standard) => standard.id === assessment.standardId)
+                          ?.displayName ?? "Unknown standard"}
+                      </td>
+                      <td className="p-4">{statusBadge(assessment.status)}</td>
+                      <td className="p-4">
+                        <div className="flex justify-end gap-2">
+                          {assessment.status !== "ARCHIVED" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openEdit(assessment)}
+                            >
+                              <Pencil size={14} aria-hidden="true" /> Edit Exam / Test
+                            </Button>
+                          )}
+                          {assessment.status === "DRAFT" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setConfirm({ action: "publish", assessment })}
+                            >
+                              Publish Setup
+                            </Button>
+                          )}
+                          {assessment.status !== "ARCHIVED" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setConfirm({ action: "archive", assessment })}
+                            >
+                              <Archive size={14} aria-hidden="true" /> Archive
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+
+        {formAssessment !== undefined && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4">
+            <div className="my-8 w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+              <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
+                {formAssessment ? "Edit Exam / Test" : "Add Exam / Test"}
+              </h2>
+              <form onSubmit={saveAssessment} className="mt-4 space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="text-sm font-medium text-slate-700">
+                    Academic Year
+                    <select
+                      name="academicYearId"
+                      required
+                      disabled={Boolean(formAssessment)}
+                      defaultValue={formAssessment?.academicYearId ?? years[0]?.id}
+                      className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
+                    >
+                      {years.map((year) => (
+                        <option key={year.id} value={year.id}>
+                          {year.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm font-medium text-slate-700">
+                    Exam / Test Type
+                    <select
+                      name="assessmentTypeId"
+                      required
+                      disabled={Boolean(formAssessment)}
+                      defaultValue={formAssessment?.assessmentTypeId ?? types[0]?.id}
+                      className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
+                    >
+                      {types.map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.displayName}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm font-medium text-slate-700">
+                    Standard
+                    <select
+                      name="standardId"
+                      required
+                      disabled={Boolean(formAssessment)}
+                      value={formAssessment?.standardId ?? selectedStandardId}
+                      onChange={(event) => {
+                        setSelectedStandardId(event.target.value);
+                        setSelectedSubjectMappingIds(null);
+                      }}
+                      className="mt-1 h-11 w-full rounded-lg border border-slate-300 bg-white px-3 disabled:bg-slate-100"
+                    >
+                      {standards.map((standard) => (
+                        <option key={standard.id} value={standard.id}>
+                          {standard.displayName}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <Input
+                    label="Exam / Test Date"
+                    name="assessmentDate"
+                    type="date"
+                    defaultValue={formAssessment?.assessmentDate ?? ""}
+                  />
+                </div>
+                {formAssessment && (
+                  <p className="text-xs text-slate-500">
+                    Academic Year, Exam / Test Type, and Standard cannot be changed after creation.
+                  </p>
+                )}
+                <Input
+                  label="Exam / Test Name"
+                  name="title"
+                  required
+                  defaultValue={formAssessment?.title ?? ""}
+                  placeholder="e.g. First unit test"
+                />
+                <label className="block text-sm font-medium text-slate-700">
+                  Description
+                  <textarea
+                    name="description"
+                    rows={3}
+                    defaultValue={formAssessment?.description ?? ""}
+                    className="mt-1 w-full rounded-lg border border-slate-300 p-3"
+                  />
+                </label>
+                <div className="border-t border-slate-200 pt-4">
+                  <h3 className="font-semibold text-slate-900">Marks setup</h3>
+                  {editableSubjects.length === 0 ? (
+                    <p className="mt-2 text-sm text-amber-700">
+                      Map at least one subject to this Standard before adding an exam or test.
+                    </p>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      {editableSubjects.map((subject) => {
+                        const mappingId =
+                          "standardSubjectId" in subject ? subject.standardSubjectId : subject.id;
+                        const mapping =
+                          "subjectId" in subject
+                            ? subject
+                            : (mappingsQuery.data ?? []).find((item) => item.id === mappingId);
+                        const subjectName =
+                          subjects.find((item) => item.id === mapping?.subjectId)?.name ??
+                          "Mapped subject";
+                        return (
+                          <div
+                            key={mappingId}
+                            className="grid grid-cols-[1fr_7rem_7rem] items-end gap-3 rounded-lg bg-slate-50 p-3"
+                          >
+                            <label className="flex items-center gap-2 pb-2 text-sm font-medium text-slate-800">
+                              {!formAssessment && (
+                                <input
+                                  type="checkbox"
+                                  checked={
+                                    selectedSubjectMappingIds === null ||
+                                    selectedSubjectMappingIds.includes(mappingId)
+                                  }
+                                  onChange={() =>
+                                    setSelectedSubjectMappingIds((selected) => {
+                                      const current =
+                                        selected ??
+                                        (mappingsQuery.data ?? []).map((item) => item.id);
+                                      return current.includes(mappingId)
+                                        ? current.filter((id) => id !== mappingId)
+                                        : [...current, mappingId];
+                                    })
+                                  }
+                                  className="size-4 rounded border-slate-300 text-blue-900"
+                                />
+                              )}
+                              {subjectName}
+                            </label>
+                            <label className="text-xs text-slate-600">
+                              Maximum
+                              <input
+                                name={`max_${mappingId}`}
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                required
+                                defaultValue={subject.maximumMarks ?? 40}
+                                className="mt-1 h-9 w-full rounded border border-slate-300 px-2 text-sm"
+                              />
+                            </label>
+                            <label className="text-xs text-slate-600">
+                              Passing
+                              <input
+                                name={`pass_${mappingId}`}
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                required
+                                defaultValue={subject.passingMarks ?? 0}
+                                className="mt-1 h-9 w-full rounded border border-slate-300 px-2 text-sm"
+                              />
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                {saveMutation.isError && (
+                  <p role="alert" className="text-sm text-red-700">
+                    Unable to save the exam or test. Check the selected subjects and mark limits.
+                  </p>
+                )}
+                <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setFormAssessment(undefined)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={editableSubjects.length === 0}
+                    loading={saveMutation.isPending}
+                  >
+                    {formAssessment ? "Save changes" : "Add Exam / Test"}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <ConfirmModal
+          isOpen={Boolean(confirm)}
+          onClose={() => setConfirm(null)}
+          onConfirm={() =>
+            confirm &&
+            (confirm.action === "publish"
+              ? publishMutation.mutate(confirm.assessment.id)
+              : archiveMutation.mutate(confirm.assessment.id))
+          }
+          title={
+            confirm?.action === "publish"
+              ? `Publish ${confirm.assessment.title} setup?`
+              : `Archive ${confirm?.assessment.title ?? "exam or test"}?`
+          }
+          description={
+            confirm?.action === "publish"
+              ? "This publishes the exam or test setup only. Student results cannot be uploaded or published yet."
+              : "Archiving removes this exam or test from active management. This cannot be undone from the portal."
+          }
+          confirmText={confirm?.action === "publish" ? "Publish Setup" : "Archive Exam / Test"}
+          variant={confirm?.action === "publish" ? "primary" : "warning"}
+          isLoading={publishMutation.isPending || archiveMutation.isPending}
+        />
       </div>
     );
   };
@@ -586,7 +591,9 @@ export function AdminAssessmentsPage() {
         <button
           onClick={() => setActiveTab("setup")}
           className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
-            activeTab === "setup" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            activeTab === "setup"
+              ? "border-blue-700 text-blue-900"
+              : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
           }`}
         >
           Exam Setup
@@ -594,7 +601,9 @@ export function AdminAssessmentsPage() {
         <button
           onClick={() => setActiveTab("exam-results")}
           className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
-            activeTab === "exam-results" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            activeTab === "exam-results"
+              ? "border-blue-700 text-blue-900"
+              : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
           }`}
         >
           Exam Results (Upload)
@@ -602,7 +611,9 @@ export function AdminAssessmentsPage() {
         <button
           onClick={() => setActiveTab("ekam-kasoti")}
           className={`pb-2 px-1 text-sm font-semibold transition-colors border-b-2 ${
-            activeTab === "ekam-kasoti" ? "border-blue-700 text-blue-900" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            activeTab === "ekam-kasoti"
+              ? "border-blue-700 text-blue-900"
+              : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
           }`}
         >
           Ekam Kasoti (Upload)

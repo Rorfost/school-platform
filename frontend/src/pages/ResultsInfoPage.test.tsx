@@ -1,18 +1,36 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { ResultsInfoPage } from "@/pages/ResultsInfoPage";
 
-describe("ResultsInfoPage", () => {
-  it("does not expose a fabricated result lookup before the secure workflow exists", () => {
-    render(
+function renderResultsInfoPage() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
       <MemoryRouter>
         <ResultsInfoPage />
-      </MemoryRouter>,
-    );
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
 
-    expect(screen.getByText("પરિણામ સેવા ટૂંક સમયમાં ઉપલબ્ધ થશે")).toBeVisible();
-    expect(screen.queryByLabelText(/રોલ નંબર/)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/PIN/)).not.toBeInTheDocument();
+describe("ResultsInfoPage", () => {
+  it("renders the exam result search form with standard and roll number inputs", () => {
+    renderResultsInfoPage();
+
+    expect(screen.getByRole("heading", { name: "પરીક્ષા પરિણામ" })).toBeInTheDocument();
+    expect(screen.getByLabelText("ધોરણ")).toBeInTheDocument();
+    expect(screen.getByLabelText("રોલ નંબર")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /પરિણામ જુઓ/ })).toBeInTheDocument();
+  });
+
+  it("disables the search button when inputs are empty", () => {
+    renderResultsInfoPage();
+
+    const submitButton = screen.getByRole("button", { name: /પરિણામ જુઓ/ });
+    expect(submitButton).toBeDisabled();
   });
 });

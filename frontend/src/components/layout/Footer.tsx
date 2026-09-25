@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { Eye, Lock, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
-import { useEffectiveSchoolInfo, usePublicPrincipalProfile } from "@/features/school/useSchoolData";
+import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { apiRequest } from "@/api/client";
 import type { VisitResponse } from "@/api/types";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function Footer() {
   const school = useEffectiveSchoolInfo();
-  const { data: principal } = usePublicPrincipalProfile();
   const [visits, setVisits] = useState<number | null>(null);
 
-  const principalName = principal?.fullName ? `${principal.fullName}, Principal — ` : "";
+
 
   useEffect(() => {
     const marker = "school-portal-visit-counted";
@@ -32,7 +31,6 @@ export function Footer() {
   return (
     <footer className="w-full border-t border-slate-200 bg-white text-slate-600">
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-4 py-6 text-center">
-
         {/* School Logo & Brand Header */}
         <div className="flex flex-col items-center gap-2">
           <img
@@ -50,9 +48,7 @@ export function Footer() {
               પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન
             </p>
           </div>
-          <p className="text-xs font-semibold text-blue-900">
-            ॥ સા વિદ્યા યા વિમુક્તયે ॥
-          </p>
+          <p className="text-xs font-semibold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p>
         </div>
 
         {/* Contact details - Compact centered list */}
@@ -67,7 +63,10 @@ export function Footer() {
           {school.phone && (
             <div className="flex items-center gap-1.5 max-w-full">
               <Phone size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
-              <a href={`tel:${school.phone}`} className="hover:text-blue-900 transition-colors truncate">
+              <a
+                href={`tel:${school.phone}`}
+                className="hover:text-blue-900 transition-colors truncate"
+              >
                 {school.phone}
               </a>
             </div>
@@ -76,7 +75,10 @@ export function Footer() {
           {school.email && (
             <div className="flex items-center gap-1.5 max-w-full min-w-0">
               <Mail size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
-              <a href={`mailto:${school.email}`} className="hover:text-blue-900 transition-colors break-all min-w-0">
+              <a
+                href={`mailto:${school.email}`}
+                className="hover:text-blue-900 transition-colors break-all min-w-0"
+              >
                 {school.email}
               </a>
             </div>
@@ -97,12 +99,12 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-3">
-            {(
+            {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-900 border border-blue-200">
                 <Eye size={12} className="text-blue-800" aria-hidden="true" />
-                <span>Visits: {(visits == null ? 0 : visits)}</span>
+                <span>Visits: {visits == null ? 0 : visits}</span>
               </span>
-            )}
+            }
             <Link
               to="/admin/login"
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-blue-900 font-medium transition-colors"
@@ -112,9 +114,7 @@ export function Footer() {
             </Link>
           </div>
         </div>
-
       </div>
     </footer>
   );
 }
-
