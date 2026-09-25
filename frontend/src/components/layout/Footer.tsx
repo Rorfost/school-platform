@@ -56,34 +56,34 @@ export function Footer() {
         </div>
 
         {/* Contact details - Compact centered list */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-600 pt-1">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-2 sm:gap-x-6 text-xs text-slate-600 pt-1 w-full max-w-full overflow-hidden">
           {school.address && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 max-w-full">
               <MapPin size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
-              <span>{school.address}</span>
+              <span className="truncate">{school.address}</span>
             </div>
           )}
 
           {school.phone && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 max-w-full">
               <Phone size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
-              <a href={`tel:${school.phone}`} className="hover:text-blue-900 transition-colors">
+              <a href={`tel:${school.phone}`} className="hover:text-blue-900 transition-colors truncate">
                 {school.phone}
               </a>
             </div>
           )}
 
           {school.email && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 max-w-full min-w-0">
               <Mail size={14} className="shrink-0 text-blue-800" aria-hidden="true" />
-              <a href={`mailto:${school.email}`} className="hover:text-blue-900 transition-colors">
+              <a href={`mailto:${school.email}`} className="hover:text-blue-900 transition-colors break-all min-w-0">
                 {school.email}
               </a>
             </div>
           )}
 
           {school.schoolCode && (
-            <span className="text-slate-500">
+            <span className="text-slate-500 shrink-0">
               {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode)}
             </span>
           )}
@@ -100,7 +100,7 @@ export function Footer() {
             {visits !== null && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-900 border border-blue-200">
                 <Eye size={13} className="text-blue-800" aria-hidden="true" />
-                <span>મુલાકાતો: {toGujaratiNumber(visits.toString())}</span>
+                <span>Visits: {visits}</span>
               </span>
             )}
             <Link

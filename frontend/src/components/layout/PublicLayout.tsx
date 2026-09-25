@@ -96,48 +96,6 @@ function PublicSidebar() {
   );
 }
 
-// Mobile bottom tab bar
-const BOTTOM_TABS = [
-  { to: "/", label: "હોમ", icon: Home, end: true },
-  { to: "/notices", label: "સૂચના", icon: Newspaper, end: false },
-  { to: "/gallery", label: "ગેલેરી", icon: Camera, end: false },
-  { to: "/student/results", label: "પરિણામ", icon: GraduationCap, end: false },
-  { to: "/contact", label: "સંપર્ક", icon: Phone, end: false },
-];
-
-function MobileBottomNav() {
-  return (
-    <nav
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-sm lg:hidden"
-      aria-label="ટેબ નેવ"
-    >
-      <div className="flex">
-        {BOTTOM_TABS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              `flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 px-1 text-xs font-semibold transition-colors min-h-[56px] ${
-                isActive ? "text-[#0d2461]" : "text-slate-500"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <div className={`rounded-lg p-1 ${isActive ? "bg-blue-50" : ""}`}>
-                  <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} aria-hidden="true" />
-                </div>
-                <span>{label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
-      </div>
-    </nav>
-  );
-}
-
 // Mobile slide-out drawer
 const DRAWER_LINKS = [
   { to: "/", label: LABELS.home, icon: Home },
@@ -258,7 +216,7 @@ export function PublicLayout() {
           tabIndex={-1}
           className="w-full max-w-full min-w-0 flex-1 focus:outline-none overflow-x-hidden"
         >
-          <div className="w-full max-w-full px-3.5 py-5 sm:px-6 sm:py-8 pb-24 lg:pb-10">
+          <div className="w-full max-w-full px-3.5 py-5 sm:px-6 sm:py-8">
             <Outlet />
           </div>
         </main>
@@ -267,11 +225,7 @@ export function PublicLayout() {
       {/* Full-width footer */}
       <Footer />
 
-      {/* Spacer for mobile tab bar */}
-      <div className="h-14 lg:hidden" aria-hidden="true" />
-
       {/* Mobile nav elements */}
-      <MobileBottomNav />
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
