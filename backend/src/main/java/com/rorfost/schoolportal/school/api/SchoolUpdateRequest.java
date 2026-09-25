@@ -17,6 +17,6 @@ public record SchoolUpdateRequest(
     @Size(max = 255) String website,
     @Size(max = 2048) String mapsUrl,
     String about,
-    Short establishedYear,
+    String establishedYear,
     @Size(max = 80) String medium,
     @Size(max = 80) String schoolType) {}

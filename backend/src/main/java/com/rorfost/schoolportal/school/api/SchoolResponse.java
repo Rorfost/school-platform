@@ -17,7 +17,7 @@ public record SchoolResponse(
     String website,
     String mapsUrl,
     String about,
-    Short establishedYear,
+    String establishedYear,
     String medium,
     String schoolType,
     String logoUrl) {

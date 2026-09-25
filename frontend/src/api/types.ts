@@ -12,7 +12,7 @@ export interface SchoolResponse {
   website: string | null;
   mapsUrl: string | null;
   about: string | null;
-  establishedYear: number | null;
+  establishedYear: string | null;
   medium: string | null;
   schoolType: string | null;
   logoUrl: string | null;
@@ -175,7 +175,7 @@ export interface SchoolUpdateRequest {
   website?: string | null;
   mapsUrl?: string | null;
   about?: string | null;
-  establishedYear?: number | null;
+  establishedYear?: string | null;
   medium?: string | null;
   schoolType?: string | null;
 }

@@ -21,7 +21,7 @@ public class School extends AuditableUuidEntity {
   private String website;
   private String mapsUrl;
   private String about;
-  private Short establishedYear;
+  private String establishedYear;
   private String medium;
   private String schoolType;
   private String logoObjectKey;
@@ -86,7 +86,7 @@ public class School extends AuditableUuidEntity {
     return about;
   }
 
-  public Short getEstablishedYear() {
+  public String getEstablishedYear() {
     return establishedYear;
   }
 
@@ -119,7 +119,7 @@ public class School extends AuditableUuidEntity {
       String website,
       String mapsUrl,
       String about,
-      Short establishedYear,
+      String establishedYear,
       String medium,
       String schoolType) {
     this.name = name;
