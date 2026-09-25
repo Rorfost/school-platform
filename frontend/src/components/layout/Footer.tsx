@@ -28,8 +28,8 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="border-t border-slate-200 bg-white text-slate-700">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+    <footer className="w-full border-t border-slate-200 bg-white text-slate-700">
+      <div className="mx-auto w-full max-w-screen-xl px-4 py-8 sm:px-6 lg:px-10 sm:py-10">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* School Brand & Motto */}
           <div>

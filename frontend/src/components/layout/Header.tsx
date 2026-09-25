@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Menu } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import schoolLogo from "@/assets/school-logo.jpeg";
-import { MobileNav } from "@/components/layout/MobileNav";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
@@ -15,20 +13,22 @@ export const NAV_LINKS = [
   { to: "/contact", label: LABELS.contact },
 ];
 
-export function Header() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+export interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps = {}) {
   const school = useEffectiveSchoolInfo();
 
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xs">
         {/* Main Header Bar */}
-        <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center gap-3 px-4 py-2 sm:min-h-18 sm:px-6">
+        <div className="mx-auto flex min-h-16 w-full max-w-screen-xl items-center gap-3 px-4 py-2 sm:min-h-18 sm:px-6 lg:px-10">
           <button
             type="button"
-            onClick={() => setIsMobileOpen(true)}
-            aria-expanded={isMobileOpen}
-            aria-label="મુખ્ય મેનૂ ખોલો"
+            onClick={onMenuClick}
+            aria-label="બધા મેનૂ ખોલો"
             className="flex size-11 shrink-0 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 lg:hidden"
           >
             <Menu size={24} aria-hidden="true" />
@@ -59,7 +59,6 @@ export function Header() {
           </Link>
         </div>
       </header>
-      <MobileNav isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
     </>
   );
 }
