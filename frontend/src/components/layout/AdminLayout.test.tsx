@@ -44,10 +44,6 @@ describe("AdminLayout", () => {
     expect(
       screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Academic Years" })).toHaveAttribute(
-      "href",
-      "/admin/academic-years",
-    );
     expect(screen.getByRole("main")).toHaveClass("overflow-y-auto");
     expect(screen.getByRole("main").parentElement).toHaveClass("w-full");
     expect(screen.getByRole("main").parentElement).not.toHaveClass("max-w-7xl");

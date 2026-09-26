@@ -20,9 +20,6 @@ public class AnnualExamResult {
   @Column(name = "school_id")
   private UUID schoolId;
 
-  @Column(name = "academic_year_id")
-  private UUID academicYearId;
-
   @Column(name = "result_type")
   private String resultType;
 
@@ -82,14 +79,6 @@ public class AnnualExamResult {
 
   public void setSchoolId(UUID schoolId) {
     this.schoolId = schoolId;
-  }
-
-  public UUID getAcademicYearId() {
-    return academicYearId;
-  }
-
-  public void setAcademicYearId(UUID academicYearId) {
-    this.academicYearId = academicYearId;
   }
 
   public String getResultType() {

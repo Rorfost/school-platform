@@ -11,7 +11,7 @@ The Annual Exam Result System allows school administrators to upload a single co
 ```
 ┌─────────────────────────┐       Upload Excel (.xlsx)       ┌──────────────────────────────────┐
 │   Admin Panel Upload    │ ───────────────────────────────> │  ExamResultService (Spring Boot) │
-│ (/admin/assessments)    │  + Total Working Days (હાજર દિવસ)│  - Clears previous year records  │
+│ (/admin/assessments)    │  + Total Working Days (હાજર દિવસ)│  - Replaces prior result type    │
 └─────────────────────────┘                                  │  - Parses Apache POI Rows        │
                                                              └────────────────┬─────────────────┘
                                                                               │
@@ -40,7 +40,6 @@ The Annual Exam Result System allows school administrators to upload a single co
 | :--- | :--- | :--- |
 | `id` | `UUID` (PK) | Unique primary key |
 | `school_id` | `UUID` (FK) | Reference to active school |
-| `academic_year_id` | `UUID` (FK) | Reference to active academic year (e.g. 2025-26) |
 | `standard` | `VARCHAR(32)` | Student Standard (e.g. `1`, `2`, `3`, ..., `8`) |
 | `roll_number` | `INT` | Roll number assigned sequentially per standard |
 | `student_name` | `VARCHAR(255)` | Student's full name in Gujarati |
@@ -102,8 +101,7 @@ When an administrator uploads an Excel file via `POST /api/v1/admin/exam-results
 1. **Transactional Re-upload Handling:**
    To allow easy re-uploads without duplicate key errors, the backend executes a custom batch query:
    ```java
-   resultRepository.deleteBySchoolIdAndAcademicYearIdAndResultType(
-       school.getId(), academicYear.getId(), resultType);
+   resultRepository.deleteBySchoolIdAndResultType(school.getId(), resultType);
    ```
 
 2. **Sequential Roll Number Assignment:**
