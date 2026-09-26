@@ -45,7 +45,9 @@ describe("AdminLayout", () => {
       screen.getByRole("navigation", { name: /Admin Sidebar Navigation/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveClass("overflow-y-auto");
+    expect(screen.getByRole("main")).toHaveClass("min-h-0");
     expect(screen.getByRole("main").parentElement).toHaveClass("w-full");
+    expect(screen.getByRole("main").parentElement).toHaveClass("overflow-hidden");
     expect(screen.getByRole("main").parentElement).not.toHaveClass("max-w-7xl");
   });
 

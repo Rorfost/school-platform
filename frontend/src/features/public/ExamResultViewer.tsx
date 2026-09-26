@@ -223,6 +223,8 @@ export function ExamResultViewer({
             padding: 0 !important;
             background: white !important;
             box-shadow: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}</style>
