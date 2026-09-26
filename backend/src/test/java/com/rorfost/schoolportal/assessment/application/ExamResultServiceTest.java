@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.rorfost.schoolportal.assessment.repository.ResultPresentationSettingsRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
 import com.rorfost.schoolportal.school.domain.School;
@@ -22,7 +23,10 @@ import org.springframework.mock.web.MockMultipartFile;
 class ExamResultServiceTest {
   private final AnnualExamResultRepository results = Mockito.mock(AnnualExamResultRepository.class);
   private final SchoolRepository schools = Mockito.mock(SchoolRepository.class);
-  private final ExamResultService service = new ExamResultService(results, schools);
+  private final ResultPresentationSettingsRepository presentationSettings =
+      Mockito.mock(ResultPresentationSettingsRepository.class);
+  private final ExamResultService service =
+      new ExamResultService(results, schools, presentationSettings);
 
   @Test
   void importsTheSharedWorkbookIntoTheSelectedEkamKasotiResultSet() throws IOException {

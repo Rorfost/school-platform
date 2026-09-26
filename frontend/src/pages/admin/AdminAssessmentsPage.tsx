@@ -1,4 +1,5 @@
 import { AdminExamResultsTab } from "./AdminExamResultsTab";
+import { AdminResultPresentationSettings } from "./AdminResultPresentationSettings";
 
 export function AdminAssessmentsPage() {
   return (
@@ -10,6 +11,7 @@ export function AdminAssessmentsPage() {
         </p>
       </div>
       <AdminExamResultsTab />
+      <AdminResultPresentationSettings />
     </section>
   );
 }

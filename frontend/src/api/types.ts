@@ -317,6 +317,16 @@ export interface ExamResultSubjectResponse {
   sortOrder: number;
 }
 
+export interface ResultPresentationSettingsResponse {
+  resultDate: string | null;
+  footerLineOne: string | null;
+  footerLineTwo: string | null;
+  gradeAMin: number;
+  gradeBMin: number;
+  gradeCMin: number;
+  gradeDMin: number;
+}
+
 export interface ExamResultResponse {
   id: string;
   schoolId: string;
