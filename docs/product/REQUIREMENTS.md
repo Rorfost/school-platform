@@ -11,7 +11,7 @@
 | FR-005 | Imported results shall be draft by default and require explicit principal publication. |
 | FR-006 | Public result lookup shall return only one individual result and shall never publicly return a complete class list. |
 | FR-007 | Result responses shall use `Cache-Control: no-store`; PINs shall not be stored in plaintext. |
-| FR-008 | The Excel workbook contract is pending. Parsing, validation fields, and import mapping shall not be implemented or specified until the real workbook/template is reviewed. |
+| FR-008 | The documented Standard 3 Ekam Kasoti workbook shall be validated server-side and matched only to pre-enrolled students through a school-controlled roll-number roster; its Aadhaar column shall never be read or stored. Other workbook formats require review before parsing is implemented. |
 
 ## Non-functional requirements
 

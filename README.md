@@ -6,7 +6,7 @@ A reusable, Gujarati-first public school portal with a focused principal-admin p
 
 ## Current status
 
-The public portal and principal-admin workflows for school settings, academic configuration, assessments, study materials, notices, gallery, downloads, account security, and JDBC-session authentication are implemented. Excel result import and public individual-result lookup remain blocked until the school supplies a privacy-safe, non-government student identifier and PIN workflow. Exam timetable and school timetable features are pending input or sample data.
+The public portal and principal-admin workflows for school settings, academic configuration, assessments, study materials, notices, gallery, downloads, account security, and JDBC-session authentication are implemented. Standard 3 Ekam Kasoti Excel import is available when the current academic-year roster has school-controlled roll numbers; its Aadhaar column is never read or stored. Annual-result workbook and timetable formats remain pending input or sample data.
 
 ## Features
 

@@ -4,8 +4,6 @@ import { AttendanceCalculator } from "@/features/tools/AttendanceCalculator";
 import { DateDifferenceCalculator } from "@/features/tools/DateDifferenceCalculator";
 import { MarksCalculator } from "@/features/tools/MarksCalculator";
 import { MultiSubjectMarksCalculator } from "@/features/tools/MultiSubjectMarksCalculator";
-import { MultiplicationTable } from "@/features/tools/MultiplicationTable";
-import { NumberToWords } from "@/features/tools/NumberToWords";
 import { LABELS } from "@/utils/gujarati";
 
 export function ToolsPage() {
@@ -23,8 +21,6 @@ export function ToolsPage() {
         <AttendanceCalculator />
         <MarksCalculator />
         <MultiSubjectMarksCalculator />
-        <MultiplicationTable />
-        <NumberToWords />
       </div>
     </div>
   );

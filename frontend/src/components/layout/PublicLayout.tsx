@@ -7,6 +7,7 @@ import {
   BookOpen,
   Calculator,
   Camera,
+  Download,
   GraduationCap,
   Home,
   Info,
@@ -23,6 +24,7 @@ const NAV_ICONS = [Home, Info, UserCheck, Newspaper, Camera, Phone];
 
 const STUDENT_LINKS = [
   { to: "/student/materials", icon: BookOpen, label: LABELS.materials },
+  { to: "/student/downloads", icon: Download, label: LABELS.downloads },
   { to: "/tools", icon: Calculator, label: LABELS.tools },
   { to: "/student/results", icon: GraduationCap, label: LABELS.results },
 ];
@@ -105,6 +107,7 @@ const DRAWER_LINKS = [
   { to: "/gallery", label: LABELS.gallery, icon: Camera },
   { to: "/contact", label: LABELS.contact, icon: Mail },
   { to: "/student/materials", label: LABELS.materials, icon: BookOpen },
+  { to: "/student/downloads", label: LABELS.downloads, icon: Download },
   { to: "/tools", label: LABELS.tools, icon: Calculator },
   { to: "/student/results", label: LABELS.results, icon: GraduationCap },
 ];

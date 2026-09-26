@@ -10,10 +10,15 @@ import {
   Settings,
   UserCheck,
   Users,
+  RotateCcw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/api/client";
 import { ErrorState } from "@/components/common/StatusPanel";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import type { VisitResponse } from "@/api/types";
 import { useAdminAuditLogs, useAdminDashboardSummary } from "@/features/admin/useAdminData";
 import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo, usePublicPrincipalProfile } from "@/features/school/useSchoolData";
@@ -29,6 +34,15 @@ export function AdminDashboardPage() {
     refetch: refetchSummary,
   } = useAdminDashboardSummary();
   const { data: auditLogs } = useAdminAuditLogs();
+  const visitsQuery = useQuery({
+    queryKey: ["public", "visits"],
+    queryFn: () => apiRequest<VisitResponse>("/api/v1/public/visits"),
+  });
+  const resetVisitsMutation = useMutation({
+    mutationFn: () =>
+      apiRequest<VisitResponse>("/api/v1/admin/site-metrics/visits/reset", { method: "POST" }),
+    onSuccess: () => visitsQuery.refetch(),
+  });
 
   const quickLinks = [
     {
@@ -53,7 +67,7 @@ export function AdminDashboardPage() {
       to: "/admin/assessments",
       label: "Results & Marks",
       icon: Award,
-      desc: "Exam and marks setup",
+      desc: "Annual and Ekam Kasoti result uploads",
     },
     {
       to: "/admin/materials",
@@ -183,6 +197,30 @@ export function AdminDashboardPage() {
           </Card>
         </div>
       )}
+
+      <Card className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h2 className="text-base font-bold text-slate-900">Website visits</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            Current counter:{" "}
+            <span className="font-semibold text-slate-900">
+              {visitsQuery.data?.totalVisits ?? 0}
+            </span>
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          className="gap-2"
+          loading={resetVisitsMutation.isPending}
+          onClick={() => {
+            if (window.confirm("Reset the website visit counter to zero?")) {
+              resetVisitsMutation.mutate();
+            }
+          }}
+        >
+          <RotateCcw size={16} aria-hidden="true" /> Reset visit counter
+        </Button>
+      </Card>
 
       {/* Operational Shortcuts */}
       <div>

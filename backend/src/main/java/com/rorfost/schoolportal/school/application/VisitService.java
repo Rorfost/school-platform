@@ -39,10 +39,24 @@ public class VisitService {
     return count(publicSchoolId());
   }
 
+  @Transactional
+  public VisitResponse reset(UUID schoolId) {
+    jdbc.update(
+        """
+        INSERT INTO site_metrics (school_id, total_visits) VALUES (?, 0)
+        ON CONFLICT (school_id) DO UPDATE
+        SET total_visits = 0, updated_at = CURRENT_TIMESTAMP
+        """,
+        schoolId);
+    return count(schoolId);
+  }
+
   private VisitResponse count(UUID schoolId) {
     Long count =
         jdbc.queryForObject(
-            "SELECT total_visits FROM site_metrics WHERE school_id = ?", Long.class, schoolId);
+            "SELECT COALESCE((SELECT total_visits FROM site_metrics WHERE school_id = ?), 0)",
+            Long.class,
+            schoolId);
     return new VisitResponse(count == null ? 0 : count);
   }
 

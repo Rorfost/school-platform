@@ -41,7 +41,7 @@ flowchart LR
   G --> H[Individual public lookup]
 ```
 
-The workbook contract is not defined. Do not infer sheet names, columns, marks representation, PIN behavior, or calculations. A published lookup requests only an individual result using the future approved identifiers and must receive `Cache-Control: no-store`.
+The Standard 3 Ekam Kasoti workbook contract is documented in `docs/data/RESULT_IMPORT.md`. Its Aadhaar column is never read or stored: rows are matched to pre-enrolled students by normalized name and their school-controlled roll number. Other workbook formats remain pending. A published lookup requests only an individual result using approved identifiers and must receive `Cache-Control: no-store`.
 
 ## School configuration and academic-year transition
 

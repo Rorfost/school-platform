@@ -113,7 +113,7 @@ Future services, not controllers, own transactions.
 
 | Operation | Transaction approach |
 | --- | --- |
-| Result import | Validate/preview before mutation. Confirmation writes assessment-result records in one database transaction. Excel parsing, duplicate policy, temporary-file retention, and rollback workflow wait for the real workbook contract. |
+| Result import | Standard 3 Ekam Kasoti validates the owner-provided format and, in one transaction, replaces only the current year's Ekam Kasoti results after every row maps to a pre-enrolled student. Its Aadhaar column is never read or stored. Other workbook formats, preview, and publication remain pending. |
 | Bulk student or marks update | One explicit service transaction with database constraints left enabled; record a safe audit event after success. |
 | File metadata and storage | Write the object first to storage, persist metadata including the ImageKit file ID in a transaction, and attempt compensating object cleanup if persistence fails. Deletes remove the provider object first, then metadata; legacy records without a file ID use an exact ImageKit path lookup, and an already-missing legacy object does not block DB cleanup. |
 | Publication transition | Change the content or assessment state and audit the event in one transaction. Public endpoints query only committed published state. |
@@ -123,4 +123,4 @@ Future services, not controllers, own transactions.
 
 Implemented: relational structure, status constraints, object metadata, generic numeric marks, password-style result-PIN storage, principal-password lifecycle, JDBC session storage, authentication audit storage, stable assessment-type seeds, JPA model/repository boundaries, PostgreSQL migration testing, and conservative connection-pool configuration.
 
-Deferred: file upload policies, object lifecycle jobs, result import records, Excel parsing, result calculations, maximum/passing marks, grades, attendance/absence representation, public result lookup, and any school-specific operational data. A future requirement must add these through new Flyway migrations; applied migrations are never edited.
+Deferred: file upload policies, object lifecycle jobs, result publication, public result lookup, and any workbook parsing beyond the documented Standard 3 Ekam Kasoti format. A future requirement must add these through new Flyway migrations; applied migrations are never edited.
