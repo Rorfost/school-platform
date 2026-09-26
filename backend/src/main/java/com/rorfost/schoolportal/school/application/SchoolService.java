@@ -116,8 +116,13 @@ public class SchoolService {
 
   @Transactional(readOnly = true)
   public PrincipalProfileResponse getProfile(UUID schoolId) {
-    PrincipalProfile profile = requireProfile(schoolId);
-    return principalProfileResponse(profile, false);
+    return principalProfileRepository
+        .findBySchoolId(schoolId)
+        .map(profile -> principalProfileResponse(profile, false))
+        .orElseGet(
+            () ->
+                new PrincipalProfileResponse(
+                    "", null, null, null, null, null, null, null, null, null, true, true));
   }
 
   @Transactional(readOnly = true)
@@ -165,7 +170,11 @@ public class SchoolService {
   @Transactional
   public PrincipalProfileResponse replacePrincipalSignature(
       UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
-    PrincipalProfile profile = requireProfile(schoolId);
+    PrincipalProfile profile =
+        principalProfileRepository
+            .findBySchoolId(schoolId)
+            .orElseGet(
+                () -> principalProfileRepository.save(new PrincipalProfile(schoolId, "Principal")));
     StoredObject uploaded =
         storage.uploadPublicImage("signatures/" + schoolId + "/principal", file);
     String previousKey = profile.getSignatureObjectKey();

@@ -49,6 +49,14 @@ export function AdminExamResultsTab() {
         setErrorMessage(
           "This file does not match the required result workbook format. Check the header and marks columns.",
         );
+      } else if (code === "result_standard_not_configured") {
+        setErrorMessage(
+          "Set up the Standard in Academic Setup first. Its name or number must match the Standard column in this workbook.",
+        );
+      } else if (code === "result_subject_maximums_not_configured") {
+        setErrorMessage(
+          "Open Academic Setup, choose this Standard's Maximum Marks, and save a maximum for every selected Subject before uploading.",
+        );
       } else {
         setErrorMessage("Upload failed. Check the file and total working days, then try again.");
       }
@@ -66,6 +74,10 @@ export function AdminExamResultsTab() {
       <h2 className="text-lg font-bold text-slate-900">Upload Result Workbook</h2>
       <p className="mt-1 text-sm text-slate-600">
         Exam Result and Ekam Kasoti Result use the same approved Excel workbook format.
+      </p>
+      <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
+        Before the first upload, set the Standard, its Subjects, and each Subject&apos;s maximum
+        marks in Academic Setup. Those saved values are used to calculate the correct percentage.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
