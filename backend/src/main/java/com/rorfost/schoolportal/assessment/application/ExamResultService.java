@@ -136,7 +136,7 @@ public class ExamResultService {
         result.setTotalWorkingDays(totalWorkingDays);
         result.setAttendedDays(optionalInteger(row.getCell(5)));
 
-        addSubjects(result, row, configuredSubjects(school.getId(), standard));
+        addSubjects(result, row, configuredSubjects(school.getId(), standard), sheet.getRow(0));
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -149,9 +149,11 @@ public class ExamResultService {
   }
 
   private void addSubjects(
-      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects) {
+      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects, Row headerRow) {
+    Map<Integer, Integer> subjectIndexToColumn = resolveSubjectColumns(headerRow, configuredSubjects);
+
     for (int index = 0; index < configuredSubjects.size(); index++) {
-      int marksColumn = 6 + index * 2;
+      int marksColumn = subjectIndexToColumn.getOrDefault(index, 6 + index * 2);
       String marks = cellText(row.getCell(marksColumn));
       if (marks.isBlank()) {
         continue;
@@ -165,10 +167,57 @@ public class ExamResultService {
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
-    for (int index = configuredSubjects.size(); index < 9; index++) {
-      if (!cellText(row.getCell(6 + index * 2)).isBlank())
-        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+  }
+
+  private Map<Integer, Integer> resolveSubjectColumns(Row headerRow, List<ConfiguredSubject> configuredSubjects) {
+    Map<Integer, Integer> columnMap = new HashMap<>();
+    if (headerRow == null) return columnMap;
+
+    for (int col = 6; col < 30; col += 2) {
+      String headerText = cellText(headerRow.getCell(col));
+      if (headerText.isBlank()) continue;
+      for (int i = 0; i < configuredSubjects.size(); i++) {
+        if (!columnMap.containsKey(i) && matchesSubjectName(headerText, configuredSubjects.get(i).name())) {
+          columnMap.put(i, col);
+          break;
+        }
+      }
     }
+    return columnMap;
+  }
+
+  private boolean matchesSubjectName(String headerText, String configuredName) {
+    if (headerText.equalsIgnoreCase(configuredName)) return true;
+    String normHeader = normalizeSubjectString(headerText);
+    String normConfig = normalizeSubjectString(configuredName);
+    if (!normHeader.isEmpty() && normHeader.equals(normConfig)) return true;
+
+    // Check alias maps (Gujarati <-> English)
+    return isSubjectAliasMatch(normHeader, normConfig);
+  }
+
+  private String normalizeSubjectString(String text) {
+    if (text == null) return "";
+    return text.toLowerCase().replaceAll("[^a-z0-9\\u0900-\\u097F]", "").trim();
+  }
+
+  private boolean isSubjectAliasMatch(String a, String b) {
+    List<List<String>> aliasGroups = List.of(
+        List.of("gujarati", "guj", "ગુજરાતી"),
+        List.of("mathematics", "maths", "math", "ગણિત"),
+        List.of("science", "sci", "વિજ્ઞાન"),
+        List.of("hindi", "hin", "હિન્દી"),
+        List.of("english", "eng", "અંગ્રેજી"),
+        List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
+        List.of("sanskrit", "san", "સંસ્કૃત"),
+        List.of("personalitydevelopment", "pd", "personality", "વ્યક્તિત્વવિકાસ"),
+        List.of("environment", "environmentalstudies", "env", "પર્યાવરણ")
+    );
+
+    for (List<String> group : aliasGroups) {
+      if (group.contains(a) && group.contains(b)) return true;
+    }
+    return false;
   }
 
   private List<ConfiguredSubject> configuredSubjects(UUID schoolId, String standardValue) {
@@ -207,11 +256,45 @@ public class ExamResultService {
   private record ConfiguredSubject(String name, int maximumMarks) {}
 
   private boolean matchesStandard(Standard standard, String uploadedValue) {
-    if (uploadedValue.equalsIgnoreCase(standard.getDisplayName())
-        || uploadedValue.equalsIgnoreCase(standard.getCode())) return true;
-    String uploadedNumber = uploadedValue.replaceAll("[^0-9]", "");
-    String displayNumber = standard.getDisplayName().replaceAll("[^0-9]", "");
-    return !uploadedNumber.isBlank() && uploadedNumber.equals(displayNumber);
+    if (uploadedValue == null || uploadedValue.isBlank()) return false;
+    String rawUploaded = uploadedValue.trim();
+    if (rawUploaded.equalsIgnoreCase(standard.getDisplayName())
+        || rawUploaded.equalsIgnoreCase(standard.getCode())) return true;
+
+    String asciiUploaded = convertGujaratiDigitsToAscii(rawUploaded);
+    String asciiDisplay = convertGujaratiDigitsToAscii(standard.getDisplayName());
+
+    String uploadedNum = extractStandardNum(asciiUploaded);
+    String displayNum = extractStandardNum(asciiDisplay);
+
+    return !uploadedNum.isBlank() && uploadedNum.equals(displayNum);
+  }
+
+  private String convertGujaratiDigitsToAscii(String text) {
+    if (text == null) return "";
+    StringBuilder sb = new StringBuilder();
+    for (char c : text.toCharArray()) {
+      if (c >= '\u0966' && c <= '\u096F') {
+        sb.append((char) ('0' + (c - '\u0966')));
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
+  private String extractStandardNum(String text) {
+    if (text == null) return "";
+    String upper = text.toUpperCase();
+    if (upper.contains("VIII") || upper.contains("8")) return "8";
+    if (upper.contains("VII") || upper.contains("7")) return "7";
+    if (upper.contains("VI") || upper.contains("6")) return "6";
+    if (upper.contains("IV") || upper.contains("4")) return "4";
+    if (upper.contains("V") || upper.contains("5")) return "5";
+    if (upper.contains("III") || upper.contains("3")) return "3";
+    if (upper.contains("II") || upper.contains("2")) return "2";
+    if (upper.contains("I") || upper.contains("1")) return "1";
+    return upper.replaceAll("[^0-9]", "");
   }
 
   private void calculateTotals(AnnualExamResult result, ResultPresentationSettings settings) {
