@@ -3,6 +3,7 @@ import {
   AlertCircle,
   Award,
   Camera,
+  CalendarDays,
   ExternalLink,
   FileText,
   FolderDown,
@@ -50,7 +51,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     title: "Academics",
-    items: [{ to: "/admin/academics", label: "Academic Setup", icon: Layers }],
+    items: [
+      { to: "/admin/academic-years", label: "Academic Years", icon: CalendarDays },
+      { to: "/admin/academics", label: "Academic Setup", icon: Layers },
+    ],
   },
   {
     title: "School Settings",

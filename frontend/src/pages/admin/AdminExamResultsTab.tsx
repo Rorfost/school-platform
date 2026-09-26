@@ -39,7 +39,13 @@ export function AdminExamResultsTab() {
     },
     onError: (reason) => {
       const code = reason instanceof ApiError ? reason.code : undefined;
-      if (reason instanceof ApiError && reason.status === 404) {
+      if (code === "academic_year_not_found") {
+        setErrorMessage(
+          "No current academic year is configured. Open Academic Years, create or select the current year, then upload again.",
+        );
+      } else if (code === "school_not_configured") {
+        setErrorMessage("School details must be configured before results can be uploaded.");
+      } else if (reason instanceof ApiError && reason.status === 404) {
         setErrorMessage(
           "The result-upload service is unavailable. Deploy the latest backend, then try again.",
         );
