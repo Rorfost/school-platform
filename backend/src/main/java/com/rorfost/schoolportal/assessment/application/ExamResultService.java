@@ -1,8 +1,5 @@
 package com.rorfost.schoolportal.assessment.application;
 
-import com.rorfost.schoolportal.academic.domain.AcademicYear;
-import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
-import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
 import com.rorfost.schoolportal.assessment.api.ExamResultResponse;
 import com.rorfost.schoolportal.assessment.api.ExamResultSubjectResponse;
 import com.rorfost.schoolportal.common.exception.DomainException;
@@ -40,29 +37,20 @@ public class ExamResultService {
 
   private final AnnualExamResultRepository resultRepository;
   private final SchoolRepository schoolRepository;
-  private final AcademicYearRepository academicYearRepository;
   private final DataFormatter dataFormatter = new DataFormatter();
 
   public ExamResultService(
-      AnnualExamResultRepository resultRepository,
-      SchoolRepository schoolRepository,
-      AcademicYearRepository academicYearRepository) {
+      AnnualExamResultRepository resultRepository, SchoolRepository schoolRepository) {
     this.resultRepository = resultRepository;
     this.schoolRepository = schoolRepository;
-    this.academicYearRepository = academicYearRepository;
   }
 
   @Transactional(readOnly = true)
   public ExamResultResponse getResult(String standard, Integer rollNumber, String resultType) {
     School school = getSchool();
-    AcademicYear academicYear = getAcademicYear(school.getId());
     return resultRepository
-        .findBySchoolIdAndAcademicYearIdAndResultTypeAndStandardAndRollNumber(
-            school.getId(),
-            academicYear.getId(),
-            validateResultType(resultType),
-            standard,
-            rollNumber)
+        .findBySchoolIdAndResultTypeAndStandardAndRollNumber(
+            school.getId(), validateResultType(resultType), standard, rollNumber)
         .map(this::mapToResponse)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Result not found"));
   }
@@ -79,24 +67,18 @@ public class ExamResultService {
 
     String validatedResultType = validateResultType(resultType);
     School school = getSchool();
-    AcademicYear academicYear = getAcademicYear(school.getId());
     List<AnnualExamResult> results =
-        parseWorkbook(file, school, academicYear, totalWorkingDays, validatedResultType);
+        parseWorkbook(file, school, totalWorkingDays, validatedResultType);
     if (results.isEmpty()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
     }
 
-    resultRepository.deleteBySchoolIdAndAcademicYearIdAndResultType(
-        school.getId(), academicYear.getId(), validatedResultType);
+    resultRepository.deleteBySchoolIdAndResultType(school.getId(), validatedResultType);
     resultRepository.saveAll(results);
   }
 
   private List<AnnualExamResult> parseWorkbook(
-      MultipartFile file,
-      School school,
-      AcademicYear academicYear,
-      Integer totalWorkingDays,
-      String resultType) {
+      MultipartFile file, School school, Integer totalWorkingDays, String resultType) {
     try (InputStream inputStream = file.getInputStream();
         Workbook workbook = WorkbookFactory.create(inputStream)) {
       Sheet sheet = workbook.getSheetAt(0);
@@ -117,7 +99,6 @@ public class ExamResultService {
         AnnualExamResult result = new AnnualExamResult();
         result.setId(UUID.randomUUID());
         result.setSchoolId(school.getId());
-        result.setAcademicYearId(academicYear.getId());
         result.setResultType(resultType);
         result.setStandard(standard);
         result.setRollNumber(standardRollCounts.merge(standard, 1, Integer::sum));
@@ -217,13 +198,6 @@ public class ExamResultService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "School not found"));
   }
 
-  private AcademicYear getAcademicYear(UUID schoolId) {
-    return academicYearRepository.findBySchoolIdOrderByStartsOnDesc(schoolId).stream()
-        .filter(year -> year.getStatus() == AcademicYearStatus.CURRENT)
-        .findFirst()
-        .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "academic_year_not_found"));
-  }
-
   private String cellText(Cell cell) {
     return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
   }
@@ -253,7 +227,6 @@ public class ExamResultService {
     return new ExamResultResponse(
         entity.getId(),
         entity.getSchoolId(),
-        entity.getAcademicYearId(),
         entity.getStudentName(),
         entity.getStandard(),
         entity.getRollNumber(),

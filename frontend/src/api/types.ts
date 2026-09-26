@@ -320,7 +320,6 @@ export interface ExamResultSubjectResponse {
 export interface ExamResultResponse {
   id: string;
   schoolId: string;
-  academicYearId: string;
   studentName: string;
   standard: string;
   rollNumber: number;

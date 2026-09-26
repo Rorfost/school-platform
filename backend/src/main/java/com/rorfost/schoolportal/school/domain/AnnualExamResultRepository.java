@@ -11,15 +11,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AnnualExamResultRepository extends JpaRepository<AnnualExamResult, UUID> {
 
-  Optional<AnnualExamResult> findBySchoolIdAndAcademicYearIdAndResultTypeAndStandardAndRollNumber(
-      UUID schoolId, UUID academicYearId, String resultType, String standard, Integer rollNumber);
+  Optional<AnnualExamResult> findBySchoolIdAndResultTypeAndStandardAndRollNumber(
+      UUID schoolId, String resultType, String standard, Integer rollNumber);
 
   @Modifying
   @Query(
-      "DELETE FROM AnnualExamResult r WHERE r.schoolId = :schoolId AND r.academicYearId = :academicYearId"
-          + " AND r.resultType = :resultType")
-  void deleteBySchoolIdAndAcademicYearIdAndResultType(
-      @Param("schoolId") UUID schoolId,
-      @Param("academicYearId") UUID academicYearId,
-      @Param("resultType") String resultType);
+      "DELETE FROM AnnualExamResult r WHERE r.schoolId = :schoolId AND r.resultType = :resultType")
+  void deleteBySchoolIdAndResultType(
+      @Param("schoolId") UUID schoolId, @Param("resultType") String resultType);
 }

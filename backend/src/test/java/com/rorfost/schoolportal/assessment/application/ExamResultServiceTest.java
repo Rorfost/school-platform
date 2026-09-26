@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.rorfost.schoolportal.academic.domain.AcademicYear;
-import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
-import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
 import com.rorfost.schoolportal.school.domain.School;
@@ -25,29 +22,20 @@ import org.springframework.mock.web.MockMultipartFile;
 class ExamResultServiceTest {
   private final AnnualExamResultRepository results = Mockito.mock(AnnualExamResultRepository.class);
   private final SchoolRepository schools = Mockito.mock(SchoolRepository.class);
-  private final AcademicYearRepository academicYears = Mockito.mock(AcademicYearRepository.class);
-  private final ExamResultService service = new ExamResultService(results, schools, academicYears);
+  private final ExamResultService service = new ExamResultService(results, schools);
 
   @Test
   void importsTheSharedWorkbookIntoTheSelectedEkamKasotiResultSet() throws IOException {
     UUID schoolId = UUID.randomUUID();
-    UUID academicYearId = UUID.randomUUID();
     School school = Mockito.mock(School.class);
-    AcademicYear academicYear = Mockito.mock(AcademicYear.class);
     when(school.getId()).thenReturn(schoolId);
-    when(academicYear.getId()).thenReturn(academicYearId);
-    when(academicYear.getStatus()).thenReturn(AcademicYearStatus.CURRENT);
     when(schools.findFirstByIsActiveTrueOrderByCreatedAtAsc()).thenReturn(Optional.of(school));
-    when(academicYears.findBySchoolIdOrderByStartsOnDesc(schoolId))
-        .thenReturn(List.of(academicYear));
 
     service.processExcelUpload(sharedWorkbook(), 250, ExamResultService.EKAM_KASOTI);
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<AnnualExamResult>> resultCaptor = ArgumentCaptor.forClass(List.class);
-    verify(results)
-        .deleteBySchoolIdAndAcademicYearIdAndResultType(
-            schoolId, academicYearId, ExamResultService.EKAM_KASOTI);
+    verify(results).deleteBySchoolIdAndResultType(schoolId, ExamResultService.EKAM_KASOTI);
     verify(results).saveAll(resultCaptor.capture());
 
     AnnualExamResult result = resultCaptor.getValue().getFirst();

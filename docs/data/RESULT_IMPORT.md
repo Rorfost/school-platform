@@ -55,6 +55,6 @@ This contract was observed locally from the ignored source workbook. It delibera
 
 ### Current implementation
 
-Exam Result and Ekam Kasoti Result use the same approved multi-subject workbook, with student details in columns `A:F` and subject mark/grade pairs in columns `G:X`. The principal chooses `ANNUAL` or `EKAM_KASOTI` at upload time; each complete upload replaces only the selected result type for the current academic year. Public lookup likewise requires the selected result type, standard, and roll number.
+Exam Result and Ekam Kasoti Result use the same approved multi-subject workbook, with student details in columns `A:F` and subject mark/grade pairs in columns `G:X`. The principal chooses `ANNUAL` or `EKAM_KASOTI` at upload time; each complete upload replaces every previously uploaded result of the selected type. Public lookup requires the selected result type, standard, and roll number.
 
 The historical Standard 3 Aadhaar-based workbook above is not accepted by the current importer. The approved shared workbook contains no Aadhaar column, so the portal never reads, logs, hashes, or stores a government identifier.
