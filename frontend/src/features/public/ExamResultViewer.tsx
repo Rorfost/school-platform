@@ -1,6 +1,8 @@
 import { Printer } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
-import type { ExamResultResponse } from "@/api/types";
+import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { toGujaratiNumber } from "@/utils/gujarati";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
@@ -13,6 +15,10 @@ export function ExamResultViewer({
   schoolName: string;
   logoUrl?: string | null;
 }) {
+  const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
+    queryKey: ["result-settings"],
+    queryFn: () => apiRequest<ResultPresentationSettingsResponse>("/api/v1/public/result-settings"),
+  });
   const handlePrint = () => window.print();
 
   return (
@@ -156,7 +162,7 @@ export function ExamResultViewer({
             {/* Footer */}
             <div className="grid grid-cols-[auto_1fr] border-b-2 border-slate-800 text-sm">
               <div className="p-2 px-4 font-bold border-r border-slate-800">પરિણામ તારીખ :</div>
-              <div className="p-2 px-4">3/5/2026</div>
+              <div className="p-2 px-4">{settings?.resultDate ?? "-"}</div>
             </div>
 
             <div className="h-24 border-b-2 border-slate-800 relative">
