@@ -10,16 +10,22 @@ import { ExamResultViewer } from "@/features/public/ExamResultViewer";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function ResultsInfoPage() {
+  const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
   const [standard, setStandard] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [result, setResult] = useState<ExamResultResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const school = useEffectiveSchoolInfo();
+  const isStandardValid = /^[1-8]$/.test(standard);
+  const isRollNumberValid = /^[1-9]\d*$/.test(rollNumber);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!standard || !rollNumber) return;
+    if (!isStandardValid || !isRollNumberValid) {
+      setError("કૃપા કરીને 1 થી 8 ધોરણ અને માન્ય રોલ નંબર લખો.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -27,7 +33,7 @@ export function ResultsInfoPage() {
 
     try {
       const data = await apiRequest<ExamResultResponse>(
-        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}`,
+        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}&resultType=${resultType}`,
       );
       setResult(data);
     } catch (err) {
@@ -53,22 +59,44 @@ export function ResultsInfoPage() {
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900 mb-4">પરિણામ શોધો</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  label="ધોરણ"
-                  value={standard}
-                  onChange={(e) => setStandard(e.target.value)}
-                  placeholder="દા.ત. 8"
-                  required
-                />
-                <Input
-                  label="રોલ નંબર"
-                  type="number"
-                  value={rollNumber}
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  placeholder="દા.ત. 1"
-                  required
-                />
+              <div className="space-y-4">
+                <label className="flex flex-col gap-2 text-base font-semibold text-slate-800">
+                  પરિણામનો પ્રકાર
+                  <select
+                    value={resultType}
+                    onChange={(event) =>
+                      setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")
+                    }
+                    className="min-h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  >
+                    <option value="ANNUAL">પરીક્ષા પરિણામ</option>
+                    <option value="EKAM_KASOTI">એકમ કસોટી પરિણામ</option>
+                  </select>
+                </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    label="ધોરણ"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={standard}
+                    onChange={(e) => setStandard(e.target.value.replace(/\D/g, "").slice(0, 1))}
+                    placeholder="દા.ત. 8"
+                    aria-invalid={standard.length > 0 && !isStandardValid}
+                    required
+                  />
+                  <Input
+                    label="રોલ નંબર"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value.replace(/\D/g, ""))}
+                    placeholder="દા.ત. 1"
+                    aria-invalid={rollNumber.length > 0 && !isRollNumberValid}
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -81,7 +109,8 @@ export function ResultsInfoPage() {
               variant="primary"
               className="w-full gap-2 mt-2"
               loading={loading}
-              disabled={!standard || !rollNumber}
+              loadingText="પરિણામ શોધી રહ્યા છીએ..."
+              disabled={!isStandardValid || !isRollNumberValid}
             >
               <Search size={18} /> પરિણામ જુઓ
             </Button>

@@ -34,8 +34,7 @@ Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/a
 | `PATCH /api/v1/admin/gallery/albums/{id}/images/reorder` | `PRINCIPAL` + CSRF | Replaces the complete image order with a validated `imageIds` list. |
 | `DELETE /api/v1/admin/gallery/albums/{albumId}/images/{imageId}` | `PRINCIPAL` + CSRF | Deletes the ImageKit object and image metadata, then normalizes order. |
 | `GET /api/v1/admin/downloads` | `PRINCIPAL` | Lists every school-scoped download, including drafts and archived records. |
-| `POST /api/v1/admin/exam-results/upload` | `PRINCIPAL` + CSRF | Imports the approved annual-result workbook format. |
-| `POST /api/v1/admin/exam-results/ekam-kasoti/upload` | `PRINCIPAL` + CSRF | Imports the documented Standard 3 Ekam Kasoti workbook without reading its Aadhaar column. |
+| `POST /api/v1/admin/exam-results/upload` | `PRINCIPAL` + CSRF | Imports the approved multi-subject workbook for either result type. The multipart `resultType` (`ANNUAL` or `EKAM_KASOTI`) selects the isolated result set to replace. |
 | `POST /api/v1/admin/site-metrics/visits/reset` | `PRINCIPAL` + CSRF | Resets the school visit counter to zero. |
 
 Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failures remain generic, and all frontend-visible text is represented by stable codes for Gujarati mapping.

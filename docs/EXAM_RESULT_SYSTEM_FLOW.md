@@ -102,7 +102,8 @@ When an administrator uploads an Excel file via `POST /api/v1/admin/exam-results
 1. **Transactional Re-upload Handling:**
    To allow easy re-uploads without duplicate key errors, the backend executes a custom batch query:
    ```java
-   resultRepository.deleteBySchoolIdAndAcademicYearId(school.getId(), academicYear.getId());
+   resultRepository.deleteBySchoolIdAndAcademicYearIdAndResultType(
+       school.getId(), academicYear.getId(), resultType);
    ```
 
 2. **Sequential Roll Number Assignment:**
@@ -188,8 +189,8 @@ The marksheet follows the official Primary Education Board layout:
 
 | Method | Endpoint | Access | Purpose |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/public/exam-results` | Public (`permitAll`) | Fetch result by `standard` and `rollNumber` |
-| `POST` | `/api/v1/admin/exam-results/upload` | Admin (`ROLE_PRINCIPAL`) | Upload Excel file with `totalWorkingDays` |
+| `GET` | `/api/v1/public/exam-results` | Public (`permitAll`) | Fetch result by `standard`, `rollNumber`, and `resultType` |
+| `POST` | `/api/v1/admin/exam-results/upload` | Admin (`ROLE_PRINCIPAL`) | Upload the approved shared Excel file with `totalWorkingDays` and `resultType` |
 
 ---
 

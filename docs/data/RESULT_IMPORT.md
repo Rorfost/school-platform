@@ -53,6 +53,8 @@ This contract was observed locally from the ignored source workbook. It delibera
 - The owner must approve one of: (1) a workbook revision containing a school-controlled non-government roll number; or (2) a separate, documented pre-import enrollment/mapping workflow that supplies roll numbers and a secure PIN-distribution process. Until then, preview, confirmation, persistence, publication, and public lookup are intentionally not implemented.
 - Other exam-result workbook formats, exam timetable, and school timetable remain pending real samples or requirements.
 
-### Superseding implementation note
+### Current implementation
 
-The Standard 3 Ekam Kasoti upload now uses the permitted separate enrolment mapping workflow: before upload, the principal enrols every student in the current academic year with a unique numeric, school-controlled roll number. Rows are matched only by exact normalized student name. The importer never reads, logs, hashes, or stores the `AadhaarUID` cell, rejects duplicate names rather than guessing, and replaces only the current year's Ekam Kasoti results after the complete workbook validates. The public result page remains annual-result-only until an Ekam Kasoti release and lookup flow is approved.
+Exam Result and Ekam Kasoti Result use the same approved multi-subject workbook, with student details in columns `A:F` and subject mark/grade pairs in columns `G:X`. The principal chooses `ANNUAL` or `EKAM_KASOTI` at upload time; each complete upload replaces only the selected result type for the current academic year. Public lookup likewise requires the selected result type, standard, and roll number.
+
+The historical Standard 3 Aadhaar-based workbook above is not accepted by the current importer. The approved shared workbook contains no Aadhaar column, so the portal never reads, logs, hashes, or stores a government identifier.
