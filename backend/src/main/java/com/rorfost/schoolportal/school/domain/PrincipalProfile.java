@@ -16,6 +16,7 @@ public class PrincipalProfile extends AuditableUuidEntity {
   private String designation;
   private String message;
   private String portraitObjectKey;
+  private String signatureObjectKey;
   private String email;
   private String phone;
   private boolean isPublic = true;
@@ -54,6 +55,14 @@ public class PrincipalProfile extends AuditableUuidEntity {
 
   public String getPortraitObjectKey() {
     return portraitObjectKey;
+  }
+
+  public String getSignatureObjectKey() {
+    return signatureObjectKey;
+  }
+
+  public void changeSignature(String signatureObjectKey) {
+    this.signatureObjectKey = signatureObjectKey;
   }
 
   public String getEmail() {

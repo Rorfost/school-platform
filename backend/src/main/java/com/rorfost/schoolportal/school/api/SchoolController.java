@@ -65,4 +65,13 @@ class SchoolController {
       @Valid @RequestBody PrincipalProfileUpdateRequest request) {
     return schoolService.updateProfile(principal.schoolId(), principal.adminUserId(), request);
   }
+
+  @PostMapping(
+      value = "/api/v1/admin/principal-profile/signature",
+      consumes = "multipart/form-data")
+  PrincipalProfileResponse replacePrincipalSignature(
+      @AuthenticationPrincipal PrincipalSession principal, @RequestParam MultipartFile file) {
+    return schoolService.replacePrincipalSignature(
+        principal.schoolId(), principal.adminUserId(), file);
+  }
 }

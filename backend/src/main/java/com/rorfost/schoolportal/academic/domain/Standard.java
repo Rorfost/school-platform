@@ -14,6 +14,8 @@ public class Standard extends AuditableUuidEntity {
   private String displayName;
   private short sortOrder;
   private boolean isArchived;
+  private String classTeacherName;
+  private String classTeacherSignatureObjectKey;
 
   protected Standard() {}
 
@@ -42,6 +44,22 @@ public class Standard extends AuditableUuidEntity {
 
   public boolean isArchived() {
     return isArchived;
+  }
+
+  public String getClassTeacherName() {
+    return classTeacherName;
+  }
+
+  public String getClassTeacherSignatureObjectKey() {
+    return classTeacherSignatureObjectKey;
+  }
+
+  public void updateClassTeacher(String classTeacherName) {
+    this.classTeacherName = classTeacherName;
+  }
+
+  public void changeClassTeacherSignature(String classTeacherSignatureObjectKey) {
+    this.classTeacherSignatureObjectKey = classTeacherSignatureObjectKey;
   }
 
   public void update(String code, String displayName, short sortOrder, boolean archived) {

@@ -16,8 +16,11 @@ export function ExamResultViewer({
   logoUrl?: string | null;
 }) {
   const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
-    queryKey: ["result-settings"],
-    queryFn: () => apiRequest<ResultPresentationSettingsResponse>("/api/v1/public/result-settings"),
+    queryKey: ["result-settings", result.standard],
+    queryFn: () =>
+      apiRequest<ResultPresentationSettingsResponse>(
+        `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,
+      ),
   });
   const handlePrint = () => window.print();
 
@@ -166,19 +169,41 @@ export function ExamResultViewer({
             </div>
 
             <div className="h-24 border-b-2 border-slate-800 relative">
+              {settings?.classTeacherSignatureUrl && (
+                <img
+                  src={settings.classTeacherSignatureUrl}
+                  alt="Class teacher signature"
+                  className="absolute bottom-8 left-8 h-10 max-w-36 object-contain"
+                />
+              )}
+              {settings?.principalSignatureUrl && (
+                <img
+                  src={settings.principalSignatureUrl}
+                  alt="Principal signature"
+                  className="absolute bottom-8 right-8 h-10 max-w-36 object-contain"
+                />
+              )}
               <div className="absolute bottom-2 left-10 font-bold text-sm">વર્ગ શિક્ષકની સહી</div>
               <div className="absolute bottom-2 right-10 font-bold text-sm">આચાર્યની સહી</div>
             </div>
 
             <div className="bg-cyan-50 p-3 text-sm font-medium space-y-2">
-              <p>
-                ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા
-                રાબેતા મુજબ શરુ થશે.
-              </p>
-              <p className="text-center text-xs mt-2 text-slate-700">
-                80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
-                વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
-              </p>
+              {settings?.footerLineOne ? (
+                <p>{settings.footerLineOne}</p>
+              ) : (
+                <p>
+                  ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી
+                  શાળા રાબેતા મુજબ શરુ થશે.
+                </p>
+              )}
+              {settings?.footerLineTwo ? (
+                <p className="text-center text-xs mt-2 text-slate-700">{settings.footerLineTwo}</p>
+              ) : (
+                <p className="text-center text-xs mt-2 text-slate-700">
+                  80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
+                  વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
+                </p>
+              )}
             </div>
           </div>
         </div>

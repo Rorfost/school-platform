@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
+import { Archive, Pencil, Plus, Settings2, Trash2, Upload } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { AcademicSetupResponse, StandardResponse, SubjectResponse } from "@/api/types";
+import type {
+  AcademicSetupResponse,
+  StandardResponse,
+  StandardSubjectResponse,
+  SubjectResponse,
+} from "@/api/types";
 import { ContentSkeleton, EmptyState, ErrorState } from "@/components/common/StatusPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -40,6 +45,10 @@ export function AdminAcademicSetupPage() {
   const [standardTarget, setStandardTarget] = useState<StandardResponse | null>(null);
   const [subjectTarget, setSubjectTarget] = useState<SubjectResponse | null>(null);
   const [standardDialog, setStandardDialog] = useState(false);
+  const [classTeacherTarget, setClassTeacherTarget] = useState<StandardResponse | null>(null);
+  const [marksTarget, setMarksTarget] = useState<AcademicSetupResponse["standards"][number] | null>(
+    null,
+  );
   const [subjectDialog, setSubjectDialog] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -142,6 +151,65 @@ export function AdminAcademicSetupPage() {
       setErrorMessage(null);
     },
     onError: (error) => setErrorMessage(academicError(error, "Could not save the Subject.")),
+  });
+  const updateStandardInSetup = (updated: StandardResponse) =>
+    updateSetup((setup) => ({
+      ...setup,
+      standards: setup.standards.map((entry) =>
+        entry.standard.id === updated.id ? { ...entry, standard: updated } : entry,
+      ),
+    }));
+  const saveClassTeacher = useMutation({
+    mutationFn: ({
+      standardId,
+      classTeacherName,
+    }: {
+      standardId: string;
+      classTeacherName: string;
+    }) =>
+      apiRequest<StandardResponse>(`/api/v1/admin/standards/${standardId}/class-teacher`, {
+        method: "PUT",
+        body: { classTeacherName },
+      }),
+    onSuccess: (updated) => {
+      updateStandardInSetup(updated);
+      setClassTeacherTarget(null);
+    },
+  });
+  const uploadClassTeacherSignature = useMutation({
+    mutationFn: ({ standardId, file }: { standardId: string; file: File }) => {
+      const body = new FormData();
+      body.append("file", file);
+      return apiRequest<StandardResponse>(
+        `/api/v1/admin/standards/${standardId}/class-teacher/signature`,
+        { method: "POST", body },
+      );
+    },
+    onSuccess: updateStandardInSetup,
+  });
+  const marksQuery = useQuery<StandardSubjectResponse[]>({
+    queryKey: ["standard-subject-maximums", marksTarget?.standard.id],
+    queryFn: () => apiRequest(`/api/v1/admin/standards/${marksTarget?.standard.id}/subjects`),
+    enabled: !!marksTarget,
+  });
+  const updateMaximum = useMutation({
+    mutationFn: ({
+      mapping,
+      maximumMarks,
+    }: {
+      mapping: StandardSubjectResponse;
+      maximumMarks: number;
+    }) =>
+      apiRequest<StandardSubjectResponse>(`/api/v1/admin/standard-subjects/${mapping.id}`, {
+        method: "PUT",
+        body: {
+          standardId: mapping.standardId,
+          subjectId: mapping.subjectId,
+          sortOrder: mapping.sortOrder,
+          maximumMarks,
+        },
+      }),
+    onSuccess: () => void marksQuery.refetch(),
   });
   const deleteStandard = useMutation({
     mutationFn: (id: string) =>
@@ -318,6 +386,33 @@ export function AdminAcademicSetupPage() {
                 >
                   <Settings2 size={15} aria-hidden="true" /> Manage Subjects
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setClassTeacherTarget(entry.standard)}
+                >
+                  <Pencil size={14} aria-hidden="true" /> Class Teacher
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setMarksTarget(entry)}>
+                  <Settings2 size={14} aria-hidden="true" /> Maximum Marks
+                </Button>
+                <label className="inline-flex cursor-pointer items-center gap-1 px-2 py-1 text-sm font-medium text-blue-900">
+                  <Upload size={14} aria-hidden="true" />
+                  {uploadClassTeacherSignature.isPending
+                    ? "Uploading signature..."
+                    : "Teacher signature"}
+                  <input
+                    className="sr-only"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file)
+                        uploadClassTeacherSignature.mutate({ standardId: entry.standard.id, file });
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
               </div>
               <div className="flex flex-wrap gap-2">
                 {entry.subjects.length ? (
@@ -491,6 +586,61 @@ export function AdminAcademicSetupPage() {
           onClose={() => !saveStandard.isPending && closeStandardDialog()}
           onSubmit={(displayName) => saveStandard.mutate({ standard: standardTarget, displayName })}
         />
+      )}
+      {classTeacherTarget && (
+        <NameDialog
+          title={`Class Teacher: ${classTeacherTarget.displayName}`}
+          label="Class Teacher Name"
+          defaultValue={classTeacherTarget.classTeacherName ?? ""}
+          submitText="Save Class Teacher"
+          pending={saveClassTeacher.isPending}
+          onClose={() => !saveClassTeacher.isPending && setClassTeacherTarget(null)}
+          onSubmit={(classTeacherName) =>
+            saveClassTeacher.mutate({ standardId: classTeacherTarget.id, classTeacherName })
+          }
+        />
+      )}
+      {marksTarget && (
+        <Dialog
+          title={`Subject Maximum Marks: ${marksTarget.standard.displayName}`}
+          onClose={() => setMarksTarget(null)}
+        >
+          <p className="mt-2 text-sm text-slate-600">
+            Save each total once. Only saved totals are used for every new Exam and Ekam Kasoti
+            result upload.
+          </p>
+          <div className="mt-4 space-y-3">
+            {marksQuery.isPending ? (
+              <p className="text-sm">Loading subject maximum marks...</p>
+            ) : (
+              marksQuery.data?.map((mapping) => {
+                const subject = marksTarget.subjects.find((item) => item.id === mapping.subjectId);
+                return (
+                  <form
+                    key={mapping.id}
+                    className="flex items-end gap-3"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      const value = Number(new FormData(event.currentTarget).get("maximumMarks"));
+                      if (value > 0) updateMaximum.mutate({ mapping, maximumMarks: value });
+                    }}
+                  >
+                    <Input
+                      label={`${subject?.name ?? "Subject"}${mapping.maximumMarksConfigured ? "" : " — total required"}`}
+                      name="maximumMarks"
+                      type="number"
+                      min="1"
+                      defaultValue={mapping.maximumMarks ?? 100}
+                    />
+                    <Button type="submit" size="sm" loading={updateMaximum.isPending}>
+                      Save
+                    </Button>
+                  </form>
+                );
+              })
+            )}
+          </div>
+        </Dialog>
       )}
       {subjectDialog && (
         <NameDialog

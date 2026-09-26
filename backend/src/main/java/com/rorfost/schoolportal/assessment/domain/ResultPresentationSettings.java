@@ -1,5 +1,6 @@
 package com.rorfost.schoolportal.assessment.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -10,13 +11,29 @@ import java.util.UUID;
 @Entity
 @Table(name = "result_presentation_settings")
 public class ResultPresentationSettings {
-  @Id private UUID schoolId;
+  @Id
+  @Column(name = "school_id")
+  private UUID schoolId;
+
+  @Column(name = "result_date")
   private LocalDate resultDate;
+
+  @Column(name = "footer_line_one")
   private String footerLineOne;
+
+  @Column(name = "footer_line_two")
   private String footerLineTwo;
+
+  @Column(name = "grade_a_min")
   private BigDecimal gradeAMin = BigDecimal.valueOf(80);
+
+  @Column(name = "grade_b_min")
   private BigDecimal gradeBMin = BigDecimal.valueOf(65);
+
+  @Column(name = "grade_c_min")
   private BigDecimal gradeCMin = BigDecimal.valueOf(50);
+
+  @Column(name = "grade_d_min")
   private BigDecimal gradeDMin = BigDecimal.valueOf(35);
 
   protected ResultPresentationSettings() {}

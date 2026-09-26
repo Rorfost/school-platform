@@ -11,7 +11,10 @@ public record ResultPresentationSettingsResponse(
     BigDecimal gradeAMin,
     BigDecimal gradeBMin,
     BigDecimal gradeCMin,
-    BigDecimal gradeDMin) {
+    BigDecimal gradeDMin,
+    String principalSignatureUrl,
+    String classTeacherName,
+    String classTeacherSignatureUrl) {
   public static ResultPresentationSettingsResponse from(ResultPresentationSettings value) {
     return new ResultPresentationSettingsResponse(
         value.getResultDate(),
@@ -20,6 +23,24 @@ public record ResultPresentationSettingsResponse(
         value.getGradeAMin(),
         value.getGradeBMin(),
         value.getGradeCMin(),
-        value.getGradeDMin());
+        value.getGradeDMin(),
+        null,
+        null,
+        null);
+  }
+
+  public ResultPresentationSettingsResponse withSignatures(
+      String principalSignatureUrl, String classTeacherName, String classTeacherSignatureUrl) {
+    return new ResultPresentationSettingsResponse(
+        resultDate,
+        footerLineOne,
+        footerLineTwo,
+        gradeAMin,
+        gradeBMin,
+        gradeCMin,
+        gradeDMin,
+        principalSignatureUrl,
+        classTeacherName,
+        classTeacherSignatureUrl);
   }
 }

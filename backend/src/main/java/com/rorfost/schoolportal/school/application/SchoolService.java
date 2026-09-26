@@ -116,11 +116,8 @@ public class SchoolService {
 
   @Transactional(readOnly = true)
   public PrincipalProfileResponse getProfile(UUID schoolId) {
-    return PrincipalProfileResponse.admin(
-        principalProfileRepository
-            .findBySchoolId(schoolId)
-            .orElseThrow(
-                () -> new DomainException(HttpStatus.NOT_FOUND, "principal_profile_not_found")));
+    PrincipalProfile profile = requireProfile(schoolId);
+    return principalProfileResponse(profile, false);
   }
 
   @Transactional(readOnly = true)
@@ -131,7 +128,7 @@ public class SchoolService {
             .filter(PrincipalProfile::isPublic)
             .orElseThrow(
                 () -> new DomainException(HttpStatus.NOT_FOUND, "principal_profile_not_found"));
-    return PrincipalProfileResponse.publicView(profile);
+    return principalProfileResponse(profile, true);
   }
 
   @Transactional
@@ -162,13 +159,56 @@ public class SchoolService {
         "PRINCIPAL_PROFILE",
         profile.getId(),
         MDC.get("requestId"));
-    return PrincipalProfileResponse.admin(profile);
+    return principalProfileResponse(profile, false);
+  }
+
+  @Transactional
+  public PrincipalProfileResponse replacePrincipalSignature(
+      UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
+    PrincipalProfile profile = requireProfile(schoolId);
+    StoredObject uploaded =
+        storage.uploadPublicImage("signatures/" + schoolId + "/principal", file);
+    String previousKey = profile.getSignatureObjectKey();
+    try {
+      profile.changeSignature(uploaded.objectKey());
+      principalProfileRepository.saveAndFlush(profile);
+    } catch (RuntimeException exception) {
+      cleanUpNewLogo(uploaded);
+      throw exception;
+    }
+    auditLogService.record(
+        schoolId,
+        actorId,
+        AuditAction.SCHOOL_UPDATED,
+        "PRINCIPAL_SIGNATURE",
+        profile.getId(),
+        MDC.get("requestId"));
+    deletePreviousLogo(previousKey);
+    return principalProfileResponse(profile, false);
   }
 
   private School requireSchool(UUID schoolId) {
     return schoolRepository
         .findById(schoolId)
         .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
+  }
+
+  private PrincipalProfile requireProfile(UUID schoolId) {
+    return principalProfileRepository
+        .findBySchoolId(schoolId)
+        .orElseThrow(
+            () -> new DomainException(HttpStatus.NOT_FOUND, "principal_profile_not_found"));
+  }
+
+  private PrincipalProfileResponse principalProfileResponse(
+      PrincipalProfile profile, boolean publicView) {
+    String signatureUrl =
+        profile.getSignatureObjectKey() == null
+            ? null
+            : storage.publicUrl(profile.getSignatureObjectKey());
+    return publicView
+        ? PrincipalProfileResponse.publicView(profile, signatureUrl)
+        : PrincipalProfileResponse.admin(profile, signatureUrl);
   }
 
   private School requirePublicSchool() {

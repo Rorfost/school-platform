@@ -18,6 +18,7 @@ import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
 import com.rorfost.schoolportal.academic.repository.SubjectRepository;
 import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.common.storage.StorageService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +34,12 @@ class AcademicConfigurationServiceTest {
   private final StandardSubjectRepository mappings = Mockito.mock(StandardSubjectRepository.class);
   private final AcademicConfigurationService service =
       new AcademicConfigurationService(
-          years, standards, subjects, mappings, Mockito.mock(AuditLogService.class));
+          years,
+          standards,
+          subjects,
+          mappings,
+          Mockito.mock(AuditLogService.class),
+          Mockito.mock(StorageService.class));
 
   @Test
   void createsStandardWithServerManagedCodeAndNextDisplayOrder() {
