@@ -332,12 +332,9 @@ export interface ResultPresentationSettingsResponse {
   gradeBMin: number;
   gradeCMin: number;
   gradeDMin: number;
-<<<<<<< HEAD
   principalSignatureUrl?: string | null;
   classTeacherName?: string | null;
   classTeacherSignatureUrl?: string | null;
-=======
->>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
 }
 
 export interface ExamResultResponse {

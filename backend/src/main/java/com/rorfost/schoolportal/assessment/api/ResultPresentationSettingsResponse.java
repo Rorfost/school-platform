@@ -11,14 +11,10 @@ public record ResultPresentationSettingsResponse(
     BigDecimal gradeAMin,
     BigDecimal gradeBMin,
     BigDecimal gradeCMin,
-<<<<<<< HEAD
     BigDecimal gradeDMin,
     String principalSignatureUrl,
     String classTeacherName,
     String classTeacherSignatureUrl) {
-=======
-    BigDecimal gradeDMin) {
->>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   public static ResultPresentationSettingsResponse from(ResultPresentationSettings value) {
     return new ResultPresentationSettingsResponse(
         value.getResultDate(),
@@ -27,7 +23,6 @@ public record ResultPresentationSettingsResponse(
         value.getGradeAMin(),
         value.getGradeBMin(),
         value.getGradeCMin(),
-<<<<<<< HEAD
         value.getGradeDMin(),
         null,
         null,
@@ -47,8 +42,5 @@ public record ResultPresentationSettingsResponse(
         principalSignatureUrl,
         classTeacherName,
         classTeacherSignatureUrl);
-=======
-        value.getGradeDMin());
->>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   }
 }
