@@ -149,8 +149,12 @@ public class ExamResultService {
   }
 
   private void addSubjects(
-      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects, Row headerRow) {
-    Map<Integer, Integer> subjectIndexToColumn = resolveSubjectColumns(headerRow, configuredSubjects);
+      AnnualExamResult result,
+      Row row,
+      List<ConfiguredSubject> configuredSubjects,
+      Row headerRow) {
+    Map<Integer, Integer> subjectIndexToColumn =
+        resolveSubjectColumns(headerRow, configuredSubjects);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
       int marksColumn = subjectIndexToColumn.getOrDefault(index, 6 + index * 2);
@@ -167,17 +171,30 @@ public class ExamResultService {
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
+    for (int index = configuredSubjects.size(); index < 9; index++) {
+      int unconfiguredColumn = 6 + index * 2;
+      if (!cellText(row.getCell(unconfiguredColumn)).isBlank()) {
+        throw new DomainException(
+            HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+      }
+    }
   }
 
-  private Map<Integer, Integer> resolveSubjectColumns(Row headerRow, List<ConfiguredSubject> configuredSubjects) {
+  private Map<Integer, Integer> resolveSubjectColumns(
+      Row headerRow, List<ConfiguredSubject> configuredSubjects) {
     Map<Integer, Integer> columnMap = new HashMap<>();
-    if (headerRow == null) return columnMap;
+    if (headerRow == null) {
+      return columnMap;
+    }
 
     for (int col = 6; col < 30; col += 2) {
       String headerText = cellText(headerRow.getCell(col));
-      if (headerText.isBlank()) continue;
+      if (headerText.isBlank()) {
+        continue;
+      }
       for (int i = 0; i < configuredSubjects.size(); i++) {
-        if (!columnMap.containsKey(i) && matchesSubjectName(headerText, configuredSubjects.get(i).name())) {
+        if (!columnMap.containsKey(i)
+            && matchesSubjectName(headerText, configuredSubjects.get(i).name())) {
           columnMap.put(i, col);
           break;
         }
@@ -187,35 +204,42 @@ public class ExamResultService {
   }
 
   private boolean matchesSubjectName(String headerText, String configuredName) {
-    if (headerText.equalsIgnoreCase(configuredName)) return true;
+    if (headerText.equalsIgnoreCase(configuredName)) {
+      return true;
+    }
     String normHeader = normalizeSubjectString(headerText);
     String normConfig = normalizeSubjectString(configuredName);
-    if (!normHeader.isEmpty() && normHeader.equals(normConfig)) return true;
+    if (!normHeader.isEmpty() && normHeader.equals(normConfig)) {
+      return true;
+    }
 
-    // Check alias maps (Gujarati <-> English)
     return isSubjectAliasMatch(normHeader, normConfig);
   }
 
   private String normalizeSubjectString(String text) {
-    if (text == null) return "";
+    if (text == null) {
+      return "";
+    }
     return text.toLowerCase().replaceAll("[^a-z0-9\\u0900-\\u097F]", "").trim();
   }
 
   private boolean isSubjectAliasMatch(String a, String b) {
-    List<List<String>> aliasGroups = List.of(
-        List.of("gujarati", "guj", "ગુજરાતી"),
-        List.of("mathematics", "maths", "math", "ગણિત"),
-        List.of("science", "sci", "વિજ્ઞાન"),
-        List.of("hindi", "hin", "હિન્દી"),
-        List.of("english", "eng", "અંગ્રેજી"),
-        List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
-        List.of("sanskrit", "san", "સંસ્કૃત"),
-        List.of("personalitydevelopment", "pd", "personality", "વ્યક્તિત્વવિકાસ"),
-        List.of("environment", "environmentalstudies", "env", "પર્યાવરણ")
-    );
+    List<List<String>> aliasGroups =
+        List.of(
+            List.of("gujarati", "guj", "ગુજરાતી"),
+            List.of("mathematics", "maths", "math", "ગણિત"),
+            List.of("science", "sci", "વિજ્ઞાન"),
+            List.of("hindi", "hin", "હિન્દી"),
+            List.of("english", "eng", "અંગ્રેજી"),
+            List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
+            List.of("sanskrit", "san", "સંસ્કૃત"),
+            List.of("personalitydevelopment", "pd", "personality", "વ્યક્તિત્વવિકાસ"),
+            List.of("environment", "environmentalstudies", "env", "પર્યાવરણ"));
 
     for (List<String> group : aliasGroups) {
-      if (group.contains(a) && group.contains(b)) return true;
+      if (group.contains(a) && group.contains(b)) {
+        return true;
+      }
     }
     return false;
   }
@@ -234,14 +258,16 @@ public class ExamResultService {
             .stream()
             .map(this::configuredSubject)
             .toList();
-    if (configured.isEmpty())
+    if (configured.isEmpty()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+    }
     return configured;
   }
 
   private ConfiguredSubject configuredSubject(StandardSubject mapping) {
-    if (!mapping.isMaximumMarksConfigured())
+    if (!mapping.isMaximumMarksConfigured()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+    }
     String name =
         subjects
             .findByIdAndSchoolId(mapping.getSubjectId(), mapping.getSchoolId())
@@ -256,10 +282,14 @@ public class ExamResultService {
   private record ConfiguredSubject(String name, int maximumMarks) {}
 
   private boolean matchesStandard(Standard standard, String uploadedValue) {
-    if (uploadedValue == null || uploadedValue.isBlank()) return false;
+    if (uploadedValue == null || uploadedValue.isBlank()) {
+      return false;
+    }
     String rawUploaded = uploadedValue.trim();
     if (rawUploaded.equalsIgnoreCase(standard.getDisplayName())
-        || rawUploaded.equalsIgnoreCase(standard.getCode())) return true;
+        || rawUploaded.equalsIgnoreCase(standard.getCode())) {
+      return true;
+    }
 
     String asciiUploaded = convertGujaratiDigitsToAscii(rawUploaded);
     String asciiDisplay = convertGujaratiDigitsToAscii(standard.getDisplayName());
@@ -271,7 +301,9 @@ public class ExamResultService {
   }
 
   private String convertGujaratiDigitsToAscii(String text) {
-    if (text == null) return "";
+    if (text == null) {
+      return "";
+    }
     StringBuilder sb = new StringBuilder();
     for (char c : text.toCharArray()) {
       if (c >= '\u0966' && c <= '\u096F') {
@@ -284,16 +316,34 @@ public class ExamResultService {
   }
 
   private String extractStandardNum(String text) {
-    if (text == null) return "";
+    if (text == null) {
+      return "";
+    }
     String upper = text.toUpperCase();
-    if (upper.contains("VIII") || upper.contains("8")) return "8";
-    if (upper.contains("VII") || upper.contains("7")) return "7";
-    if (upper.contains("VI") || upper.contains("6")) return "6";
-    if (upper.contains("IV") || upper.contains("4")) return "4";
-    if (upper.contains("V") || upper.contains("5")) return "5";
-    if (upper.contains("III") || upper.contains("3")) return "3";
-    if (upper.contains("II") || upper.contains("2")) return "2";
-    if (upper.contains("I") || upper.contains("1")) return "1";
+    if (upper.contains("VIII") || upper.contains("8")) {
+      return "8";
+    }
+    if (upper.contains("VII") || upper.contains("7")) {
+      return "7";
+    }
+    if (upper.contains("VI") || upper.contains("6")) {
+      return "6";
+    }
+    if (upper.contains("IV") || upper.contains("4")) {
+      return "4";
+    }
+    if (upper.contains("V") || upper.contains("5")) {
+      return "5";
+    }
+    if (upper.contains("III") || upper.contains("3")) {
+      return "3";
+    }
+    if (upper.contains("II") || upper.contains("2")) {
+      return "2";
+    }
+    if (upper.contains("I") || upper.contains("1")) {
+      return "1";
+    }
     return upper.replaceAll("[^0-9]", "");
   }
 
