@@ -34,6 +34,9 @@ Use versioned REST paths: `/api/v1/public` for unauthenticated resources and `/a
 | `PATCH /api/v1/admin/gallery/albums/{id}/images/reorder` | `PRINCIPAL` + CSRF | Replaces the complete image order with a validated `imageIds` list. |
 | `DELETE /api/v1/admin/gallery/albums/{albumId}/images/{imageId}` | `PRINCIPAL` + CSRF | Deletes the ImageKit object and image metadata, then normalizes order. |
 | `GET /api/v1/admin/downloads` | `PRINCIPAL` | Lists every school-scoped download, including drafts and archived records. |
+| `POST /api/v1/admin/exam-results/upload` | `PRINCIPAL` + CSRF | Imports the approved annual-result workbook format. |
+| `POST /api/v1/admin/exam-results/ekam-kasoti/upload` | `PRINCIPAL` + CSRF | Imports the documented Standard 3 Ekam Kasoti workbook without reading its Aadhaar column. |
+| `POST /api/v1/admin/site-metrics/visits/reset` | `PRINCIPAL` + CSRF | Resets the school visit counter to zero. |
 
 Use DTOs and Jakarta Validation. Never return JPA entities. Authentication failures remain generic, and all frontend-visible text is represented by stable codes for Gujarati mapping.
 
@@ -54,7 +57,7 @@ The browser sends files only to authenticated backend multipart endpoints. The b
 
 School branding uses the same storage boundary. A logo is stored under `branding/<school-slug>/` with a generated filename; the database retains its object key and the school response exposes only a configured public URL. Replacing or removing a logo updates the database before best-effort cleanup of the previous ImageKit object, so a cleanup failure cannot leave the portal pointing to a missing logo.
 
-Result import, result publication, available-result choices, and individual result lookup are blocked by the documented privacy-safe student-identity decision. Other exam formats and timetables have no endpoint contract until source material is supplied.
+Standard 3 Ekam Kasoti import is available through the documented pre-enrolled student roster mapping and never reads or stores Aadhaar data. Result publication, available-result choices, individual lookup, other exam formats, and timetables still require their own approved contracts.
 
 All `/api/v1/admin/**` responses use `Cache-Control: no-store`.
 

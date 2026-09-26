@@ -18,7 +18,7 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const variantStyles = {
-    primary: "bg-blue-900 text-white hover:bg-blue-950 shadow-sm active:bg-blue-950",
+    primary: "bg-[#0d2461] text-white hover:bg-[#081a49] shadow-sm active:bg-[#081a49]",
     secondary: "bg-amber-600 text-white hover:bg-amber-700 shadow-sm active:bg-amber-800",
     outline:
       "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 active:bg-slate-100",

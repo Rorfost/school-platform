@@ -236,6 +236,15 @@ export interface AssessmentRequest {
   subjects: AssessmentSubjectRequest[];
 }
 
+export interface StudentRequest {
+  academicYearId: string;
+  standardId: string;
+  fullName: string;
+  rollNumber: string;
+  resultPin?: string;
+  isArchived: boolean;
+}
+
 export interface NoticeRequest {
   title: string;
   body: string;

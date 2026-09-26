@@ -1,6 +1,6 @@
 # Backend
 
-The backend is a Java 21 Spring Boot 4.x Maven modular monolith. It includes Flyway-owned PostgreSQL schema, JDBC-backed principal sessions, BCrypt authentication, CSRF/CORS/security-header controls, safe audit events, request IDs, restricted Actuator health, and an ImageKit-backed object-storage abstraction. It intentionally contains no result parsing or Excel assumptions.
+The backend is a Java 21 Spring Boot 4.x Maven modular monolith. It includes Flyway-owned PostgreSQL schema, JDBC-backed principal sessions, BCrypt authentication, CSRF/CORS/security-header controls, safe audit events, request IDs, restricted Actuator health, and an ImageKit-backed object-storage abstraction. It includes a narrow Standard 3 Ekam Kasoti parser based on the documented owner-provided workbook; it never reads or stores the workbook's Aadhaar column.
 
 ## Commands
 
@@ -28,4 +28,4 @@ The `auth` package owns principal login, bootstrap, password change, rate limiti
 
 ## Current backend scope
 
-Authentication, school/profile, academic configuration, generic assessment configuration, and public/admin content API foundations are implemented. Result import and individual result lookup are blocked until the owner provides a privacy-safe school roll-number and PIN workflow for the observed Standard 3 workbook. Other exam formats and timetable features remain pending source material.
+Authentication, school/profile, academic configuration, generic assessment configuration, and public/admin content API foundations are implemented. Standard 3 Ekam Kasoti import requires students to be pre-enrolled with school-controlled numeric roll numbers and matches rows by normalized student name. Other exam formats and timetable features remain pending source material.

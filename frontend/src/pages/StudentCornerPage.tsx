@@ -53,18 +53,18 @@ export function StudentCornerPage() {
             <Link
               key={section.to}
               to={section.to}
-              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+              className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all hover:border-[#0d2461] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2461]"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors">
+                  <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#0d2461] group-hover:bg-[#0d2461] group-hover:text-white transition-colors">
                     <Icon size={24} aria-hidden="true" />
                   </div>
                   <Badge variant="primary" size="sm">
                     {section.badgeText}
                   </Badge>
                 </div>
-                <h2 className="text-lg font-bold text-slate-900 group-hover:text-blue-900 transition-colors">
+                <h2 className="text-lg font-bold text-slate-900 group-hover:text-[#0d2461] transition-colors">
                   {section.title}
                 </h2>
                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">{section.description}</p>

@@ -52,7 +52,7 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 ## Standard 3 workbook identity boundary
 
-**Context:** the observed Tri-masik Ekam Kasoti Standard 3 workbook has subject marks and totals but uses Aadhaar UID as its only row identity, with no roll number or result PIN. **Decision:** document the exact workbook layout but do not parse, persist, hash, or otherwise retain Aadhaar values; do not invent roll numbers, PINs, or a public lookup workflow. **Reason:** government identifiers are outside the portal’s privacy model and the existing student identity requires a school-controlled roll number. **Trade-offs:** this format cannot enter the transactional import lifecycle until the owner supplies a privacy-safe mapping or workbook revision. **Reconsider when:** a non-government school identifier and PIN distribution decision are approved.
+**Context:** the observed Tri-masik Ekam Kasoti Standard 3 workbook has subject marks and totals but uses Aadhaar UID as its only row identity, with no roll number or result PIN. **Decision:** do not read, persist, hash, or otherwise retain Aadhaar values; use a pre-enrolled current-year student roster with school-controlled numeric roll numbers and exact normalized-name matching instead. Do not invent roll numbers, PINs, or a public lookup workflow. **Reason:** government identifiers are outside the portal’s privacy model and the existing student identity requires a school-controlled roll number. **Trade-offs:** the import rejects missing or duplicate name mappings and public lookup remains deferred. **Reconsider when:** an approved PIN distribution and Ekam Kasoti publication workflow exists.
 
 ## PostgreSQL integrity for school scope and lifecycle
 

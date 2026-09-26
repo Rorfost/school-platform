@@ -6,7 +6,7 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
 
 - **Public School Website (Gujarati)**: Home, About School, Principal's Desk, Notices & Notice Details, Photo Gallery & Album Viewer, Contact Page, and Footer/Header navigation.
 - **Student Corner (Gujarati)**: Study Materials (filtered by Standard & Subject), Examination Results Lookup (with privacy PIN verification & printable marksheet view), Downloads, and Student Notices.
-- **School Tools (Gujarati)**: Client-side age/date, attendance, marks, multiplication-table, and number-to-words utilities for teachers, parents, and children. Entered calculation values are not stored.
+- **School Tools (Gujarati)**: Client-side age/date, attendance, marks, and subject-wise percentage utilities for teachers, parents, and children. Entered calculation values are not stored.
 - **Principal Admin Panel (English)**:
   - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
   - Operational Dashboard with quick links.
@@ -18,7 +18,7 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
 
 ## Pending Inputs
 
-- **Result Import Excel Schema**: Excel parsing logic is intentionally blocked per `docs/data/RESULT_IMPORT.md` until the official school workbook contract is approved.
+- **Result Import Excel Schema**: The documented Standard 3 Ekam Kasoti workbook can be imported after its students are enrolled with school-controlled numeric roll numbers. Other result formats still require an approved workbook contract.
 - **Timetables**: Exam timetable and school timetable features remain pending backend model inputs.
 
 ## Commands

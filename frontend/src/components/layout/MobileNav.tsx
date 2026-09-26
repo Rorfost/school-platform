@@ -3,6 +3,7 @@ import {
   BookOpen,
   Calculator,
   Camera,
+  Download,
   GraduationCap,
   Home,
   Info,
@@ -112,6 +113,16 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
               {LABELS.studentCorner}
             </p>
             <ul className="mt-2 space-y-1">
+              <li>
+                <NavLink
+                  to="/student/downloads"
+                  onClick={onClose}
+                  className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
+                >
+                  <Download size={18} className="text-slate-500" aria-hidden="true" />
+                  <span>{LABELS.downloads}</span>
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="/student/materials"
