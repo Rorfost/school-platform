@@ -54,35 +54,37 @@ export function ResultsInfoPage() {
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900 mb-4">પરિણામ શોધો</h2>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
-                  Result type
+              <div className="space-y-4">
+                <label className="flex flex-col gap-2 text-base font-semibold text-slate-800">
+                  પરિણામનો પ્રકાર
                   <select
                     value={resultType}
                     onChange={(event) =>
                       setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")
                     }
-                    className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    className="min-h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
                   >
-                    <option value="ANNUAL">Exam Result</option>
-                    <option value="EKAM_KASOTI">Ekam Kasoti Result</option>
+                    <option value="ANNUAL">પરીક્ષા પરિણામ</option>
+                    <option value="EKAM_KASOTI">એકમ કસોટી પરિણામ</option>
                   </select>
                 </label>
-                <Input
-                  label="ધોરણ"
-                  value={standard}
-                  onChange={(e) => setStandard(e.target.value)}
-                  placeholder="દા.ત. 8"
-                  required
-                />
-                <Input
-                  label="રોલ નંબર"
-                  type="number"
-                  value={rollNumber}
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  placeholder="દા.ત. 1"
-                  required
-                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    label="ધોરણ"
+                    value={standard}
+                    onChange={(e) => setStandard(e.target.value)}
+                    placeholder="દા.ત. 8"
+                    required
+                  />
+                  <Input
+                    label="રોલ નંબર"
+                    type="number"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value)}
+                    placeholder="દા.ત. 1"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
