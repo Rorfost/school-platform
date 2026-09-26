@@ -11,6 +11,7 @@ import {
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
+import { formatDate } from "@/utils/date";
 
 export function NoticeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +77,7 @@ export function NoticeDetailPage() {
           {notice.expiresAt && (
             <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200">
               <Calendar size={13} aria-hidden="true" />
-              <span>મુદત તારીખ: {notice.expiresAt.slice(0, 10)}</span>
+              <span>મુદત તારીખ: {formatDate(notice.expiresAt)}</span>
             </div>
           )}
         </div>

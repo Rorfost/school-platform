@@ -4,6 +4,7 @@ import { apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { toGujaratiNumber } from "@/utils/gujarati";
+import { formatDate } from "@/utils/date";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
 export function ExamResultViewer({
@@ -34,14 +35,14 @@ export function ExamResultViewer({
 
       <div
         id="exam-result-print"
-        className="mx-auto bg-white p-2 sm:p-4 text-black print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
+        className="mx-auto bg-white p-2 sm:p-4 text-slate-900 print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
         style={{ maxWidth: "210mm" }}
       >
-        <div className="border-4 border-slate-800 p-1">
-          <div className="border-2 border-slate-800">
+        <div className="border-4 border-slate-900 p-1">
+          <div className="border-2 border-slate-900">
             {/* Header */}
-            <div className="flex items-center border-b-2 border-slate-800">
-              <div className="w-[120px] shrink-0 p-2 border-r-2 border-slate-800 flex justify-center items-center">
+            <div className="flex items-center border-b-2 border-slate-900">
+              <div className="w-[110px] shrink-0 p-2 border-r-2 border-slate-900 flex justify-center items-center">
                 <img
                   src={logoUrl || schoolLogo}
                   alt="School Logo"
@@ -49,149 +50,152 @@ export function ExamResultViewer({
                   crossOrigin="anonymous"
                 />
               </div>
-              <div className="flex-1 text-center py-2 flex flex-col justify-center">
-                <h1 className="text-xl sm:text-2xl font-bold text-blue-800 tracking-wide">
+              <div className="flex-1 text-center py-2 flex flex-col justify-center leading-tight">
+                <h1 className="text-xl sm:text-2xl font-bold text-blue-900 tracking-wide">
                   {schoolName}
                 </h1>
-                <p className="text-sm sm:text-base font-bold text-blue-800 mt-1">
+                <p className="text-sm sm:text-base font-bold text-blue-900 mt-1">
                   તા. સમી, જિ. પાટણ
                 </p>
-                <div className="mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-3/4 pt-1">
+                <div className="mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-3/4 pt-1 text-sm sm:text-base">
                   પરિણામ પત્રક : ૨૦૨૫-૨૬
                 </div>
               </div>
             </div>
 
             {/* Student Info */}
-            <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_80px_100px] border-b-2 border-slate-800 text-sm">
-              <div className="border-r-2 border-slate-800 p-1.5 px-3 flex gap-2">
+            <div className="grid grid-cols-[1fr_auto_auto] border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="border-r-2 border-slate-900 p-1.5 px-3 flex gap-2">
                 <span className="font-bold text-blue-900">વિદ્યાર્થીનું નામ :</span>
                 <span className="font-bold">{result.studentName}</span>
               </div>
-              <div className="border-r-2 border-slate-800 p-1.5 px-3 flex gap-2 sm:col-span-1 col-span-2 border-t-2 sm:border-t-0">
+              <div className="border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 w-32 sm:w-36">
                 <span className="font-bold">ધોરણ :</span>
                 <span>{toGujaratiNumber(result.standard)}</span>
               </div>
-              <div className="p-1.5 px-3 flex gap-2 hidden sm:flex">
+              <div className="p-1.5 px-3 flex gap-2 w-24">
                 <span className="font-bold">વર્ગ :</span>
                 <span>-</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-[auto_1fr_auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr_80px_100px] border-b-2 border-slate-800 text-sm">
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800">જનરલ રજી.નંબર :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">
-                {result.generalRegisterNumber || "-"}
+            <div className="grid grid-cols-3 border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
+                <span className="font-bold">જનરલ રજી.નંબર :</span>
+                <span>{result.generalRegisterNumber || "-"}</span>
               </div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800">જન્મ તારીખ :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800 sm:col-span-1 col-span-3 border-b-2 sm:border-b-0">
-                {result.birthDate || "-"}
+              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
+                <span className="font-bold">જન્મ તારીખ :</span>
+                <span>{formatDate(result.birthDate)}</span>
               </div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800 hidden sm:block">
-                રોલ નં :
+              <div className="p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold">રોલ નં :</span>
+                <span>{result.rollNumber}</span>
               </div>
-              <div className="p-1.5 px-3 hidden sm:block">{result.rollNumber}</div>
             </div>
 
-            <div className="grid grid-cols-[auto_1fr_auto_1fr_auto_1fr] border-b-2 border-slate-800 text-sm">
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800">કુલ કાર્ય દિવસ :</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">
-                {result.totalWorkingDays ?? "-"}
+            <div className="grid grid-cols-[1fr_1fr_auto] border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
+                <span className="font-bold">કુલ કાર્ય દિવસ :</span>
+                <span>{result.totalWorkingDays ?? "-"}</span>
               </div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800">માંથી હાજર દિવસ</div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-800">
-                {result.attendedDays ?? "-"} છે.
+              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
+                <span className="font-bold">માંથી હાજર દિવસ</span>
+                <span>{result.attendedDays ?? "-"} છે.</span>
               </div>
-              <div className="p-1.5 px-3 font-bold border-r border-slate-800 sm:hidden block">
-                રોલ નં :
-              </div>
-              <div className="p-1.5 px-3 sm:hidden block">{result.rollNumber}</div>
+              <div className="p-1.5 px-3 w-24"></div>
             </div>
 
             {/* Marks Table */}
             <table className="w-full text-center text-sm font-semibold border-collapse">
               <thead>
-                <tr className="bg-yellow-100">
-                  <th className="border-b-2 border-r-2 border-slate-800 p-2 w-12">ક્રમ</th>
-                  <th className="border-b-2 border-r-2 border-slate-800 p-2">વિષય</th>
-                  <th className="border-b-2 border-r-2 border-slate-800 p-2 w-20">કુલ ગુણ</th>
-                  <th className="border-b-2 border-r-2 border-slate-800 p-2 w-20">મેળવેલ ગુણ</th>
-                  <th className="border-b-2 border-r-2 border-slate-800 p-2 w-16">ગ્રેડ</th>
-                  <th className="border-b-2 border-slate-800 p-2">વિષયના સંદર્ભમાં નોંધ</th>
+                <tr className="bg-amber-100/90 text-slate-900">
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-12 font-bold">ક્રમ</th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 font-bold text-center">વિષય</th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-24 font-bold">કુલ ગુણ</th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-28 font-bold">મેળવેલ ગુણ</th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-20 font-bold">ગ્રેડ</th>
+                  <th className="border-b-2 border-slate-900 p-2 font-bold">વિષયના સંદર્ભમાં નોંધ</th>
                 </tr>
               </thead>
               <tbody>
                 {result.subjects.map((sub, idx) => (
                   <tr key={sub.id}>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">{idx + 1}</td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5 text-left pl-3">
+                    <td className="border-b border-r-2 border-slate-900 p-2">{idx + 1}</td>
+                    <td className="border-b border-r-2 border-slate-900 p-2 text-left pl-4 font-semibold">
                       {sub.subjectName}
                     </td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                    <td className="border-b border-r-2 border-slate-900 p-2 font-semibold">
                       {sub.maximumMarks}
                     </td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                    <td className="border-b border-r-2 border-slate-900 p-2 font-semibold">
                       {sub.obtainedMarks ?? "-"}
                     </td>
-                    <td className="border-b border-r-2 border-slate-800 p-1.5">
+                    <td className="border-b border-r-2 border-slate-900 p-2 font-bold">
                       {sub.grade ?? "-"}
                     </td>
-                    <td className="border-b border-slate-800 p-1.5"></td>
+                    <td className="border-b border-slate-900 p-2"></td>
                   </tr>
                 ))}
-                <tr className="bg-yellow-100 border-y-2 border-slate-800 text-blue-900">
+                <tr className="bg-amber-100/90 border-t-2 border-b-2 border-slate-900 text-slate-900">
                   <td
                     colSpan={2}
-                    className="border-r-2 border-slate-800 p-2 text-right pr-4 font-bold"
+                    className="border-r-2 border-slate-900 p-2.5 text-center font-extrabold text-base"
                   >
                     મેળવેલ કુલ ગુણ / ગ્રેડ
                   </td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                  <td className="border-r-2 border-slate-900 p-2.5 font-bold text-base">
                     {result.totalMarks ?? "-"}
                   </td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                  <td className="border-r-2 border-slate-900 p-2.5 font-bold text-base">
                     {result.obtainedMarks ?? "-"}
                   </td>
-                  <td className="border-r-2 border-slate-800 p-2 font-bold">
+                  <td className="border-r-2 border-slate-900 p-2.5 font-extrabold text-base">
                     {result.overallGrade ?? "-"}
                   </td>
-                  <td className="p-2 text-left pl-3 font-bold">
+                  <td className="p-2.5 text-center font-bold text-base">
                     ટકા : &nbsp;&nbsp;&nbsp;{result.percentage ?? "-"} %
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            {/* Footer */}
-            <div className="grid grid-cols-[auto_1fr] border-b-2 border-slate-800 text-sm">
-              <div className="p-2 px-4 font-bold border-r border-slate-800">પરિણામ તારીખ :</div>
-              <div className="p-2 px-4">{settings?.resultDate ?? "-"}</div>
+            {/* Footer Date */}
+            <div className="grid grid-cols-[auto_1fr] border-b-2 border-slate-900 text-sm font-bold">
+              <div className="p-2 px-4 border-r-2 border-slate-900">પરિણામ તારીખ :</div>
+              <div className="p-2 px-4">{formatDate(settings?.resultDate || "08/06/2026")}</div>
             </div>
 
-            <div className="h-24 border-b-2 border-slate-800 relative">
+            {/* Signatures */}
+            <div className="h-28 border-b-2 border-slate-900 relative bg-white">
               {settings?.classTeacherSignatureUrl && (
                 <img
                   src={settings.classTeacherSignatureUrl}
                   alt="Class teacher signature"
-                  className="absolute bottom-8 left-8 h-10 max-w-36 object-contain"
+                  className="absolute bottom-8 left-12 h-12 max-w-40 object-contain"
                 />
               )}
               {settings?.principalSignatureUrl && (
                 <img
                   src={settings.principalSignatureUrl}
                   alt="Principal signature"
-                  className="absolute bottom-8 right-8 h-10 max-w-36 object-contain"
+                  className="absolute bottom-8 right-12 h-12 max-w-40 object-contain"
                 />
               )}
-              <div className="absolute bottom-2 left-10 font-bold text-sm">વર્ગ શિક્ષકની સહી</div>
-              <div className="absolute bottom-2 right-10 font-bold text-sm">આચાર્યની સહી</div>
+              <div className="absolute bottom-2 left-12 font-bold text-sm text-slate-900">
+                વર્ગ શિક્ષકની સહી
+              </div>
+              <div className="absolute bottom-2 right-12 font-bold text-sm text-slate-900">
+                આચાર્યની સહી
+              </div>
             </div>
 
-            <div className="bg-cyan-50 p-3 text-sm font-medium space-y-2">
+            {/* Note Lines */}
+            <div className="bg-cyan-50/70 p-3 text-sm font-medium space-y-2 border-t border-slate-300">
               {settings?.footerLineOne ? (
-                <p>{settings.footerLineOne}</p>
+                <p className="text-slate-900">{settings.footerLineOne}</p>
               ) : (
-                <p>
+                <p className="text-slate-900">
                   ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી
                   શાળા રાબેતા મુજબ શરુ થશે.
                 </p>
@@ -231,3 +235,4 @@ export function ExamResultViewer({
     </div>
   );
 }
+

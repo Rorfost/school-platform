@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { LABELS } from "@/utils/gujarati";
+import { formatDate } from "@/utils/date";
 
 export function NoticesPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,7 +93,7 @@ export function NoticesPage() {
                     {item.expiresAt && (
                       <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
                         <Calendar size={13} aria-hidden="true" />
-                        <span>મુદત: {item.expiresAt.slice(0, 10)}</span>
+                        <span>મુદત: {formatDate(item.expiresAt)}</span>
                       </div>
                     )}
                   </div>
