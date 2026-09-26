@@ -5,6 +5,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
+  loadingText?: ReactNode;
   children: ReactNode;
 }
 
@@ -12,6 +13,7 @@ export function Button({
   variant = "primary",
   size = "md",
   loading = false,
+  loadingText = "Loading...",
   disabled,
   className = "",
   children,
@@ -41,7 +43,7 @@ export function Button({
       {loading ? (
         <>
           <Spinner className="size-4 border-current border-t-transparent" />
-          <span>{children}</span>
+          <span>{loadingText}</span>
         </>
       ) : (
         children

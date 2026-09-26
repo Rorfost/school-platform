@@ -10,6 +10,7 @@ import { ExamResultViewer } from "@/features/public/ExamResultViewer";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function ResultsInfoPage() {
+  const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
   const [standard, setStandard] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [result, setResult] = useState<ExamResultResponse | null>(null);
@@ -27,7 +28,7 @@ export function ResultsInfoPage() {
 
     try {
       const data = await apiRequest<ExamResultResponse>(
-        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}`,
+        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}&resultType=${resultType}`,
       );
       setResult(data);
     } catch (err) {
@@ -53,7 +54,20 @@ export function ResultsInfoPage() {
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900 mb-4">પરિણામ શોધો</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
+                  Result type
+                  <select
+                    value={resultType}
+                    onChange={(event) =>
+                      setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")
+                    }
+                    className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  >
+                    <option value="ANNUAL">Exam Result</option>
+                    <option value="EKAM_KASOTI">Ekam Kasoti Result</option>
+                  </select>
+                </label>
                 <Input
                   label="ધોરણ"
                   value={standard}
@@ -81,6 +95,7 @@ export function ResultsInfoPage() {
               variant="primary"
               className="w-full gap-2 mt-2"
               loading={loading}
+              loadingText="પરિણામ શોધી રહ્યા છીએ..."
               disabled={!standard || !rollNumber}
             >
               <Search size={18} /> પરિણામ જુઓ

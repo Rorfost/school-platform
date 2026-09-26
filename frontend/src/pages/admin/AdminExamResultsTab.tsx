@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 
+type ResultType = "ANNUAL" | "EKAM_KASOTI";
+
+const RESULT_TYPE_LABELS: Record<ResultType, string> = {
+  ANNUAL: "Exam Result",
+  EKAM_KASOTI: "Ekam Kasoti Result",
+};
+
 export function AdminExamResultsTab() {
+  const [resultType, setResultType] = useState<ResultType>("ANNUAL");
   const [file, setFile] = useState<File | null>(null);
   const [totalWorkingDays, setTotalWorkingDays] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -17,6 +25,7 @@ export function AdminExamResultsTab() {
       const formData = new FormData();
       formData.append("file", file!);
       formData.append("totalWorkingDays", totalWorkingDays);
+      formData.append("resultType", resultType);
       return apiRequest<{ message: string }>("/api/v1/admin/exam-results/upload", {
         method: "POST",
         body: formData,
@@ -30,11 +39,17 @@ export function AdminExamResultsTab() {
     },
     onError: (reason) => {
       const code = reason instanceof ApiError ? reason.code : undefined;
-      setErrorMessage(
-        code === "annual_exam_format_invalid"
-          ? "ફાઇલ વાર્ષિક પરિણામના માન્ય નમૂનામાં નથી. હેડર અને ગુણની કૉલમ તપાસો."
-          : "અપલોડ નિષ્ફળ ગયું. ફાઇલ અને કાર્યદિવસ ફરી તપાસો.",
-      );
+      if (reason instanceof ApiError && reason.status === 404) {
+        setErrorMessage(
+          "The result-upload service is unavailable. Deploy the latest backend, then try again.",
+        );
+      } else if (code === "exam_result_format_invalid") {
+        setErrorMessage(
+          "This file does not match the required result workbook format. Check the header and marks columns.",
+        );
+      } else {
+        setErrorMessage("Upload failed. Check the file and total working days, then try again.");
+      }
       setSuccessMessage("");
     },
   });
@@ -46,23 +61,40 @@ export function AdminExamResultsTab() {
 
   return (
     <Card className="max-w-2xl">
-      <h2 className="text-lg font-bold text-slate-900">વાર્ષિક પરીક્ષા પરિણામ અપલોડ કરો</h2>
+      <h2 className="text-lg font-bold text-slate-900">Upload Result Workbook</h2>
       <p className="mt-1 text-sm text-slate-600">
-        વાર્ષિક પરીક્ષાની Excel ફાઇલ અને કુલ કાર્યદિવસ દાખલ કરો.
+        Exam Result and Ekam Kasoti Result use the same approved Excel workbook format.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
+        <label className="block text-sm font-medium text-slate-700">
+          Result type
+          <select
+            value={resultType}
+            onChange={(event) => {
+              setResultType(event.target.value as ResultType);
+              setSuccessMessage("");
+              setErrorMessage("");
+            }}
+            className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3"
+          >
+            <option value="ANNUAL">{RESULT_TYPE_LABELS.ANNUAL}</option>
+            <option value="EKAM_KASOTI">{RESULT_TYPE_LABELS.EKAM_KASOTI}</option>
+          </select>
+        </label>
+
         <Input
-          label="કુલ કાર્યદિવસ"
+          label="Total working days"
           type="number"
           min="1"
           value={totalWorkingDays}
           onChange={(event) => setTotalWorkingDays(event.target.value)}
-          placeholder="દા.ત. 230"
+          placeholder="For example, 230"
           required
         />
+
         <label className="block text-sm font-medium text-slate-700">
-          Excel ફાઇલ
+          Excel workbook
           <input
             type="file"
             accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
@@ -92,8 +124,9 @@ export function AdminExamResultsTab() {
           className="gap-2"
           disabled={!file || !totalWorkingDays}
           loading={uploadMutation.isPending}
+          loadingText="Uploading result..."
         >
-          <UploadCloud size={18} aria-hidden="true" /> પરિણામ અપલોડ કરો
+          <UploadCloud size={18} aria-hidden="true" /> Upload {RESULT_TYPE_LABELS[resultType]}
         </Button>
       </form>
     </Card>
