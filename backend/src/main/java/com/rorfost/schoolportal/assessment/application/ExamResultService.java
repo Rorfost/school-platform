@@ -59,8 +59,7 @@ public class ExamResultService {
   private static final Pattern SUBJECT_HEADER = Pattern.compile("(.+?)\\s*\\((\\d+)\\)");
   private static final Pattern STANDARD_IN_TITLE =
       Pattern.compile(
-          "(?:ધોરણ|standard|std)\\s*(?:no\\.?\\s*)?[-:]?\\s*([1-8])",
-          Pattern.CASE_INSENSITIVE);
+          "(?:ધોરણ|standard|std)\\s*(?:no\\.?\\s*)?[-:]?\\s*([1-8])", Pattern.CASE_INSENSITIVE);
 
   private final AnnualExamResultRepository resultRepository;
   private final SchoolRepository schoolRepository;
@@ -100,7 +99,8 @@ public class ExamResultService {
     }
     School school = getSchool();
     AcademicYear academicYear = getAcademicYear(school.getId());
-    List<AnnualExamResult> results = parseAnnualWorkbook(file, school, academicYear, totalWorkingDays);
+    List<AnnualExamResult> results =
+        parseAnnualWorkbook(file, school, academicYear, totalWorkingDays);
     if (results.isEmpty()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "annual_exam_format_invalid");
     }
@@ -110,8 +110,8 @@ public class ExamResultService {
   }
 
   /**
-   * Aadhaar is deliberately never read, logged, or stored. Each workbook row is matched only to
-   * an already enrolled student with a school-controlled roll number.
+   * Aadhaar is deliberately never read, logged, or stored. Each workbook row is matched only to an
+   * already enrolled student with a school-controlled roll number.
    */
   @Transactional
   public void processEkamKasotiUpload(MultipartFile file) {
@@ -182,7 +182,8 @@ public class ExamResultService {
             .filter(candidate -> isMatchingStandard(candidate, standardCode))
             .findFirst()
             .orElseThrow(this::invalidEkamFormat);
-    Map<String, Student> studentsByName = studentsByName(school.getId(), academicYear.getId(), standard);
+    Map<String, Student> studentsByName =
+        studentsByName(school.getId(), academicYear.getId(), standard);
 
     List<AnnualExamResult> results = new ArrayList<>();
     Set<UUID> importedStudentIds = new HashSet<>();
@@ -226,7 +227,8 @@ public class ExamResultService {
     return results;
   }
 
-  private Map<String, Student> studentsByName(UUID schoolId, UUID academicYearId, Standard standard) {
+  private Map<String, Student> studentsByName(
+      UUID schoolId, UUID academicYearId, Standard standard) {
     Map<String, Student> students = new HashMap<>();
     for (Student student :
         studentRepository.findBySchoolIdAndAcademicYearIdAndStandardId(
@@ -258,7 +260,17 @@ public class ExamResultService {
   }
 
   private void addAnnualSubjects(AnnualExamResult result, Row row) {
-    String[] names = {"ગુજરાતી", "ગણિત", "વિજ્ઞાન", "હિન્દી", "અંગ્રેજી", "સામાજિક વિજ્ઞાન", "સંસ્કૃત", "વ્યક્તિત્વ વિકાસ", "પર્યાવરણ"};
+    String[] names = {
+      "ગુજરાતી",
+      "ગણિત",
+      "વિજ્ઞાન",
+      "હિન્દી",
+      "અંગ્રેજી",
+      "સામાજિક વિજ્ઞાન",
+      "સંસ્કૃત",
+      "વ્યક્તિત્વ વિકાસ",
+      "પર્યાવરણ"
+    };
     int[] maximums = {200, 200, 200, 200, 200, 200, 200, 400, 200};
     for (int index = 0; index < names.length; index++) {
       int marksColumn = 6 + index * 2;
@@ -290,7 +302,8 @@ public class ExamResultService {
   }
 
   private void calculateAnnualTotals(AnnualExamResult result) {
-    int maximumMarks = result.getSubjects().stream().mapToInt(AnnualExamResultSubject::getMaximumMarks).sum();
+    int maximumMarks =
+        result.getSubjects().stream().mapToInt(AnnualExamResultSubject::getMaximumMarks).sum();
     int obtainedMarks =
         result.getSubjects().stream()
             .map(AnnualExamResultSubject::getObtainedMarks)
@@ -378,7 +391,9 @@ public class ExamResultService {
 
   private void requireXlsx(MultipartFile file) {
     String filename = file.getOriginalFilename();
-    if (file.isEmpty() || filename == null || !filename.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+    if (file.isEmpty()
+        || filename == null
+        || !filename.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
       throw invalidEkamFormat();
     }
   }

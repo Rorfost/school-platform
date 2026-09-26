@@ -202,7 +202,10 @@ export function AdminDashboardPage() {
         <div>
           <h2 className="text-base font-bold text-slate-900">Website visits</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Current counter: <span className="font-semibold text-slate-900">{visitsQuery.data?.totalVisits ?? 0}</span>
+            Current counter:{" "}
+            <span className="font-semibold text-slate-900">
+              {visitsQuery.data?.totalVisits ?? 0}
+            </span>
           </p>
         </div>
         <Button

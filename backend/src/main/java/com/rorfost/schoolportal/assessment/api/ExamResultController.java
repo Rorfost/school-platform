@@ -38,7 +38,8 @@ public class ExamResultController {
   }
 
   @PostMapping("/admin/exam-results/ekam-kasoti/upload")
-  public ResponseEntity<Map<String, String>> uploadEkamKasoti(@RequestParam("file") MultipartFile file) {
+  public ResponseEntity<Map<String, String>> uploadEkamKasoti(
+      @RequestParam("file") MultipartFile file) {
     service.processEkamKasotiUpload(file);
     return ResponseEntity.ok(Map.of("message", "એકમ કસોટીનું પરિણામ સફળતાપૂર્વક અપલોડ થયું."));
   }

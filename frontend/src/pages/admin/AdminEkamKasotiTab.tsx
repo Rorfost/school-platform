@@ -82,7 +82,8 @@ export function AdminEkamKasotiTab() {
     <Card className="max-w-2xl">
       <h2 className="text-lg font-bold text-slate-900">એકમ કસોટી પરિણામ અપલોડ કરો</h2>
       <p className="mt-1 text-sm leading-relaxed text-slate-600">
-        ધોરણ 3 માટેની એકમ કસોટીની Excel (.xlsx) ફાઇલ અપલોડ કરો. Aadhaar નંબરનો ઉપયોગ કે સંગ્રહ થતો નથી; પરિણામ સુરક્ષિત રીતે પહેલેથી દાખલ કરેલા વિદ્યાર્થીના રોલ નંબર સાથે જોડાય છે.
+        ધોરણ 3 માટેની એકમ કસોટીની Excel (.xlsx) ફાઇલ અપલોડ કરો. Aadhaar નંબરનો ઉપયોગ કે સંગ્રહ થતો
+        નથી; પરિણામ સુરક્ષિત રીતે પહેલેથી દાખલ કરેલા વિદ્યાર્થીના રોલ નંબર સાથે જોડાય છે.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
@@ -106,7 +107,9 @@ export function AdminEkamKasotiTab() {
             <CheckCircle2 size={18} aria-hidden="true" /> {message}
           </p>
         )}
-        {error && <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">{error}</p>}
+        {error && (
+          <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">{error}</p>
+        )}
 
         <Button type="submit" disabled={!file} loading={uploadMutation.isPending} className="gap-2">
           <UploadCloud size={18} aria-hidden="true" /> પરિણામ અપલોડ કરો
@@ -116,26 +119,44 @@ export function AdminEkamKasotiTab() {
       <div className="mt-6 border-t border-slate-200 pt-5">
         <h3 className="font-semibold text-slate-900">વિદ્યાર્થી રોલ નંબર યાદી</h3>
         <p className="mt-1 text-sm text-slate-600">
-          પ્રથમ વખત અપલોડ કરતાં પહેલાં દરેક વિદ્યાર્થીને શાળાનો રોલ નંબર આપો. Excel માંથી Aadhaar નંબર લેવાતો નથી.
+          પ્રથમ વખત અપલોડ કરતાં પહેલાં દરેક વિદ્યાર્થીને શાળાનો રોલ નંબર આપો. Excel માંથી Aadhaar
+          નંબર લેવાતો નથી.
         </p>
         {!currentYear || !standardThree ? (
           <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
             પહેલાં Academic Setup માં વર્તમાન શૈક્ષણિક વર્ષ અને ધોરણ 3 ગોઠવો.
           </p>
         ) : (
-          <form onSubmit={addRosterStudent} className="mt-3 grid gap-3 sm:grid-cols-[1fr_9rem_auto] sm:items-end">
+          <form
+            onSubmit={addRosterStudent}
+            className="mt-3 grid gap-3 sm:grid-cols-[1fr_9rem_auto] sm:items-end"
+          >
             <label className="text-sm font-medium text-slate-700">
               વિદ્યાર્થીનું નામ
-              <input name="fullName" required className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 px-3" />
+              <input
+                name="fullName"
+                required
+                className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 px-3"
+              />
             </label>
             <label className="text-sm font-medium text-slate-700">
               રોલ નંબર
-              <input name="rollNumber" inputMode="numeric" pattern="[0-9]+" required className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 px-3" />
+              <input
+                name="rollNumber"
+                inputMode="numeric"
+                pattern="[0-9]+"
+                required
+                className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 px-3"
+              />
             </label>
-            <Button type="submit" loading={rosterMutation.isPending}>ઉમેરો</Button>
+            <Button type="submit" loading={rosterMutation.isPending}>
+              ઉમેરો
+            </Button>
           </form>
         )}
-        {rosterMessage && <p className="mt-3 text-sm font-medium text-slate-700">{rosterMessage}</p>}
+        {rosterMessage && (
+          <p className="mt-3 text-sm font-medium text-slate-700">{rosterMessage}</p>
+        )}
       </div>
     </Card>
   );

@@ -11,7 +11,9 @@ export function AdminAssessmentsPage() {
     <section className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">પરિણામ અને ગુણ</h1>
-        <p className="mt-1 text-sm text-slate-600">પરિણામ માટે યોગ્ય એક્સેલ ફાઇલ પસંદ કરીને અપલોડ કરો.</p>
+        <p className="mt-1 text-sm text-slate-600">
+          પરિણામ માટે યોગ્ય એક્સેલ ફાઇલ પસંદ કરીને અપલોડ કરો.
+        </p>
       </div>
 
       <div className="flex border-b border-slate-200" role="tablist" aria-label="પરિણામ પ્રકાર">

@@ -47,7 +47,9 @@ export function AdminExamResultsTab() {
   return (
     <Card className="max-w-2xl">
       <h2 className="text-lg font-bold text-slate-900">વાર્ષિક પરીક્ષા પરિણામ અપલોડ કરો</h2>
-      <p className="mt-1 text-sm text-slate-600">વાર્ષિક પરીક્ષાની Excel ફાઇલ અને કુલ કાર્યદિવસ દાખલ કરો.</p>
+      <p className="mt-1 text-sm text-slate-600">
+        વાર્ષિક પરીક્ષાની Excel ફાઇલ અને કુલ કાર્યદિવસ દાખલ કરો.
+      </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
         <Input
@@ -79,7 +81,11 @@ export function AdminExamResultsTab() {
             <CheckCircle2 size={18} aria-hidden="true" /> {successMessage}
           </p>
         )}
-        {errorMessage && <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
+            {errorMessage}
+          </p>
+        )}
 
         <Button
           type="submit"
