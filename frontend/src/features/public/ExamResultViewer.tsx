@@ -1,6 +1,8 @@
 import { Printer } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
-import type { ExamResultResponse } from "@/api/types";
+import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { toGujaratiNumber } from "@/utils/gujarati";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
@@ -13,6 +15,13 @@ export function ExamResultViewer({
   schoolName: string;
   logoUrl?: string | null;
 }) {
+  const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
+    queryKey: ["result-settings", result.standard],
+    queryFn: () =>
+      apiRequest<ResultPresentationSettingsResponse>(
+        `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,
+      ),
+  });
   const handlePrint = () => window.print();
 
   return (
@@ -156,42 +165,65 @@ export function ExamResultViewer({
             {/* Footer */}
             <div className="grid grid-cols-[auto_1fr] border-b-2 border-slate-800 text-sm">
               <div className="p-2 px-4 font-bold border-r border-slate-800">પરિણામ તારીખ :</div>
-              <div className="p-2 px-4">3/5/2026</div>
+              <div className="p-2 px-4">{settings?.resultDate ?? "-"}</div>
             </div>
 
             <div className="h-24 border-b-2 border-slate-800 relative">
+              {settings?.classTeacherSignatureUrl && (
+                <img
+                  src={settings.classTeacherSignatureUrl}
+                  alt="Class teacher signature"
+                  className="absolute bottom-8 left-8 h-10 max-w-36 object-contain"
+                />
+              )}
+              {settings?.principalSignatureUrl && (
+                <img
+                  src={settings.principalSignatureUrl}
+                  alt="Principal signature"
+                  className="absolute bottom-8 right-8 h-10 max-w-36 object-contain"
+                />
+              )}
               <div className="absolute bottom-2 left-10 font-bold text-sm">વર્ગ શિક્ષકની સહી</div>
               <div className="absolute bottom-2 right-10 font-bold text-sm">આચાર્યની સહી</div>
             </div>
 
             <div className="bg-cyan-50 p-3 text-sm font-medium space-y-2">
-              <p>
-                ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા
-                રાબેતા મુજબ શરુ થશે.
-              </p>
-              <p className="text-center text-xs mt-2 text-slate-700">
-                80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
-                વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
-              </p>
+              {settings?.footerLineOne ? (
+                <p>{settings.footerLineOne}</p>
+              ) : (
+                <p>
+                  ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી
+                  શાળા રાબેતા મુજબ શરુ થશે.
+                </p>
+              )}
+              {settings?.footerLineTwo ? (
+                <p className="text-center text-xs mt-2 text-slate-700">{settings.footerLineTwo}</p>
+              ) : (
+                <p className="text-center text-xs mt-2 text-slate-700">
+                  80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
+                  વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
       <style>{`
         @media print {
-          body > *:not(#print-root) { display: none !important; }
+          @page { size: A4 portrait; margin: 8mm; }
+          html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          body * { visibility: hidden !important; }
+          #exam-result-print, #exam-result-print * { visibility: visible !important; }
           #exam-result-print {
-            position: fixed !important;
-            inset: 0 !important;
-            max-width: 100% !important;
+            position: absolute !important;
+            inset: 0 auto auto 0 !important;
+            max-width: none !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 8px !important;
+            padding: 0 !important;
             background: white !important;
             box-shadow: none !important;
-            z-index: 9999;
           }
-          .print-hide { display: none !important; }
         }
       `}</style>
     </div>

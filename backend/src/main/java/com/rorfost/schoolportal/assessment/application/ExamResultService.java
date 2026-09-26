@@ -1,7 +1,14 @@
 package com.rorfost.schoolportal.assessment.application;
 
+import com.rorfost.schoolportal.academic.domain.Standard;
+import com.rorfost.schoolportal.academic.domain.StandardSubject;
+import com.rorfost.schoolportal.academic.repository.StandardRepository;
+import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
+import com.rorfost.schoolportal.academic.repository.SubjectRepository;
 import com.rorfost.schoolportal.assessment.api.ExamResultResponse;
 import com.rorfost.schoolportal.assessment.api.ExamResultSubjectResponse;
+import com.rorfost.schoolportal.assessment.domain.ResultPresentationSettings;
+import com.rorfost.schoolportal.assessment.repository.ResultPresentationSettingsRepository;
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
@@ -37,12 +44,25 @@ public class ExamResultService {
 
   private final AnnualExamResultRepository resultRepository;
   private final SchoolRepository schoolRepository;
+  private final ResultPresentationSettingsRepository presentationSettings;
+  private final StandardRepository standards;
+  private final StandardSubjectRepository standardSubjects;
+  private final SubjectRepository subjects;
   private final DataFormatter dataFormatter = new DataFormatter();
 
   public ExamResultService(
-      AnnualExamResultRepository resultRepository, SchoolRepository schoolRepository) {
+      AnnualExamResultRepository resultRepository,
+      SchoolRepository schoolRepository,
+      ResultPresentationSettingsRepository presentationSettings,
+      StandardRepository standards,
+      StandardSubjectRepository standardSubjects,
+      SubjectRepository subjects) {
     this.resultRepository = resultRepository;
     this.schoolRepository = schoolRepository;
+    this.presentationSettings = presentationSettings;
+    this.standards = standards;
+    this.standardSubjects = standardSubjects;
+    this.subjects = subjects;
   }
 
   @Transactional(readOnly = true)
@@ -67,8 +87,12 @@ public class ExamResultService {
 
     String validatedResultType = validateResultType(resultType);
     School school = getSchool();
+    ResultPresentationSettings settings =
+        presentationSettings
+            .findById(school.getId())
+            .orElseGet(() -> new ResultPresentationSettings(school.getId()));
     List<AnnualExamResult> results =
-        parseWorkbook(file, school, totalWorkingDays, validatedResultType);
+        parseWorkbook(file, school, totalWorkingDays, validatedResultType, settings);
     if (results.isEmpty()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
     }
@@ -78,7 +102,11 @@ public class ExamResultService {
   }
 
   private List<AnnualExamResult> parseWorkbook(
-      MultipartFile file, School school, Integer totalWorkingDays, String resultType) {
+      MultipartFile file,
+      School school,
+      Integer totalWorkingDays,
+      String resultType,
+      ResultPresentationSettings settings) {
     try (InputStream inputStream = file.getInputStream();
         Workbook workbook = WorkbookFactory.create(inputStream)) {
       Sheet sheet = workbook.getSheetAt(0);
@@ -108,8 +136,8 @@ public class ExamResultService {
         result.setTotalWorkingDays(totalWorkingDays);
         result.setAttendedDays(optionalInteger(row.getCell(5)));
 
-        addSubjects(result, row);
-        calculateTotals(result);
+        addSubjects(result, row, configuredSubjects(school.getId(), standard));
+        calculateTotals(result, settings);
         results.add(result);
       }
       return results;
@@ -120,21 +148,9 @@ public class ExamResultService {
     }
   }
 
-  private void addSubjects(AnnualExamResult result, Row row) {
-    String[] names = {
-      "Gujarati",
-      "Mathematics",
-      "Science",
-      "Hindi",
-      "English",
-      "Social Science",
-      "Sanskrit",
-      "Personality Development",
-      "Environment"
-    };
-    int[] maximums = {200, 200, 200, 200, 200, 200, 200, 400, 200};
-
-    for (int index = 0; index < names.length; index++) {
+  private void addSubjects(
+      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects) {
+    for (int index = 0; index < configuredSubjects.size(); index++) {
       int marksColumn = 6 + index * 2;
       String marks = cellText(row.getCell(marksColumn));
       if (marks.isBlank()) {
@@ -142,16 +158,63 @@ public class ExamResultService {
       }
       AnnualExamResultSubject subject = new AnnualExamResultSubject();
       subject.setId(UUID.randomUUID());
-      subject.setSubjectName(names[index]);
-      subject.setMaximumMarks(maximums[index]);
+      subject.setSubjectName(configuredSubjects.get(index).name());
+      subject.setMaximumMarks(configuredSubjects.get(index).maximumMarks());
       subject.setObtainedMarks(optionalInteger(row.getCell(marksColumn)));
       subject.setGrade(cellText(row.getCell(marksColumn + 1)));
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
+    for (int index = configuredSubjects.size(); index < 9; index++) {
+      if (!cellText(row.getCell(6 + index * 2)).isBlank())
+        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+    }
   }
 
-  private void calculateTotals(AnnualExamResult result) {
+  private List<ConfiguredSubject> configuredSubjects(UUID schoolId, String standardValue) {
+    Standard standard =
+        standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
+            .filter(value -> matchesStandard(value, standardValue))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new DomainException(HttpStatus.BAD_REQUEST, "result_standard_not_configured"));
+    List<ConfiguredSubject> configured =
+        standardSubjects
+            .findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standard.getId())
+            .stream()
+            .map(this::configuredSubject)
+            .toList();
+    if (configured.isEmpty())
+      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+    return configured;
+  }
+
+  private ConfiguredSubject configuredSubject(StandardSubject mapping) {
+    if (!mapping.isMaximumMarksConfigured())
+      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+    String name =
+        subjects
+            .findByIdAndSchoolId(mapping.getSubjectId(), mapping.getSchoolId())
+            .map(value -> value.getName())
+            .orElseThrow(
+                () ->
+                    new DomainException(
+                        HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured"));
+    return new ConfiguredSubject(name, mapping.getMaximumMarks());
+  }
+
+  private record ConfiguredSubject(String name, int maximumMarks) {}
+
+  private boolean matchesStandard(Standard standard, String uploadedValue) {
+    if (uploadedValue.equalsIgnoreCase(standard.getDisplayName())
+        || uploadedValue.equalsIgnoreCase(standard.getCode())) return true;
+    String uploadedNumber = uploadedValue.replaceAll("[^0-9]", "");
+    String displayNumber = standard.getDisplayName().replaceAll("[^0-9]", "");
+    return !uploadedNumber.isBlank() && uploadedNumber.equals(displayNumber);
+  }
+
+  private void calculateTotals(AnnualExamResult result, ResultPresentationSettings settings) {
     int maximumMarks =
         result.getSubjects().stream().mapToInt(AnnualExamResultSubject::getMaximumMarks).sum();
     int obtainedMarks =
@@ -165,7 +228,7 @@ public class ExamResultService {
     if (maximumMarks > 0) {
       double percentage = obtainedMarks * 100.0 / maximumMarks;
       result.setPercentage(BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP));
-      result.setOverallGrade(calculateGrade(percentage));
+      result.setOverallGrade(calculateGrade(percentage, settings));
     }
   }
 
@@ -202,11 +265,11 @@ public class ExamResultService {
     return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
   }
 
-  private String calculateGrade(double percentage) {
-    if (percentage >= 80) return "A";
-    if (percentage >= 65) return "B";
-    if (percentage >= 50) return "C";
-    if (percentage >= 35) return "D";
+  private String calculateGrade(double percentage, ResultPresentationSettings settings) {
+    if (percentage >= settings.getGradeAMin().doubleValue()) return "A";
+    if (percentage >= settings.getGradeBMin().doubleValue()) return "B";
+    if (percentage >= settings.getGradeCMin().doubleValue()) return "C";
+    if (percentage >= settings.getGradeDMin().doubleValue()) return "D";
     return "E";
   }
 

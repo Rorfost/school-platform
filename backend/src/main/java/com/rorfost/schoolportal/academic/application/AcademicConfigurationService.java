@@ -3,6 +3,7 @@ package com.rorfost.schoolportal.academic.application;
 import com.rorfost.schoolportal.academic.api.AcademicSetupResponse;
 import com.rorfost.schoolportal.academic.api.AcademicYearRequest;
 import com.rorfost.schoolportal.academic.api.AcademicYearResponse;
+import com.rorfost.schoolportal.academic.api.ClassTeacherRequest;
 import com.rorfost.schoolportal.academic.api.StandardNameRequest;
 import com.rorfost.schoolportal.academic.api.StandardRequest;
 import com.rorfost.schoolportal.academic.api.StandardResponse;
@@ -24,6 +25,8 @@ import com.rorfost.schoolportal.academic.repository.SubjectRepository;
 import com.rorfost.schoolportal.audit.domain.AuditAction;
 import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.common.storage.StorageService;
+import com.rorfost.schoolportal.common.storage.StoredObject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -44,18 +47,21 @@ public class AcademicConfigurationService {
   private final SubjectRepository subjects;
   private final StandardSubjectRepository standardSubjects;
   private final AuditLogService audit;
+  private final StorageService storage;
 
   public AcademicConfigurationService(
       AcademicYearRepository academicYears,
       StandardRepository standards,
       SubjectRepository subjects,
       StandardSubjectRepository standardSubjects,
-      AuditLogService audit) {
+      AuditLogService audit,
+      StorageService storage) {
     this.academicYears = academicYears;
     this.standards = standards;
     this.subjects = subjects;
     this.standardSubjects = standardSubjects;
     this.audit = audit;
+    this.storage = storage;
   }
 
   @Transactional(readOnly = true)
@@ -317,6 +323,7 @@ public class AcademicConfigurationService {
         standardSubjects.save(
             new StandardSubject(
                 schoolId, request.standardId(), request.subjectId(), request.sortOrder()));
+    mapping.setMaximumMarks(request.maximumMarks());
     audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "STANDARD_SUBJECT", mapping.getId());
     return StandardSubjectResponse.from(mapping);
   }
@@ -332,8 +339,46 @@ public class AcademicConfigurationService {
         || !mapping.getSubjectId().equals(request.subjectId()))
       throw conflict("standard_subject_immutable");
     mapping.setSortOrder(request.sortOrder());
+    mapping.setMaximumMarks(request.maximumMarks());
     audit(schoolId, actorId, AuditAction.SUBJECT_UPDATED, "STANDARD_SUBJECT", id);
     return StandardSubjectResponse.from(mapping);
+  }
+
+  @Transactional
+  public StandardResponse updateClassTeacher(
+      UUID schoolId, UUID actorId, UUID standardId, ClassTeacherRequest request) {
+    Standard standard = requireStandard(schoolId, standardId);
+    standard.updateClassTeacher(
+        request.classTeacherName() == null ? null : request.classTeacherName().trim());
+    audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD_CLASS_TEACHER", standardId);
+    return StandardResponse.from(standard);
+  }
+
+  @Transactional
+  public StandardResponse replaceClassTeacherSignature(
+      UUID schoolId,
+      UUID actorId,
+      UUID standardId,
+      org.springframework.web.multipart.MultipartFile file) {
+    Standard standard = requireStandard(schoolId, standardId);
+    StoredObject uploaded =
+        storage.uploadPublicImage("signatures/" + schoolId + "/class-teacher", file);
+    String previousKey = standard.getClassTeacherSignatureObjectKey();
+    try {
+      standard.changeClassTeacherSignature(uploaded.objectKey());
+      standards.saveAndFlush(standard);
+    } catch (RuntimeException exception) {
+      storage.delete(uploaded);
+      throw exception;
+    }
+    audit(
+        schoolId,
+        actorId,
+        AuditAction.STANDARD_UPDATED,
+        "STANDARD_CLASS_TEACHER_SIGNATURE",
+        standardId);
+    if (previousKey != null) storage.deletePublicObject(previousKey);
+    return StandardResponse.from(standard);
   }
 
   @Transactional

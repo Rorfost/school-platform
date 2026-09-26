@@ -13,6 +13,8 @@ public class StandardSubject extends AuditableUuidEntity {
   private UUID standardId;
   private UUID subjectId;
   private short sortOrder;
+  private int maximumMarks = 100;
+  private boolean maximumMarksConfigured;
 
   protected StandardSubject() {}
 
@@ -43,7 +45,20 @@ public class StandardSubject extends AuditableUuidEntity {
     return sortOrder;
   }
 
+  public int getMaximumMarks() {
+    return maximumMarks;
+  }
+
+  public boolean isMaximumMarksConfigured() {
+    return maximumMarksConfigured;
+  }
+
   public void setSortOrder(short sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  public void setMaximumMarks(int maximumMarks) {
+    this.maximumMarks = maximumMarks;
+    this.maximumMarksConfigured = true;
   }
 }

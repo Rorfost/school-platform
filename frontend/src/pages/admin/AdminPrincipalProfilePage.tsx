@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Save, UserCheck } from "lucide-react";
+import { CheckCircle2, Save, Upload, UserCheck } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalProfileResponse, PrincipalProfileUpdateRequest } from "@/api/types";
@@ -35,6 +35,21 @@ export function AdminPrincipalProfilePage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.principalProfile });
       setSuccessMsg("Principal profile updated successfully.");
       setTimeout(() => setSuccessMsg(null), 4000);
+    },
+  });
+
+  const signatureMutation = useMutation({
+    mutationFn: (file: File) => {
+      const body = new FormData();
+      body.append("file", file);
+      return apiRequest<PrincipalProfileResponse>("/api/v1/admin/principal-profile/signature", {
+        method: "POST",
+        body,
+      });
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.principalProfile, updated);
+      setSuccessMsg("Principal signature uploaded successfully.");
     },
   });
 
@@ -134,6 +149,37 @@ export function AdminPrincipalProfilePage() {
               placeholder="e.g. +91 9876543210"
             />
           </div>
+        </Card>
+
+        <Card className="p-6 space-y-3">
+          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+            Result-sheet Signature
+          </h2>
+          <p className="text-sm text-slate-600">
+            Upload the Principal's signature. It is printed in the Gujarati result sheet.
+          </p>
+          {profile?.signatureUrl && (
+            <img
+              src={profile.signatureUrl}
+              alt="Principal signature"
+              className="h-16 max-w-52 object-contain object-left"
+            />
+          )}
+          <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900">
+            <Upload size={16} />{" "}
+            {signatureMutation.isPending ? "Uploading signature..." : "Upload signature"}
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="sr-only"
+              disabled={signatureMutation.isPending}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) signatureMutation.mutate(file);
+                event.currentTarget.value = "";
+              }}
+            />
+          </label>
         </Card>
 
         {/* Message to Students & Parents */}

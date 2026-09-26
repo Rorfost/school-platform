@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -100,6 +102,23 @@ class AcademicConfigurationController {
   StandardResponse archiveStandard(
       @AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
     return service.archiveStandard(principal.schoolId(), principal.adminUserId(), id);
+  }
+
+  @PutMapping("/standards/{id}/class-teacher")
+  StandardResponse updateClassTeacher(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @PathVariable UUID id,
+      @Valid @RequestBody ClassTeacherRequest request) {
+    return service.updateClassTeacher(principal.schoolId(), principal.adminUserId(), id, request);
+  }
+
+  @PostMapping(value = "/standards/{id}/class-teacher/signature", consumes = "multipart/form-data")
+  StandardResponse replaceClassTeacherSignature(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @PathVariable UUID id,
+      @RequestParam MultipartFile file) {
+    return service.replaceClassTeacherSignature(
+        principal.schoolId(), principal.adminUserId(), id, file);
   }
 
   @GetMapping("/subjects")

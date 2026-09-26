@@ -25,6 +25,8 @@ export interface PrincipalProfileResponse {
   designation: string | null;
   message: string | null;
   portraitObjectKey: string | null;
+  signatureObjectKey?: string | null;
+  signatureUrl?: string | null;
   email: string | null;
   phone: string | null;
   isPublic: boolean;
@@ -37,6 +39,8 @@ export interface StandardResponse {
   displayName: string;
   sortOrder: number;
   archived: boolean;
+  classTeacherName?: string | null;
+  classTeacherSignatureObjectKey?: string | null;
 }
 
 export interface SubjectResponse {
@@ -142,6 +146,8 @@ export interface StandardSubjectResponse {
   standardId: string;
   subjectId: string;
   sortOrder: number;
+  maximumMarks?: number;
+  maximumMarksConfigured?: boolean;
 }
 
 export interface AssessmentSubjectResponse {
@@ -218,6 +224,7 @@ export interface StandardSubjectRequest {
   standardId: string;
   subjectId: string;
   sortOrder: number;
+  maximumMarks: number;
 }
 
 export interface AssessmentSubjectRequest {
@@ -315,6 +322,19 @@ export interface ExamResultSubjectResponse {
   obtainedMarks: number | null;
   grade: string | null;
   sortOrder: number;
+}
+
+export interface ResultPresentationSettingsResponse {
+  resultDate: string | null;
+  footerLineOne: string | null;
+  footerLineTwo: string | null;
+  gradeAMin: number;
+  gradeBMin: number;
+  gradeCMin: number;
+  gradeDMin: number;
+  principalSignatureUrl?: string | null;
+  classTeacherName?: string | null;
+  classTeacherSignatureUrl?: string | null;
 }
 
 export interface ExamResultResponse {

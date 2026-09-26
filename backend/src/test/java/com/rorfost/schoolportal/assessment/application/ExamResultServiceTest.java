@@ -4,6 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.rorfost.schoolportal.academic.domain.Standard;
+import com.rorfost.schoolportal.academic.domain.StandardSubject;
+import com.rorfost.schoolportal.academic.domain.Subject;
+import com.rorfost.schoolportal.academic.repository.StandardRepository;
+import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
+import com.rorfost.schoolportal.academic.repository.SubjectRepository;
+import com.rorfost.schoolportal.assessment.repository.ResultPresentationSettingsRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
 import com.rorfost.schoolportal.school.domain.School;
@@ -22,7 +29,15 @@ import org.springframework.mock.web.MockMultipartFile;
 class ExamResultServiceTest {
   private final AnnualExamResultRepository results = Mockito.mock(AnnualExamResultRepository.class);
   private final SchoolRepository schools = Mockito.mock(SchoolRepository.class);
-  private final ExamResultService service = new ExamResultService(results, schools);
+  private final ResultPresentationSettingsRepository presentationSettings =
+      Mockito.mock(ResultPresentationSettingsRepository.class);
+  private final StandardRepository standards = Mockito.mock(StandardRepository.class);
+  private final StandardSubjectRepository standardSubjects =
+      Mockito.mock(StandardSubjectRepository.class);
+  private final SubjectRepository subjects = Mockito.mock(SubjectRepository.class);
+  private final ExamResultService service =
+      new ExamResultService(
+          results, schools, presentationSettings, standards, standardSubjects, subjects);
 
   @Test
   void importsTheSharedWorkbookIntoTheSelectedEkamKasotiResultSet() throws IOException {
@@ -30,6 +45,25 @@ class ExamResultServiceTest {
     School school = Mockito.mock(School.class);
     when(school.getId()).thenReturn(schoolId);
     when(schools.findFirstByIsActiveTrueOrderByCreatedAtAsc()).thenReturn(Optional.of(school));
+    Standard standard = new Standard(schoolId, "8", "8", (short) 8);
+    UUID standardId = UUID.randomUUID();
+    org.springframework.test.util.ReflectionTestUtils.setField(standard, "id", standardId);
+    when(standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId))
+        .thenReturn(List.of(standard));
+    List<StandardSubject> mappings = new java.util.ArrayList<>();
+    for (int index = 0; index < 9; index++) {
+      UUID subjectId = UUID.randomUUID();
+      StandardSubject mapping =
+          new StandardSubject(schoolId, standardId, subjectId, (short) (index + 1));
+      mapping.setMaximumMarks(index == 7 ? 400 : 200);
+      mappings.add(mapping);
+      when(subjects.findByIdAndSchoolId(subjectId, schoolId))
+          .thenReturn(
+              Optional.of(
+                  new Subject(schoolId, "S" + index, "Subject " + index, (short) (index + 1))));
+    }
+    when(standardSubjects.findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standardId))
+        .thenReturn(mappings);
 
     service.processExcelUpload(sharedWorkbook(), 250, ExamResultService.EKAM_KASOTI);
 
