@@ -179,19 +179,20 @@ export function ExamResultViewer({
       </div>
       <style>{`
         @media print {
-          body > *:not(#print-root) { display: none !important; }
+          @page { size: A4 portrait; margin: 8mm; }
+          html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          body * { visibility: hidden !important; }
+          #exam-result-print, #exam-result-print * { visibility: visible !important; }
           #exam-result-print {
-            position: fixed !important;
-            inset: 0 !important;
-            max-width: 100% !important;
+            position: absolute !important;
+            inset: 0 auto auto 0 !important;
+            max-width: none !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 8px !important;
+            padding: 0 !important;
             background: white !important;
             box-shadow: none !important;
-            z-index: 9999;
           }
-          .print-hide { display: none !important; }
         }
       `}</style>
     </div>
