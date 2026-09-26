@@ -45,14 +45,18 @@ public class ExamResultService {
   private final AnnualExamResultRepository resultRepository;
   private final SchoolRepository schoolRepository;
   private final ResultPresentationSettingsRepository presentationSettings;
+<<<<<<< HEAD
   private final StandardRepository standards;
   private final StandardSubjectRepository standardSubjects;
   private final SubjectRepository subjects;
+=======
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   private final DataFormatter dataFormatter = new DataFormatter();
 
   public ExamResultService(
       AnnualExamResultRepository resultRepository,
       SchoolRepository schoolRepository,
+<<<<<<< HEAD
       ResultPresentationSettingsRepository presentationSettings,
       StandardRepository standards,
       StandardSubjectRepository standardSubjects,
@@ -63,6 +67,12 @@ public class ExamResultService {
     this.standards = standards;
     this.standardSubjects = standardSubjects;
     this.subjects = subjects;
+=======
+      ResultPresentationSettingsRepository presentationSettings) {
+    this.resultRepository = resultRepository;
+    this.schoolRepository = schoolRepository;
+    this.presentationSettings = presentationSettings;
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   }
 
   @Transactional(readOnly = true)
@@ -136,7 +146,11 @@ public class ExamResultService {
         result.setTotalWorkingDays(totalWorkingDays);
         result.setAttendedDays(optionalInteger(row.getCell(5)));
 
+<<<<<<< HEAD
         addSubjects(result, row, configuredSubjects(school.getId(), standard));
+=======
+        addSubjects(result, row);
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -171,6 +185,7 @@ public class ExamResultService {
     }
   }
 
+<<<<<<< HEAD
   private List<ConfiguredSubject> configuredSubjects(UUID schoolId, String standardValue) {
     Standard standard =
         standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
@@ -214,6 +229,8 @@ public class ExamResultService {
     return !uploadedNumber.isBlank() && uploadedNumber.equals(displayNumber);
   }
 
+=======
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   private void calculateTotals(AnnualExamResult result, ResultPresentationSettings settings) {
     int maximumMarks =
         result.getSubjects().stream().mapToInt(AnnualExamResultSubject::getMaximumMarks).sum();

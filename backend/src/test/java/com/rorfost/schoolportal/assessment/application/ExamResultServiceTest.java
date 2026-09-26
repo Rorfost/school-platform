@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+<<<<<<< HEAD
 import com.rorfost.schoolportal.academic.domain.Standard;
 import com.rorfost.schoolportal.academic.domain.StandardSubject;
 import com.rorfost.schoolportal.academic.domain.Subject;
 import com.rorfost.schoolportal.academic.repository.StandardRepository;
 import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
 import com.rorfost.schoolportal.academic.repository.SubjectRepository;
+=======
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
 import com.rorfost.schoolportal.assessment.repository.ResultPresentationSettingsRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
@@ -31,6 +34,7 @@ class ExamResultServiceTest {
   private final SchoolRepository schools = Mockito.mock(SchoolRepository.class);
   private final ResultPresentationSettingsRepository presentationSettings =
       Mockito.mock(ResultPresentationSettingsRepository.class);
+<<<<<<< HEAD
   private final StandardRepository standards = Mockito.mock(StandardRepository.class);
   private final StandardSubjectRepository standardSubjects =
       Mockito.mock(StandardSubjectRepository.class);
@@ -38,6 +42,10 @@ class ExamResultServiceTest {
   private final ExamResultService service =
       new ExamResultService(
           results, schools, presentationSettings, standards, standardSubjects, subjects);
+=======
+  private final ExamResultService service =
+      new ExamResultService(results, schools, presentationSettings);
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
 
   @Test
   void importsTheSharedWorkbookIntoTheSelectedEkamKasotiResultSet() throws IOException {

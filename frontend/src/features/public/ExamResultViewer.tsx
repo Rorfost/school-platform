@@ -16,11 +16,16 @@ export function ExamResultViewer({
   logoUrl?: string | null;
 }) {
   const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
+<<<<<<< HEAD
     queryKey: ["result-settings", result.standard],
     queryFn: () =>
       apiRequest<ResultPresentationSettingsResponse>(
         `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,
       ),
+=======
+    queryKey: ["result-settings"],
+    queryFn: () => apiRequest<ResultPresentationSettingsResponse>("/api/v1/public/result-settings"),
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   });
   const handlePrint = () => window.print();
 

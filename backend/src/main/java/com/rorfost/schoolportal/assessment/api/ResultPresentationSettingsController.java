@@ -1,11 +1,17 @@
 package com.rorfost.schoolportal.assessment.api;
 
+<<<<<<< HEAD
 import com.rorfost.schoolportal.academic.repository.StandardRepository;
 import com.rorfost.schoolportal.assessment.application.ResultPresentationSettingsService;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.common.storage.StorageService;
 import com.rorfost.schoolportal.school.repository.PrincipalProfileRepository;
+=======
+import com.rorfost.schoolportal.assessment.application.ResultPresentationSettingsService;
+import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.exception.DomainException;
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ResultPresentationSettingsController {
   private final ResultPresentationSettingsService service;
   private final SchoolRepository schools;
+<<<<<<< HEAD
   private final PrincipalProfileRepository principalProfiles;
   private final StandardRepository standards;
   private final StorageService storage;
@@ -69,6 +76,22 @@ public class ResultPresentationSettingsController {
                 .filter(java.util.Objects::nonNull)
                 .map(storage::publicUrl)
                 .orElse(null));
+=======
+
+  public ResultPresentationSettingsController(
+      ResultPresentationSettingsService service, SchoolRepository schools) {
+    this.service = service;
+    this.schools = schools;
+  }
+
+  @GetMapping("/public/result-settings")
+  ResultPresentationSettingsResponse publicSettings() {
+    return service.get(
+        schools
+            .findFirstByIsActiveTrueOrderByCreatedAtAsc()
+            .map(value -> value.getId())
+            .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_configured")));
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
   }
 
   @GetMapping("/admin/result-settings")
@@ -83,6 +106,7 @@ public class ResultPresentationSettingsController {
       @Valid @RequestBody ResultPresentationSettingsRequest request) {
     return service.update(principal.schoolId(), request);
   }
+<<<<<<< HEAD
 
   private boolean matchesStandard(
       com.rorfost.schoolportal.academic.domain.Standard candidate, String requested) {
@@ -92,4 +116,6 @@ public class ResultPresentationSettingsController {
     String displayNumber = candidate.getDisplayName().replaceAll("[^0-9]", "");
     return !requestedNumber.isBlank() && requestedNumber.equals(displayNumber);
   }
+=======
+>>>>>>> baaa4954004ce590e678a54c0862bfd396a37505
 }
