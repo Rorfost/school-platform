@@ -212,7 +212,7 @@ export function AdminLayout() {
       </header>
 
       {/* Main Layout Container (Sidebar + Content) */}
-      <div className="flex min-h-0 w-full flex-1">
+      <div className="flex min-h-0 w-full flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-4 py-6 md:block">
           <nav aria-label="Admin Sidebar Navigation">{renderNavLinks()}</nav>
@@ -278,7 +278,7 @@ export function AdminLayout() {
           ref={mainContentRef}
           id="admin-main-content"
           tabIndex={-1}
-          className="min-w-0 flex-1 overflow-y-auto p-4 focus:outline-none sm:p-6 lg:p-8"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4 focus:outline-none sm:p-6 lg:p-8"
         >
           <Outlet />
         </main>
