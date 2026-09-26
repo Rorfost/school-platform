@@ -61,7 +61,7 @@ export function AdminAcademicSetupPage() {
     try {
       for (const mapping of marksQuery.data) {
         const inputEl = document.getElementById(`max-marks-${mapping.id}`) as HTMLInputElement;
-        const val = inputEl ? Number(inputEl.value) : (mapping.maximumMarks || 100);
+        const val = inputEl ? Number(inputEl.value) : mapping.maximumMarks || 100;
         if (val > 0) {
           await apiRequest(`/api/v1/admin/standard-subjects/${mapping.id}`, {
             method: "PUT",
@@ -398,7 +398,9 @@ export function AdminAcademicSetupPage() {
               <div className="flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h2 className="text-lg font-bold text-slate-900">{entry.standard.displayName}</h2>
+                    <h2 className="text-lg font-bold text-slate-900">
+                      {entry.standard.displayName}
+                    </h2>
                     <p className="mt-0.5 text-xs text-slate-500">
                       {entry.subjects.length
                         ? `${entry.subjects.length} subject${entry.subjects.length === 1 ? "" : "s"} selected`
@@ -441,7 +443,10 @@ export function AdminAcademicSetupPage() {
                       onChange={(event) => {
                         const file = event.target.files?.[0];
                         if (file)
-                          uploadClassTeacherSignature.mutate({ standardId: entry.standard.id, file });
+                          uploadClassTeacherSignature.mutate({
+                            standardId: entry.standard.id,
+                            file,
+                          });
                         event.currentTarget.value = "";
                       }}
                     />

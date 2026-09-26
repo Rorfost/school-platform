@@ -37,7 +37,7 @@ export function formatDate(input: string | Date | number | null | undefined): st
   // Match DD-MM-YYYY or DD/MM/YYYY or D/M/YYYY or M/D/YY
   const slashMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
   if (slashMatch) {
-    let [, p1, p2, p3] = slashMatch;
+    const [, p1, p2, p3] = slashMatch;
     if (p3.length === 4) {
       // p1 is day/month, p2 is month/day, p3 is year
       // If p1 > 12, p1 is day

@@ -110,12 +110,24 @@ export function ExamResultViewer({
             <table className="w-full text-center text-sm font-semibold border-collapse">
               <thead>
                 <tr className="bg-amber-100/90 text-slate-900">
-                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-12 font-bold">ક્રમ</th>
-                  <th className="border-b-2 border-r-2 border-slate-900 p-2 font-bold text-center">વિષય</th>
-                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-24 font-bold">કુલ ગુણ</th>
-                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-28 font-bold">મેળવેલ ગુણ</th>
-                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-20 font-bold">ગ્રેડ</th>
-                  <th className="border-b-2 border-slate-900 p-2 font-bold">વિષયના સંદર્ભમાં નોંધ</th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-12 font-bold">
+                    ક્રમ
+                  </th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 font-bold text-center">
+                    વિષય
+                  </th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-24 font-bold">
+                    કુલ ગુણ
+                  </th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-28 font-bold">
+                    મેળવેલ ગુણ
+                  </th>
+                  <th className="border-b-2 border-r-2 border-slate-900 p-2 w-20 font-bold">
+                    ગ્રેડ
+                  </th>
+                  <th className="border-b-2 border-slate-900 p-2 font-bold">
+                    વિષયના સંદર્ભમાં નોંધ
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -235,4 +247,3 @@ export function ExamResultViewer({
     </div>
   );
 }
-
