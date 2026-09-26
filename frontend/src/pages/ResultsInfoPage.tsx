@@ -17,10 +17,15 @@ export function ResultsInfoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const school = useEffectiveSchoolInfo();
+  const isStandardValid = /^[1-8]$/.test(standard);
+  const isRollNumberValid = /^[1-9]\d*$/.test(rollNumber);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!standard || !rollNumber) return;
+    if (!isStandardValid || !isRollNumberValid) {
+      setError("કૃપા કરીને 1 થી 8 ધોરણ અને માન્ય રોલ નંબર લખો.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -71,17 +76,24 @@ export function ResultsInfoPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input
                     label="ધોરણ"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={standard}
-                    onChange={(e) => setStandard(e.target.value)}
+                    onChange={(e) => setStandard(e.target.value.replace(/\D/g, "").slice(0, 1))}
                     placeholder="દા.ત. 8"
+                    aria-invalid={standard.length > 0 && !isStandardValid}
                     required
                   />
                   <Input
                     label="રોલ નંબર"
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={rollNumber}
-                    onChange={(e) => setRollNumber(e.target.value)}
+                    onChange={(e) => setRollNumber(e.target.value.replace(/\D/g, ""))}
                     placeholder="દા.ત. 1"
+                    aria-invalid={rollNumber.length > 0 && !isRollNumberValid}
                     required
                   />
                 </div>
@@ -98,7 +110,7 @@ export function ResultsInfoPage() {
               className="w-full gap-2 mt-2"
               loading={loading}
               loadingText="પરિણામ શોધી રહ્યા છીએ..."
-              disabled={!standard || !rollNumber}
+              disabled={!isStandardValid || !isRollNumberValid}
             >
               <Search size={18} /> પરિણામ જુઓ
             </Button>
