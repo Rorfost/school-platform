@@ -76,15 +76,20 @@ public class StorageService {
       throw new DomainException(HttpStatus.BAD_REQUEST, "upload_empty");
     if (file.getSize() > uploads.maxFileSize().toBytes())
       throw new DomainException(HttpStatus.PAYLOAD_TOO_LARGE, "upload_too_large");
-    String type = normalizedType(file.getContentType());
-    if (!allowedTypes.contains(type))
-      throw new DomainException(HttpStatus.BAD_REQUEST, "upload_type_unsupported");
-    String filename = safeFilename(file.getOriginalFilename());
-    validateExtension(filename, type);
+
     try {
       byte[] bytes = file.getBytes();
+      String type = detectContentType(bytes, normalizedType(file.getContentType()));
+      if (!allowedTypes.contains(type))
+        throw new DomainException(HttpStatus.BAD_REQUEST, "upload_type_unsupported");
+
+      String rawFilename = safeFilename(file.getOriginalFilename());
+      String filename = ensureMatchingExtension(rawFilename, type);
+      validateExtension(filename, type);
+
       if (!hasExpectedSignature(bytes, type))
         throw new DomainException(HttpStatus.BAD_REQUEST, "upload_content_invalid");
+
       String key = prefix + "/" + UUID.randomUUID() + extension(type);
       validateKey(key);
       String providerFileId =
@@ -105,6 +110,57 @@ public class StorageService {
     } catch (IOException exception) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "upload_unreadable");
     }
+  }
+
+  private String detectContentType(byte[] bytes, String fallbackType) {
+    if (bytes.length >= 8
+        && bytes[0] == (byte) 0x89
+        && bytes[1] == 0x50
+        && bytes[2] == 0x4e
+        && bytes[3] == 0x47) {
+      return "image/png";
+    }
+    if (bytes.length >= 3
+        && (bytes[0] & 0xff) == 0xff
+        && (bytes[1] & 0xff) == 0xd8
+        && (bytes[2] & 0xff) == 0xff) {
+      return "image/jpeg";
+    }
+    if (bytes.length >= 12
+        && bytes[0] == 'R'
+        && bytes[1] == 'I'
+        && bytes[2] == 'F'
+        && bytes[3] == 'F'
+        && bytes[8] == 'W'
+        && bytes[9] == 'E'
+        && bytes[10] == 'B'
+        && bytes[11] == 'P') {
+      return "image/webp";
+    }
+    if (bytes.length >= 5
+        && bytes[0] == '%'
+        && bytes[1] == 'P'
+        && bytes[2] == 'D'
+        && bytes[3] == 'F'
+        && bytes[4] == '-') {
+      return "application/pdf";
+    }
+    if (fallbackType.equals("image/jpg")) return "image/jpeg";
+    if (fallbackType.equals("image/x-png")) return "image/png";
+    return fallbackType;
+  }
+
+  private String ensureMatchingExtension(String filename, String type) {
+    String ext = extension(type);
+    String lower = filename.toLowerCase(Locale.ROOT);
+    if (lower.endsWith(ext) || (type.equals("image/jpeg") && lower.endsWith(".jpeg"))) {
+      return filename;
+    }
+    if (lower.equals("upload") || lower.equals("blob") || !lower.contains(".")) {
+      return filename + ext;
+    }
+    int dot = filename.lastIndexOf('.');
+    return (dot > 0 ? filename.substring(0, dot) : filename) + ext;
   }
 
   private void validateKey(String key) {

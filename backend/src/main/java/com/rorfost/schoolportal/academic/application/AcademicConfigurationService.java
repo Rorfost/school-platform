@@ -125,7 +125,7 @@ public class AcademicConfigurationService {
   @Transactional
   public List<StandardResponse> standards(UUID schoolId) {
     return standards.findBySchoolIdAndIsArchivedFalseOrderBySortOrder(schoolId).stream()
-        .map(StandardResponse::from)
+        .map(this::toStandardResponse)
         .toList();
   }
 
@@ -142,7 +142,7 @@ public class AcademicConfigurationService {
     standard.update(
         standard.getCode(), standard.getDisplayName(), standard.getSortOrder(), request.archived());
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", standard.getId());
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional
@@ -159,7 +159,7 @@ public class AcademicConfigurationService {
                 displayName,
                 nextStandardSortOrder(schoolId)));
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", standard.getId());
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional
@@ -174,7 +174,7 @@ public class AcademicConfigurationService {
       throw conflict("standard_sort_order_duplicate");
     standard.update(request.code().trim(), displayName, request.sortOrder(), request.archived());
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD", id);
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional
@@ -195,7 +195,7 @@ public class AcademicConfigurationService {
     Standard standard = requireStandard(schoolId, id);
     standard.update(standard.getCode(), standard.getDisplayName(), standard.getSortOrder(), true);
     audit(schoolId, actorId, AuditAction.STANDARD_ARCHIVED, "STANDARD", id);
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional(readOnly = true)
@@ -221,7 +221,7 @@ public class AcademicConfigurationService {
             .map(
                 standard ->
                     new AcademicSetupResponse.StandardSubjectsResponse(
-                        StandardResponse.from(standard),
+                        toStandardResponse(standard),
                         standardSubjects
                             .findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standard.getId())
                             .stream()
@@ -351,7 +351,7 @@ public class AcademicConfigurationService {
     standard.updateClassTeacher(
         request.classTeacherName() == null ? null : request.classTeacherName().trim());
     audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD_CLASS_TEACHER", standardId);
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional
@@ -378,7 +378,7 @@ public class AcademicConfigurationService {
         "STANDARD_CLASS_TEACHER_SIGNATURE",
         standardId);
     if (previousKey != null) storage.deletePublicObject(previousKey);
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
   }
 
   @Transactional
@@ -386,7 +386,7 @@ public class AcademicConfigurationService {
       UUID schoolId, UUID actorId, UUID standardId) {
     Standard standard = requireStandard(schoolId, standardId);
     String previousKey = standard.getClassTeacherSignatureObjectKey();
-    if (previousKey == null) return StandardResponse.from(standard);
+    if (previousKey == null) return toStandardResponse(standard);
     standard.changeClassTeacherSignature(null);
     standards.saveAndFlush(standard);
     audit(
@@ -396,7 +396,15 @@ public class AcademicConfigurationService {
         "STANDARD_CLASS_TEACHER_SIGNATURE_DELETED",
         standardId);
     storage.deletePublicObject(previousKey);
-    return StandardResponse.from(standard);
+    return toStandardResponse(standard);
+  }
+
+  private StandardResponse toStandardResponse(Standard standard) {
+    String url =
+        standard.getClassTeacherSignatureObjectKey() == null
+            ? null
+            : storage.publicUrl(standard.getClassTeacherSignatureObjectKey());
+    return StandardResponse.from(standard, url);
   }
 
   @Transactional
