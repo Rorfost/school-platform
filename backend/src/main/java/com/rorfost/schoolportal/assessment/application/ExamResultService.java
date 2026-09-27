@@ -439,9 +439,7 @@ public class ExamResultService {
       if (parts.length >= 3) {
         return String.format(
             "%02d/%02d/%04d",
-            Integer.parseInt(parts[2]),
-            Integer.parseInt(parts[1]),
-            Integer.parseInt(parts[0]));
+            Integer.parseInt(parts[2]), Integer.parseInt(parts[1]), Integer.parseInt(parts[0]));
       }
     }
     if (raw.matches("^\\d{1,2}[-/]\\d{1,2}[-/]\\d{2,4}$")) {
@@ -460,7 +458,6 @@ public class ExamResultService {
     }
     return raw;
   }
-
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {
     if (percentage >= settings.getGradeAMin().doubleValue()) return "A";
