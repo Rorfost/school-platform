@@ -149,10 +149,7 @@ public class ExamResultService {
   }
 
   private void addSubjects(
-      AnnualExamResult result,
-      Row row,
-      List<ConfiguredSubject> configuredSubjects,
-      Row headerRow) {
+      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects, Row headerRow) {
     Map<Integer, Integer> subjectIndexToColumn =
         resolveSubjectColumns(headerRow, configuredSubjects);
 
@@ -174,8 +171,7 @@ public class ExamResultService {
     for (int index = configuredSubjects.size(); index < 9; index++) {
       int unconfiguredColumn = 6 + index * 2;
       if (!cellText(row.getCell(unconfiguredColumn)).isBlank()) {
-        throw new DomainException(
-            HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
       }
     }
   }
