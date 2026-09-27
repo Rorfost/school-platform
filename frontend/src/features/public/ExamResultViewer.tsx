@@ -103,11 +103,11 @@ export function ExamResultViewer({
 
             <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
               <div className="grid grid-cols-12">
-                <div className="col-span-12 sm:col-span-6 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-6 print:border-b-0 print:border-r-2">
+                <div className="col-span-6 sm:col-span-6 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
                   <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="col-span-12 sm:col-span-6 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-6">
+                <div className="col-span-6 sm:col-span-6 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
                   <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
                   <span>{result.attendedDays ?? "-"} છે.</span>
                 </div>
