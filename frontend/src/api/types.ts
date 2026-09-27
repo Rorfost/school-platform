@@ -326,6 +326,7 @@ export interface ExamResultSubjectResponse {
 
 export interface ResultPresentationSettingsResponse {
   resultDate: string | null;
+  resultSheetTitle: string | null;
   footerLineOne: string | null;
   footerLineTwo: string | null;
   gradeAMin: number;

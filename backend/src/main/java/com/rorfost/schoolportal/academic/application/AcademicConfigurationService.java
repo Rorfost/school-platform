@@ -382,6 +382,23 @@ public class AcademicConfigurationService {
   }
 
   @Transactional
+  public StandardResponse deleteClassTeacherSignature(UUID schoolId, UUID actorId, UUID standardId) {
+    Standard standard = requireStandard(schoolId, standardId);
+    String previousKey = standard.getClassTeacherSignatureObjectKey();
+    if (previousKey == null) return StandardResponse.from(standard);
+    standard.changeClassTeacherSignature(null);
+    standards.saveAndFlush(standard);
+    audit(
+        schoolId,
+        actorId,
+        AuditAction.STANDARD_UPDATED,
+        "STANDARD_CLASS_TEACHER_SIGNATURE_DELETED",
+        standardId);
+    storage.deletePublicObject(previousKey);
+    return StandardResponse.from(standard);
+  }
+
+  @Transactional
   public List<SubjectResponse> replaceStandardSubjects(
       UUID schoolId, UUID actorId, UUID standardId, StandardSubjectsUpdateRequest request) {
     Standard standard = requireStandard(schoolId, standardId);

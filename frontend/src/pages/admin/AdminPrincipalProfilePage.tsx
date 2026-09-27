@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Save, Upload, UserCheck } from "lucide-react";
+import { CheckCircle2, Save, Trash2, Upload, UserCheck } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { PrincipalProfileResponse, PrincipalProfileUpdateRequest } from "@/api/types";
@@ -50,6 +50,18 @@ export function AdminPrincipalProfilePage() {
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKeys.principalProfile, updated);
       setSuccessMsg("Principal signature uploaded successfully.");
+    },
+  });
+
+  const deleteSignatureMutation = useMutation({
+    mutationFn: () =>
+      apiRequest<PrincipalProfileResponse>("/api/v1/admin/principal-profile/signature", {
+        method: "DELETE",
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(queryKeys.principalProfile, updated);
+      setSuccessMsg("Principal signature removed.");
+      setTimeout(() => setSuccessMsg(null), 3000);
     },
   });
 
@@ -159,11 +171,22 @@ export function AdminPrincipalProfilePage() {
             Upload the Principal's signature. It is printed in the Gujarati result sheet.
           </p>
           {profile?.signatureUrl && (
-            <img
-              src={profile.signatureUrl}
-              alt="Principal signature"
-              className="h-16 max-w-52 object-contain object-left"
-            />
+            <div className="flex items-center gap-3">
+              <img
+                src={profile.signatureUrl}
+                alt="Principal signature"
+                className="h-16 max-w-52 object-contain object-left"
+              />
+              <button
+                type="button"
+                onClick={() => deleteSignatureMutation.mutate()}
+                disabled={deleteSignatureMutation.isPending}
+                className="flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                <Trash2 size={13} />{" "}
+                {deleteSignatureMutation.isPending ? "Removing..." : "Remove"}
+              </button>
+            </div>
           )}
           <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-blue-900 px-4 py-2 text-sm font-semibold text-blue-900">
             <Upload size={16} />{" "}

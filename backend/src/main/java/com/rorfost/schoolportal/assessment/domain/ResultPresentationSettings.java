@@ -36,6 +36,9 @@ public class ResultPresentationSettings {
   @Column(name = "grade_d_min")
   private BigDecimal gradeDMin = BigDecimal.valueOf(35);
 
+  @Column(name = "result_sheet_title")
+  private String resultSheetTitle;
+
   protected ResultPresentationSettings() {}
 
   public ResultPresentationSettings(UUID schoolId) {
@@ -74,6 +77,10 @@ public class ResultPresentationSettings {
     return gradeDMin;
   }
 
+  public String getResultSheetTitle() {
+    return resultSheetTitle;
+  }
+
   public void update(
       LocalDate resultDate,
       String footerLineOne,
@@ -81,7 +88,8 @@ public class ResultPresentationSettings {
       BigDecimal gradeAMin,
       BigDecimal gradeBMin,
       BigDecimal gradeCMin,
-      BigDecimal gradeDMin) {
+      BigDecimal gradeDMin,
+      String resultSheetTitle) {
     this.resultDate = resultDate;
     this.footerLineOne = footerLineOne;
     this.footerLineTwo = footerLineTwo;
@@ -89,5 +97,6 @@ public class ResultPresentationSettings {
     this.gradeBMin = gradeBMin;
     this.gradeCMin = gradeCMin;
     this.gradeDMin = gradeDMin;
+    this.resultSheetTitle = resultSheetTitle;
   }
 }

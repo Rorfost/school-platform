@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -132,7 +134,7 @@ public class ExamResultService {
         result.setRollNumber(standardRollCounts.merge(standard, 1, Integer::sum));
         result.setStudentName(name);
         result.setGeneralRegisterNumber(cellText(row.getCell(1)));
-        result.setBirthDate(cellText(row.getCell(4)));
+        result.setBirthDate(cellDateText(row.getCell(4)));
         result.setTotalWorkingDays(totalWorkingDays);
         result.setAttendedDays(optionalInteger(row.getCell(5)));
 
@@ -392,6 +394,26 @@ public class ExamResultService {
 
   private String cellText(Cell cell) {
     return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
+  }
+
+  /**
+   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format.
+   * Handles both date-formatted numeric cells and text cells (e.g. "7/8/07", "07-08-2007").
+   */
+  private String cellDateText(Cell cell) {
+    if (cell == null) return "";
+    // Try to read as a proper Excel date cell first (most reliable)
+    if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+      java.util.Date date = cell.getDateCellValue();
+      java.util.Calendar cal = java.util.Calendar.getInstance();
+      cal.setTime(date);
+      int d = cal.get(java.util.Calendar.DAY_OF_MONTH);
+      int m = cal.get(java.util.Calendar.MONTH) + 1;
+      int y = cal.get(java.util.Calendar.YEAR);
+      return String.format("%02d/%02d/%04d", d, m, y);
+    }
+    // Fallback: return the raw text so the frontend formatDate() can handle it
+    return dataFormatter.formatCellValue(cell).trim();
   }
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {
