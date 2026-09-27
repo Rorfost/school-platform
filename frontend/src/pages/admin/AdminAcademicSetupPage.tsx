@@ -438,12 +438,23 @@ export function AdminAcademicSetupPage() {
                   <Button variant="ghost" size="sm" onClick={() => setMarksTarget(entry)}>
                     <Settings2 size={13} aria-hidden="true" /> Maximum Marks
                   </Button>
-                  <label className="inline-flex cursor-pointer items-center gap-1 px-2 py-1 text-xs font-semibold text-blue-900 hover:bg-blue-50 rounded-md transition-colors">
+                  {entry.standard.classTeacherSignatureUrl && (
+                    <div className="flex items-center gap-2 px-2 py-0.5 bg-slate-50 border border-slate-200 rounded-md">
+                      <img
+                        src={entry.standard.classTeacherSignatureUrl}
+                        alt={`${entry.standard.displayName} Class Teacher Signature`}
+                        className="h-6 max-w-24 object-contain"
+                      />
+                    </div>
+                  )}
+                  <label className="inline-flex cursor-pointer items-center gap-1 px-2 py-1 text-xs font-semibold text-blue-900 hover:bg-blue-50 rounded-md transition-colors border border-blue-200">
                     <Upload size={13} aria-hidden="true" />
                     {uploadClassTeacherSignature.isPending &&
                     uploadClassTeacherSignature.variables?.standardId === entry.standard.id
                       ? "Uploading signature..."
-                      : "Teacher signature"}
+                      : entry.standard.classTeacherSignatureObjectKey
+                        ? "Update signature"
+                        : "Teacher signature"}
                     <input
                       className="sr-only"
                       type="file"
@@ -469,7 +480,7 @@ export function AdminAcademicSetupPage() {
                         deleteClassTeacherSignature.isPending &&
                         deleteClassTeacherSignature.variables?.standardId === entry.standard.id
                       }
-                      className="flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 border border-red-200"
                     >
                       <Trash2 size={13} aria-hidden="true" />{" "}
                       {deleteClassTeacherSignature.isPending &&
@@ -617,7 +628,7 @@ export function AdminAcademicSetupPage() {
               </Button>
             </div>
           </div>
-          <div className="mt-4 space-y-2 max-h-72 overflow-y-auto pr-1">
+          <div className="mt-4 space-y-2">
             {setup.subjects.map((subject) => {
               const checked = selectedSubjectIds.includes(subject.id);
               return (
@@ -705,7 +716,7 @@ export function AdminAcademicSetupPage() {
               {isSavingAllMarks ? "Saving All..." : "Save All Marks"}
             </Button>
           </div>
-          <div className="mt-4 space-y-3 max-h-80 overflow-y-auto pr-1">
+          <div className="mt-4 space-y-3">
             {marksQuery.isPending ? (
               <p className="text-sm text-slate-500">Loading subject maximum marks...</p>
             ) : (
@@ -794,18 +805,20 @@ function Dialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-        {children}
+        <h2 className="text-lg font-bold text-slate-900 shrink-0 border-b border-slate-100 pb-3">
+          {title}
+        </h2>
+        <div className="flex-1 overflow-y-auto min-h-0 pt-3 pr-1">{children}</div>
       </div>
     </div>
   );
