@@ -26,9 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -134,7 +132,7 @@ public class ExamResultService {
         result.setRollNumber(standardRollCounts.merge(standard, 1, Integer::sum));
         result.setStudentName(name);
         result.setGeneralRegisterNumber(cellText(row.getCell(1)));
-        result.setBirthDate(cellDateText(row.getCell(4)));
+        result.setBirthDate(cellText(row.getCell(4)));
         result.setTotalWorkingDays(totalWorkingDays);
         result.setAttendedDays(optionalInteger(row.getCell(5)));
 
@@ -394,69 +392,6 @@ public class ExamResultService {
 
   private String cellText(Cell cell) {
     return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
-  }
-
-  /**
-   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format. Handles
-   * numeric Excel dates, Excel serial numbers, and string date formats (e.g. "07/08/2007",
-   * "7/8/07"). Uses UTC to avoid timezone-related day shifts.
-   */
-  private String cellDateText(Cell cell) {
-    if (cell == null) {
-      return "";
-    }
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-    sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-
-    if (cell.getCellType() == CellType.NUMERIC) {
-      double numericVal = cell.getNumericCellValue();
-      if (DateUtil.isCellDateFormatted(cell)
-          || (numericVal > 1000 && DateUtil.isValidExcelDate(numericVal))) {
-        java.util.Date date = DateUtil.getJavaDate(numericVal, false);
-        if (date != null) {
-          return sdf.format(date);
-        }
-      }
-    }
-    String raw = dataFormatter.formatCellValue(cell).trim();
-    if (raw.isBlank()) {
-      return "";
-    }
-    if (raw.matches("^\\d+(\\.\\d+)?$")) {
-      try {
-        double serial = Double.parseDouble(raw);
-        if (serial > 1000 && DateUtil.isValidExcelDate(serial)) {
-          java.util.Date date = DateUtil.getJavaDate(serial, false);
-          if (date != null) {
-            return sdf.format(date);
-          }
-        }
-      } catch (Exception ignored) {
-      }
-    }
-    if (raw.matches("^\\d{4}[-/]\\d{1,2}[-/]\\d{1,2}.*")) {
-      String[] parts = raw.split("T")[0].split("[-/]");
-      if (parts.length >= 3) {
-        return String.format(
-            "%02d/%02d/%04d",
-            Integer.parseInt(parts[2]), Integer.parseInt(parts[1]), Integer.parseInt(parts[0]));
-      }
-    }
-    if (raw.matches("^\\d{1,2}[-/]\\d{1,2}[-/]\\d{2,4}$")) {
-      String[] parts = raw.split("[-/]");
-      if (parts.length == 3) {
-        int p1 = Integer.parseInt(parts[0]);
-        int p2 = Integer.parseInt(parts[1]);
-        int p3 = Integer.parseInt(parts[2]);
-        if (parts[2].length() == 4) {
-          return String.format("%02d/%02d/%04d", p1, p2, p3);
-        } else if (parts[2].length() == 2) {
-          int year = p3 > 50 ? 1900 + p3 : 2000 + p3;
-          return String.format("%02d/%02d/%04d", p1, p2, year);
-        }
-      }
-    }
-    return raw;
   }
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {
