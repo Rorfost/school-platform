@@ -52,6 +52,35 @@ export function AdminAcademicSetupPage() {
   const [subjectDialog, setSubjectDialog] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSavingAllMarks, setIsSavingAllMarks] = useState(false);
+
+  const handleSaveAllMarks = async () => {
+    if (!marksQuery.data) return;
+    setIsSavingAllMarks(true);
+    setErrorMessage(null);
+    try {
+      for (const mapping of marksQuery.data) {
+        const inputEl = document.getElementById(`max-marks-${mapping.id}`) as HTMLInputElement;
+        const val = inputEl ? Number(inputEl.value) : mapping.maximumMarks || 100;
+        if (val > 0) {
+          await apiRequest(`/api/v1/admin/standard-subjects/${mapping.id}`, {
+            method: "PUT",
+            body: {
+              standardId: mapping.standardId,
+              subjectId: mapping.subjectId,
+              sortOrder: mapping.sortOrder,
+              maximumMarks: val,
+            },
+          });
+        }
+      }
+      await marksQuery.refetch();
+    } catch (error) {
+      setErrorMessage(academicError(error, "Failed to save maximum marks."));
+    } finally {
+      setIsSavingAllMarks(false);
+    }
+  };
   const setupQuery = useQuery<AcademicSetupResponse>({
     queryKey: queryKeys.adminAcademicSetup,
     queryFn: () => apiRequest("/api/v1/admin/academic-setup"),
@@ -366,55 +395,65 @@ export function AdminAcademicSetupPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {setup.standards.map((entry) => (
             <Card key={entry.standard.id} className="flex flex-col gap-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900">{entry.standard.displayName}</h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    {entry.subjects.length
-                      ? `${entry.subjects.length} subject${entry.subjects.length === 1 ? "" : "s"} selected`
-                      : "No Subjects assigned yet."}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setEditingStandard(entry);
-                    setSelectedSubjectIds(entry.subjects.map((subject) => subject.id));
-                    setErrorMessage(null);
-                  }}
-                >
-                  <Settings2 size={15} aria-hidden="true" /> Manage Subjects
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setClassTeacherTarget(entry.standard)}
-                >
-                  <Pencil size={14} aria-hidden="true" /> Class Teacher
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setMarksTarget(entry)}>
-                  <Settings2 size={14} aria-hidden="true" /> Maximum Marks
-                </Button>
-                <label className="inline-flex cursor-pointer items-center gap-1 px-2 py-1 text-sm font-medium text-blue-900">
-                  <Upload size={14} aria-hidden="true" />
-                  {uploadClassTeacherSignature.isPending
-                    ? "Uploading signature..."
-                    : "Teacher signature"}
-                  <input
-                    className="sr-only"
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file)
-                        uploadClassTeacherSignature.mutate({ standardId: entry.standard.id, file });
-                      event.currentTarget.value = "";
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">
+                      {entry.standard.displayName}
+                    </h2>
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {entry.subjects.length
+                        ? `${entry.subjects.length} subject${entry.subjects.length === 1 ? "" : "s"} selected`
+                        : "No Subjects assigned yet."}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditingStandard(entry);
+                      setSelectedSubjectIds(entry.subjects.map((subject) => subject.id));
+                      setErrorMessage(null);
                     }}
-                  />
-                </label>
+                  >
+                    <Settings2 size={14} aria-hidden="true" /> Manage Subjects
+                  </Button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2 text-xs">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setClassTeacherTarget(entry.standard)}
+                  >
+                    <Pencil size={13} aria-hidden="true" /> Class Teacher
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => setMarksTarget(entry)}>
+                    <Settings2 size={13} aria-hidden="true" /> Maximum Marks
+                  </Button>
+                  <label className="inline-flex cursor-pointer items-center gap-1 px-2 py-1 text-xs font-semibold text-blue-900 hover:bg-blue-50 rounded-md transition-colors">
+                    <Upload size={13} aria-hidden="true" />
+                    {uploadClassTeacherSignature.isPending &&
+                    uploadClassTeacherSignature.variables?.standardId === entry.standard.id
+                      ? "Uploading signature..."
+                      : "Teacher signature"}
+                    <input
+                      className="sr-only"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file)
+                          uploadClassTeacherSignature.mutate({
+                            standardId: entry.standard.id,
+                            file,
+                          });
+                        event.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {entry.subjects.length ? (
                   entry.subjects.map((subject) => (
                     <Badge key={subject.id} variant="secondary" size="sm">
@@ -422,7 +461,7 @@ export function AdminAcademicSetupPage() {
                     </Badge>
                   ))
                 ) : (
-                  <span className="text-sm text-slate-500">No Subjects assigned yet.</span>
+                  <span className="text-xs text-slate-500">No Subjects assigned yet.</span>
                 )}
               </div>
               <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
@@ -528,16 +567,36 @@ export function AdminAcademicSetupPage() {
           title={`Manage Subjects: ${editingStandard.standard.displayName}`}
           onClose={() => !saveMappings.isPending && setEditingStandard(null)}
         >
-          <p className="text-sm text-slate-600">
-            Unchecking a Subject removes it from this Standard only; it does not delete the Subject.
-          </p>
-          <div className="mt-4 space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
+            <p className="text-xs text-slate-600">
+              Unchecking a Subject removes it from this Standard only.
+            </p>
+            <div className="flex gap-2 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedSubjectIds(setup.subjects.map((s) => s.id))}
+              >
+                Select All
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedSubjectIds([])}
+              >
+                Deselect All
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4 space-y-2 max-h-72 overflow-y-auto pr-1">
             {setup.subjects.map((subject) => {
               const checked = selectedSubjectIds.includes(subject.id);
               return (
                 <label
                   key={subject.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 transition-colors"
                 >
                   <input
                     type="checkbox"
@@ -547,14 +606,14 @@ export function AdminAcademicSetupPage() {
                         checked ? ids.filter((id) => id !== subject.id) : [...ids, subject.id],
                       )
                     }
-                    className="size-4"
+                    className="size-4 rounded border-slate-300 text-blue-900 focus:ring-blue-900"
                   />
-                  <span>{subject.name}</span>
+                  <span className="text-sm font-medium text-slate-900">{subject.name}</span>
                 </label>
               );
             })}
           </div>
-          <div className="mt-5 flex justify-end gap-2">
+          <div className="mt-5 flex justify-end gap-2 border-t border-slate-100 pt-3">
             <Button
               variant="outline"
               onClick={() => setEditingStandard(null)}
@@ -605,16 +664,28 @@ export function AdminAcademicSetupPage() {
           title={`Subject Maximum Marks: ${marksTarget.standard.displayName}`}
           onClose={() => setMarksTarget(null)}
         >
-          <p className="mt-2 text-sm text-slate-600">
-            Save each total once. Only saved totals are used for every new Exam and Ekam Kasoti
-            result upload.
-          </p>
-          <div className="mt-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
+            <p className="text-xs text-slate-600">
+              Save totals once for every new Exam and Ekam Kasoti upload.
+            </p>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              loading={isSavingAllMarks}
+              onClick={handleSaveAllMarks}
+            >
+              {isSavingAllMarks ? "Saving All..." : "Save All Marks"}
+            </Button>
+          </div>
+          <div className="mt-4 space-y-3 max-h-80 overflow-y-auto pr-1">
             {marksQuery.isPending ? (
-              <p className="text-sm">Loading subject maximum marks...</p>
+              <p className="text-sm text-slate-500">Loading subject maximum marks...</p>
             ) : (
               marksQuery.data?.map((mapping) => {
                 const subject = marksTarget.subjects.find((item) => item.id === mapping.subjectId);
+                const isItemPending =
+                  updateMaximum.isPending && updateMaximum.variables?.mapping.id === mapping.id;
                 return (
                   <form
                     key={mapping.id}
@@ -626,13 +697,14 @@ export function AdminAcademicSetupPage() {
                     }}
                   >
                     <Input
+                      id={`max-marks-${mapping.id}`}
                       label={`${subject?.name ?? "Subject"}${mapping.maximumMarksConfigured ? "" : " — total required"}`}
                       name="maximumMarks"
                       type="number"
                       min="1"
                       defaultValue={mapping.maximumMarks ?? 100}
                     />
-                    <Button type="submit" size="sm" loading={updateMaximum.isPending}>
+                    <Button type="submit" size="sm" loading={isItemPending}>
                       Save
                     </Button>
                   </form>

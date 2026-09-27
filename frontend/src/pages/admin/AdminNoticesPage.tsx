@@ -11,6 +11,8 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
+import { formatDate } from "@/utils/date";
+
 export function AdminNoticesPage() {
   const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -175,7 +177,7 @@ export function AdminNoticesPage() {
                     )}
                   </td>
                   <td className="p-4 text-xs text-slate-600">
-                    {item.expiresAt ? item.expiresAt.slice(0, 10) : "No expiration"}
+                    {item.expiresAt ? formatDate(item.expiresAt) : "No expiration"}
                   </td>
                   <td className="p-4">
                     {item.status === "PUBLISHED" ? (

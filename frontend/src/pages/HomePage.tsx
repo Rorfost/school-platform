@@ -17,6 +17,8 @@ import { ContentSkeleton, ErrorState, LoadingState } from "@/components/common/S
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS } from "@/utils/gujarati";
 
+import { formatDate } from "@/utils/date";
+
 export function HomePage() {
   const school = useEffectiveSchoolInfo();
   const {
@@ -176,7 +178,7 @@ export function HomePage() {
                   {notice.expiresAt && (
                     <div className="flex items-center gap-1 text-xs text-slate-500 shrink-0">
                       <Calendar size={13} aria-hidden="true" />
-                      <span>મુદત: {notice.expiresAt.slice(0, 10)}</span>
+                      <span>મુદત: {formatDate(notice.expiresAt)}</span>
                     </div>
                   )}
                 </div>
