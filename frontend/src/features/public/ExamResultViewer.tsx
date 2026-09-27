@@ -26,7 +26,12 @@ export function ExamResultViewer({
       ),
   });
   const handlePrint = () => window.print();
-  const resultTypeLabel = resultType === "ANNUAL" ? "પરીક્ષા" : "એકમ કસોટી";
+  const isEkam = resultType === "EKAM_KASOTI";
+  const resultTypeLabel = isEkam ? "એકમ કસોટી" : "પરીક્ષા";
+  const sheetTitle = isEkam
+    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક : ૨૦૨૫-૨૬`
+    : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક : ૨૦૨૫-૨૬`;
+  const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
 
   return (
     <div className="space-y-4">
@@ -61,7 +66,7 @@ export function ExamResultViewer({
                   તા. સમી, જિ. પાટણ
                 </p>
                 <div className="mt-1.5 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-11/12 sm:w-3/4 pt-1 text-xs sm:text-base print:text-base">
-                  {settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક : ૨૦૨૫-૨૬`}
+                  {sheetTitle}
                 </div>
               </div>
             </div>
@@ -101,18 +106,20 @@ export function ExamResultViewer({
               </div>
             </div>
 
-            <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
-              <div className="grid grid-cols-12">
-                <div className="col-span-6 sm:col-span-6 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                  <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
-                  <span>{result.totalWorkingDays ?? "-"}</span>
-                </div>
-                <div className="col-span-6 sm:col-span-6 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                  <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
-                  <span>{result.attendedDays ?? "-"} છે.</span>
+            {!isEkam && (
+              <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-6 sm:col-span-6 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
+                    <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
+                    <span>{result.totalWorkingDays ?? "-"}</span>
+                  </div>
+                  <div className="col-span-6 sm:col-span-6 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
+                    <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
+                    <span>{result.attendedDays ?? "-"} છે.</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Marks Table */}
             <div className="overflow-x-auto print:overflow-visible">
@@ -131,9 +138,11 @@ export function ExamResultViewer({
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-16 sm:w-28 font-bold print:p-2 print:w-28 whitespace-nowrap">
                       મેળવેલ ગુણ
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
-                      ગ્રેડ
-                    </th>
+                    {!isEkam && (
+                      <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
+                        ગ્રેડ
+                      </th>
+                    )}
                     <th className="border-b-2 border-slate-900 p-1 sm:p-2 font-bold print:p-2 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
@@ -154,9 +163,11 @@ export function ExamResultViewer({
                       <td className="border-b border-r-2 border-slate-900 p-1 sm:p-2 font-semibold print:p-2">
                         {sub.obtainedMarks ?? "-"}
                       </td>
-                      <td className="border-b border-r-2 border-slate-900 p-1 sm:p-2 font-bold print:p-2">
-                        {sub.grade ?? "-"}
-                      </td>
+                      {!isEkam && (
+                        <td className="border-b border-r-2 border-slate-900 p-1 sm:p-2 font-bold print:p-2">
+                          {sub.grade ?? "-"}
+                        </td>
+                      )}
                       <td className="border-b border-slate-900 p-1 sm:p-2 print:p-2"></td>
                     </tr>
                   ))}
@@ -165,7 +176,7 @@ export function ExamResultViewer({
                       colSpan={2}
                       className="border-r-2 border-slate-900 p-1.5 sm:p-2.5 text-center font-extrabold text-xs sm:text-base print:text-base print:p-2.5"
                     >
-                      મેળવેલ કુલ ગુણ / ગ્રેડ
+                      {isEkam ? "મેળવેલ કુલ ગુણ" : "મેળવેલ કુલ ગુણ / ગ્રેડ"}
                     </td>
                     <td className="border-r-2 border-slate-900 p-1.5 sm:p-2.5 font-bold text-xs sm:text-base print:text-base print:p-2.5">
                       {result.totalMarks ?? "-"}
@@ -173,9 +184,11 @@ export function ExamResultViewer({
                     <td className="border-r-2 border-slate-900 p-1.5 sm:p-2.5 font-bold text-xs sm:text-base print:text-base print:p-2.5">
                       {result.obtainedMarks ?? "-"}
                     </td>
-                    <td className="border-r-2 border-slate-900 p-1.5 sm:p-2.5 font-extrabold text-xs sm:text-base print:text-base print:p-2.5">
-                      {result.overallGrade ?? "-"}
-                    </td>
+                    {!isEkam && (
+                      <td className="border-r-2 border-slate-900 p-1.5 sm:p-2.5 font-extrabold text-xs sm:text-base print:text-base print:p-2.5">
+                        {result.overallGrade ?? "-"}
+                      </td>
+                    )}
                     <td className="p-1.5 sm:p-2.5 text-center font-bold text-xs sm:text-base print:text-base print:p-2.5">
                       ટકા : &nbsp;&nbsp;&nbsp;{result.percentage ?? "-"} %
                     </td>
@@ -190,7 +203,7 @@ export function ExamResultViewer({
                 પરિણામ તારીખ :
               </div>
               <div className="p-2 px-3 sm:px-4 print:px-4">
-                {formatDate(settings?.resultDate || "08/06/2026")}
+                {formatDate(resultDateValue || (isEkam ? null : "08/06/2026"))}
               </div>
             </div>
 
@@ -230,17 +243,17 @@ export function ExamResultViewer({
 
             {/* Note Lines */}
             <div className="bg-cyan-50/70 p-2 sm:p-3 text-xs sm:text-sm font-medium space-y-2 border-t border-slate-300 print:p-3 print:text-sm">
-              {resultType === "EKAM_KASOTI" ? (
+              {isEkam ? (
                 <>
                   <p className="text-slate-900">
                     {settings?.ekamFooterLineOne ||
                       "એકમ કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
                   </p>
-                  <p className="text-center text-xs mt-2 text-slate-700">
-                    {settings?.ekamFooterLineTwo ||
-                      settings?.footerLineTwo ||
-                      "80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ."}
-                  </p>
+                  {settings?.ekamFooterLineTwo ? (
+                    <p className="text-center text-xs mt-2 text-slate-700">
+                      {settings.ekamFooterLineTwo}
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <>

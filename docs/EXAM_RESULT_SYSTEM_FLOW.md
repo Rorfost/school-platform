@@ -69,25 +69,38 @@ The Annual Exam Result System allows school administrators to upload a single co
 
 The system accepts standard primary school Excel exports (`exam-result.xlsx`). Row 0 contains header names, and data rows start from Row 1.
 
-### 3.1 Excel Column Layout Index
+### 3.1 Exam Result Excel Column Layout Index
+
+There is no Sr.No. column. Indices below are 0-based.
 
 | Column Index | Column Name in Excel | Field Mapping in Code | Max Marks |
 | :---: | :--- | :--- | :---: |
-| `0` | SR / ક્રમ | Row index | — |
-| `1` | G.R. No. / જી.આર. નં | `generalRegisterNumber` | — |
-| `2` | Standard / ધોરણ | `standard` | — |
-| `3` | Student Name / વિદ્યાર્થીનું નામ | `studentName` | — |
-| `4` | Birth Date / જન્મ તારીખ | `birthDate` | — |
-| `5` | Attended Days / હાજરી | `attendedDays` | — |
-| `6`, `7` | Gujarati Marks & Grade | `ગુજરાતી` | 200 |
-| `8`, `9` | Maths Marks & Grade | `ગણિત` | 200 |
-| `10`, `11` | Science Marks & Grade | `વિજ્ઞાન` | 200 |
-| `12`, `13` | Hindi Marks & Grade | `હિન્દી` | 200 |
-| `14`, `15` | English Marks & Grade | `અંગ્રેજી` | 200 |
-| `16`, `17` | Social Science Marks & Grade | `સામાજીક વિજ્ઞાન` | 200 |
-| `18`, `19` | Sanskrit Marks & Grade | `સંસ્કૃત` | 200 |
-| `20`, `21` | Personality Dev Marks & Grade | `વ્યક્તિત્વ વિકાસ` | 400 |
-| `22`, `23` | Environmental Marks & Grade | `પર્યાવરણ` | 200 |
+| `0` | G.R. No. / જી.આર. નં | `generalRegisterNumber` | — |
+| `1` | Standard / ધોરણ | `standard` | — |
+| `2` | Student Name / વિદ્યાર્થીનું નામ | `studentName` | — |
+| `3` | Birth Date / જન્મ તારીખ | `birthDate` | — |
+| `4` | Attended Days / હાજર દિવસ | `attendedDays` | — |
+| `5`, `6` | Gujarati Marks & Grade | `ગુજરાતી` | 200 |
+| `7`, `8` | Maths Marks & Grade | `ગણિત` | 200 |
+| `9`, `10` | Science Marks & Grade | `વિજ્ઞાન` | 200 |
+| `11`, `12` | Hindi Marks & Grade | `હિન્દી` | 200 |
+| `13`, `14` | English Marks & Grade | `અંગ્રેજી` | 200 |
+| `15`, `16` | Social Science Marks & Grade | `સામાજીક વિજ્ઞાન` | 200 |
+| `17`, `18` | Sanskrit Marks & Grade | `સંસ્કૃત` | 200 |
+| `19`, `20` | Personality Dev Marks & Grade | `વ્યક્તિત્વ વિકાસ` | 400 |
+| `21`, `22` | Environmental Marks & Grade | `પર્યાવરણ` | 200 |
+
+### 3.2 Ekam Kasoti Excel Column Layout Index
+
+Same as Exam Result after dropping Sr.No., then dropping Hajar Divas so every later column shifts left by one more. Subjects begin at column `4`. Attendance is not imported or shown.
+
+| Column Index | Column Name in Excel | Field Mapping in Code |
+| :---: | :--- | :--- |
+| `0` | G.R. No. | `generalRegisterNumber` |
+| `1` | Standard | `standard` |
+| `2` | Student Name | `studentName` |
+| `3` | Birth Date | `birthDate` |
+| `4` onward | Subject mark/grade pairs | configured subjects |
 
 > **Note on Standard-Subject Dynamic Handling:**
 > Lower standards (e.g. Std 1-3) may not have marks for subjects like English or Sanskrit in the Excel sheet. The code dynamically checks if the marks cell is non-empty before adding the subject. Empty subject cells are automatically skipped and omitted from both the total max marks calculation and the student's result card.

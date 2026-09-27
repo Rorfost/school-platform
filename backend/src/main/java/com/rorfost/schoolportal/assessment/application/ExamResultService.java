@@ -76,23 +76,35 @@ public class ExamResultService {
   }
 
   /**
-   * The owner-approved workbook has the same column layout for Exam and Ekam Kasoti results. The
-   * selected result type is kept separately so an upload replaces only its own previous results.
+   * Uploads an exam-result workbook.
+   *
+   * <p>Column layout (0-indexed, after removing the old Sr.No. column):
+   *
+   * <ul>
+   *   <li>ANNUAL: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, 4 = Hajar Divas (attended
+   *       days), subjects from col 5 onward in pairs (marks + grade).
+   *   <li>EKAM_KASOTI: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, subjects from col 4
+   *       onward in pairs (marks + grade). No Hajar Divas column.
+   * </ul>
+   *
+   * totalWorkingDays is only meaningful for ANNUAL; it is ignored (and not validated) for
+   * EKAM_KASOTI.
    */
   @Transactional
   public void processExcelUpload(MultipartFile file, Integer totalWorkingDays, String resultType) {
-    if (totalWorkingDays == null || totalWorkingDays < 1) {
+    String validatedResultType = validateResultType(resultType);
+    if (ANNUAL.equals(validatedResultType) && (totalWorkingDays == null || totalWorkingDays < 1)) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "validation_failed");
     }
 
-    String validatedResultType = validateResultType(resultType);
     School school = getSchool();
     ResultPresentationSettings settings =
         presentationSettings
             .findById(school.getId())
             .orElseGet(() -> new ResultPresentationSettings(school.getId()));
+    Integer persistedWorkingDays = ANNUAL.equals(validatedResultType) ? totalWorkingDays : null;
     List<AnnualExamResult> results =
-        parseWorkbook(file, school, totalWorkingDays, validatedResultType, settings);
+        parseWorkbook(file, school, persistedWorkingDays, validatedResultType, settings);
     if (results.isEmpty()) {
       throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
     }
@@ -113,13 +125,24 @@ public class ExamResultService {
       Map<String, Integer> standardRollCounts = new HashMap<>();
       List<AnnualExamResult> results = new ArrayList<>();
 
+      boolean isEkam = EKAM_KASOTI.equals(resultType);
+      // Column indices after Sr.No. column has been removed from both formats:
+      //   ANNUAL:       GR=0, Std=1, Name=2, BirthDate=3, AttendedDays=4, subjects from 5
+      //   EKAM_KASOTI:  GR=0, Std=1, Name=2, BirthDate=3,               subjects from 4
+      int colGr = 0;
+      int colStd = 1;
+      int colName = 2;
+      int colBirth = 3;
+      int colAttended = isEkam ? -1 : 4;
+      int colSubjectsStart = isEkam ? 4 : 5;
+
       for (int index = 1; index <= sheet.getLastRowNum(); index++) {
         Row row = sheet.getRow(index);
         if (row == null) {
           continue;
         }
-        String standard = cellText(row.getCell(2));
-        String name = cellText(row.getCell(3));
+        String standard = cellText(row.getCell(colStd));
+        String name = cellText(row.getCell(colName));
         if (standard.isBlank() || name.isBlank()) {
           continue;
         }
@@ -131,12 +154,17 @@ public class ExamResultService {
         result.setStandard(standard);
         result.setRollNumber(standardRollCounts.merge(standard, 1, Integer::sum));
         result.setStudentName(name);
-        result.setGeneralRegisterNumber(cellText(row.getCell(1)));
-        result.setBirthDate(cellText(row.getCell(4)));
+        result.setGeneralRegisterNumber(cellText(row.getCell(colGr)));
+        result.setBirthDate(cellText(row.getCell(colBirth)));
         result.setTotalWorkingDays(totalWorkingDays);
-        result.setAttendedDays(optionalInteger(row.getCell(5)));
+        result.setAttendedDays(colAttended >= 0 ? optionalInteger(row.getCell(colAttended)) : null);
 
-        addSubjects(result, row, configuredSubjects(school.getId(), standard), sheet.getRow(0));
+        addSubjects(
+            result,
+            row,
+            configuredSubjects(school.getId(), standard),
+            sheet.getRow(0),
+            colSubjectsStart);
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -149,12 +177,16 @@ public class ExamResultService {
   }
 
   private void addSubjects(
-      AnnualExamResult result, Row row, List<ConfiguredSubject> configuredSubjects, Row headerRow) {
+      AnnualExamResult result,
+      Row row,
+      List<ConfiguredSubject> configuredSubjects,
+      Row headerRow,
+      int subjectsStartCol) {
     Map<Integer, Integer> subjectIndexToColumn =
-        resolveSubjectColumns(headerRow, configuredSubjects);
+        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
-      int marksColumn = subjectIndexToColumn.getOrDefault(index, 6 + index * 2);
+      int marksColumn = subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * 2);
       String marks = cellText(row.getCell(marksColumn));
       if (marks.isBlank()) {
         continue;
@@ -169,7 +201,7 @@ public class ExamResultService {
       result.addSubject(subject);
     }
     for (int index = configuredSubjects.size(); index < 9; index++) {
-      int unconfiguredColumn = 6 + index * 2;
+      int unconfiguredColumn = subjectsStartCol + index * 2;
       if (!cellText(row.getCell(unconfiguredColumn)).isBlank()) {
         throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
       }
@@ -177,13 +209,13 @@ public class ExamResultService {
   }
 
   private Map<Integer, Integer> resolveSubjectColumns(
-      Row headerRow, List<ConfiguredSubject> configuredSubjects) {
+      Row headerRow, List<ConfiguredSubject> configuredSubjects, int subjectsStartCol) {
     Map<Integer, Integer> columnMap = new HashMap<>();
     if (headerRow == null) {
       return columnMap;
     }
 
-    for (int col = 6; col < 30; col += 2) {
+    for (int col = subjectsStartCol; col < subjectsStartCol + 30; col += 2) {
       String headerText = cellText(headerRow.getCell(col));
       if (headerText.isBlank()) {
         continue;
@@ -357,7 +389,9 @@ public class ExamResultService {
     if (maximumMarks > 0) {
       double percentage = obtainedMarks * 100.0 / maximumMarks;
       result.setPercentage(BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP));
-      result.setOverallGrade(calculateGrade(percentage, settings));
+      if (!EKAM_KASOTI.equals(result.getResultType())) {
+        result.setOverallGrade(calculateGrade(percentage, settings));
+      }
     }
   }
 

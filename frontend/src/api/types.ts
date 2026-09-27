@@ -332,6 +332,8 @@ export interface ResultPresentationSettingsResponse {
   footerLineTwo: string | null;
   ekamFooterLineOne?: string | null;
   ekamFooterLineTwo?: string | null;
+  ekamResultDate?: string | null;
+  ekamResultSheetTitle?: string | null;
   gradeAMin: number;
   gradeBMin: number;
   gradeCMin: number;

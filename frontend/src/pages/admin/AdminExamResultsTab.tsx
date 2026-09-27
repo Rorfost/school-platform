@@ -5,16 +5,15 @@ import { ApiError, apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import type { ResultSettingsTab } from "./AdminAssessmentsPage";
 
-type ResultType = "ANNUAL" | "EKAM_KASOTI";
-
-const RESULT_TYPE_LABELS: Record<ResultType, string> = {
+const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
   ANNUAL: "Exam Result",
   EKAM_KASOTI: "Ekam Kasoti Result",
 };
 
-export function AdminExamResultsTab() {
-  const [resultType, setResultType] = useState<ResultType>("ANNUAL");
+export function AdminExamResultsTab({ resultType }: { resultType: ResultSettingsTab }) {
+  const isAnnual = resultType === "ANNUAL";
   const [file, setFile] = useState<File | null>(null);
   const [totalWorkingDays, setTotalWorkingDays] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -24,8 +23,10 @@ export function AdminExamResultsTab() {
     mutationFn: () => {
       const formData = new FormData();
       formData.append("file", file!);
-      formData.append("totalWorkingDays", totalWorkingDays);
       formData.append("resultType", resultType);
+      if (isAnnual) {
+        formData.append("totalWorkingDays", totalWorkingDays);
+      }
       return apiRequest<{ message: string }>("/api/v1/admin/exam-results/upload", {
         method: "POST",
         body: formData,
@@ -58,7 +59,11 @@ export function AdminExamResultsTab() {
           "Open Academic Setup, choose this Standard's Maximum Marks, and save a maximum for every selected Subject before uploading.",
         );
       } else {
-        setErrorMessage("Upload failed. Check the file and total working days, then try again.");
+        setErrorMessage(
+          isAnnual
+            ? "Upload failed. Check the file and total working days, then try again."
+            : "Upload failed. Check the file, then try again.",
+        );
       }
       setSuccessMessage("");
     },
@@ -66,14 +71,22 @@ export function AdminExamResultsTab() {
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (file && totalWorkingDays) uploadMutation.mutate();
+    if (!file) return;
+    if (isAnnual && !totalWorkingDays) return;
+    uploadMutation.mutate();
   };
+
+  const canSubmit = Boolean(file) && (!isAnnual || Boolean(totalWorkingDays));
 
   return (
     <Card className="max-w-2xl">
-      <h2 className="text-lg font-bold text-slate-900">Upload Result Workbook</h2>
+      <h2 className="text-lg font-bold text-slate-900">
+        Upload {RESULT_TYPE_LABELS[resultType]} Workbook
+      </h2>
       <p className="mt-1 text-sm text-slate-600">
-        Exam Result and Ekam Kasoti Result use the same approved Excel workbook format.
+        {isAnnual
+          ? "Exam Result workbooks start with G.R. No., Standard, Name, Birth Date, and Hajar Divas, then subject mark and grade pairs. There is no Sr.No. column."
+          : "Ekam Kasoti workbooks start with G.R. No., Standard, Name, and Birth Date, then subject mark and grade pairs. There is no Sr.No. column and no Hajar Divas column."}
       </p>
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
         Before the first upload, set the Standard, its Subjects, and each Subject&apos;s maximum
@@ -81,31 +94,17 @@ export function AdminExamResultsTab() {
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
-        <label className="block text-sm font-medium text-slate-700">
-          Result type
-          <select
-            value={resultType}
-            onChange={(event) => {
-              setResultType(event.target.value as ResultType);
-              setSuccessMessage("");
-              setErrorMessage("");
-            }}
-            className="mt-1 block min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3"
-          >
-            <option value="ANNUAL">{RESULT_TYPE_LABELS.ANNUAL}</option>
-            <option value="EKAM_KASOTI">{RESULT_TYPE_LABELS.EKAM_KASOTI}</option>
-          </select>
-        </label>
-
-        <Input
-          label="Total working days"
-          type="number"
-          min="1"
-          value={totalWorkingDays}
-          onChange={(event) => setTotalWorkingDays(event.target.value)}
-          placeholder="For example, 230"
-          required
-        />
+        {isAnnual && (
+          <Input
+            label="Total working days"
+            type="number"
+            min="1"
+            value={totalWorkingDays}
+            onChange={(event) => setTotalWorkingDays(event.target.value)}
+            placeholder="For example, 230"
+            required
+          />
+        )}
 
         <label className="block text-sm font-medium text-slate-700">
           Excel workbook
@@ -136,7 +135,7 @@ export function AdminExamResultsTab() {
         <Button
           type="submit"
           className="gap-2"
-          disabled={!file || !totalWorkingDays}
+          disabled={!canSubmit}
           loading={uploadMutation.isPending}
           loadingText="Uploading result..."
         >

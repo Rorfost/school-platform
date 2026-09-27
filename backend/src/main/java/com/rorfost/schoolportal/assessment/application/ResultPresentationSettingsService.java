@@ -44,7 +44,9 @@ public class ResultPresentationSettingsService {
         request.gradeBMin(),
         request.gradeCMin(),
         request.gradeDMin(),
-        trim(request.resultSheetTitle()));
+        trim(request.resultSheetTitle()),
+        request.ekamResultDate(),
+        trim(request.ekamResultSheetTitle()));
     return ResultPresentationSettingsResponse.from(settings.save(value));
   }
 
