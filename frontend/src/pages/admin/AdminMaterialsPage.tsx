@@ -258,7 +258,7 @@ export function AdminMaterialsPage() {
 
       {/* Upload Modal */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-bold text-slate-900">Upload Study Material</h2>
             <form onSubmit={handleUploadSubmit} className="space-y-4">

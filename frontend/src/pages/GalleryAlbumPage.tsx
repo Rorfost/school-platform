@@ -109,7 +109,7 @@ export function GalleryAlbumPage() {
       {/* Image Lightbox Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
           role="dialog"
           aria-modal="true"
