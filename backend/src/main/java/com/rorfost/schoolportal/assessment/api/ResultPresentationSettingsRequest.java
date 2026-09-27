@@ -12,6 +12,8 @@ public record ResultPresentationSettingsRequest(
     @Size(max = 200) String resultSheetTitle,
     @Size(max = 1000) String footerLineOne,
     @Size(max = 1000) String footerLineTwo,
+    @Size(max = 1000) String ekamFooterLineOne,
+    @Size(max = 1000) String ekamFooterLineTwo,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeAMin,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeBMin,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeCMin,

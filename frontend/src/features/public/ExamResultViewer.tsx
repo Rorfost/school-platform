@@ -230,21 +230,29 @@ export function ExamResultViewer({
 
             {/* Note Lines */}
             <div className="bg-cyan-50/70 p-2 sm:p-3 text-xs sm:text-sm font-medium space-y-2 border-t border-slate-300 print:p-3 print:text-sm">
-              {settings?.footerLineOne ? (
-                <p className="text-slate-900">{settings.footerLineOne}</p>
+              {resultType === "EKAM_KASOTI" ? (
+                <>
+                  <p className="text-slate-900">
+                    {settings?.ekamFooterLineOne ||
+                      "એકમ કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
+                  </p>
+                  <p className="text-center text-xs mt-2 text-slate-700">
+                    {settings?.ekamFooterLineTwo ||
+                      settings?.footerLineTwo ||
+                      "80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ."}
+                  </p>
+                </>
               ) : (
-                <p className="text-slate-900">
-                  ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી
-                  શાળા રાબેતા મુજબ શરુ થશે.
-                </p>
-              )}
-              {settings?.footerLineTwo ? (
-                <p className="text-center text-xs mt-2 text-slate-700">{settings.footerLineTwo}</p>
-              ) : (
-                <p className="text-center text-xs mt-2 text-slate-700">
-                  80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી
-                  વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ.
-                </p>
+                <>
+                  <p className="text-slate-900">
+                    {settings?.footerLineOne ||
+                      "ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે."}
+                  </p>
+                  <p className="text-center text-xs mt-2 text-slate-700">
+                    {settings?.footerLineTwo ||
+                      "80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ."}
+                  </p>
+                </>
               )}
             </div>
           </div>

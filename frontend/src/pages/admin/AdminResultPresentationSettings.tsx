@@ -35,6 +35,8 @@ export function AdminResultPresentationSettings() {
             resultSheetTitle: String(form.get("resultSheetTitle") || "") || null,
             footerLineOne: String(form.get("footerLineOne") || "") || null,
             footerLineTwo: String(form.get("footerLineTwo") || "") || null,
+            ekamFooterLineOne: String(form.get("ekamFooterLineOne") || "") || null,
+            ekamFooterLineTwo: String(form.get("ekamFooterLineTwo") || "") || null,
             gradeAMin: Number(form.get("gradeAMin")),
             gradeBMin: Number(form.get("gradeBMin")),
             gradeCMin: Number(form.get("gradeCMin")),
@@ -54,25 +56,51 @@ export function AdminResultPresentationSettings() {
           defaultValue={value.resultSheetTitle ?? ""}
           placeholder="પરિણામ પત્રક : ૨૦૨૫-૨૬"
         />
-        <label className="block text-sm font-medium text-slate-700">
-          Footer line 1
-          <textarea
-            name="footerLineOne"
-            defaultValue={value.footerLineOne ?? ""}
-            className="mt-1 w-full rounded-lg border border-slate-300 p-2"
-            rows={2}
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-700">
-          Footer line 2
-          <textarea
-            name="footerLineTwo"
-            defaultValue={value.footerLineTwo ?? ""}
-            className="mt-1 w-full rounded-lg border border-slate-300 p-2"
-            rows={2}
-          />
-        </label>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="space-y-3 border-t border-slate-100 pt-3">
+          <h3 className="text-sm font-bold text-slate-800">Annual Exam Footer Notes</h3>
+          <label className="block text-sm font-medium text-slate-700">
+            Exam Footer line 1 (Default: Summer Vacation reopening note)
+            <textarea
+              name="footerLineOne"
+              defaultValue={value.footerLineOne ?? ""}
+              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm"
+              rows={2}
+            />
+          </label>
+          <label className="block text-sm font-medium text-slate-700">
+            Exam Footer line 2 (Default: Grade scale explanation)
+            <textarea
+              name="footerLineTwo"
+              defaultValue={value.footerLineTwo ?? ""}
+              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm"
+              rows={2}
+            />
+          </label>
+        </div>
+
+        <div className="space-y-3 border-t border-slate-100 pt-3">
+          <h3 className="text-sm font-bold text-slate-800">Ekam Kasoti Footer Notes</h3>
+          <label className="block text-sm font-medium text-slate-700">
+            Ekam Kasoti Footer line 1 (Default: Parent signature return request)
+            <textarea
+              name="ekamFooterLineOne"
+              defaultValue={value.ekamFooterLineOne ?? ""}
+              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm"
+              rows={2}
+            />
+          </label>
+          <label className="block text-sm font-medium text-slate-700">
+            Ekam Kasoti Footer line 2 (Default: Grade scale explanation)
+            <textarea
+              name="ekamFooterLineTwo"
+              defaultValue={value.ekamFooterLineTwo ?? ""}
+              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm"
+              rows={2}
+            />
+          </label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 border-t border-slate-100 pt-3">
           <Input
             label="A minimum %"
             name="gradeAMin"

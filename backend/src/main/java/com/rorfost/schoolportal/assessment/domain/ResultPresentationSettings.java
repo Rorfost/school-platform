@@ -24,6 +24,12 @@ public class ResultPresentationSettings {
   @Column(name = "footer_line_two")
   private String footerLineTwo;
 
+  @Column(name = "ekam_footer_line_one")
+  private String ekamFooterLineOne;
+
+  @Column(name = "ekam_footer_line_two")
+  private String ekamFooterLineTwo;
+
   @Column(name = "grade_a_min")
   private BigDecimal gradeAMin = BigDecimal.valueOf(80);
 
@@ -61,6 +67,14 @@ public class ResultPresentationSettings {
     return footerLineTwo;
   }
 
+  public String getEkamFooterLineOne() {
+    return ekamFooterLineOne;
+  }
+
+  public String getEkamFooterLineTwo() {
+    return ekamFooterLineTwo;
+  }
+
   public BigDecimal getGradeAMin() {
     return gradeAMin;
   }
@@ -85,6 +99,8 @@ public class ResultPresentationSettings {
       LocalDate resultDate,
       String footerLineOne,
       String footerLineTwo,
+      String ekamFooterLineOne,
+      String ekamFooterLineTwo,
       BigDecimal gradeAMin,
       BigDecimal gradeBMin,
       BigDecimal gradeCMin,
@@ -93,6 +109,8 @@ public class ResultPresentationSettings {
     this.resultDate = resultDate;
     this.footerLineOne = footerLineOne;
     this.footerLineTwo = footerLineTwo;
+    this.ekamFooterLineOne = ekamFooterLineOne;
+    this.ekamFooterLineTwo = ekamFooterLineTwo;
     this.gradeAMin = gradeAMin;
     this.gradeBMin = gradeBMin;
     this.gradeCMin = gradeCMin;

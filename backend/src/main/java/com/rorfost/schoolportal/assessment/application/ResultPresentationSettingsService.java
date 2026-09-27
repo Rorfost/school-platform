@@ -38,6 +38,8 @@ public class ResultPresentationSettingsService {
         request.resultDate(),
         trim(request.footerLineOne()),
         trim(request.footerLineTwo()),
+        trim(request.ekamFooterLineOne()),
+        trim(request.ekamFooterLineTwo()),
         request.gradeAMin(),
         request.gradeBMin(),
         request.gradeCMin(),
