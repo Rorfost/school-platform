@@ -398,7 +398,8 @@ public class ExamResultService {
 
   /**
    * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format. Handles
-   * numeric Excel dates, Excel serial numbers, and string date formats (e.g. "07/08/2007", "7/8/07").
+   * numeric Excel dates, Excel serial numbers, and string date formats (e.g. "07/08/2007",
+   * "7/8/07").
    */
   private String cellDateText(Cell cell) {
     if (cell == null) {
@@ -406,7 +407,8 @@ public class ExamResultService {
     }
     if (cell.getCellType() == CellType.NUMERIC) {
       double numericVal = cell.getNumericCellValue();
-      if (DateUtil.isCellDateFormatted(cell) || (numericVal > 1000 && DateUtil.isValidExcelDate(numericVal))) {
+      if (DateUtil.isCellDateFormatted(cell)
+          || (numericVal > 1000 && DateUtil.isValidExcelDate(numericVal))) {
         java.util.Date date = cell.getDateCellValue();
         if (date != null) {
           java.util.Calendar cal = java.util.Calendar.getInstance();
