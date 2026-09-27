@@ -55,6 +55,11 @@ This contract was observed locally from the ignored source workbook. It delibera
 
 ### Current implementation
 
-Exam Result and Ekam Kasoti Result use the same approved multi-subject workbook, with student details in columns `A:F` and subject mark/grade pairs in columns `G:X`. The principal chooses `ANNUAL` or `EKAM_KASOTI` at upload time; each complete upload replaces every previously uploaded result of the selected type. Public lookup requires the selected result type, standard, and roll number.
+Exam Result and Ekam Kasoti Result use related but not identical workbooks. Neither format includes a Sr.No. column. Student identity starts at G.R. No.
+
+- **ANNUAL:** columns are G.R. No., Standard, Name, Birth Date, Hajar Divas (attended days), then subject mark/grade pairs.
+- **EKAM_KASOTI:** columns are G.R. No., Standard, Name, Birth Date, then subject mark/grade pairs. There is no Hajar Divas column.
+
+The principal chooses Exam or Ekam Kasoti on the admin Results page. Each complete upload replaces every previously uploaded result of the selected type. Total working days is collected only for Exam Result uploads. Public lookup requires the selected result type, standard, and roll number. Result date, sheet title, and footer lines are stored separately for Exam and Ekam Kasoti. Grades and attendance are presentation fields for Exam Result only.
 
 The historical Standard 3 Aadhaar-based workbook above is not accepted by the current importer. The approved shared workbook contains no Aadhaar column, so the portal never reads, logs, hashes, or stores a government identifier.

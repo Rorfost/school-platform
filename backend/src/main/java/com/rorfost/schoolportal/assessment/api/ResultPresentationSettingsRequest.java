@@ -17,4 +17,6 @@ public record ResultPresentationSettingsRequest(
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeAMin,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeBMin,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeCMin,
-    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeDMin) {}
+    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeDMin,
+    LocalDate ekamResultDate,
+    @Size(max = 200) String ekamResultSheetTitle) {}

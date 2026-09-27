@@ -35,7 +35,7 @@ public class ExamResultController {
   @PostMapping("/admin/exam-results/upload")
   public ResponseEntity<Map<String, String>> uploadResults(
       @RequestParam("file") MultipartFile file,
-      @RequestParam("totalWorkingDays") Integer totalWorkingDays,
+      @RequestParam(value = "totalWorkingDays", required = false) Integer totalWorkingDays,
       @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
           String resultType) {
     service.processExcelUpload(file, totalWorkingDays, resultType);

@@ -15,6 +15,8 @@ public record ResultPresentationSettingsResponse(
     BigDecimal gradeBMin,
     BigDecimal gradeCMin,
     BigDecimal gradeDMin,
+    LocalDate ekamResultDate,
+    String ekamResultSheetTitle,
     String principalSignatureUrl,
     String classTeacherName,
     String classTeacherSignatureUrl) {
@@ -30,6 +32,8 @@ public record ResultPresentationSettingsResponse(
         value.getGradeBMin(),
         value.getGradeCMin(),
         value.getGradeDMin(),
+        value.getEkamResultDate(),
+        value.getEkamResultSheetTitle(),
         null,
         null,
         null);
@@ -48,6 +52,8 @@ public record ResultPresentationSettingsResponse(
         gradeBMin,
         gradeCMin,
         gradeDMin,
+        ekamResultDate,
+        ekamResultSheetTitle,
         principalSignatureUrl,
         classTeacherName,
         classTeacherSignatureUrl);

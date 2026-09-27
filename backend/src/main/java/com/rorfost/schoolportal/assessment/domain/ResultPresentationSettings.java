@@ -30,6 +30,12 @@ public class ResultPresentationSettings {
   @Column(name = "ekam_footer_line_two")
   private String ekamFooterLineTwo;
 
+  @Column(name = "ekam_result_date")
+  private LocalDate ekamResultDate;
+
+  @Column(name = "ekam_result_sheet_title")
+  private String ekamResultSheetTitle;
+
   @Column(name = "grade_a_min")
   private BigDecimal gradeAMin = BigDecimal.valueOf(80);
 
@@ -75,6 +81,14 @@ public class ResultPresentationSettings {
     return ekamFooterLineTwo;
   }
 
+  public LocalDate getEkamResultDate() {
+    return ekamResultDate;
+  }
+
+  public String getEkamResultSheetTitle() {
+    return ekamResultSheetTitle;
+  }
+
   public BigDecimal getGradeAMin() {
     return gradeAMin;
   }
@@ -105,7 +119,9 @@ public class ResultPresentationSettings {
       BigDecimal gradeBMin,
       BigDecimal gradeCMin,
       BigDecimal gradeDMin,
-      String resultSheetTitle) {
+      String resultSheetTitle,
+      LocalDate ekamResultDate,
+      String ekamResultSheetTitle) {
     this.resultDate = resultDate;
     this.footerLineOne = footerLineOne;
     this.footerLineTwo = footerLineTwo;
@@ -116,5 +132,7 @@ public class ResultPresentationSettings {
     this.gradeCMin = gradeCMin;
     this.gradeDMin = gradeDMin;
     this.resultSheetTitle = resultSheetTitle;
+    this.ekamResultDate = ekamResultDate;
+    this.ekamResultSheetTitle = ekamResultSheetTitle;
   }
 }
