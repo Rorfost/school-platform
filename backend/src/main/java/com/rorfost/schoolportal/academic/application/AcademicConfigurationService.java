@@ -382,7 +382,8 @@ public class AcademicConfigurationService {
   }
 
   @Transactional
-  public StandardResponse deleteClassTeacherSignature(UUID schoolId, UUID actorId, UUID standardId) {
+  public StandardResponse deleteClassTeacherSignature(
+      UUID schoolId, UUID actorId, UUID standardId) {
     Standard standard = requireStandard(schoolId, standardId);
     String previousKey = standard.getClassTeacherSignatureObjectKey();
     if (previousKey == null) return StandardResponse.from(standard);

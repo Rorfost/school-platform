@@ -397,8 +397,8 @@ public class ExamResultService {
   }
 
   /**
-   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format.
-   * Handles both date-formatted numeric cells and text cells (e.g. "7/8/07", "07-08-2007").
+   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format. Handles both
+   * date-formatted numeric cells and text cells (e.g. "7/8/07", "07-08-2007").
    */
   private String cellDateText(Cell cell) {
     if (cell == null) return "";

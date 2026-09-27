@@ -17,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class StorageService {
   static final String IMAGEKIT_STORAGE_BUCKET = "imagekit";
   private static final Set<String> DOCUMENT_TYPES = Set.of("application/pdf");
-  private static final Set<String> IMAGE_TYPES = Set.of("image/jpeg", "image/jpg", "image/png", "image/webp");
+  private static final Set<String> IMAGE_TYPES =
+      Set.of("image/jpeg", "image/jpg", "image/png", "image/webp");
   private final ObjectStorage storage;
   private final StorageProperties properties;
   private final UploadProperties uploads;
@@ -130,10 +131,8 @@ public class StorageService {
         (type.equals("application/pdf") && lower.endsWith(".pdf"))
             || ((type.equals("image/jpeg") || type.equals("image/jpg"))
                 && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.equals("upload")))
-            || (type.equals("image/png")
-                && (lower.endsWith(".png") || lower.equals("upload")))
-            || (type.equals("image/webp")
-                && (lower.endsWith(".webp") || lower.equals("upload")));
+            || (type.equals("image/png") && (lower.endsWith(".png") || lower.equals("upload")))
+            || (type.equals("image/webp") && (lower.endsWith(".webp") || lower.equals("upload")));
     if (!valid) throw new DomainException(HttpStatus.BAD_REQUEST, "upload_extension_invalid");
   }
 
