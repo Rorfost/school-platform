@@ -79,16 +79,24 @@ export function AdminLayout() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!isMobileMenuOpen) return;
-    const originalOverflow = document.body.style.overflow;
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    const origBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = origHtmlOverflow;
+      document.body.style.overflow = origBodyOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
     drawerCloseButtonRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsMobileMenuOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isMobileMenuOpen]);

@@ -17,7 +17,7 @@ export function StudentCornerPage() {
     {
       to: "/student/results",
       title: LABELS.results,
-      description: "એકમ કસોટી, સત્રાંત કસોટી અને વાર્ષિક પરીક્ષા પરિણામ અંગેની માહિતી.",
+      description: "એકમ કસોટી અને પરીક્ષા પરિણામ અંગેની માહિતી.",
       icon: GraduationCap,
       badgeText: "પરીક્ષા",
     },
