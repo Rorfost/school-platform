@@ -41,6 +41,7 @@ export interface StandardResponse {
   archived: boolean;
   classTeacherName?: string | null;
   classTeacherSignatureObjectKey?: string | null;
+  classTeacherSignatureUrl?: string | null;
 }
 
 export interface SubjectResponse {

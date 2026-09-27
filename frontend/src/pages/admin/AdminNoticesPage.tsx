@@ -227,7 +227,7 @@ export function AdminNoticesPage() {
 
       {/* Create Notice Modal */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Create New Announcement</h2>
             <form onSubmit={handleCreateSubmit} className="space-y-4">
@@ -289,7 +289,7 @@ export function AdminNoticesPage() {
 
       {/* Attach File Modal */}
       {attachTargetId && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Attach Document / PDF</h2>
             <form onSubmit={handleAttachSubmit} className="space-y-4">

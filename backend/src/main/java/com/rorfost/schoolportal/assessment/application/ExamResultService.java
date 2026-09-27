@@ -397,23 +397,51 @@ public class ExamResultService {
   }
 
   /**
-   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format. Handles both
-   * date-formatted numeric cells and text cells (e.g. "7/8/07", "07-08-2007").
+   * Reads a cell that should contain a birth date, returning it in DD/MM/YYYY format. Handles
+   * numeric Excel dates, Excel serial numbers, and string date formats (e.g. "07/08/2007",
+   * "7/8/07").
    */
   private String cellDateText(Cell cell) {
-    if (cell == null) return "";
-    // Try to read as a proper Excel date cell first (most reliable)
-    if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
-      java.util.Date date = cell.getDateCellValue();
-      java.util.Calendar cal = java.util.Calendar.getInstance();
-      cal.setTime(date);
-      int d = cal.get(java.util.Calendar.DAY_OF_MONTH);
-      int m = cal.get(java.util.Calendar.MONTH) + 1;
-      int y = cal.get(java.util.Calendar.YEAR);
-      return String.format("%02d/%02d/%04d", d, m, y);
+    if (cell == null) {
+      return "";
     }
-    // Fallback: return the raw text so the frontend formatDate() can handle it
-    return dataFormatter.formatCellValue(cell).trim();
+    if (cell.getCellType() == CellType.NUMERIC) {
+      double numericVal = cell.getNumericCellValue();
+      if (DateUtil.isCellDateFormatted(cell)
+          || (numericVal > 1000 && DateUtil.isValidExcelDate(numericVal))) {
+        java.util.Date date = cell.getDateCellValue();
+        if (date != null) {
+          java.util.Calendar cal = java.util.Calendar.getInstance();
+          cal.setTime(date);
+          int d = cal.get(java.util.Calendar.DAY_OF_MONTH);
+          int m = cal.get(java.util.Calendar.MONTH) + 1;
+          int y = cal.get(java.util.Calendar.YEAR);
+          return String.format("%02d/%02d/%04d", d, m, y);
+        }
+      }
+    }
+    String raw = dataFormatter.formatCellValue(cell).trim();
+    if (raw.isBlank()) {
+      return "";
+    }
+    if (raw.matches("^\\d+(\\.\\d+)?$")) {
+      try {
+        double serial = Double.parseDouble(raw);
+        if (serial > 1000 && DateUtil.isValidExcelDate(serial)) {
+          java.util.Date date = DateUtil.getJavaDate(serial);
+          if (date != null) {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(date);
+            int d = cal.get(java.util.Calendar.DAY_OF_MONTH);
+            int m = cal.get(java.util.Calendar.MONTH) + 1;
+            int y = cal.get(java.util.Calendar.YEAR);
+            return String.format("%02d/%02d/%04d", d, m, y);
+          }
+        }
+      } catch (Exception ignored) {
+      }
+    }
+    return raw;
   }
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {

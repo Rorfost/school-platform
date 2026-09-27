@@ -63,44 +63,44 @@ export function ExamResultViewer({
               </div>
             </div>
 
-            {/* Student Info */}
-            <div className="grid grid-cols-[1fr_auto_auto] border-b-2 border-slate-900 text-sm font-semibold">
-              <div className="border-r-2 border-slate-900 p-1.5 px-3 flex gap-2">
-                <span className="font-bold text-blue-900">વિદ્યાર્થીનું નામ :</span>
-                <span className="font-bold">{result.studentName}</span>
+            {/* Student Info Header Cards with Perfectly Aligned Grid Lines */}
+            <div className="grid grid-cols-12 border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="col-span-6 border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 items-center min-w-0">
+                <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
+                <span className="font-bold truncate">{result.studentName}</span>
               </div>
-              <div className="border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 w-32 sm:w-36">
-                <span className="font-bold">ધોરણ :</span>
+              <div className="col-span-3 border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">ધોરણ :</span>
                 <span>{toGujaratiNumber(result.standard)}</span>
               </div>
-              <div className="p-1.5 px-3 flex gap-2 w-24">
-                <span className="font-bold">વર્ગ :</span>
+              <div className="col-span-3 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">વર્ગ :</span>
                 <span>-</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 border-b-2 border-slate-900 text-sm font-semibold">
-              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
-                <span className="font-bold">જનરલ રજી.નંબર :</span>
+            <div className="grid grid-cols-12 border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="col-span-6 border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">જનરલ રજી.નંબર :</span>
                 <span>{result.generalRegisterNumber || "-"}</span>
               </div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
-                <span className="font-bold">જન્મ તારીખ :</span>
+              <div className="col-span-3 border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                 <span>{formatDate(result.birthDate)}</span>
               </div>
-              <div className="p-1.5 px-3 flex gap-2 items-center">
-                <span className="font-bold">રોલ નં :</span>
+              <div className="col-span-3 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">રોલ નં :</span>
                 <span>{result.rollNumber}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 border-b-2 border-slate-900 text-sm font-semibold">
-              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
-                <span className="font-bold">કુલ કાર્ય દિવસ :</span>
+            <div className="grid grid-cols-12 border-b-2 border-slate-900 text-sm font-semibold">
+              <div className="col-span-6 border-r-2 border-slate-900 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                 <span>{result.totalWorkingDays ?? "-"}</span>
               </div>
-              <div className="p-1.5 px-3 flex gap-2 items-center">
-                <span className="font-bold">માંથી હાજર દિવસ</span>
+              <div className="col-span-6 p-1.5 px-3 flex gap-2 items-center">
+                <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
                 <span>{result.attendedDays ?? "-"} છે.</span>
               </div>
             </div>
