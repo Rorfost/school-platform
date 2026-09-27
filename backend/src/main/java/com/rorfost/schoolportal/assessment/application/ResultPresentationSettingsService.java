@@ -41,7 +41,8 @@ public class ResultPresentationSettingsService {
         request.gradeAMin(),
         request.gradeBMin(),
         request.gradeCMin(),
-        request.gradeDMin());
+        request.gradeDMin(),
+        trim(request.resultSheetTitle()));
     return ResultPresentationSettingsResponse.from(settings.save(value));
   }
 

@@ -17,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class StorageService {
   static final String IMAGEKIT_STORAGE_BUCKET = "imagekit";
   private static final Set<String> DOCUMENT_TYPES = Set.of("application/pdf");
-  private static final Set<String> IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+  private static final Set<String> IMAGE_TYPES =
+      Set.of("image/jpeg", "image/jpg", "image/png", "image/webp");
   private final ObjectStorage storage;
   private final StorageProperties properties;
   private final UploadProperties uploads;
@@ -116,11 +117,10 @@ public class StorageService {
   }
 
   private String safeFilename(String value) {
-    if (value == null
-        || value.isBlank()
-        || value.length() > 255
-        || value.contains("/")
-        || value.contains("\\"))
+    if (value == null || value.isBlank()) {
+      return "upload";
+    }
+    if (value.length() > 255 || value.contains("/") || value.contains("\\"))
       throw new DomainException(HttpStatus.BAD_REQUEST, "upload_filename_invalid");
     return value.trim();
   }
@@ -129,9 +129,10 @@ public class StorageService {
     String lower = filename.toLowerCase(Locale.ROOT);
     boolean valid =
         (type.equals("application/pdf") && lower.endsWith(".pdf"))
-            || (type.equals("image/jpeg") && (lower.endsWith(".jpg") || lower.endsWith(".jpeg")))
-            || (type.equals("image/png") && lower.endsWith(".png"))
-            || (type.equals("image/webp") && lower.endsWith(".webp"));
+            || ((type.equals("image/jpeg") || type.equals("image/jpg"))
+                && (lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.equals("upload")))
+            || (type.equals("image/png") && (lower.endsWith(".png") || lower.equals("upload")))
+            || (type.equals("image/webp") && (lower.endsWith(".webp") || lower.equals("upload")));
     if (!valid) throw new DomainException(HttpStatus.BAD_REQUEST, "upload_extension_invalid");
   }
 
@@ -143,7 +144,7 @@ public class StorageService {
           && bytes[2] == 'D'
           && bytes[3] == 'F'
           && bytes[4] == '-';
-    if (type.equals("image/jpeg"))
+    if (type.equals("image/jpeg") || type.equals("image/jpg"))
       return bytes.length >= 3
           && (bytes[0] & 0xff) == 0xff
           && (bytes[1] & 0xff) == 0xd8
@@ -168,7 +169,7 @@ public class StorageService {
   private String extension(String type) {
     return switch (type) {
       case "application/pdf" -> ".pdf";
-      case "image/jpeg" -> ".jpg";
+      case "image/jpeg", "image/jpg" -> ".jpg";
       case "image/png" -> ".png";
       case "image/webp" -> ".webp";
       default -> throw new IllegalArgumentException("Unsupported content type");

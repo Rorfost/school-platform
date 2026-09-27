@@ -196,6 +196,27 @@ public class SchoolService {
     return principalProfileResponse(profile, false);
   }
 
+  @Transactional
+  public PrincipalProfileResponse deletePrincipalSignature(UUID schoolId, UUID actorId) {
+    PrincipalProfile profile =
+        principalProfileRepository
+            .findBySchoolId(schoolId)
+            .orElseThrow(
+                () -> new DomainException(HttpStatus.NOT_FOUND, "principal_profile_not_found"));
+    String previousKey = profile.getSignatureObjectKey();
+    profile.changeSignature(null);
+    principalProfileRepository.saveAndFlush(profile);
+    auditLogService.record(
+        schoolId,
+        actorId,
+        AuditAction.SCHOOL_UPDATED,
+        "PRINCIPAL_SIGNATURE_DELETED",
+        profile.getId(),
+        MDC.get("requestId"));
+    deletePreviousLogo(previousKey);
+    return principalProfileResponse(profile, false);
+  }
+
   private School requireSchool(UUID schoolId) {
     return schoolRepository
         .findById(schoolId)

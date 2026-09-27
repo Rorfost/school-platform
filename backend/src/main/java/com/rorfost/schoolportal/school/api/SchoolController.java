@@ -74,4 +74,10 @@ class SchoolController {
     return schoolService.replacePrincipalSignature(
         principal.schoolId(), principal.adminUserId(), file);
   }
+
+  @DeleteMapping("/api/v1/admin/principal-profile/signature")
+  PrincipalProfileResponse deletePrincipalSignature(
+      @AuthenticationPrincipal PrincipalSession principal) {
+    return schoolService.deletePrincipalSignature(principal.schoolId(), principal.adminUserId());
+  }
 }

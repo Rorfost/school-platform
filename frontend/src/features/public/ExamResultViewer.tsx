@@ -58,7 +58,7 @@ export function ExamResultViewer({
                   તા. સમી, જિ. પાટણ
                 </p>
                 <div className="mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-3/4 pt-1 text-sm sm:text-base">
-                  પરિણામ પત્રક : ૨૦૨૫-૨૬
+                  {settings?.resultSheetTitle || "પરિણામ પત્રક : ૨૦૨૫-૨૬"}
                 </div>
               </div>
             </div>
@@ -94,16 +94,15 @@ export function ExamResultViewer({
               </div>
             </div>
 
-            <div className="grid grid-cols-[1fr_1fr_auto] border-b-2 border-slate-900 text-sm font-semibold">
+            <div className="grid grid-cols-2 border-b-2 border-slate-900 text-sm font-semibold">
               <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
                 <span className="font-bold">કુલ કાર્ય દિવસ :</span>
                 <span>{result.totalWorkingDays ?? "-"}</span>
               </div>
-              <div className="p-1.5 px-3 border-r-2 border-slate-900 flex gap-2 items-center">
+              <div className="p-1.5 px-3 flex gap-2 items-center">
                 <span className="font-bold">માંથી હાજર દિવસ</span>
                 <span>{result.attendedDays ?? "-"} છે.</span>
               </div>
-              <div className="p-1.5 px-3 w-24"></div>
             </div>
 
             {/* Marks Table */}

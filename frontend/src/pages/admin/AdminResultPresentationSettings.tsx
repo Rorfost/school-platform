@@ -32,6 +32,7 @@ export function AdminResultPresentationSettings() {
           const form = new FormData(event.currentTarget);
           save.mutate({
             resultDate: String(form.get("resultDate") || "") || null,
+            resultSheetTitle: String(form.get("resultSheetTitle") || "") || null,
             footerLineOne: String(form.get("footerLineOne") || "") || null,
             footerLineTwo: String(form.get("footerLineTwo") || "") || null,
             gradeAMin: Number(form.get("gradeAMin")),
@@ -46,6 +47,12 @@ export function AdminResultPresentationSettings() {
           name="resultDate"
           type="date"
           defaultValue={value.resultDate ?? ""}
+        />
+        <Input
+          label="Result sheet title (e.g. પરિણામ પત્રક : ૨૦૨૫-૨૬)"
+          name="resultSheetTitle"
+          defaultValue={value.resultSheetTitle ?? ""}
+          placeholder="પરિણામ પત્રક : ૨૦૨૫-૨૬"
         />
         <label className="block text-sm font-medium text-slate-700">
           Footer line 1

@@ -216,6 +216,14 @@ export function AdminAcademicSetupPage() {
     },
     onSuccess: updateStandardInSetup,
   });
+  const deleteClassTeacherSignature = useMutation({
+    mutationFn: ({ standardId }: { standardId: string }) =>
+      apiRequest<StandardResponse>(
+        `/api/v1/admin/standards/${standardId}/class-teacher/signature`,
+        { method: "DELETE" },
+      ),
+    onSuccess: updateStandardInSetup,
+  });
   const marksQuery = useQuery<StandardSubjectResponse[]>({
     queryKey: ["standard-subject-maximums", marksTarget?.standard.id],
     queryFn: () => apiRequest(`/api/v1/admin/standards/${marksTarget?.standard.id}/subjects`),
@@ -451,6 +459,25 @@ export function AdminAcademicSetupPage() {
                       }}
                     />
                   </label>
+                  {entry.standard.classTeacherSignatureObjectKey && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        deleteClassTeacherSignature.mutate({ standardId: entry.standard.id })
+                      }
+                      disabled={
+                        deleteClassTeacherSignature.isPending &&
+                        deleteClassTeacherSignature.variables?.standardId === entry.standard.id
+                      }
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 size={13} aria-hidden="true" />{" "}
+                      {deleteClassTeacherSignature.isPending &&
+                      deleteClassTeacherSignature.variables?.standardId === entry.standard.id
+                        ? "Removing..."
+                        : "Remove signature"}
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-1.5">

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 public record ResultPresentationSettingsRequest(
     LocalDate resultDate,
+    @Size(max = 200) String resultSheetTitle,
     @Size(max = 1000) String footerLineOne,
     @Size(max = 1000) String footerLineTwo,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeAMin,

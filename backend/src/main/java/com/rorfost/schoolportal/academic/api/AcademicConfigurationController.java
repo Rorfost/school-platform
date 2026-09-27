@@ -121,6 +121,12 @@ class AcademicConfigurationController {
         principal.schoolId(), principal.adminUserId(), id, file);
   }
 
+  @DeleteMapping("/standards/{id}/class-teacher/signature")
+  StandardResponse deleteClassTeacherSignature(
+      @AuthenticationPrincipal PrincipalSession principal, @PathVariable UUID id) {
+    return service.deleteClassTeacherSignature(principal.schoolId(), principal.adminUserId(), id);
+  }
+
   @GetMapping("/subjects")
   List<SubjectResponse> subjects(@AuthenticationPrincipal PrincipalSession principal) {
     return service.subjects(principal.schoolId());
