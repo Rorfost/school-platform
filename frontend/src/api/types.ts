@@ -330,6 +330,8 @@ export interface ResultPresentationSettingsResponse {
   resultSheetTitle: string | null;
   footerLineOne: string | null;
   footerLineTwo: string | null;
+  ekamFooterLineOne?: string | null;
+  ekamFooterLineTwo?: string | null;
   gradeAMin: number;
   gradeBMin: number;
   gradeCMin: number;
