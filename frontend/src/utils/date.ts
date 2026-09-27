@@ -27,6 +27,22 @@ export function formatDate(input: string | Date | number | null | undefined): st
   const str = String(input).trim();
   if (!str) return "-";
 
+  // Check if string is a numeric Excel serial number (e.g. "39301" or "36982")
+  if (/^\d{4,5}(\.\d+)?$/.test(str)) {
+    const serial = Number(str);
+    if (serial > 1000 && serial < 100000) {
+      const utcDays = Math.floor(serial - 25569);
+      const utcValue = utcDays * 86400;
+      const dateInfo = new Date(utcValue * 1000);
+      if (!isNaN(dateInfo.getTime())) {
+        const day = String(dateInfo.getUTCDate()).padStart(2, "0");
+        const month = String(dateInfo.getUTCMonth() + 1).padStart(2, "0");
+        const year = dateInfo.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+      }
+    }
+  }
+
   // Match YYYY-MM-DD or YYYY/MM/DD or YYYY-MM-DDTHH:mm:ss
   const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
   if (isoMatch) {
@@ -39,8 +55,6 @@ export function formatDate(input: string | Date | number | null | undefined): st
   if (slashMatch) {
     const [, p1, p2, p3] = slashMatch;
     if (p3.length === 4) {
-      // p1 is day/month, p2 is month/day, p3 is year
-      // If p1 > 12, p1 is day
       let day = p1;
       let month = p2;
       if (Number(p2) > 12) {
