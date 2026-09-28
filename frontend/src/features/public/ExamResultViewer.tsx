@@ -80,7 +80,7 @@ export function ExamResultViewer({
                 </div>
                 <div className="col-span-6 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-3">
                   <span className="font-bold shrink-0">ધોરણ :</span>
-                  <span>{toGujaratiNumber(result.standard)}</span>
+                  <span>{result.standard}</span>
                 </div>
                 <div className="col-span-6 sm:col-span-3 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-3">
                   <span className="font-bold shrink-0">વર્ગ :</span>
