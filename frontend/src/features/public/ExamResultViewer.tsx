@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
-import { toGujaratiNumber } from "@/utils/gujarati";
 import { formatDate } from "@/utils/date";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
