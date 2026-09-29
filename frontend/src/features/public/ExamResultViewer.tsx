@@ -225,12 +225,12 @@ export function ExamResultViewer({
                 {settings?.principalSignatureUrl ? (
                   <img
                     src={settings.principalSignatureUrl}
-                    alt="Principal signature"
-                    className="h-9 sm:h-12 max-w-28 sm:max-w-40 object-contain print:h-12 print:max-w-40"
+                    alt="Principal seal and signature"
+                    className="h-20 max-w-44 object-contain sm:h-24 sm:max-w-56 print:h-24 print:max-w-56"
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <div className="h-9 sm:h-12 print:h-12" aria-hidden="true" />
+                    <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
                 )}
                 <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                   આચાર્યની સહી
