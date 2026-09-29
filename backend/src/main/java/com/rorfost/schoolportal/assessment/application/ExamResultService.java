@@ -179,104 +179,84 @@ public class ExamResultService {
   }
 
   private void addSubjects(
-        AnnualExamResult result,
-        Row row,
-        List<ConfiguredSubject> configuredSubjects,
-        Row headerRow,
-        int subjectsStartCol,
-        int subjectColumnStep,
-        boolean hasGrades) {
+      AnnualExamResult result,
+      Row row,
+      List<ConfiguredSubject> configuredSubjects,
+      Row headerRow,
+      int subjectsStartCol,
+      int subjectColumnStep,
+      boolean hasGrades) {
 
     Map<Integer, Integer> subjectIndexToColumn =
-        resolveSubjectColumns(
-            headerRow,
-            configuredSubjects,
-            subjectsStartCol,
-            subjectColumnStep);
+        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
 
-        int subjectStartColumn =
-            subjectIndexToColumn.getOrDefault(
-                index,
-                subjectsStartCol + index * subjectColumnStep);
+      int subjectStartColumn =
+          subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
 
-        int maximumMarksColumn = subjectStartColumn;
-        int obtainedMarksColumn = subjectStartColumn + 1;
-        int gradeColumn = subjectStartColumn + 2;
+      int maximumMarksColumn = subjectStartColumn;
+      int obtainedMarksColumn = subjectStartColumn + 1;
+      int gradeColumn = subjectStartColumn + 2;
 
-        String obtainedValue =
-            cellText(row.getCell(obtainedMarksColumn));
+      String obtainedValue = cellText(row.getCell(obtainedMarksColumn));
 
-        // Same behaviour as before:
-        // blank obtained marks = ignore this subject for this student.
-        if (obtainedValue.isBlank()) {
+      // Same behaviour as before:
+      // blank obtained marks = ignore this subject for this student.
+      if (obtainedValue.isBlank()) {
         continue;
-        }
+      }
 
-        int maximumMarks =
-            requiredPositiveInteger(row.getCell(maximumMarksColumn));
+      int maximumMarks = requiredPositiveInteger(row.getCell(maximumMarksColumn));
 
-        boolean absent = isAbsentValue(obtainedValue);
+      boolean absent = isAbsentValue(obtainedValue);
 
-        AnnualExamResultSubject subject =
-            new AnnualExamResultSubject();
+      AnnualExamResultSubject subject = new AnnualExamResultSubject();
 
-        subject.setId(UUID.randomUUID());
-        subject.setSubjectName(
-            configuredSubjects.get(index).name());
+      subject.setId(UUID.randomUUID());
+      subject.setSubjectName(configuredSubjects.get(index).name());
 
-        // NOW FROM EXCEL
-        subject.setMaximumMarks(maximumMarks);
+      // NOW FROM EXCEL
+      subject.setMaximumMarks(maximumMarks);
 
-        if (absent) {
+      if (absent) {
         subject.setStatus("ABSENT");
         subject.setObtainedMarks(null);
         subject.setGrade(null);
-        } else {
-        int obtainedMarks =
-            requiredNonNegativeInteger(
-                row.getCell(obtainedMarksColumn));
+      } else {
+        int obtainedMarks = requiredNonNegativeInteger(row.getCell(obtainedMarksColumn));
 
         if (obtainedMarks > maximumMarks) {
-            throw new DomainException(
-                HttpStatus.BAD_REQUEST,
-                "exam_result_format_invalid");
+          throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
         }
 
         subject.setStatus("PRESENT");
         subject.setObtainedMarks(obtainedMarks);
 
-        subject.setGrade(
-            hasGrades
-                ? cellText(row.getCell(gradeColumn))
-                : null);
-        }
+        subject.setGrade(hasGrades ? cellText(row.getCell(gradeColumn)) : null);
+      }
 
-        subject.setSortOrder(index + 1);
-        result.addSubject(subject);
+      subject.setSortOrder(index + 1);
+      result.addSubject(subject);
     }
 
     // Detect data for subjects which are not configured.
     for (int index = configuredSubjects.size(); index < 9; index++) {
 
-        int start =
-            subjectsStartCol + index * subjectColumnStep;
+      int start = subjectsStartCol + index * subjectColumnStep;
 
-        boolean hasUnexpectedData = false;
+      boolean hasUnexpectedData = false;
 
-        for (int offset = 0; offset < subjectColumnStep; offset++) {
+      for (int offset = 0; offset < subjectColumnStep; offset++) {
         if (!cellText(row.getCell(start + offset)).isBlank()) {
-            hasUnexpectedData = true;
-            break;
+          hasUnexpectedData = true;
+          break;
         }
-        }
+      }
 
-        if (hasUnexpectedData) {
-        throw new DomainException(
-            HttpStatus.BAD_REQUEST,
-            "result_subjects_not_configured");
-        }
+      if (hasUnexpectedData) {
+        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured");
+      }
     }
   }
 
@@ -284,9 +264,7 @@ public class ExamResultService {
     Integer value = optionalInteger(cell);
 
     if (value == null || value <= 0) {
-        throw new DomainException(
-            HttpStatus.BAD_REQUEST,
-            "exam_result_format_invalid");
+      throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
     }
 
     return value;
@@ -296,9 +274,7 @@ public class ExamResultService {
     Integer value = optionalInteger(cell);
 
     if (value == null || value < 0) {
-        throw new DomainException(
-            HttpStatus.BAD_REQUEST,
-            "exam_result_format_invalid");
+      throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
     }
 
     return value;
@@ -399,27 +375,20 @@ public class ExamResultService {
             .map(this::configuredSubject)
             .toList();
     if (configured.isEmpty()) {
-      throw new DomainException(
-        HttpStatus.BAD_REQUEST,
-        "result_subject_not_configured");
+      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_not_configured");
     }
     return configured;
   }
 
-  private ConfiguredSubject configuredSubject(
-        StandardSubject mapping) {
+  private ConfiguredSubject configuredSubject(StandardSubject mapping) {
 
     String name =
         subjects
-            .findByIdAndSchoolId(
-                mapping.getSubjectId(),
-                mapping.getSchoolId())
+            .findByIdAndSchoolId(mapping.getSubjectId(), mapping.getSchoolId())
             .map(value -> value.getName())
             .orElseThrow(
                 () ->
-                    new DomainException(
-                        HttpStatus.BAD_REQUEST,
-                        "result_subjects_not_configured"));
+                    new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured"));
 
     return new ConfiguredSubject(name);
   }

@@ -269,11 +269,7 @@ class ExamResultServiceTest {
 
   @Test
   void annualUpload_shouldReadMaximumObtainedAndGradeColumns() throws Exception {
-    MockMultipartFile file =
-        createAnnualExcel(
-            "25", "20", "A",
-            "50", "40", "B",
-            "25", "18", "C");
+    MockMultipartFile file = createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
     service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
 
@@ -298,11 +294,7 @@ class ExamResultServiceTest {
 
   @Test
   void annualUpload_shouldIgnoreGradeWhenStudentIsAbsent() throws Exception {
-    MockMultipartFile file =
-        createAnnualExcel(
-            "25", "20", "A",
-            "25", "AB", "A",
-            "25", "15", "B");
+    MockMultipartFile file = createAnnualExcel("25", "20", "A", "25", "AB", "A", "25", "15", "B");
 
     service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
 
@@ -326,8 +318,7 @@ class ExamResultServiceTest {
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
 
-    verify(resultRepository)
-        .deleteBySchoolIdAndResultType(schoolId, ExamResultService.EKAM_KASOTI);
+    verify(resultRepository).deleteBySchoolIdAndResultType(schoolId, ExamResultService.EKAM_KASOTI);
 
     verify(resultRepository).saveAll(any());
   }
@@ -398,12 +389,7 @@ class ExamResultServiceTest {
       throws Exception {
 
     return createTrimasikExcelWithMax(
-        "25",
-        gujaratiObtained,
-        "25",
-        mathematicsObtained,
-        "25",
-        englishObtained);
+        "25", gujaratiObtained, "25", mathematicsObtained, "25", englishObtained);
   }
 
   private MockMultipartFile createTrimasikExcelWithMax(
@@ -583,8 +569,7 @@ class ExamResultServiceTest {
     return results.get(0);
   }
 
-  private AnnualExamResultSubject findSubject(
-      AnnualExamResult result, String subjectName) {
+  private AnnualExamResultSubject findSubject(AnnualExamResult result, String subjectName) {
 
     return result.getSubjects().stream()
         .filter(subject -> subject.getSubjectName().equals(subjectName))
