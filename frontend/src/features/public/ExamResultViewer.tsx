@@ -243,8 +243,7 @@ export function ExamResultViewer({
               {isEkam ? (
                 <>
                   <p className="text-slate-900">
-                    {settings?.ekamFooterLineOne ||
-                      "ત્રિમાસિક કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
+                    {settings?.ekamFooterLineOne}
                   </p>
                   {settings?.ekamFooterLineTwo ? (
                     <p className="text-center text-xs mt-2 text-slate-700">
@@ -255,12 +254,10 @@ export function ExamResultViewer({
               ) : (
                 <>
                   <p className="text-slate-900">
-                    {settings?.footerLineOne ||
-                      "ઉનાળું વેકેશન પૂરું થતાં સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે."}
+                    {settings?.footerLineOne}
                   </p>
                   <p className="text-center text-xs mt-2 text-slate-700">
-                    {settings?.footerLineTwo ||
-                      "80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ."}
+                    {settings?.footerLineTwo}
                   </p>
                 </>
               )}
