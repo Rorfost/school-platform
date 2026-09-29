@@ -1,7 +1,6 @@
 package com.rorfost.schoolportal.school.domain;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -87,11 +86,11 @@ public class AnnualExamResultSubject {
   }
 
   public String getStatus() {
-      return status;
+    return status;
   }
 
   public void setStatus(String status) {
-      this.status = status;
+    this.status = status;
   }
 
   public Integer getSortOrder() {

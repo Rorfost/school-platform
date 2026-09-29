@@ -15,18 +15,17 @@ import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultSubject;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ExamResultService {
@@ -106,14 +105,11 @@ public class ExamResultService {
 
   @Transactional
   public void clearResults(String resultType) {
-      String validatedResultType = validateResultType(resultType);
-        School school = getSchool();
+    String validatedResultType = validateResultType(resultType);
+    School school = getSchool();
 
-        resultRepository.deleteBySchoolIdAndResultType(
-            school.getId(),
-            validatedResultType
-        );
-    }
+    resultRepository.deleteBySchoolIdAndResultType(school.getId(), validatedResultType);
+  }
 
   private List<AnnualExamResult> parseWorkbook(
       MultipartFile file,
@@ -170,8 +166,7 @@ public class ExamResultService {
             sheet.getRow(0),
             colSubjectsStart,
             subjectColumnStep,
-            !isEkam
-        );
+            !isEkam);
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -192,13 +187,11 @@ public class ExamResultService {
       int subjectColumnStep,
       boolean hasGrades) {
     Map<Integer, Integer> subjectIndexToColumn =
-        resolveSubjectColumns(headerRow,
-                              configuredSubjects,
-                              subjectsStartCol,
-                              subjectColumnStep);
+        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
-      int marksColumn = subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
+      int marksColumn =
+          subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
       String marks = cellText(row.getCell(marksColumn));
       if (marks.isBlank()) {
         continue;
@@ -210,21 +203,15 @@ public class ExamResultService {
       subject.setId(UUID.randomUUID());
       subject.setSubjectName(configuredSubjects.get(index).name());
       subject.setMaximumMarks(configuredSubjects.get(index).maximumMarks());
-      if(absent) {
-          subject.setStatus("ABSENT");
-          subject.setObtainedMarks(null);
-          subject.setGrade(null);
+      if (absent) {
+        subject.setStatus("ABSENT");
+        subject.setObtainedMarks(null);
+        subject.setGrade(null);
       } else {
-          subject.setStatus("PRESENT");
-          subject.setObtainedMarks(
-              optionalInteger(row.getCell(marksColumn))
-          );
+        subject.setStatus("PRESENT");
+        subject.setObtainedMarks(optionalInteger(row.getCell(marksColumn)));
 
-          subject.setGrade(
-              hasGrades
-              ? cellText(row.getCell(marksColumn + 1))
-              : null
-          );
+        subject.setGrade(hasGrades ? cellText(row.getCell(marksColumn + 1)) : null);
       }
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
@@ -238,20 +225,23 @@ public class ExamResultService {
   }
 
   private boolean isAbsentValue(String value) {
-      if(value == null) {
-          return false;
-      }
-
-      String normalized = value.trim().toUpperCase(Locale.ROOT);
-
-      return normalized.equals("AB")
-          || normalized.equals("ABS")
-          || normalized.equals("ABSENT")
-          || value.trim().equals("ગેરહાજર");
+    if (value == null) {
+      return false;
     }
 
+    String normalized = value.trim().toUpperCase(Locale.ROOT);
+
+    return normalized.equals("AB")
+        || normalized.equals("ABS")
+        || normalized.equals("ABSENT")
+        || value.trim().equals("ગેરહાજર");
+  }
+
   private Map<Integer, Integer> resolveSubjectColumns(
-      Row headerRow, List<ConfiguredSubject> configuredSubjects, int subjectsStartCol, int subjectColumnStep) {
+      Row headerRow,
+      List<ConfiguredSubject> configuredSubjects,
+      int subjectsStartCol,
+      int subjectColumnStep) {
     Map<Integer, Integer> columnMap = new HashMap<>();
     if (headerRow == null) {
       return columnMap;
