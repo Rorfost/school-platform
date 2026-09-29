@@ -192,8 +192,11 @@ public class ExamResultService {
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
 
-      int subjectStartColumn =
-          subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
+      Integer subjectStartColumn = subjectIndexToColumn.get(index);
+
+      if (subjectStartColumn == null) {
+        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_header_invalid");
+      }
 
       int maximumMarksColumn = subjectStartColumn;
       int obtainedMarksColumn = subjectStartColumn + 1;
@@ -241,20 +244,30 @@ public class ExamResultService {
     }
 
     // Detect data for subjects which are not configured.
-    for (int index = configuredSubjects.size(); index < 9; index++) {
+    Set<Integer> matchedSubjectColumns = new HashSet<>(subjectIndexToColumn.values());
 
-      int start = subjectsStartCol + index * subjectColumnStep;
+    int lastColumn = headerRow == null ? subjectsStartCol : headerRow.getLastCellNum();
 
-      boolean hasUnexpectedData = false;
+    for (int col = subjectsStartCol; col < lastColumn; col += subjectColumnStep) {
+
+      // This Excel subject belongs to the student's standard.
+      if (matchedSubjectColumns.contains(col)) {
+        continue;
+      }
+
+      boolean hasData = false;
 
       for (int offset = 0; offset < subjectColumnStep; offset++) {
-        if (!cellText(row.getCell(start + offset)).isBlank()) {
-          hasUnexpectedData = true;
+
+        if (!cellText(row.getCell(col + offset)).isBlank()) {
+          hasData = true;
           break;
         }
       }
 
-      if (hasUnexpectedData) {
+      // Subject isn't configured for this standard,
+      // but student row contains data for it.
+      if (hasData) {
         throw new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured");
       }
     }
@@ -303,14 +316,21 @@ public class ExamResultService {
       return columnMap;
     }
 
-    for (int col = subjectsStartCol; col < subjectsStartCol + 30; col += subjectColumnStep) {
+    int lastColumn = headerRow.getLastCellNum();
+
+    for (int col = subjectsStartCol; col < lastColumn; col += subjectColumnStep) {
+
       String headerText = cellText(headerRow.getCell(col));
+
       if (headerText.isBlank()) {
         continue;
       }
+
       for (int i = 0; i < configuredSubjects.size(); i++) {
+
         if (!columnMap.containsKey(i)
             && matchesSubjectName(headerText, configuredSubjects.get(i).name())) {
+
           columnMap.put(i, col);
           break;
         }
@@ -418,14 +438,17 @@ public class ExamResultService {
     if (text == null) {
       return "";
     }
+
     StringBuilder sb = new StringBuilder();
+
     for (char c : text.toCharArray()) {
-      if (c >= '\u0966' && c <= '\u096F') {
-        sb.append((char) ('0' + (c - '\u0966')));
+      if (c >= '\u0AE6' && c <= '\u0AEF') {
+        sb.append((char) ('0' + (c - '\u0AE6')));
       } else {
         sb.append(c);
       }
     }
+
     return sb.toString();
   }
 
