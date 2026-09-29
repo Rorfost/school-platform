@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { describe, it, vi } from "vitest";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import * as UseAuthModule from "@/features/auth/useAuth";
 
