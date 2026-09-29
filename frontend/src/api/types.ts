@@ -322,6 +322,7 @@ export interface ExamResultSubjectResponse {
   maximumMarks: number;
   obtainedMarks: number | null;
   grade: string | null;
+  status: "PRESENT" | "ABSENT";
   sortOrder: number;
 }
 

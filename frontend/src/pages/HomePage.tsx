@@ -41,7 +41,7 @@ export function HomePage() {
     {
       to: "/student/results",
       title: LABELS.results,
-      description: "એકમ કસોટી અને પરીક્ષા પરિણામ અંગેની માહિતી",
+      description: "ત્રિમાસિક કસોટી અને પરીક્ષા પરિણામ અંગેની માહિતી",
       icon: GraduationCap,
       badgeText: "પરિણામ",
       badgeVariant: "secondary" as const,
