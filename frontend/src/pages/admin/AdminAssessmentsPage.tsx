@@ -6,7 +6,7 @@ export type ResultSettingsTab = "ANNUAL" | "EKAM_KASOTI";
 
 const TABS: { id: ResultSettingsTab; label: string }[] = [
   { id: "ANNUAL", label: "Exam Result" },
-  { id: "EKAM_KASOTI", label: "Ekam Kasoti Result" },
+  { id: "EKAM_KASOTI", label: "Trimasik Kasoti Result" },
 ];
 
 export function AdminAssessmentsPage() {
@@ -15,9 +15,11 @@ export function AdminAssessmentsPage() {
   return (
     <section className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Exam &amp; Ekam Kasoti Results</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">
+          Exam &amp; Trimasik Kasoti Results
+        </h1>
         <p className="mt-1 text-sm text-slate-600">
-          Choose Exam or Ekam Kasoti, then upload its workbook and save matching result-sheet
+          Choose Exam or Trimasik Kasoti, then upload its workbook and save matching result-sheet
           details.
         </p>
       </div>

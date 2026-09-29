@@ -1,15 +1,14 @@
 import {
   Activity,
-  Award,
-  Calendar,
-  Camera,
+  //   Award,
+  //   Calendar,
+  //   Camera,
   FileText,
-  FolderDown,
+  //   FolderDown,
   GraduationCap,
   Layers,
-  Settings,
-  UserCheck,
-  Users,
+  //   Settings,
+  //   UserCheck,
   RotateCcw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -44,56 +43,56 @@ export function AdminDashboardPage() {
     onSuccess: () => visitsQuery.refetch(),
   });
 
-  const quickLinks = [
-    {
-      to: "/admin/school",
-      label: "School Identity",
-      icon: Settings,
-      desc: "Name, address, contact, DISE code",
-    },
-    {
-      to: "/admin/principal",
-      label: "Principal Profile",
-      icon: UserCheck,
-      desc: "Biography, message, designation",
-    },
-    {
-      to: "/admin/academics",
-      label: "Academic Setup",
-      icon: Calendar,
-      desc: "Current year, standards, and subjects",
-    },
-    {
-      to: "/admin/assessments",
-      label: "Results & Marks",
-      icon: Award,
-      desc: "Annual and Ekam Kasoti result uploads",
-    },
-    {
-      to: "/admin/materials",
-      label: "Study Materials",
-      icon: GraduationCap,
-      desc: "Worksheets & PDF files",
-    },
-    {
-      to: "/admin/notices",
-      label: "Notices & Circulars",
-      icon: FileText,
-      desc: "School announcements",
-    },
-    {
-      to: "/admin/gallery",
-      label: "Photo Gallery",
-      icon: Camera,
-      desc: "Event albums & photos",
-    },
-    {
-      to: "/admin/downloads",
-      label: "Downloads",
-      icon: FolderDown,
-      desc: "Public forms & documents",
-    },
-  ];
+  //   const quickLinks = [
+  //     {
+  //       to: "/admin/school",
+  //       label: "School Identity",
+  //       icon: Settings,
+  //       desc: "Name, address, contact, DISE code",
+  //     },
+  //     {
+  //       to: "/admin/principal",
+  //       label: "Principal Profile",
+  //       icon: UserCheck,
+  //       desc: "Biography, message, designation",
+  //     },
+  //     {
+  //       to: "/admin/academics",
+  //       label: "Academic Setup",
+  //       icon: Calendar,
+  //       desc: "Current year, standards, and subjects",
+  //     },
+  //     {
+  //       to: "/admin/assessments",
+  //       label: "Results & Marks",
+  //       icon: Award,
+  //       desc: "Annual and Ekam Kasoti result uploads",
+  //     },
+  //     {
+  //       to: "/admin/materials",
+  //       label: "Study Materials",
+  //       icon: GraduationCap,
+  //       desc: "Worksheets & PDF files",
+  //     },
+  //     {
+  //       to: "/admin/notices",
+  //       label: "Notices & Circulars",
+  //       icon: FileText,
+  //       desc: "School announcements",
+  //     },
+  //     {
+  //       to: "/admin/gallery",
+  //       label: "Photo Gallery",
+  //       icon: Camera,
+  //       desc: "Event albums & photos",
+  //     },
+  //     {
+  //       to: "/admin/downloads",
+  //       label: "Downloads",
+  //       icon: FolderDown,
+  //       desc: "Public forms & documents",
+  //     },
+  //   ];
 
   return (
     <div className="space-y-8">
@@ -127,7 +126,7 @@ export function AdminDashboardPage() {
         <ErrorState message="Could not load dashboard summary." onRetry={() => refetchSummary()} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-5">
+          {/* <Card className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase">Active Students</span>
               <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
@@ -138,7 +137,7 @@ export function AdminDashboardPage() {
               {summary?.totalStudents ?? 0}
             </p>
             <span className="text-xs text-slate-500 mt-1 block">Enrolled across standards</span>
-          </Card>
+          </Card> */}
 
           <Card className="p-5">
             <div className="flex items-center justify-between">
@@ -223,7 +222,7 @@ export function AdminDashboardPage() {
       </Card>
 
       {/* Operational Shortcuts */}
-      <div>
+      {/* <div>
         <h2 className="text-lg font-bold text-slate-900 mb-4">Management Modules</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickLinks.map((item) => {
@@ -247,7 +246,7 @@ export function AdminDashboardPage() {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       {/* Recent Security & Audit Logs */}
       {auditLogs && auditLogs.length > 0 && (

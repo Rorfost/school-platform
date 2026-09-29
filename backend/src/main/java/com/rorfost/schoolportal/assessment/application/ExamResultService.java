@@ -18,19 +18,9 @@ import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +103,14 @@ public class ExamResultService {
     resultRepository.saveAll(results);
   }
 
+  @Transactional
+  public void clearResults(String resultType) {
+    String validatedResultType = validateResultType(resultType);
+    School school = getSchool();
+
+    resultRepository.deleteBySchoolIdAndResultType(school.getId(), validatedResultType);
+  }
+
   private List<AnnualExamResult> parseWorkbook(
       MultipartFile file,
       School school,
@@ -135,6 +133,8 @@ public class ExamResultService {
       int colBirth = 3;
       int colAttended = isEkam ? -1 : 4;
       int colSubjectsStart = isEkam ? 4 : 5;
+
+      int subjectColumnStep = isEkam ? 1 : 2;
 
       for (int index = 1; index <= sheet.getLastRowNum(); index++) {
         Row row = sheet.getRow(index);
@@ -164,7 +164,9 @@ public class ExamResultService {
             row,
             configuredSubjects(school.getId(), standard),
             sheet.getRow(0),
-            colSubjectsStart);
+            colSubjectsStart,
+            subjectColumnStep,
+            !isEkam);
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -181,41 +183,71 @@ public class ExamResultService {
       Row row,
       List<ConfiguredSubject> configuredSubjects,
       Row headerRow,
-      int subjectsStartCol) {
+      int subjectsStartCol,
+      int subjectColumnStep,
+      boolean hasGrades) {
     Map<Integer, Integer> subjectIndexToColumn =
-        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol);
+        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
-      int marksColumn = subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * 2);
+      int marksColumn =
+          subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
       String marks = cellText(row.getCell(marksColumn));
       if (marks.isBlank()) {
         continue;
       }
+
+      boolean absent = isAbsentValue(marks);
+
       AnnualExamResultSubject subject = new AnnualExamResultSubject();
       subject.setId(UUID.randomUUID());
       subject.setSubjectName(configuredSubjects.get(index).name());
       subject.setMaximumMarks(configuredSubjects.get(index).maximumMarks());
-      subject.setObtainedMarks(optionalInteger(row.getCell(marksColumn)));
-      subject.setGrade(cellText(row.getCell(marksColumn + 1)));
+      if (absent) {
+        subject.setStatus("ABSENT");
+        subject.setObtainedMarks(null);
+        subject.setGrade(null);
+      } else {
+        subject.setStatus("PRESENT");
+        subject.setObtainedMarks(optionalInteger(row.getCell(marksColumn)));
+
+        subject.setGrade(hasGrades ? cellText(row.getCell(marksColumn + 1)) : null);
+      }
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
     for (int index = configuredSubjects.size(); index < 9; index++) {
-      int unconfiguredColumn = subjectsStartCol + index * 2;
+      int unconfiguredColumn = subjectsStartCol + index * subjectColumnStep;
       if (!cellText(row.getCell(unconfiguredColumn)).isBlank()) {
         throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
       }
     }
   }
 
+  private boolean isAbsentValue(String value) {
+    if (value == null) {
+      return false;
+    }
+
+    String normalized = value.trim().toUpperCase(Locale.ROOT);
+
+    return normalized.equals("AB")
+        || normalized.equals("ABS")
+        || normalized.equals("ABSENT")
+        || value.trim().equals("ગેરહાજર");
+  }
+
   private Map<Integer, Integer> resolveSubjectColumns(
-      Row headerRow, List<ConfiguredSubject> configuredSubjects, int subjectsStartCol) {
+      Row headerRow,
+      List<ConfiguredSubject> configuredSubjects,
+      int subjectsStartCol,
+      int subjectColumnStep) {
     Map<Integer, Integer> columnMap = new HashMap<>();
     if (headerRow == null) {
       return columnMap;
     }
 
-    for (int col = subjectsStartCol; col < subjectsStartCol + 30; col += 2) {
+    for (int col = subjectsStartCol; col < subjectsStartCol + 30; col += subjectColumnStep) {
       String headerText = cellText(headerRow.getCell(col));
       if (headerText.isBlank()) {
         continue;
@@ -448,6 +480,7 @@ public class ExamResultService {
                         subject.getMaximumMarks(),
                         subject.getObtainedMarks(),
                         subject.getGrade(),
+                        subject.getStatus(),
                         subject.getSortOrder()))
             .collect(Collectors.toList());
     return new ExamResultResponse(

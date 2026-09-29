@@ -8,11 +8,10 @@ import { apiRequest, ApiError } from "@/api/client";
 import type { ExamResultResponse } from "@/api/types";
 import { ExamResultViewer } from "@/features/public/ExamResultViewer";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
-import { toGujaratiNumber } from "@/utils/gujarati";
 
 export function ResultsInfoPage() {
   const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
-  const resultTypeLabel = resultType === "ANNUAL" ? "પરીક્ષા" : "એકમ કસોટી";
+  const resultTypeLabel = resultType === "ANNUAL" ? "પરીક્ષા" : "ત્રિમાસિક કસોટી";
   const [standard, setStandard] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [result, setResult] = useState<ExamResultResponse | null>(null);
@@ -43,14 +42,12 @@ export function ResultsInfoPage() {
       );
       setResult(data);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 404) {
-        setError(
-          `ધોરણ ${toGujaratiNumber(standard)}, રોલ નંબર ${toGujaratiNumber(rollNumber)} માટે ${resultTypeLabel} પરિણામ મળ્યું નથી. કૃપા કરીને ધોરણ અને રોલ નંબર ચકાસો.`,
-        );
-      } else if (err instanceof ApiError && err.status === 0) {
+      if (err instanceof ApiError && err.status === 0) {
         setError("નેટવર્ક કનેક્શન તપાસો અને ફરી પ્રયત્ન કરો.");
       } else {
-        setError("પરિણામ લાવવામાં ભૂલ થઈ. કૃપા કરીને ફરી પ્રયાસ કરો.");
+        setError(
+          `ધોરણ ${standard}, રોલ નંબર ${rollNumber} માટે ${resultTypeLabel} પરિણામ મળ્યું નથી.`,
+        );
       }
     } finally {
       setLoading(false);
@@ -80,7 +77,7 @@ export function ResultsInfoPage() {
                     className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
                   >
                     <option value="ANNUAL">પરીક્ષા પરિણામ</option>
-                    <option value="EKAM_KASOTI">એકમ કસોટી પરિણામ</option>
+                    <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
                   </select>
                 </label>
                 <div className="grid gap-4 sm:grid-cols-2">

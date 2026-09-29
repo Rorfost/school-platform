@@ -1,11 +1,6 @@
 package com.rorfost.schoolportal.school.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -28,6 +23,9 @@ public class AnnualExamResultSubject {
   private Integer obtainedMarks;
 
   private String grade;
+
+  @Column(name = "status")
+  private String status = "PRESENT";
 
   @Column(name = "sort_order")
   private Integer sortOrder;
@@ -85,6 +83,14 @@ public class AnnualExamResultSubject {
 
   public void setGrade(String grade) {
     this.grade = grade;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
   }
 
   public Integer getSortOrder() {

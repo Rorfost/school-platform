@@ -32,7 +32,7 @@ export function AdminResultPresentationSettings({
   return (
     <Card className="max-w-2xl">
       <h2 className="text-lg font-bold text-slate-900">
-        {isAnnual ? "Exam Result Sheet Settings" : "Ekam Kasoti Result Sheet Settings"}
+        {isAnnual ? "Exam Result Sheet Settings" : "Trimasik Kasoti Result Sheet Settings"}
       </h2>
       <form
         key={settingsTab}
@@ -147,10 +147,10 @@ export function AdminResultPresentationSettings({
               defaultValue={value.ekamResultDate ?? ""}
             />
             <Input
-              label="Result sheet title (e.g. એકમ કસોટી પરિણામ પત્રક : ૨૦૨૫-૨૬)"
+              label="Result sheet title (e.g. ત્રિમાસિક કસોટી પરિણામ પત્રક : ૨૦૨૫-૨૬)"
               name="ekamResultSheetTitle"
               defaultValue={value.ekamResultSheetTitle ?? ""}
-              placeholder="એકમ કસોટી પરિણામ પત્રક : ૨૦૨૫-૨૬"
+              placeholder="ત્રિમાસિક કસોટી પરિણામ પત્રક : ૨૦૨૫-૨૬"
             />
             <div className="space-y-3 border-t border-slate-100 pt-3">
               <h3 className="text-sm font-bold text-slate-800">Footer notes</h3>

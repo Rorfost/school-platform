@@ -1,0 +1,2 @@
+ALTER TABLE annual_exam_result_subjects
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'PRESENT';

@@ -26,10 +26,10 @@ export function ExamResultViewer({
   });
   const handlePrint = () => window.print();
   const isEkam = resultType === "EKAM_KASOTI";
-  const resultTypeLabel = isEkam ? "એકમ કસોટી" : "પરીક્ષા";
+  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
   const sheetTitle = isEkam
-    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક : ૨૦૨૫-૨૬`
-    : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક : ૨૦૨૫-૨૬`;
+    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} ત્રિમાસિક કસોટી પરિણામ પત્રક`
+    : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
   const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
 
   return (
@@ -160,7 +160,11 @@ export function ExamResultViewer({
                         {sub.maximumMarks}
                       </td>
                       <td className="border-b border-r-2 border-slate-900 p-1 sm:p-2 font-semibold print:p-2">
-                        {sub.obtainedMarks ?? "-"}
+                        {sub.status === "ABSENT" ? (
+                          <span className="font-bold">AB</span>
+                        ) : (
+                          (sub.obtainedMarks ?? "-")
+                        )}
                       </td>
                       {!isEkam && (
                         <td className="border-b border-r-2 border-slate-900 p-1 sm:p-2 font-bold print:p-2">
@@ -246,7 +250,7 @@ export function ExamResultViewer({
                 <>
                   <p className="text-slate-900">
                     {settings?.ekamFooterLineOne ||
-                      "એકમ કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
+                      "ત્રિમાસિક કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
                   </p>
                   {settings?.ekamFooterLineTwo ? (
                     <p className="text-center text-xs mt-2 text-slate-700">
@@ -258,7 +262,7 @@ export function ExamResultViewer({
                 <>
                   <p className="text-slate-900">
                     {settings?.footerLineOne ||
-                      "ઉનાળું વેકેશન પૂરું થતાં તારીખ ૦૮/૦૬/૨૦૨૬ ને સોમવારના રોજ સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે."}
+                      "ઉનાળું વેકેશન પૂરું થતાં સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે."}
                   </p>
                   <p className="text-center text-xs mt-2 text-slate-700">
                     {settings?.footerLineTwo ||
