@@ -37,7 +37,7 @@ describe("HomePage", () => {
 
     expect(screen.getByText("અભ્યાસ સામગ્રી")).toBeVisible();
 
-    expect(screen.getByText("વાર્ષિક પરીક્ષા પરિણામ")).toBeVisible();
+    expect(screen.getByText("પરીક્ષા પરિણામ")).toBeVisible();
 
     expect(screen.getAllByText("ડાઉનલોડ")[0]).toBeVisible();
   });
