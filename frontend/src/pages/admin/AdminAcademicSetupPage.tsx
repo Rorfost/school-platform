@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, Pencil, Plus, Settings2, Trash2, Upload } from "lucide-react";
+import { Archive, Pencil, Plus, Settings2, Trash2, Upload, X } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type {
@@ -704,7 +704,7 @@ export function AdminAcademicSetupPage() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
             <p className="text-xs text-slate-600">
-              Save totals once for every new Exam and Ekam Kasoti upload.
+              Save totals once for every new Exam and Trimasik Kasoti upload.
             </p>
             <Button
               type="button"
@@ -727,7 +727,7 @@ export function AdminAcademicSetupPage() {
                 return (
                   <form
                     key={mapping.id}
-                    className="flex items-end gap-3"
+                    className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3"
                     onSubmit={(event) => {
                       event.preventDefault();
                       const value = Number(new FormData(event.currentTarget).get("maximumMarks"));
@@ -805,20 +805,32 @@ function Dialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label={title}
+      aria-labelledby="dialog-title"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
+        className="flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white p-6 shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 className="text-lg font-bold text-slate-900 shrink-0 border-b border-slate-100 pb-3">
-          {title}
-        </h2>
-        <div className="flex-1 overflow-y-auto min-h-0 pt-3 pr-1">{children}</div>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <h2 id="dialog-title" className="min-w-0 text-lg font-bold text-slate-900">
+            {title}
+          </h2>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+            aria-label="Close dialog"
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-1 pb-1 pt-3">{children}</div>
       </div>
     </div>
   );

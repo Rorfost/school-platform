@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CheckCircle2, UploadCloud } from "lucide-react";
+import { CheckCircle2, Trash2, UploadCloud } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useMutation } from "@tanstack/react-query";
 import { ApiError, apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +10,7 @@ import type { ResultSettingsTab } from "./AdminAssessmentsPage";
 
 const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
   ANNUAL: "Exam Result",
-  EKAM_KASOTI: "Ekam Kasoti Result",
+  EKAM_KASOTI: "Trimasik Kasoti Result",
 };
 
 export function AdminExamResultsTab({ resultType }: { resultType: ResultSettingsTab }) {
@@ -18,6 +19,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
   const [totalWorkingDays, setTotalWorkingDays] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const uploadMutation = useMutation({
     mutationFn: () => {
@@ -69,6 +71,28 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
     },
   });
 
+  const clearMutation = useMutation({
+    mutationFn: () =>
+      apiRequest<{ message: string }>(
+        `/api/v1/admin/exam-results?resultType=${encodeURIComponent(resultType)}`,
+        {
+          method: "DELETE",
+        },
+      ),
+
+    onSuccess: () => {
+      setSuccessMessage(`${RESULT_TYPE_LABELS[resultType]} cleared successfully.`);
+      setErrorMessage("");
+      setShowClearConfirm(false);
+    },
+
+    onError: () => {
+      setSuccessMessage("");
+      setErrorMessage(`Failed to clear ${RESULT_TYPE_LABELS[resultType]}. Please try again.`);
+      setShowClearConfirm(false);
+    },
+  });
+
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!file) return;
@@ -86,11 +110,13 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       <p className="mt-1 text-sm text-slate-600">
         {isAnnual
           ? "Exam Result workbooks start with G.R. No., Standard, Name, Birth Date, and Hajar Divas, then subject mark and grade pairs. There is no Sr.No. column."
-          : "Ekam Kasoti workbooks start with G.R. No., Standard, Name, and Birth Date, then subject mark and grade pairs. There is no Sr.No. column and no Hajar Divas column."}
+          : "Trimasik Kasoti workbooks start with G.R. No., Standard, Name, and Birth Date, then subject mark. There is no Sr.No. column and no Hajar Divas column."}
       </p>
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
         Before the first upload, set the Standard, its Subjects, and each Subject&apos;s maximum
         marks in Academic Setup. Those saved values are used to calculate the correct percentage.
+        Enter "AB" in excel if the student was absent for a subject. Leave the cell empty only if
+        that subject should be ignored.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
@@ -132,16 +158,41 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           </p>
         )}
 
-        <Button
-          type="submit"
-          className="gap-2"
-          disabled={!canSubmit}
-          loading={uploadMutation.isPending}
-          loadingText="Uploading result..."
-        >
-          <UploadCloud size={18} aria-hidden="true" /> Upload {RESULT_TYPE_LABELS[resultType]}
-        </Button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            type="submit"
+            className="gap-2"
+            disabled={!canSubmit || clearMutation.isPending}
+            loading={uploadMutation.isPending}
+            loadingText="Uploading result..."
+          >
+            <UploadCloud size={18} aria-hidden="true" />
+            Upload {RESULT_TYPE_LABELS[resultType]}
+          </Button>
+
+          <Button
+            type="button"
+            variant="danger"
+            className="gap-2"
+            disabled={uploadMutation.isPending}
+            onClick={() => setShowClearConfirm(true)}
+          >
+            <Trash2 size={18} aria-hidden="true" />
+            Clear {RESULT_TYPE_LABELS[resultType]}
+          </Button>
+        </div>
       </form>
+
+      <ConfirmModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={() => clearMutation.mutate()}
+        title={`Clear ${RESULT_TYPE_LABELS[resultType]}?`}
+        description={`This will permanently delete all uploaded ${RESULT_TYPE_LABELS[resultType]} data. Students will no longer be able to view these results. This action cannot be undone.`}
+        confirmText="Clear Results"
+        variant="danger"
+        isLoading={clearMutation.isPending}
+      />
     </Card>
   );
 }
