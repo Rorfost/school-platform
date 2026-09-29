@@ -230,7 +230,7 @@ export function ExamResultViewer({
                     crossOrigin="anonymous"
                   />
                 ) : (
-                    <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
+                  <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
                 )}
                 <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                   આચાર્યની સહી
@@ -242,9 +242,7 @@ export function ExamResultViewer({
             <div className="bg-cyan-50/70 p-2 sm:p-3 text-xs sm:text-sm font-medium space-y-2 border-t border-slate-300 print:p-3 print:text-sm">
               {isEkam ? (
                 <>
-                  <p className="text-slate-900">
-                    {settings?.ekamFooterLineOne}
-                  </p>
+                  <p className="text-slate-900">{settings?.ekamFooterLineOne}</p>
                   {settings?.ekamFooterLineTwo ? (
                     <p className="text-center text-xs mt-2 text-slate-700">
                       {settings.ekamFooterLineTwo}
@@ -253,9 +251,7 @@ export function ExamResultViewer({
                 </>
               ) : (
                 <>
-                  <p className="text-slate-900">
-                    {settings?.footerLineOne}
-                  </p>
+                  <p className="text-slate-900">{settings?.footerLineOne}</p>
                   <p className="text-center text-xs mt-2 text-slate-700">
                     {settings?.footerLineTwo}
                   </p>
