@@ -3,12 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Pencil, Plus, Settings2, Trash2, Upload, X } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type {
-  AcademicSetupResponse,
-  StandardResponse,
-  StandardSubjectResponse,
-  SubjectResponse,
-} from "@/api/types";
+import type { AcademicSetupResponse, StandardResponse, SubjectResponse } from "@/api/types";
 import { ContentSkeleton, EmptyState, ErrorState } from "@/components/common/StatusPanel";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -46,41 +41,11 @@ export function AdminAcademicSetupPage() {
   const [subjectTarget, setSubjectTarget] = useState<SubjectResponse | null>(null);
   const [standardDialog, setStandardDialog] = useState(false);
   const [classTeacherTarget, setClassTeacherTarget] = useState<StandardResponse | null>(null);
-  const [marksTarget, setMarksTarget] = useState<AcademicSetupResponse["standards"][number] | null>(
-    null,
-  );
+
   const [subjectDialog, setSubjectDialog] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSavingAllMarks, setIsSavingAllMarks] = useState(false);
 
-  const handleSaveAllMarks = async () => {
-    if (!marksQuery.data) return;
-    setIsSavingAllMarks(true);
-    setErrorMessage(null);
-    try {
-      for (const mapping of marksQuery.data) {
-        const inputEl = document.getElementById(`max-marks-${mapping.id}`) as HTMLInputElement;
-        const val = inputEl ? Number(inputEl.value) : mapping.maximumMarks || 100;
-        if (val > 0) {
-          await apiRequest(`/api/v1/admin/standard-subjects/${mapping.id}`, {
-            method: "PUT",
-            body: {
-              standardId: mapping.standardId,
-              subjectId: mapping.subjectId,
-              sortOrder: mapping.sortOrder,
-              maximumMarks: val,
-            },
-          });
-        }
-      }
-      await marksQuery.refetch();
-    } catch (error) {
-      setErrorMessage(academicError(error, "Failed to save maximum marks."));
-    } finally {
-      setIsSavingAllMarks(false);
-    }
-  };
   const setupQuery = useQuery<AcademicSetupResponse>({
     queryKey: queryKeys.adminAcademicSetup,
     queryFn: () => apiRequest("/api/v1/admin/academic-setup"),
@@ -224,30 +189,7 @@ export function AdminAcademicSetupPage() {
       ),
     onSuccess: updateStandardInSetup,
   });
-  const marksQuery = useQuery<StandardSubjectResponse[]>({
-    queryKey: ["standard-subject-maximums", marksTarget?.standard.id],
-    queryFn: () => apiRequest(`/api/v1/admin/standards/${marksTarget?.standard.id}/subjects`),
-    enabled: !!marksTarget,
-  });
-  const updateMaximum = useMutation({
-    mutationFn: ({
-      mapping,
-      maximumMarks,
-    }: {
-      mapping: StandardSubjectResponse;
-      maximumMarks: number;
-    }) =>
-      apiRequest<StandardSubjectResponse>(`/api/v1/admin/standard-subjects/${mapping.id}`, {
-        method: "PUT",
-        body: {
-          standardId: mapping.standardId,
-          subjectId: mapping.subjectId,
-          sortOrder: mapping.sortOrder,
-          maximumMarks,
-        },
-      }),
-    onSuccess: () => void marksQuery.refetch(),
-  });
+
   const deleteStandard = useMutation({
     mutationFn: (id: string) =>
       apiRequest<void>(`/api/v1/admin/standards/${id}`, { method: "DELETE" }),
@@ -435,9 +377,7 @@ export function AdminAcademicSetupPage() {
                   >
                     <Pencil size={13} aria-hidden="true" /> Class Teacher
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setMarksTarget(entry)}>
-                    <Settings2 size={13} aria-hidden="true" /> Maximum Marks
-                  </Button>
+
                   {entry.standard.classTeacherSignatureUrl && (
                     <div className="flex items-center gap-2 px-2 py-0.5 bg-slate-50 border border-slate-200 rounded-md">
                       <img
@@ -697,61 +637,7 @@ export function AdminAcademicSetupPage() {
           }
         />
       )}
-      {marksTarget && (
-        <Dialog
-          title={`Subject Maximum Marks: ${marksTarget.standard.displayName}`}
-          onClose={() => setMarksTarget(null)}
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-1">
-            <p className="text-xs text-slate-600">
-              Save totals once for every new Exam and Trimasik Kasoti upload.
-            </p>
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              loading={isSavingAllMarks}
-              onClick={handleSaveAllMarks}
-            >
-              {isSavingAllMarks ? "Saving All..." : "Save All Marks"}
-            </Button>
-          </div>
-          <div className="mt-4 space-y-3">
-            {marksQuery.isPending ? (
-              <p className="text-sm text-slate-500">Loading subject maximum marks...</p>
-            ) : (
-              marksQuery.data?.map((mapping) => {
-                const subject = marksTarget.subjects.find((item) => item.id === mapping.subjectId);
-                const isItemPending =
-                  updateMaximum.isPending && updateMaximum.variables?.mapping.id === mapping.id;
-                return (
-                  <form
-                    key={mapping.id}
-                    className="flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      const value = Number(new FormData(event.currentTarget).get("maximumMarks"));
-                      if (value > 0) updateMaximum.mutate({ mapping, maximumMarks: value });
-                    }}
-                  >
-                    <Input
-                      id={`max-marks-${mapping.id}`}
-                      label={`${subject?.name ?? "Subject"}${mapping.maximumMarksConfigured ? "" : " — total required"}`}
-                      name="maximumMarks"
-                      type="number"
-                      min="1"
-                      defaultValue={mapping.maximumMarks ?? 100}
-                    />
-                    <Button type="submit" size="sm" loading={isItemPending}>
-                      Save
-                    </Button>
-                  </form>
-                );
-              })
-            )}
-          </div>
-        </Dialog>
-      )}
+
       {subjectDialog && (
         <NameDialog
           title={subjectTarget ? "Edit Subject" : "Add Subject"}

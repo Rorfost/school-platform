@@ -26,9 +26,9 @@ export function ExamResultViewer({
   });
   const handlePrint = () => window.print();
   const isEkam = resultType === "EKAM_KASOTI";
-  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
+  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "વાર્ષિક પરીક્ષા";
   const sheetTitle = isEkam
-    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} ત્રિમાસિક કસોટી પરિણામ પત્રક`
+    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`
     : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
   const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
 
@@ -106,17 +106,11 @@ export function ExamResultViewer({
             </div>
 
             {!isEkam && (
-              <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-6 sm:col-span-6 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                    <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
-                    <span>{result.totalWorkingDays ?? "-"}</span>
-                  </div>
-                  <div className="col-span-6 sm:col-span-6 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                    <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
-                    <span>{result.attendedDays ?? "-"} છે.</span>
-                  </div>
-                </div>
+              <div className="border-b-2 border-slate-900 px-2 py-1.5 text-[11px] font-semibold tracking-tight whitespace-nowrap sm:px-3 sm:text-sm print:px-3 print:text-sm">
+                <span className="font-bold">
+                  કુલ કાર્ય દિવસ : {result.totalWorkingDays ?? "-"} માંથી હાજર દિવસ{" "}
+                  {result.attendedDays ?? "-"} છે.
+                </span>
               </div>
             )}
 

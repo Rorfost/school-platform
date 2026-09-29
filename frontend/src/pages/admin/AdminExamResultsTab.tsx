@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import type { ResultSettingsTab } from "./AdminAssessmentsPage";
 
 const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
-  ANNUAL: "Exam Result",
+  ANNUAL: "Annual Exam Result",
   EKAM_KASOTI: "Trimasik Kasoti Result",
 };
 
@@ -56,9 +56,9 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
         setErrorMessage(
           "Set up the Standard in Academic Setup first. Its name or number must match the Standard column in this workbook.",
         );
-      } else if (code === "result_subject_maximums_not_configured") {
+      } else if (code === "result_subject_not_configured") {
         setErrorMessage(
-          "Open Academic Setup, choose this Standard's Maximum Marks, and save a maximum for every selected Subject before uploading.",
+          "Assign the required Subjects to this Standard in Academic Setup before uploading.",
         );
       } else {
         setErrorMessage(
@@ -109,14 +109,14 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       </h2>
       <p className="mt-1 text-sm text-slate-600">
         {isAnnual
-          ? "Exam Result workbooks start with G.R. No., Standard, Name, Birth Date, and Hajar Divas, then subject mark and grade pairs. There is no Sr.No. column."
-          : "Trimasik Kasoti workbooks start with G.R. No., Standard, Name, and Birth Date, then subject mark. There is no Sr.No. column and no Hajar Divas column."}
+          ? "Annual Exam workbooks start with G.R. No., Standard, Name, Birth Date and Hajar Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
+          : "Trimasik Kasoti workbooks start with G.R. No., Standard, Name and Birth Date. Each subject then uses 2 columns: Maximum Marks and Obtained Marks. There is no Hajar Divas or Grade column."}
       </p>
+
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
-        Before the first upload, set the Standard, its Subjects, and each Subject&apos;s maximum
-        marks in Academic Setup. Those saved values are used to calculate the correct percentage.
-        Enter "AB" in excel if the student was absent for a subject. Leave the cell empty only if
-        that subject should be ignored.
+        Set the Standard and its Subjects in Academic Setup. Maximum marks are read directly from
+        the Excel workbook. Enter "AB" in the Obtained Marks cell if the student was absent. Leave
+        the Obtained Marks cell empty only when that subject should be ignored.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">

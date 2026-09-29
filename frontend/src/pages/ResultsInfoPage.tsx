@@ -11,7 +11,7 @@ import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function ResultsInfoPage() {
   const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
-  const resultTypeLabel = resultType === "ANNUAL" ? "પરીક્ષા" : "ત્રિમાસિક કસોટી";
+  const resultTypeLabel = resultType === "ANNUAL" ? "વાર્ષિક પરીક્ષા" : "ત્રિમાસિક કસોટી";
   const [standard, setStandard] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [result, setResult] = useState<ExamResultResponse | null>(null);
@@ -57,7 +57,7 @@ export function ResultsInfoPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="પરીક્ષા પરિણામ"
+        title="વાર્ષિક પરીક્ષા પરિણામ"
         description={`ધોરણ અને રોલ નંબર દ્વારા ${resultTypeLabel} પરિણામ જુઓ`}
       />
 
@@ -76,7 +76,7 @@ export function ResultsInfoPage() {
                     }
                     className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
                   >
-                    <option value="ANNUAL">પરીક્ષા પરિણામ</option>
+                    <option value="ANNUAL">વાર્ષિક પરીક્ષા પરિણામ</option>
                     <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
                   </select>
                 </label>
