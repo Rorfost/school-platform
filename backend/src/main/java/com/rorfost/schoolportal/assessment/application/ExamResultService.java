@@ -352,16 +352,13 @@ public class ExamResultService {
     return isSubjectAliasMatch(normHeader, normConfig);
   }
 
- private String normalizeSubjectString(String text) {
-  if (text == null) {
-    return "";
-  }
+  private String normalizeSubjectString(String text) {
+    if (text == null) {
+      return "";
+    }
 
-  return text
-      .toLowerCase()
-      .replaceAll("[^a-z0-9\\u0900-\\u097F\\u0A80-\\u0AFF]", "")
-      .trim();
-}
+    return text.toLowerCase().replaceAll("[^a-z0-9\\u0900-\\u097F\\u0A80-\\u0AFF]", "").trim();
+  }
 
   private boolean isSubjectAliasMatch(String a, String b) {
     List<List<String>> aliasGroups =
