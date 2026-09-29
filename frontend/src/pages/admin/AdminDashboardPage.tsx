@@ -1,14 +1,14 @@
 import {
   Activity,
-//   Award,
-//   Calendar,
-//   Camera,
+  //   Award,
+  //   Calendar,
+  //   Camera,
   FileText,
-//   FolderDown,
+  //   FolderDown,
   GraduationCap,
   Layers,
-//   Settings,
-//   UserCheck,
+  //   Settings,
+  //   UserCheck,
   RotateCcw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -43,56 +43,56 @@ export function AdminDashboardPage() {
     onSuccess: () => visitsQuery.refetch(),
   });
 
-//   const quickLinks = [
-//     {
-//       to: "/admin/school",
-//       label: "School Identity",
-//       icon: Settings,
-//       desc: "Name, address, contact, DISE code",
-//     },
-//     {
-//       to: "/admin/principal",
-//       label: "Principal Profile",
-//       icon: UserCheck,
-//       desc: "Biography, message, designation",
-//     },
-//     {
-//       to: "/admin/academics",
-//       label: "Academic Setup",
-//       icon: Calendar,
-//       desc: "Current year, standards, and subjects",
-//     },
-//     {
-//       to: "/admin/assessments",
-//       label: "Results & Marks",
-//       icon: Award,
-//       desc: "Annual and Ekam Kasoti result uploads",
-//     },
-//     {
-//       to: "/admin/materials",
-//       label: "Study Materials",
-//       icon: GraduationCap,
-//       desc: "Worksheets & PDF files",
-//     },
-//     {
-//       to: "/admin/notices",
-//       label: "Notices & Circulars",
-//       icon: FileText,
-//       desc: "School announcements",
-//     },
-//     {
-//       to: "/admin/gallery",
-//       label: "Photo Gallery",
-//       icon: Camera,
-//       desc: "Event albums & photos",
-//     },
-//     {
-//       to: "/admin/downloads",
-//       label: "Downloads",
-//       icon: FolderDown,
-//       desc: "Public forms & documents",
-//     },
-//   ];
+  //   const quickLinks = [
+  //     {
+  //       to: "/admin/school",
+  //       label: "School Identity",
+  //       icon: Settings,
+  //       desc: "Name, address, contact, DISE code",
+  //     },
+  //     {
+  //       to: "/admin/principal",
+  //       label: "Principal Profile",
+  //       icon: UserCheck,
+  //       desc: "Biography, message, designation",
+  //     },
+  //     {
+  //       to: "/admin/academics",
+  //       label: "Academic Setup",
+  //       icon: Calendar,
+  //       desc: "Current year, standards, and subjects",
+  //     },
+  //     {
+  //       to: "/admin/assessments",
+  //       label: "Results & Marks",
+  //       icon: Award,
+  //       desc: "Annual and Ekam Kasoti result uploads",
+  //     },
+  //     {
+  //       to: "/admin/materials",
+  //       label: "Study Materials",
+  //       icon: GraduationCap,
+  //       desc: "Worksheets & PDF files",
+  //     },
+  //     {
+  //       to: "/admin/notices",
+  //       label: "Notices & Circulars",
+  //       icon: FileText,
+  //       desc: "School announcements",
+  //     },
+  //     {
+  //       to: "/admin/gallery",
+  //       label: "Photo Gallery",
+  //       icon: Camera,
+  //       desc: "Event albums & photos",
+  //     },
+  //     {
+  //       to: "/admin/downloads",
+  //       label: "Downloads",
+  //       icon: FolderDown,
+  //       desc: "Public forms & documents",
+  //     },
+  //   ];
 
   return (
     <div className="space-y-8">
