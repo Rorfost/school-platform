@@ -8,4 +8,5 @@ public record ExamResultSubjectResponse(
     Integer maximumMarks,
     Integer obtainedMarks,
     String grade,
+    String status,
     Integer sortOrder) {}
