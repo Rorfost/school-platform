@@ -6,8 +6,11 @@ import { ResultsInfoPage } from "@/pages/ResultsInfoPage";
 
 function renderResultsInfoPage() {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+    defaultOptions: {
+      queries: { retry: false },
+    },
   });
+
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
@@ -18,19 +21,40 @@ function renderResultsInfoPage() {
 }
 
 describe("ResultsInfoPage", () => {
-  it("renders the exam result search form with standard and roll number inputs", () => {
+  it("renders the annual exam result search form", () => {
     renderResultsInfoPage();
 
-    expect(screen.getByRole("heading", { name: "પરીક્ષા પરિણામ" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "વાર્ષિક પરીક્ષા પરિણામ",
+      }),
+    ).toBeInTheDocument();
+
     expect(screen.getByLabelText("ધોરણ")).toBeInTheDocument();
     expect(screen.getByLabelText("રોલ નંબર")).toBeInTheDocument();
+
     expect(screen.getByRole("button", { name: /પરિણામ જુઓ/ })).toBeInTheDocument();
   });
 
   it("disables the search button when inputs are empty", () => {
     renderResultsInfoPage();
 
-    const submitButton = screen.getByRole("button", { name: /પરિણામ જુઓ/ });
-    expect(submitButton).toBeDisabled();
+    expect(screen.getByRole("button", { name: /પરિણામ જુઓ/ })).toBeDisabled();
+  });
+
+  it("offers annual and Trimasik result types", () => {
+    renderResultsInfoPage();
+
+    expect(
+      screen.getByRole("option", {
+        name: "વાર્ષિક પરીક્ષા પરિણામ",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("option", {
+        name: "ત્રિમાસિક કસોટી પરિણામ",
+      }),
+    ).toBeInTheDocument();
   });
 });

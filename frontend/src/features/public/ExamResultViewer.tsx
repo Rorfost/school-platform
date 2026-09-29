@@ -26,9 +26,9 @@ export function ExamResultViewer({
   });
   const handlePrint = () => window.print();
   const isEkam = resultType === "EKAM_KASOTI";
-  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
+  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "વાર્ષિક પરીક્ષા";
   const sheetTitle = isEkam
-    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} ત્રિમાસિક કસોટી પરિણામ પત્રક`
+    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`
     : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
   const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
 
@@ -106,17 +106,11 @@ export function ExamResultViewer({
             </div>
 
             {!isEkam && (
-              <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-6 sm:col-span-6 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                    <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
-                    <span>{result.totalWorkingDays ?? "-"}</span>
-                  </div>
-                  <div className="col-span-6 sm:col-span-6 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-6">
-                    <span className="font-bold shrink-0">માંથી હાજર દિવસ</span>
-                    <span>{result.attendedDays ?? "-"} છે.</span>
-                  </div>
-                </div>
+              <div className="border-b-2 border-slate-900 px-2 py-1.5 text-[11px] font-semibold tracking-tight whitespace-nowrap sm:px-3 sm:text-sm print:px-3 print:text-sm">
+                <span className="font-bold">
+                  કુલ કાર્ય દિવસ : {result.totalWorkingDays ?? "-"} માંથી હાજર દિવસ{" "}
+                  {result.attendedDays ?? "-"} છે.
+                </span>
               </div>
             )}
 
@@ -231,12 +225,12 @@ export function ExamResultViewer({
                 {settings?.principalSignatureUrl ? (
                   <img
                     src={settings.principalSignatureUrl}
-                    alt="Principal signature"
-                    className="h-9 sm:h-12 max-w-28 sm:max-w-40 object-contain print:h-12 print:max-w-40"
+                    alt="Principal seal and signature"
+                    className="h-20 max-w-44 object-contain sm:h-24 sm:max-w-56 print:h-24 print:max-w-56"
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <div className="h-9 sm:h-12 print:h-12" aria-hidden="true" />
+                  <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
                 )}
                 <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                   આચાર્યની સહી
@@ -248,10 +242,7 @@ export function ExamResultViewer({
             <div className="bg-cyan-50/70 p-2 sm:p-3 text-xs sm:text-sm font-medium space-y-2 border-t border-slate-300 print:p-3 print:text-sm">
               {isEkam ? (
                 <>
-                  <p className="text-slate-900">
-                    {settings?.ekamFooterLineOne ||
-                      "ત્રિમાસિક કસોટી પરિણામ પત્રકની ચકાસણી કરી વાલીશ્રીએ સહી કરીને શાળામાં પરત મોકલવાનું રહેશે."}
-                  </p>
+                  <p className="text-slate-900">{settings?.ekamFooterLineOne}</p>
                   {settings?.ekamFooterLineTwo ? (
                     <p className="text-center text-xs mt-2 text-slate-700">
                       {settings.ekamFooterLineTwo}
@@ -260,13 +251,9 @@ export function ExamResultViewer({
                 </>
               ) : (
                 <>
-                  <p className="text-slate-900">
-                    {settings?.footerLineOne ||
-                      "ઉનાળું વેકેશન પૂરું થતાં સવારે ૬ : ૫૦ કલાક થી શાળા રાબેતા મુજબ શરુ થશે."}
-                  </p>
+                  <p className="text-slate-900">{settings?.footerLineOne}</p>
                   <p className="text-center text-xs mt-2 text-slate-700">
-                    {settings?.footerLineTwo ||
-                      "80 કે તેથી વધુ A ગ્રેડ, 65 કે તેથી વધુ B ગ્રેડ, 50 કે તેથી વધુ C ગ્રેડ, 35 કે તેથી વધુ D ગ્રેડ, 35 થી ઓછા E ગ્રેડ."}
+                    {settings?.footerLineTwo}
                   </p>
                 </>
               )}

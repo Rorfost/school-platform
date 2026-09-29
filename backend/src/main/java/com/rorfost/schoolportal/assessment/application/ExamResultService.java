@@ -72,9 +72,9 @@ public class ExamResultService {
    *
    * <ul>
    *   <li>ANNUAL: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, 4 = Hajar Divas (attended
-   *       days), subjects from col 5 onward in pairs (marks + grade).
+   *       days), subjects from col 5 onward in pairs (max marks + obt marks + grade).
    *   <li>EKAM_KASOTI: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, subjects from col 4
-   *       onward in pairs (marks + grade). No Hajar Divas column.
+   *       onward in pairs (max marks + obt marks). No Hajar Divas column.
    * </ul>
    *
    * totalWorkingDays is only meaningful for ANNUAL; it is ignored (and not validated) for
@@ -134,7 +134,7 @@ public class ExamResultService {
       int colAttended = isEkam ? -1 : 4;
       int colSubjectsStart = isEkam ? 4 : 5;
 
-      int subjectColumnStep = isEkam ? 1 : 2;
+      int subjectColumnStep = isEkam ? 2 : 3;
 
       for (int index = 1; index <= sheet.getLastRowNum(); index++) {
         Row row = sheet.getRow(index);
@@ -186,42 +186,98 @@ public class ExamResultService {
       int subjectsStartCol,
       int subjectColumnStep,
       boolean hasGrades) {
+
     Map<Integer, Integer> subjectIndexToColumn =
         resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
-      int marksColumn =
+
+      int subjectStartColumn =
           subjectIndexToColumn.getOrDefault(index, subjectsStartCol + index * subjectColumnStep);
-      String marks = cellText(row.getCell(marksColumn));
-      if (marks.isBlank()) {
+
+      int maximumMarksColumn = subjectStartColumn;
+      int obtainedMarksColumn = subjectStartColumn + 1;
+      int gradeColumn = subjectStartColumn + 2;
+
+      String obtainedValue = cellText(row.getCell(obtainedMarksColumn));
+
+      // Same behaviour as before:
+      // blank obtained marks = ignore this subject for this student.
+      if (obtainedValue.isBlank()) {
         continue;
       }
 
-      boolean absent = isAbsentValue(marks);
+      int maximumMarks = requiredPositiveInteger(row.getCell(maximumMarksColumn));
+
+      boolean absent = isAbsentValue(obtainedValue);
 
       AnnualExamResultSubject subject = new AnnualExamResultSubject();
+
       subject.setId(UUID.randomUUID());
       subject.setSubjectName(configuredSubjects.get(index).name());
-      subject.setMaximumMarks(configuredSubjects.get(index).maximumMarks());
+
+      // NOW FROM EXCEL
+      subject.setMaximumMarks(maximumMarks);
+
       if (absent) {
         subject.setStatus("ABSENT");
         subject.setObtainedMarks(null);
         subject.setGrade(null);
       } else {
-        subject.setStatus("PRESENT");
-        subject.setObtainedMarks(optionalInteger(row.getCell(marksColumn)));
+        int obtainedMarks = requiredNonNegativeInteger(row.getCell(obtainedMarksColumn));
 
-        subject.setGrade(hasGrades ? cellText(row.getCell(marksColumn + 1)) : null);
+        if (obtainedMarks > maximumMarks) {
+          throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
+        }
+
+        subject.setStatus("PRESENT");
+        subject.setObtainedMarks(obtainedMarks);
+
+        subject.setGrade(hasGrades ? cellText(row.getCell(gradeColumn)) : null);
       }
+
       subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
+
+    // Detect data for subjects which are not configured.
     for (int index = configuredSubjects.size(); index < 9; index++) {
-      int unconfiguredColumn = subjectsStartCol + index * subjectColumnStep;
-      if (!cellText(row.getCell(unconfiguredColumn)).isBlank()) {
-        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+
+      int start = subjectsStartCol + index * subjectColumnStep;
+
+      boolean hasUnexpectedData = false;
+
+      for (int offset = 0; offset < subjectColumnStep; offset++) {
+        if (!cellText(row.getCell(start + offset)).isBlank()) {
+          hasUnexpectedData = true;
+          break;
+        }
+      }
+
+      if (hasUnexpectedData) {
+        throw new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured");
       }
     }
+  }
+
+  private int requiredPositiveInteger(Cell cell) {
+    Integer value = optionalInteger(cell);
+
+    if (value == null || value <= 0) {
+      throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
+    }
+
+    return value;
+  }
+
+  private int requiredNonNegativeInteger(Cell cell) {
+    Integer value = optionalInteger(cell);
+
+    if (value == null || value < 0) {
+      throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
+    }
+
+    return value;
   }
 
   private boolean isAbsentValue(String value) {
@@ -293,8 +349,8 @@ public class ExamResultService {
             List.of("english", "eng", "અંગ્રેજી"),
             List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
             List.of("sanskrit", "san", "સંસ્કૃત"),
-            List.of("personalitydevelopment", "pd", "personality", "વ્યક્તિત્વવિકાસ"),
-            List.of("environment", "environmentalstudies", "env", "પર્યાવરણ"));
+            List.of("personalitydevelopment", "pd", "personality", "vv", "વ્યક્તિત્વવિકાસ"),
+            List.of("environment", "environmentalstudies", "env", "evs", "પર્યાવરણ"));
 
     for (List<String> group : aliasGroups) {
       if (group.contains(a) && group.contains(b)) {
@@ -319,27 +375,25 @@ public class ExamResultService {
             .map(this::configuredSubject)
             .toList();
     if (configured.isEmpty()) {
-      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
+      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_not_configured");
     }
     return configured;
   }
 
   private ConfiguredSubject configuredSubject(StandardSubject mapping) {
-    if (!mapping.isMaximumMarksConfigured()) {
-      throw new DomainException(HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured");
-    }
+
     String name =
         subjects
             .findByIdAndSchoolId(mapping.getSubjectId(), mapping.getSchoolId())
             .map(value -> value.getName())
             .orElseThrow(
                 () ->
-                    new DomainException(
-                        HttpStatus.BAD_REQUEST, "result_subject_maximums_not_configured"));
-    return new ConfiguredSubject(name, mapping.getMaximumMarks());
+                    new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured"));
+
+    return new ConfiguredSubject(name);
   }
 
-  private record ConfiguredSubject(String name, int maximumMarks) {}
+  private record ConfiguredSubject(String name) {}
 
   private boolean matchesStandard(Standard standard, String uploadedValue) {
     if (uploadedValue == null || uploadedValue.isBlank()) {

@@ -27,7 +27,7 @@ export const LABELS = {
   about: "શાળા વિશે",
   studentCorner: "વિદ્યાર્થી વિભાગ",
   materials: "અભ્યાસ સામગ્રી",
-  results: "પરીક્ષા પરિણામ",
+  results: "વાર્ષિક પરીક્ષા પરિણામ",
   tools: "શાળા ઉપયોગી સાધનો",
   downloads: "ડાઉનલોડ",
   notices: "સૂચનાઓ",

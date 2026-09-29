@@ -71,8 +71,12 @@ class ExamResultServiceTest {
   }
 
   @Test
-  void trimasikUpload_shouldReadSubjectsWithoutGradeColumns() throws Exception {
-    MockMultipartFile file = createTrimasikExcel("20", "18", "22");
+  void trimasikUpload_shouldReadMaximumAndObtainedMarksFromExcel() throws Exception {
+    MockMultipartFile file =
+        createTrimasikExcelWithMax(
+            "30", "20",
+            "40", "18",
+            "50", "22");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
 
@@ -80,11 +84,13 @@ class ExamResultServiceTest {
 
     assertEquals(3, result.getSubjects().size());
 
-    assertSubject(result.getSubjects().get(0), "Gujarati", 20, 25, "PRESENT");
+    assertSubject(result.getSubjects().get(0), "Gujarati", 20, 30, "PRESENT");
+    assertSubject(result.getSubjects().get(1), "Mathematics", 18, 40, "PRESENT");
+    assertSubject(result.getSubjects().get(2), "English", 22, 50, "PRESENT");
 
-    assertSubject(result.getSubjects().get(1), "Mathematics", 18, 25, "PRESENT");
-
-    assertSubject(result.getSubjects().get(2), "English", 22, 25, "PRESENT");
+    assertEquals(120, result.getTotalMarks());
+    assertEquals(60, result.getObtainedMarks());
+    assertEquals(50.0, result.getPercentage().doubleValue(), 0.01);
   }
 
   @Test
@@ -95,15 +101,12 @@ class ExamResultServiceTest {
 
     AnnualExamResult result = getSavedResult();
 
-    AnnualExamResultSubject gujarati = result.getSubjects().get(0);
+    AnnualExamResultSubject gujarati = findSubject(result, "Gujarati");
 
     assertEquals(0, gujarati.getObtainedMarks());
     assertEquals("PRESENT", gujarati.getStatus());
 
-    // 0 + 18 + 22
     assertEquals(40, result.getObtainedMarks());
-
-    // 25 + 25 + 25
     assertEquals(75, result.getTotalMarks());
   }
 
@@ -120,6 +123,10 @@ class ExamResultServiceTest {
     assertEquals("ABSENT", maths.getStatus());
     assertNull(maths.getObtainedMarks());
     assertNull(maths.getGrade());
+
+    // Absent subject maximum marks must still be counted.
+    assertEquals(75, result.getTotalMarks());
+    assertEquals(42, result.getObtainedMarks());
   }
 
   @Test
@@ -130,27 +137,21 @@ class ExamResultServiceTest {
 
     AnnualExamResult result = getSavedResult();
 
-    // Gujarati 25 + Maths 25 + English 25
     assertEquals(75, result.getTotalMarks());
-
-    // Maths is absent, so obtained marks are:
-    // 20 + 0 + 15
     assertEquals(35, result.getObtainedMarks());
 
     assertNotNull(result.getPercentage());
-
     assertEquals(46.67, result.getPercentage().doubleValue(), 0.01);
   }
 
   @Test
-  void blankSubjectCell_shouldIgnoreSubject() throws Exception {
+  void blankObtainedMarks_shouldIgnoreSubject() throws Exception {
     MockMultipartFile file = createTrimasikExcel("20", "", "15");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
 
     AnnualExamResult result = getSavedResult();
 
-    // Mathematics should not be added at all.
     assertEquals(2, result.getSubjects().size());
 
     assertNotNull(findSubject(result, "Gujarati"));
@@ -160,18 +161,15 @@ class ExamResultServiceTest {
         result.getSubjects().stream()
             .noneMatch(subject -> subject.getSubjectName().equals("Mathematics")));
 
-    // Blank = ignored, therefore Maths /25 is not
-    // included in total maximum marks.
+    // Blank obtained marks means Maths is completely ignored.
     assertEquals(50, result.getTotalMarks());
     assertEquals(35, result.getObtainedMarks());
-
     assertEquals(70.0, result.getPercentage().doubleValue(), 0.01);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"AB", "ab", "Abs", "ABS", "Absent", "ABSENT", "ગેરહાજર"})
   void differentAbsentValues_shouldBeAccepted(String absentValue) throws Exception {
-
     MockMultipartFile file = createTrimasikExcel("20", absentValue, "15");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
@@ -182,11 +180,72 @@ class ExamResultServiceTest {
 
     assertEquals("ABSENT", maths.getStatus());
     assertNull(maths.getObtainedMarks());
+    assertNull(maths.getGrade());
   }
 
   @Test
-  void invalidMarksText_shouldRejectWorkbook() throws Exception {
+  void invalidObtainedMarks_shouldRejectWorkbook() throws Exception {
     MockMultipartFile file = createTrimasikExcel("20", "HELLO", "15");
+
+    assertThrows(
+        DomainException.class,
+        () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+
+    verify(resultRepository, never()).saveAll(any());
+  }
+
+  @Test
+  void missingMaximumMarks_shouldRejectWorkbook() throws Exception {
+    MockMultipartFile file =
+        createTrimasikExcelWithMax(
+            "25", "20",
+            "", "18",
+            "25", "15");
+
+    assertThrows(
+        DomainException.class,
+        () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+
+    verify(resultRepository, never()).saveAll(any());
+  }
+
+  @Test
+  void zeroMaximumMarks_shouldRejectWorkbook() throws Exception {
+    MockMultipartFile file =
+        createTrimasikExcelWithMax(
+            "25", "20",
+            "0", "18",
+            "25", "15");
+
+    assertThrows(
+        DomainException.class,
+        () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+
+    verify(resultRepository, never()).saveAll(any());
+  }
+
+  @Test
+  void negativeMaximumMarks_shouldRejectWorkbook() throws Exception {
+    MockMultipartFile file =
+        createTrimasikExcelWithMax(
+            "25", "20",
+            "-25", "18",
+            "25", "15");
+
+    assertThrows(
+        DomainException.class,
+        () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+
+    verify(resultRepository, never()).saveAll(any());
+  }
+
+  @Test
+  void obtainedMarksGreaterThanMaximum_shouldRejectWorkbook() throws Exception {
+    MockMultipartFile file =
+        createTrimasikExcelWithMax(
+            "25", "20",
+            "25", "30",
+            "25", "15");
 
     assertThrows(
         DomainException.class,
@@ -204,14 +263,57 @@ class ExamResultServiceTest {
     AnnualExamResult result = getSavedResult();
 
     for (AnnualExamResultSubject subject : result.getSubjects()) {
-
       assertNull(subject.getGrade());
     }
   }
 
   @Test
-  void uploadingNewTrimasikResult_shouldDeleteOldTrimasikResults() throws Exception {
+  void annualUpload_shouldReadMaximumObtainedAndGradeColumns() throws Exception {
+    MockMultipartFile file = createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
+    service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
+
+    AnnualExamResult result = getSavedResult();
+
+    assertEquals(3, result.getSubjects().size());
+
+    assertSubject(result.getSubjects().get(0), "Gujarati", 20, 25, "PRESENT");
+    assertSubject(result.getSubjects().get(1), "Mathematics", 40, 50, "PRESENT");
+    assertSubject(result.getSubjects().get(2), "English", 18, 25, "PRESENT");
+
+    assertEquals("A", findSubject(result, "Gujarati").getGrade());
+    assertEquals("B", findSubject(result, "Mathematics").getGrade());
+    assertEquals("C", findSubject(result, "English").getGrade());
+
+    assertEquals(100, result.getTotalMarks());
+    assertEquals(78, result.getObtainedMarks());
+
+    assertEquals(250, result.getTotalWorkingDays());
+    assertEquals(233, result.getAttendedDays());
+  }
+
+  @Test
+  void annualUpload_shouldIgnoreGradeWhenStudentIsAbsent() throws Exception {
+    MockMultipartFile file = createAnnualExcel("25", "20", "A", "25", "AB", "A", "25", "15", "B");
+
+    service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
+
+    AnnualExamResult result = getSavedResult();
+
+    AnnualExamResultSubject maths = findSubject(result, "Mathematics");
+
+    assertEquals("ABSENT", maths.getStatus());
+    assertNull(maths.getObtainedMarks());
+
+    // Grade from Excel must not be stored for an absent subject.
+    assertNull(maths.getGrade());
+
+    assertEquals(75, result.getTotalMarks());
+    assertEquals(35, result.getObtainedMarks());
+  }
+
+  @Test
+  void uploadingNewTrimasikResult_shouldDeleteOldTrimasikResults() throws Exception {
     MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
@@ -222,11 +324,10 @@ class ExamResultServiceTest {
   }
 
   // -------------------------------------------------------
-  // Helpers
+  // Academic setup mocks
   // -------------------------------------------------------
 
   private void mockAcademicSetup() {
-
     School school = mock(School.class);
 
     when(school.getId()).thenReturn(schoolId);
@@ -249,11 +350,9 @@ class ExamResultServiceTest {
     UUID mathsId = UUID.randomUUID();
     UUID englishId = UUID.randomUUID();
 
-    StandardSubject gujaratiMapping = createSubjectMapping(gujaratiId, 25);
-
-    StandardSubject mathsMapping = createSubjectMapping(mathsId, 25);
-
-    StandardSubject englishMapping = createSubjectMapping(englishId, 25);
+    StandardSubject gujaratiMapping = createSubjectMapping(gujaratiId);
+    StandardSubject mathsMapping = createSubjectMapping(mathsId);
+    StandardSubject englishMapping = createSubjectMapping(englishId);
 
     when(standardSubjectRepository.findBySchoolIdAndStandardIdOrderBySortOrder(
             schoolId, standardId))
@@ -264,16 +363,11 @@ class ExamResultServiceTest {
     mockSubject(englishId, "English");
   }
 
-  private StandardSubject createSubjectMapping(UUID subjectId, int maximumMarks) {
+  private StandardSubject createSubjectMapping(UUID subjectId) {
     StandardSubject mapping = mock(StandardSubject.class);
 
     when(mapping.getSchoolId()).thenReturn(schoolId);
-
     when(mapping.getSubjectId()).thenReturn(subjectId);
-
-    when(mapping.isMaximumMarksConfigured()).thenReturn(true);
-
-    when(mapping.getMaximumMarks()).thenReturn(maximumMarks);
 
     return mapping;
   }
@@ -286,7 +380,25 @@ class ExamResultServiceTest {
     when(subjectRepository.findByIdAndSchoolId(id, schoolId)).thenReturn(Optional.of(subject));
   }
 
-  private MockMultipartFile createTrimasikExcel(String gujarati, String mathematics, String english)
+  // -------------------------------------------------------
+  // Trimasik Excel
+  // -------------------------------------------------------
+
+  private MockMultipartFile createTrimasikExcel(
+      String gujaratiObtained, String mathematicsObtained, String englishObtained)
+      throws Exception {
+
+    return createTrimasikExcelWithMax(
+        "25", gujaratiObtained, "25", mathematicsObtained, "25", englishObtained);
+  }
+
+  private MockMultipartFile createTrimasikExcelWithMax(
+      String gujaratiMax,
+      String gujaratiObtained,
+      String mathematicsMax,
+      String mathematicsObtained,
+      String englishMax,
+      String englishObtained)
       throws Exception {
 
     try (XSSFWorkbook workbook = new XSSFWorkbook();
@@ -295,27 +407,34 @@ class ExamResultServiceTest {
       Sheet sheet = workbook.createSheet("Results");
 
       /*
-       * New Trimasik format:
+       * Trimasik format:
        *
        * 0 = GR No.
        * 1 = Standard
        * 2 = Name
        * 3 = Birth Date
-       * 4 = Gujarati
-       * 5 = Mathematics
-       * 6 = English
        *
-       * NO grade columns.
+       * Subject groups:
+       * Gujarati    = Max + Obtained
+       * Mathematics = Max + Obtained
+       * English     = Max + Obtained
        */
+
       Row header = sheet.createRow(0);
 
       header.createCell(0).setCellValue("GR No.");
       header.createCell(1).setCellValue("Standard");
       header.createCell(2).setCellValue("Name");
       header.createCell(3).setCellValue("Birth Date");
+
       header.createCell(4).setCellValue("Gujarati");
-      header.createCell(5).setCellValue("Mathematics");
-      header.createCell(6).setCellValue("English");
+      header.createCell(5).setCellValue("Obtained");
+
+      header.createCell(6).setCellValue("Mathematics");
+      header.createCell(7).setCellValue("Obtained");
+
+      header.createCell(8).setCellValue("English");
+      header.createCell(9).setCellValue("Obtained");
 
       Row student = sheet.createRow(1);
 
@@ -324,9 +443,14 @@ class ExamResultServiceTest {
       student.createCell(2).setCellValue("Test Student");
       student.createCell(3).setCellValue("01/01/2018");
 
-      student.createCell(4).setCellValue(gujarati);
-      student.createCell(5).setCellValue(mathematics);
-      student.createCell(6).setCellValue(english);
+      student.createCell(4).setCellValue(gujaratiMax);
+      student.createCell(5).setCellValue(gujaratiObtained);
+
+      student.createCell(6).setCellValue(mathematicsMax);
+      student.createCell(7).setCellValue(mathematicsObtained);
+
+      student.createCell(8).setCellValue(englishMax);
+      student.createCell(9).setCellValue(englishObtained);
 
       workbook.write(output);
 
@@ -338,9 +462,98 @@ class ExamResultServiceTest {
     }
   }
 
+  // -------------------------------------------------------
+  // Annual Excel
+  // -------------------------------------------------------
+
+  private MockMultipartFile createAnnualExcel(
+      String gujaratiMax,
+      String gujaratiObtained,
+      String gujaratiGrade,
+      String mathematicsMax,
+      String mathematicsObtained,
+      String mathematicsGrade,
+      String englishMax,
+      String englishObtained,
+      String englishGrade)
+      throws Exception {
+
+    try (XSSFWorkbook workbook = new XSSFWorkbook();
+        ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+      Sheet sheet = workbook.createSheet("Results");
+
+      /*
+       * Annual format:
+       *
+       * 0 = GR No.
+       * 1 = Standard
+       * 2 = Name
+       * 3 = Birth Date
+       * 4 = Hajar Divas
+       *
+       * Subject groups:
+       * Gujarati    = Max + Obtained + Grade
+       * Mathematics = Max + Obtained + Grade
+       * English     = Max + Obtained + Grade
+       */
+
+      Row header = sheet.createRow(0);
+
+      header.createCell(0).setCellValue("GR No.");
+      header.createCell(1).setCellValue("Standard");
+      header.createCell(2).setCellValue("Name");
+      header.createCell(3).setCellValue("Birth Date");
+      header.createCell(4).setCellValue("Hajar Divas");
+
+      header.createCell(5).setCellValue("Gujarati");
+      header.createCell(6).setCellValue("Obtained");
+      header.createCell(7).setCellValue("Grade");
+
+      header.createCell(8).setCellValue("Mathematics");
+      header.createCell(9).setCellValue("Obtained");
+      header.createCell(10).setCellValue("Grade");
+
+      header.createCell(11).setCellValue("English");
+      header.createCell(12).setCellValue("Obtained");
+      header.createCell(13).setCellValue("Grade");
+
+      Row student = sheet.createRow(1);
+
+      student.createCell(0).setCellValue("101");
+      student.createCell(1).setCellValue("3");
+      student.createCell(2).setCellValue("Test Student");
+      student.createCell(3).setCellValue("01/01/2018");
+      student.createCell(4).setCellValue("233");
+
+      student.createCell(5).setCellValue(gujaratiMax);
+      student.createCell(6).setCellValue(gujaratiObtained);
+      student.createCell(7).setCellValue(gujaratiGrade);
+
+      student.createCell(8).setCellValue(mathematicsMax);
+      student.createCell(9).setCellValue(mathematicsObtained);
+      student.createCell(10).setCellValue(mathematicsGrade);
+
+      student.createCell(11).setCellValue(englishMax);
+      student.createCell(12).setCellValue(englishObtained);
+      student.createCell(13).setCellValue(englishGrade);
+
+      workbook.write(output);
+
+      return new MockMultipartFile(
+          "file",
+          "annual-result.xlsx",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          output.toByteArray());
+    }
+  }
+
+  // -------------------------------------------------------
+  // Assertions
+  // -------------------------------------------------------
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   private AnnualExamResult getSavedResult() {
-
     ArgumentCaptor<Iterable> captor = ArgumentCaptor.forClass(Iterable.class);
 
     verify(resultRepository).saveAll(captor.capture());
@@ -357,6 +570,7 @@ class ExamResultServiceTest {
   }
 
   private AnnualExamResultSubject findSubject(AnnualExamResult result, String subjectName) {
+
     return result.getSubjects().stream()
         .filter(subject -> subject.getSubjectName().equals(subjectName))
         .findFirst()
@@ -369,12 +583,10 @@ class ExamResultServiceTest {
       Integer expectedMarks,
       int expectedMaximumMarks,
       String expectedStatus) {
+
     assertEquals(expectedName, subject.getSubjectName());
-
     assertEquals(expectedMarks, subject.getObtainedMarks());
-
     assertEquals(expectedMaximumMarks, subject.getMaximumMarks());
-
     assertEquals(expectedStatus, subject.getStatus());
   }
 }
