@@ -72,7 +72,7 @@ class ContentController {
   MaterialResponse material(
       @AuthenticationPrincipal PrincipalSession p,
       @RequestParam String title,
-      @RequestParam String materialType,
+      @RequestParam(defaultValue = "DOCUMENT") String materialType,
       @RequestParam MultipartFile file,
       @RequestParam(required = false) UUID academicYearId,
       @RequestParam(required = false) UUID standardSubjectId,

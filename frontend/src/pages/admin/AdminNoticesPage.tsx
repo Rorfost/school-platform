@@ -28,11 +28,35 @@ export function AdminNoticesPage() {
   const notices = data?.items ?? [];
 
   const createMutation = useMutation({
-    mutationFn: (payload: NoticeRequest) =>
-      apiRequest<NoticeResponse>("/api/v1/admin/notices", {
+    mutationFn: async ({
+      payload,
+      attachment,
+    }: {
+      payload: NoticeRequest;
+      attachment: File | null;
+    }) => {
+      const notice = await apiRequest<NoticeResponse>("/api/v1/admin/notices", {
         method: "POST",
         body: payload,
-      }),
+      });
+
+      if (!attachment) return notice;
+
+      const attachmentData = new FormData();
+      attachmentData.append("file", attachment);
+      try {
+        return await apiRequest<NoticeResponse>(`/api/v1/admin/notices/${notice.id}/attachment`, {
+          method: "POST",
+          body: attachmentData,
+        });
+      } catch (error) {
+        // Keep create + optional attachment behaving like one action for the admin.
+        await apiRequest<void>(`/api/v1/admin/notices/${notice.id}`, { method: "DELETE" }).catch(
+          () => undefined,
+        );
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
       setIsCreateOpen(false);
@@ -95,9 +119,13 @@ export function AdminNoticesPage() {
     const title = String(formData.get("title") || "");
     const body = String(formData.get("body") || "");
     const pinned = formData.get("pinned") === "on";
-    const expiresAt = formData.get("expiresAt") ? `${formData.get("expiresAt")}T23:59:59Z` : null;
+    const fileEntry = formData.get("file");
+    const attachment = fileEntry instanceof File && fileEntry.size > 0 ? fileEntry : null;
 
-    createMutation.mutate({ title, body, pinned, expiresAt });
+    createMutation.mutate({
+      payload: { title, body, pinned, expiresAt: null },
+      attachment,
+    });
   };
 
   const handleAttachSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -254,7 +282,16 @@ export function AdminNoticesPage() {
                   placeholder="Notice announcement content..."
                 />
               </div>
-              <Input label="Expiration Date (Optional)" name="expiresAt" type="date" />
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Attachment (Optional)
+                </label>
+                <input
+                  type="file"
+                  name="file"
+                  className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-900 file:font-semibold hover:file:bg-blue-100"
+                />
+              </div>
               <label className="flex items-center gap-2 text-sm text-slate-700 font-medium">
                 <input
                   type="checkbox"

@@ -26,7 +26,7 @@ describe("ResultsInfoPage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "વાર્ષિક પરીક્ષા પરિણામ",
+        name: "પરીક્ષા પરિણામ",
       }),
     ).toBeInTheDocument();
 
@@ -47,7 +47,7 @@ describe("ResultsInfoPage", () => {
 
     expect(
       screen.getByRole("option", {
-        name: "વાર્ષિક પરીક્ષા પરિણામ",
+        name: "પરીક્ષા પરિણામ",
       }),
     ).toBeInTheDocument();
 

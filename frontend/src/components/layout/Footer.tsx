@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Eye, Lock, Mail, MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import schoolLogo from "@/assets/school-logo.jpeg";
+// import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { apiRequest } from "@/api/client";
 import type { VisitResponse } from "@/api/types";
-import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
+// import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function Footer() {
   const school = useEffectiveSchoolInfo();

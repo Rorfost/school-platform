@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Download, FileDown, FolderOpen } from "lucide-react";
+import { Download, FileDown, FolderOpen, Search } from "lucide-react";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { DownloadResponse, PageResponse } from "@/api/types";
@@ -14,10 +14,12 @@ import {
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 import { LABELS } from "@/utils/gujarati";
 
 export function DownloadsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.downloads({ page: 0, size: 50 }),
@@ -31,10 +33,10 @@ export function DownloadsPage() {
     new Set(downloads.map((d) => d.category).filter(Boolean) as string[]),
   );
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredDownloads = downloads.filter((item) => {
-    if (selectedCategory !== "ALL" && item.category !== selectedCategory) {
-      return false;
-    }
+    if (!item.title.toLowerCase().includes(normalizedSearch)) return false;
+    if (selectedCategory !== "ALL" && item.category !== selectedCategory) return false;
     return true;
   });
 
@@ -46,6 +48,16 @@ export function DownloadsPage() {
         backTo="/student"
         backLabel={LABELS.studentCorner}
       />
+
+      <div className="max-w-md">
+        <Input
+          type="search"
+          placeholder="શીર્ષક દ્વારા ડાઉનલોડ શોધો..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          leftIcon={<Search size={18} aria-hidden="true" />}
+        />
+      </div>
 
       {/* Category Pills Filter */}
       {categories.length > 0 && (
@@ -85,9 +97,11 @@ export function DownloadsPage() {
           icon={FolderOpen}
           title="હાલ કોઈ ડાઉનલોડ ફાઈલ ઉપલબ્ધ નથી."
           description={
-            selectedCategory !== "ALL"
-              ? "પસંદ કરેલ કેટેગરીમાં ફાઈલો ઉપલબ્ધ નથી."
-              : "જરૂરી ફોર્મ્સ અને પત્રકો ટૂંક સમયમાં અહીં ઉપલબ્ધ કરવામાં આવશે."
+            searchTerm
+              ? "શોધેલા શીર્ષક મુજબ કોઈ ફાઈલ મળી નથી."
+              : selectedCategory !== "ALL"
+                ? "પસંદ કરેલ કેટેગરીમાં ફાઈલો ઉપલબ્ધ નથી."
+                : "જરૂરી ફોર્મ્સ અને પત્રકો ટૂંક સમયમાં અહીં ઉપલબ્ધ કરવામાં આવશે."
           }
         />
       ) : (

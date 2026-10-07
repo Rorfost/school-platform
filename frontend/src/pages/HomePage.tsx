@@ -5,8 +5,8 @@ import {
   Download,
   FileText,
   GraduationCap,
-  Mail,
-  MapPin,
+  //   Mail,
+  //   MapPin,
   Newspaper,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,13 +14,13 @@ import { usePublicNotices } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ContentSkeleton, ErrorState, LoadingState } from "@/components/common/StatusPanel";
-import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+// import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS } from "@/utils/gujarati";
 
 import { formatDate } from "@/utils/date";
 
 export function HomePage() {
-  const school = useEffectiveSchoolInfo();
+  //   const school = useEffectiveSchoolInfo();
   const {
     data: noticesData,
     isLoading: isNoticesLoading,

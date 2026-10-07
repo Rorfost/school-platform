@@ -21,10 +21,9 @@ export function NoticesPage() {
 
   const notices = data?.items ?? [];
 
-  const filteredNotices = notices.filter(
-    (n) =>
-      n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      n.body.toLowerCase().includes(searchTerm.toLowerCase()),
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredNotices = notices.filter((notice) =>
+    notice.title.toLowerCase().includes(normalizedSearch),
   );
 
   return (
