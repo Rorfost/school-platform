@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, Download, FileText, Filter, Search } from "lucide-react";
+import { BookOpen, Download, FileText, Search } from "lucide-react";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { MaterialResponse, PageResponse } from "@/api/types";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/Input";
 import { LABELS } from "@/utils/gujarati";
 
 export function MaterialsPage() {
-  const [selectedType, setSelectedType] = useState<string>("");
+  //   const [selectedType, setSelectedType] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -31,7 +31,7 @@ export function MaterialsPage() {
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredMaterials = materials.filter((item) => {
     if (!item.title.toLowerCase().includes(normalizedSearch)) return false;
-    if (selectedType && item.materialType !== selectedType) return false;
+    // if (selectedType && item.materialType !== selectedType) return false;
     return true;
   });
 
@@ -45,20 +45,20 @@ export function MaterialsPage() {
       />
 
       {/* Material types are part of the public response; standard/subject filters await an approved API contract. */}
-      <Card className="p-4 sm:p-5 bg-slate-50/70 border-slate-200">
-        <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-800">
+      {/* <Card className="p-4 sm:p-5 bg-slate-50/70 border-slate-200"> */}
+      {/* <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-800">
           <Filter size={16} className="text-blue-900" aria-hidden="true" />
-          <span>અભ્યાસ સામગ્રી શોધો અને ફિલ્ટર કરો</span>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 sm:max-w-3xl">
-          <Input
-            type="search"
-            placeholder="શીર્ષક દ્વારા સામગ્રી શોધો..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            leftIcon={<Search size={18} aria-hidden="true" />}
-          />
-          <div>
+          <span>અભ્યાસ સામગ્રી શોધો</span>
+        </div> */}
+      <div className="grid gap-3 sm:grid-cols-2 sm:max-w-3xl">
+        <Input
+          type="search"
+          placeholder="અભ્યાસ સામગ્રી શોધો..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          leftIcon={<Search size={18} aria-hidden="true" />}
+        />
+        {/* <div>
             <label htmlFor="type-select" className="block text-xs font-medium text-slate-700 mb-1">
               સામગ્રીનો પ્રકાર
             </label>
@@ -75,9 +75,9 @@ export function MaterialsPage() {
               <option value="SYLLABUS">અભ્યાસક્રમ</option>
               <option value="REFERENCE">સંદર્ભ સાહિત્ય</option>
             </select>
-          </div>
-        </div>
-      </Card>
+          </div> */}
+      </div>
+      {/* </Card> */}
 
       {/* Materials List */}
       {isLoading ? (
@@ -97,9 +97,7 @@ export function MaterialsPage() {
           description={
             searchTerm
               ? "શોધેલા શીર્ષક મુજબ કોઈ સામગ્રી મળી નથી."
-              : selectedType
-                ? "પસંદ કરેલ ફિલ્ટર મુજબ કોઈ સામગ્રી મળી નથી."
-                : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
+              : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
           }
         />
       ) : (

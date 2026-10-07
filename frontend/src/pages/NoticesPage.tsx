@@ -38,7 +38,7 @@ export function NoticesPage() {
       <div className="max-w-md">
         <Input
           type="search"
-          placeholder="સૂચનાઓમાં શોધો..."
+          placeholder="સૂચનાઓ શોધો..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           leftIcon={<Search size={18} aria-hidden="true" />}
@@ -112,7 +112,7 @@ export function NoticesPage() {
 
               {item.attachmentFilename && item.attachmentUrl && (
                 <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="break-words">જોડાણ: {item.attachmentFilename}</span>
+                  <span className="break-words">Attachment: {item.attachmentFilename}</span>
                   <a
                     href={item.attachmentUrl}
                     target="_blank"

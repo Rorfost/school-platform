@@ -25,6 +25,6 @@ describe("NoticesPage", () => {
   it("renders search input for filtering notices", () => {
     renderWithProviders(<NoticesPage />);
 
-    expect(screen.getByPlaceholderText("સૂચનાઓમાં શોધો...")).toBeVisible();
+    expect(screen.getByPlaceholderText("સૂચનાઓ શોધો...")).toBeVisible();
   });
 });

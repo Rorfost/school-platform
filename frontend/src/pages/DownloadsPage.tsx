@@ -52,7 +52,7 @@ export function DownloadsPage() {
       <div className="max-w-md">
         <Input
           type="search"
-          placeholder="શીર્ષક દ્વારા ડાઉનલોડ શોધો..."
+          placeholder="ફાઇલ શોધો..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           leftIcon={<Search size={18} aria-hidden="true" />}
