@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, Download, FileText, Filter } from "lucide-react";
+import { BookOpen, Download, FileText, Filter, Search } from "lucide-react";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { MaterialResponse, PageResponse } from "@/api/types";
@@ -13,10 +13,12 @@ import {
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
 import { LABELS } from "@/utils/gujarati";
 
 export function MaterialsPage() {
   const [selectedType, setSelectedType] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: queryKeys.materials({ page: 0, size: 50 }),
@@ -26,10 +28,10 @@ export function MaterialsPage() {
 
   const materials = data?.items ?? [];
 
+  const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredMaterials = materials.filter((item) => {
-    if (selectedType && item.materialType !== selectedType) {
-      return false;
-    }
+    if (!item.title.toLowerCase().includes(normalizedSearch)) return false;
+    if (selectedType && item.materialType !== selectedType) return false;
     return true;
   });
 
@@ -48,7 +50,14 @@ export function MaterialsPage() {
           <Filter size={16} className="text-blue-900" aria-hidden="true" />
           <span>અભ્યાસ સામગ્રી શોધો અને ફિલ્ટર કરો</span>
         </div>
-        <div className="max-w-sm">
+        <div className="grid gap-3 sm:grid-cols-2 sm:max-w-3xl">
+          <Input
+            type="search"
+            placeholder="શીર્ષક દ્વારા સામગ્રી શોધો..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            leftIcon={<Search size={18} aria-hidden="true" />}
+          />
           <div>
             <label htmlFor="type-select" className="block text-xs font-medium text-slate-700 mb-1">
               સામગ્રીનો પ્રકાર
@@ -60,6 +69,7 @@ export function MaterialsPage() {
               className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900"
             >
               <option value="">તમામ પ્રકાર</option>
+              <option value="DOCUMENT">દસ્તાવેજ</option>
               <option value="TEXTBOOK">પાઠ્યપુસ્તક</option>
               <option value="WORKSHEET">સ્વાધ્યાય પત્રક</option>
               <option value="SYLLABUS">અભ્યાસક્રમ</option>
@@ -85,9 +95,11 @@ export function MaterialsPage() {
           icon={BookOpen}
           title="હાલ કોઈ અભ્યાસ સામગ્રી ઉપલબ્ધ નથી."
           description={
-            selectedType
-              ? "પસંદ કરેલ ફિલ્ટર મુજબ કોઈ સામગ્રી મળી નથી."
-              : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
+            searchTerm
+              ? "શોધેલા શીર્ષક મુજબ કોઈ સામગ્રી મળી નથી."
+              : selectedType
+                ? "પસંદ કરેલ ફિલ્ટર મુજબ કોઈ સામગ્રી મળી નથી."
+                : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
           }
         />
       ) : (

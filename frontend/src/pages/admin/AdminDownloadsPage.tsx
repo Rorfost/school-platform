@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type { AcademicYearResponse, DownloadResponse, PageResponse } from "@/api/types";
+import type { DownloadResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -16,11 +16,6 @@ export function AdminDownloadsPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const { data: years = [] } = useQuery<AcademicYearResponse[]>({
-    queryKey: queryKeys.adminAcademicYears,
-    queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
-  });
 
   const { data, isLoading, isError, refetch } = useQuery<PageResponse<DownloadResponse>>({
     queryKey: queryKeys.adminDownloads({ page: 0, size: 50 }),
@@ -206,45 +201,6 @@ export function AdminDownloadsPage() {
                 required
                 placeholder="e.g. Admission Application Form 2026-27"
               />
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                <select
-                  name="category"
-                  required
-                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
-                >
-                  <option value="FORM">Form (અરજી પત્રક)</option>
-                  <option value="CIRCULAR">Circular (પરિપત્ર)</option>
-                  <option value="SYLLABUS">Syllabus (અભ્યાસક્રમ)</option>
-                  <option value="TIMETABLE">Timetable (સમયપત્રક)</option>
-                  <option value="OTHER">Other (અન્ય)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Academic Session (Optional)
-                </label>
-                <select
-                  name="academicYearId"
-                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
-                >
-                  <option value="">-- Optional Academic Year --</option>
-                  {years.map((y) => (
-                    <option key={y.id} value={y.id}>
-                      {y.name} {y.status === "CURRENT" ? "(Current)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                <textarea
-                  name="description"
-                  rows={2}
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900"
-                  placeholder="Optional document description..."
-                />
-              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Select File (PDF, Image, Doc) <span className="text-red-500">*</span>

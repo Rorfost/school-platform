@@ -1,4 +1,4 @@
-﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -52,7 +52,7 @@ describe("AdminMaterialsPage", () => {
     expect(screen.getByText("TEXTBOOK")).toBeInTheDocument();
   });
 
-  it("defaults a new material to the current academic year", () => {
+  it("keeps the upload form limited to title and file", () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     queryClient.setQueryData(queryKeys.adminMaterials({ page: 0, size: 50 }), {
       items: [],
@@ -61,19 +61,15 @@ describe("AdminMaterialsPage", () => {
       totalItems: 0,
       totalPages: 0,
     });
-    queryClient.setQueryData(queryKeys.adminAcademicYears, [
-      {
-        id: "year-current",
-        name: "2026-27",
-        startsOn: "2026-06-01",
-        endsOn: "2027-05-31",
-        status: "CURRENT",
-      },
-    ]);
 
-    renderWithClient(<AdminMaterialsPage />, queryClient);
+    const { container } = renderWithClient(<AdminMaterialsPage />, queryClient);
     fireEvent.click(screen.getByRole("button", { name: "Upload New Material" }));
 
-    expect(screen.getByLabelText("Academic Session")).toHaveValue("year-current");
+    expect(screen.getByLabelText("Title")).toBeVisible();
+    expect(container.querySelector('input[type="file"]')).toBeInTheDocument();
+    expect(screen.queryByText("Academic Session")).not.toBeInTheDocument();
+    expect(screen.queryByText("Standard and subject")).not.toBeInTheDocument();
+    expect(screen.queryByText("Material Type")).not.toBeInTheDocument();
+    expect(screen.queryByText("Description")).not.toBeInTheDocument();
   });
 });

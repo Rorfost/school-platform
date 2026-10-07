@@ -3,14 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Trash2, Upload } from "lucide-react";
 import { ApiError, apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
-import type {
-  AcademicYearResponse,
-  MaterialResponse,
-  PageResponse,
-  StandardResponse,
-  StandardSubjectResponse,
-  SubjectResponse,
-} from "@/api/types";
+import type { MaterialResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -23,32 +16,7 @@ export function AdminMaterialsPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"ALL" | "PUBLISHED" | "DRAFT">("ALL");
-  const [selectedStandardId, setSelectedStandardId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const { data: years = [] } = useQuery<AcademicYearResponse[]>({
-    queryKey: queryKeys.adminAcademicYears,
-    queryFn: () => apiRequest<AcademicYearResponse[]>("/api/v1/admin/academic-years"),
-  });
-
-  const { data: standards = [] } = useQuery<StandardResponse[]>({
-    queryKey: queryKeys.adminStandards,
-    queryFn: () => apiRequest<StandardResponse[]>("/api/v1/admin/standards"),
-  });
-
-  const { data: subjects = [] } = useQuery<SubjectResponse[]>({
-    queryKey: queryKeys.adminSubjects,
-    queryFn: () => apiRequest<SubjectResponse[]>("/api/v1/admin/subjects"),
-  });
-
-  const { data: mappings = [] } = useQuery<StandardSubjectResponse[]>({
-    queryKey: queryKeys.adminStandardSubjects(selectedStandardId),
-    queryFn: () =>
-      apiRequest<StandardSubjectResponse[]>(
-        `/api/v1/admin/standards/${selectedStandardId}/subjects`,
-      ),
-    enabled: Boolean(selectedStandardId),
-  });
 
   const { data, isLoading, isError, refetch } = useQuery<PageResponse<MaterialResponse>>({
     queryKey: queryKeys.adminMaterials({ page: 0, size: 50 }),
@@ -57,7 +25,6 @@ export function AdminMaterialsPage() {
   });
 
   const allMaterials = data?.items ?? [];
-  const currentAcademicYearId = years.find((year) => year.status === "CURRENT")?.id ?? "";
   const materials = allMaterials.filter((item) => {
     if (statusFilter === "PUBLISHED") return item.status === "PUBLISHED";
     if (statusFilter === "DRAFT") return item.status === "DRAFT";
@@ -274,88 +241,6 @@ export function AdminMaterialsPage() {
                 placeholder="e.g. Std 3 Maths Worksheet 1"
               />
 
-              <div>
-                <label
-                  htmlFor="material-academic-year"
-                  className="block text-sm font-medium text-slate-700 mb-1"
-                >
-                  Academic Session
-                </label>
-                <select
-                  id="material-academic-year"
-                  name="academicYearId"
-                  defaultValue={currentAcademicYearId}
-                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
-                >
-                  <option value="">-- Optional Academic Year --</option>
-                  {years.map((y) => (
-                    <option key={y.id} value={y.id}>
-                      {y.name} {y.status === "CURRENT" ? "(Current)" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Standard and subject
-                </label>
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  <select
-                    value={selectedStandardId}
-                    onChange={(e) => setSelectedStandardId(e.target.value)}
-                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-900"
-                  >
-                    <option value="">-- Select Standard --</option>
-                    {standards.map((std) => (
-                      <option key={std.id} value={std.id}>
-                        {std.displayName}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    name="standardSubjectId"
-                    disabled={!selectedStandardId}
-                    className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-900 disabled:bg-slate-100 disabled:text-slate-400"
-                  >
-                    <option value="">-- Select Subject --</option>
-                    {mappings.map((m) => {
-                      const sub = subjects.find((s) => s.id === m.subjectId);
-                      return (
-                        <option key={m.id} value={m.id}>
-                          {sub?.name || "Subject"}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Material Type
-                </label>
-                <select
-                  name="materialType"
-                  required
-                  className="w-full h-11 rounded-lg border border-slate-300 bg-white px-3.5 text-sm text-slate-900"
-                >
-                  <option value="TEXTBOOK">Textbook (પાઠ્યપુસ્તક)</option>
-                  <option value="WORKSHEET">Worksheet (સ્વાધ્યાય પત્રક)</option>
-                  <option value="SYLLABUS">Syllabus (અભ્યાસક્રમ)</option>
-                  <option value="REFERENCE">Reference (સંદર્ભ સાહિત્ય)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                <textarea
-                  name="description"
-                  rows={2}
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-sm text-slate-900"
-                  placeholder="Optional material description..."
-                />
-              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Select File (PDF, Image, Doc) <span className="text-red-500">*</span>
