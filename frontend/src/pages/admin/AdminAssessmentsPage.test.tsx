@@ -19,18 +19,18 @@ function renderPage() {
 }
 
 describe("AdminAssessmentsPage", () => {
-  it("offers Annual Exam and Trimasik Kasoti tabs with Annual Exam selected first", () => {
+  it("offers Exam and Trimasik Kasoti tabs with Annual Exam selected first", () => {
     renderPage();
 
     expect(screen.queryByText("Exam Setup")).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("heading", {
-        name: "Annual Exam & Trimasik Kasoti Results",
+        name: "Exam & Trimasik Kasoti Results",
       }),
     ).toBeVisible();
 
-    expect(screen.getByRole("tab", { name: "Annual Exam Result" })).toHaveAttribute(
+    expect(screen.getByRole("tab", { name: "Exam Result" })).toHaveAttribute(
       "aria-selected",
       "true",
     );
@@ -42,7 +42,7 @@ describe("AdminAssessmentsPage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Upload Annual Exam Result Workbook",
+        name: "Upload Exam Result Workbook",
       }),
     ).toBeVisible();
 

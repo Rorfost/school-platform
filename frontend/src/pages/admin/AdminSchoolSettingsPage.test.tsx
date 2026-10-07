@@ -1,9 +1,40 @@
 ﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminSchoolSettingsPage } from "@/pages/admin/AdminSchoolSettingsPage";
 import { queryKeys } from "@/api/queryKeys";
+
+const originalCreateObjectURL = Object.getOwnPropertyDescriptor(URL, "createObjectURL");
+const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(URL, "revokeObjectURL");
+
+beforeAll(() => {
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    writable: true,
+    value: vi.fn(() => "blob:mock-school-logo"),
+  });
+
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    writable: true,
+    value: vi.fn(),
+  });
+});
+
+afterAll(() => {
+  if (originalCreateObjectURL) {
+    Object.defineProperty(URL, "createObjectURL", originalCreateObjectURL);
+  } else {
+    Reflect.deleteProperty(URL, "createObjectURL");
+  }
+
+  if (originalRevokeObjectURL) {
+    Object.defineProperty(URL, "revokeObjectURL", originalRevokeObjectURL);
+  } else {
+    Reflect.deleteProperty(URL, "revokeObjectURL");
+  }
+});
 
 const mockSchool = {
   id: "school-1",
