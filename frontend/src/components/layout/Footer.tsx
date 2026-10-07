@@ -28,10 +28,10 @@ export function Footer() {
 
   return (
     <footer className="w-full border-t border-slate-200 bg-white text-slate-600">
-      <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 px-4 py-6 text-center">
+      <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 px-3 py-4 text-center">
         {/* School Logo & Brand Header */}
         <div className="flex flex-col items-center gap-2">
-          <img
+          {/* <img
             src={school.logoUrl ?? schoolLogo}
             onError={(e) => {
               e.currentTarget.onerror = null;
@@ -39,14 +39,14 @@ export function Footer() {
             }}
             alt="School logo"
             className="size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
-          />
+          /> */}
           <div>
-            <h3 className="text-sm font-bold text-slate-900 sm:text-base">{school.name}</h3>
-            <p className="text-xs text-slate-500 font-medium">
+            <h3 className="text-sm text-slate-600 xs:text-base">{school.name}</h3>
+            {/* <p className="text-xs text-slate-500 font-medium">
               પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન
-            </p>
+            </p> */}
           </div>
-          <p className="text-xs font-semibold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p>
+          {/* <p className="text-xs font-semibold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p> */}
         </div>
 
         {/* Contact details - Compact centered list */}
@@ -82,18 +82,18 @@ export function Footer() {
             </div>
           )}
 
-          {school.schoolCode && (
+          {/* {school.schoolCode && (
             <span className="text-slate-500 shrink-0">
               {LABELS.diseLabel}: {toGujaratiNumber(school.schoolCode)}
             </span>
-          )}
+          )} */}
         </div>
 
         {/* Bottom copyright & admin link */}
-        <div className="w-full border-t border-slate-100 pt-3 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="w-full border-t border-slate-100 pt-2 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
             <p>© 2026 Rakesh Patel, Principal at PM Shri Dhadhana Primary School.</p>
-            <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p>
+            {/* <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p> */}
           </div>
 
           <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ export function Footer() {
               className="inline-flex items-center gap-1.5 text-slate-500 hover:text-blue-900 font-medium transition-colors"
             >
               <Lock size={11} aria-hidden="true" />
-              <span>Admin Login</span>
+              <span>Principal Login</span>
             </Link>
           </div>
         </div>

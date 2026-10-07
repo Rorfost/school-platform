@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import type { ResultSettingsTab } from "./AdminAssessmentsPage";
 
 const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
-  ANNUAL: "Annual Exam Result",
+  ANNUAL: "Exam Result",
   EKAM_KASOTI: "Trimasik Kasoti Result",
 };
 
@@ -109,7 +109,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       </h2>
       <p className="mt-1 text-sm text-slate-600">
         {isAnnual
-          ? "Annual Exam workbooks start with G.R. No., Standard, Name, Birth Date and Hajar Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
+          ? "Exam workbooks start with G.R. No., Standard, Name, Birth Date and Hajar Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
           : "Trimasik Kasoti workbooks start with G.R. No., Standard, Name and Birth Date. Each subject then uses 2 columns: Maximum Marks and Obtained Marks. There is no Hajar Divas or Grade column."}
       </p>
 

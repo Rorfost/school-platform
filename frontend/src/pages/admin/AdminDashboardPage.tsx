@@ -256,7 +256,7 @@ export function AdminDashboardPage() {
             <h2 className="text-base font-bold text-slate-900">Recent Security Activity</h2>
           </div>
           <div className="divide-y divide-slate-100">
-            {auditLogs.slice(0, 5).map((log) => (
+            {auditLogs.slice(0, 10).map((log) => (
               <div
                 key={log.id}
                 className="py-3 flex items-center justify-between text-xs sm:text-sm"

@@ -33,7 +33,7 @@ export function HomePage() {
     {
       to: "/student/materials",
       title: LABELS.materials,
-      description: "ધોરણ ૧ થી ૮ માટે વિષયવાર પાઠ્યપુસ્તકો અને સ્વાધ્યાય સામગ્રી",
+      description: "ધોરણ ૧ થી ૮ માટે અભ્યાસ સામગ્રી",
       icon: BookOpen,
       badgeText: "અભ્યાસ",
       badgeVariant: "primary" as const,
@@ -41,7 +41,7 @@ export function HomePage() {
     {
       to: "/student/results",
       title: LABELS.results,
-      description: "ત્રિમાસિક કસોટી અને વાર્ષિક પરીક્ષા પરિણામ અંગેની માહિતી",
+      description: "ત્રિમાસિક કસોટી અને પરીક્ષા પરિણામ અંગેની માહિતી",
       icon: GraduationCap,
       badgeText: "પરિણામ",
       badgeVariant: "secondary" as const,
@@ -197,7 +197,7 @@ export function HomePage() {
       </section>
 
       {/* School Highlights & Contact Banner */}
-      <section
+      {/* <section
         aria-labelledby="contact-summary-heading"
         className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs"
       >
@@ -228,7 +228,7 @@ export function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

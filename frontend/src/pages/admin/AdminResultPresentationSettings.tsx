@@ -32,7 +32,7 @@ export function AdminResultPresentationSettings({
   return (
     <Card className="max-w-2xl">
       <h2 className="text-lg font-bold text-slate-900">
-        {isAnnual ? "Annual Exam Result Sheet Settings" : "Trimasik Kasoti Result Sheet Settings"}
+        {isAnnual ? "Exam Result Sheet Settings" : "Trimasik Kasoti Result Sheet Settings"}
       </h2>
       <form
         key={settingsTab}
