@@ -73,15 +73,15 @@ export function ExamResultViewer({
             {/* Student Info – responsive table layout */}
             <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
               <div className="grid grid-cols-12">
-                <div className="col-span-12 sm:col-span-6 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
+                <div className="col-span-12 sm:col-span-7 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
                   <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
                   <span className="font-bold truncate">{result.studentName}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-3">
+                <div className="col-span-6 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-3 print:px-1.5">
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-2">
+                <div className="col-span-6 sm:col-span-2 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-2">
                   <span className="font-bold shrink-0">વર્ગ :</span>
                   <span>-</span>
                 </div>
@@ -90,15 +90,15 @@ export function ExamResultViewer({
 
             <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
               <div className="grid grid-cols-12">
-                <div className="col-span-12 sm:col-span-6 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
-                  <span className="font-bold shrink-0">જનરલ રજી.નંબર :</span>
+                <div className="col-span-12 sm:col-span-7 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
+                  <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
                 <div className="col-span-7 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-3 print:px-1.5">
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="col-span-5 sm:col-span-3 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-2">
+                <div className="col-span-5 sm:col-span-2 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-2">
                   <span className="font-bold shrink-0">રોલ નં :</span>
                   <span>{result.rollNumber}</span>
                 </div>
