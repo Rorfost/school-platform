@@ -30,11 +30,12 @@ export function useEffectiveSchoolInfo() {
     address: school?.address || DEFAULT_SCHOOL_INFO.address,
     city: school?.city || DEFAULT_SCHOOL_INFO.city,
     state: school?.state || "ગુજરાત",
-    postalCode: school?.postalCode || "",
+    postalCode: school?.postalCode || DEFAULT_SCHOOL_INFO.postalCode,
     email: school?.email || DEFAULT_SCHOOL_INFO.email,
     phone: school?.phone || DEFAULT_SCHOOL_INFO.phone,
     about: school?.about || "",
     establishedYear: school?.establishedYear ?? DEFAULT_SCHOOL_INFO.establishedYear,
     logoUrl: school?.logoUrl ?? null,
+    mapsUrl: school?.mapsUrl || "",
   };
 }

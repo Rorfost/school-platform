@@ -2,6 +2,7 @@ export const DEFAULT_SCHOOL_INFO = {
   name: "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા",
   shortName: "ધધાણા પ્રાથમિક શાળા",
   address: "મુ. પો. ધધાણા, તા. સમી, જિ. પાટણ",
+  postalCode: "૩૮૪૨૪૦",
   city: "ધધાણા",
   taluka: "સમી",
   district: "પાટણ",

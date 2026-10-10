@@ -73,11 +73,31 @@ export function ContactPage() {
                 <p className="mt-1 text-slate-600">{school.address}</p>
               </div>
             </div>
+
             <div className="flex items-start gap-3 text-sm text-slate-700">
-              <MapPin className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
-              <p className="text-slate-600">
-                {[school.city, school.state, school.postalCode].filter(Boolean).join(", ")}
-              </p>
+                <MapPin
+                    className="mt-0.5 shrink-0 text-blue-900"
+                    size={20}
+                    aria-hidden="true"
+                />
+                <div className="min-w-0">
+                    <p className="text-slate-600">
+                    {[school.city, school.state, school.postalCode]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+
+                    {school.mapsUrl?.trim() && (
+                    <a
+                        href={school.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
+                    >
+                        Google Maps પર જુઓ ↗
+                    </a>
+                    )}
+                </div>
             </div>
           </Card>
           {school.email && (
