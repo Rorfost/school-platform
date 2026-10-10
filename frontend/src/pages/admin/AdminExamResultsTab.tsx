@@ -62,16 +62,16 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           "Assign the required Subjects to this Standard in Academic Setup before uploading.",
         );
       } else if (code === "result_subjects_not_configured") {
-          setErrorMessage(
-            "One or more subjects in the workbook have obtained-marks data but are not configured for that standard in Academic Setup. Configure all required subjects first.",
-          );
-        } else if (code === "result_subject_header_invalid") {
-          setErrorMessage(
-            "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
-          );
-        } else {
-          setErrorMessage("Upload failed. Check the file, then try again.");
-        }
+        setErrorMessage(
+          "One or more subjects in the workbook have obtained-marks data but are not configured for that standard in Academic Setup. Configure all required subjects first.",
+        );
+      } else if (code === "result_subject_header_invalid") {
+        setErrorMessage(
+          "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
+        );
+      } else {
+        setErrorMessage("Upload failed. Check the file, then try again.");
+      }
       setSuccessMessage("");
     },
   });
