@@ -31,6 +31,7 @@ describe("ResultsInfoPage", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByLabelText("ધોરણ")).toBeInTheDocument();
+    expect(screen.getByLabelText("વર્ગ")).toBeInTheDocument();
     expect(screen.getByLabelText("રોલ નંબર")).toBeInTheDocument();
 
     expect(screen.getByRole("button", { name: /પરિણામ જુઓ/ })).toBeInTheDocument();

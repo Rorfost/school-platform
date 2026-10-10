@@ -8,23 +8,52 @@ import { apiRequest, ApiError } from "@/api/client";
 import type { ExamResultResponse } from "@/api/types";
 import { ExamResultViewer } from "@/features/public/ExamResultViewer";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+import { usePublicStandards } from "@/features/public/usePublicAcademic";
 
 export function ResultsInfoPage() {
   const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
   const resultTypeLabel = resultType === "ANNUAL" ? "પરીક્ષા" : "ત્રિમાસિક કસોટી";
   const [standard, setStandard] = useState("");
+  const [studentClass, setStudentClass] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [result, setResult] = useState<ExamResultResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const school = useEffectiveSchoolInfo();
+  const { data: standards } = usePublicStandards();
+
+  const matchedStandard = standards?.find((s) => {
+    if (!standard) return false;
+    const codeDigits = s.code.replace(/\D/g, "");
+    const nameDigits = s.displayName.replace(/\D/g, "");
+    return (
+      s.code === standard ||
+      codeDigits === standard ||
+      s.displayName === standard ||
+      nameDigits === standard
+    );
+  });
+  const configuredClasses = matchedStandard?.classes ?? [];
+
   const isStandardValid = /^[1-8]$/.test(standard);
+  const isClassValid =
+    configuredClasses.length > 0
+      ? configuredClasses.includes(studentClass.trim())
+      : studentClass.trim().length > 0;
   const isRollNumberValid = /^[1-9]\d*$/.test(rollNumber);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isStandardValid) {
       setError("કૃપા કરીને ૧ થી ૮ સુધીનું માન્ય ધોરણ પસંદ/દાખલ કરો.");
+      return;
+    }
+    if (!isClassValid) {
+      setError(
+        configuredClasses.length > 0
+          ? `કૃપા કરીને માન્ય વર્ગ પસંદ કરો (${configuredClasses.join(", ")}).`
+          : "કૃપા કરીને માન્ય વર્ગ દાખલ કરો.",
+      );
       return;
     }
     if (!isRollNumberValid) {
@@ -38,7 +67,11 @@ export function ResultsInfoPage() {
 
     try {
       const data = await apiRequest<ExamResultResponse>(
-        `/api/v1/public/exam-results?standard=${encodeURIComponent(standard)}&rollNumber=${encodeURIComponent(rollNumber)}&resultType=${resultType}`,
+        `/api/v1/public/exam-results?standard=${encodeURIComponent(
+          standard,
+        )}&class=${encodeURIComponent(studentClass.trim())}&rollNumber=${encodeURIComponent(
+          rollNumber,
+        )}&resultType=${resultType}`,
       );
       setResult(data);
     } catch (err) {
@@ -46,7 +79,7 @@ export function ResultsInfoPage() {
         setError("નેટવર્ક કનેક્શન તપાસો અને ફરી પ્રયત્ન કરો.");
       } else {
         setError(
-          `ધોરણ ${standard}, રોલ નંબર ${rollNumber} માટે ${resultTypeLabel} પરિણામ મળ્યું નથી.`,
+          `ધોરણ ${standard}, વર્ગ ${studentClass}, રોલ નંબર ${rollNumber} માટે ${resultTypeLabel} પરિણામ મળ્યું નથી.`,
         );
       }
     } finally {
@@ -58,7 +91,7 @@ export function ResultsInfoPage() {
     <div className="space-y-6">
       <PageHeader
         title="પરીક્ષા પરિણામ"
-        description={`ધોરણ અને રોલ નંબર દ્વારા ${resultTypeLabel} પરિણામ જુઓ`}
+        description={`ધોરણ, વર્ગ અને રોલ નંબર દ્વારા ${resultTypeLabel} પરિણામ જુઓ`}
       />
 
       {!result && (
@@ -80,18 +113,56 @@ export function ResultsInfoPage() {
                     <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
                   </select>
                 </label>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-3">
                   <Input
                     label="ધોરણ"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={standard}
-                    onChange={(e) => setStandard(e.target.value.replace(/\D/g, "").slice(0, 1))}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 1);
+                      setStandard(val);
+                    }}
                     placeholder="દા.ત. 8"
                     aria-invalid={standard.length > 0 && !isStandardValid}
                     required
                   />
+                  {configuredClasses.length > 0 ? (
+                    <div className="w-full">
+                      <label
+                        htmlFor="class-select"
+                        className="block text-sm font-medium text-slate-700 mb-1.5"
+                      >
+                        વર્ગ
+                      </label>
+                      <select
+                        id="class-select"
+                        aria-label="વર્ગ"
+                        value={studentClass}
+                        onChange={(e) => setStudentClass(e.target.value)}
+                        className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400"
+                        required
+                      >
+                        <option value="">વર્ગ પસંદ કરો</option>
+                        {configuredClasses.map((cls) => (
+                          <option key={cls} value={cls}>
+                            {cls}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <Input
+                      label="વર્ગ"
+                      type="text"
+                      value={studentClass}
+                      onChange={(e) => setStudentClass(e.target.value)}
+                      placeholder="દા.ત. A"
+                      aria-invalid={studentClass.length > 0 && !isClassValid}
+                      required
+                    />
+                  )}
                   <Input
                     label="રોલ નંબર"
                     type="text"
@@ -117,7 +188,7 @@ export function ResultsInfoPage() {
               className="w-full gap-2 mt-2"
               loading={loading}
               loadingText="પરિણામ શોધી રહ્યા છીએ..."
-              disabled={!isStandardValid || !isRollNumberValid}
+              disabled={!isStandardValid || !isClassValid || !isRollNumberValid}
             >
               <Search size={18} /> પરિણામ જુઓ
             </Button>
@@ -129,7 +200,8 @@ export function ResultsInfoPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg border border-blue-100 print:hidden">
             <span className="font-semibold text-blue-900">
-              ધોરણ: {standard} | રોલ નંબર: {rollNumber}
+              ધોરણ: {result.standard} | વર્ગ: {result.studentClass || studentClass} | રોલ નંબર:{" "}
+              {result.rollNumber}
             </span>
             <Button variant="outline" size="sm" onClick={() => setResult(null)}>
               બીજું પરિણામ શોધો

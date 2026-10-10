@@ -70,49 +70,56 @@ export function ExamResultViewer({
               </div>
             </div>
 
-            {/* Student Info – responsive table layout */}
-            <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
-              <div className="grid grid-cols-12">
-                <div className="col-span-12 sm:col-span-7 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
+            {/* Student Info – clean layout without boxes */}
+            <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
+              {/* Line 1: Name, Standard, Class */}
+              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
+                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
                   <span className="font-bold truncate">{result.studentName}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-3 print:px-1.5">
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-2 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-2">
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">વર્ગ :</span>
-                  <span>-</span>
+                  <span>{result.studentClass || "-"}</span>
                 </div>
               </div>
-            </div>
 
-            <div className="border-b-2 border-slate-900 text-xs sm:text-sm font-semibold print:text-sm">
-              <div className="grid grid-cols-12">
-                <div className="col-span-12 sm:col-span-7 border-b sm:border-b-0 sm:border-r-2 border-slate-900 p-1.5 px-2 sm:px-3 flex gap-1.5 sm:gap-2 items-center min-w-0 print:col-span-7 print:border-b-0 print:border-r-2">
-                  <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
-                  <span>{result.generalRegisterNumber || "-"}</span>
+              {/* Line 2: Student UID, Birthdate, Roll No */}
+              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
+                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0">વિદ્યાર્થી યુઆઈડી :</span>
+                  <span>{result.studentUid || "-"}</span>
                 </div>
-                <div className="col-span-7 sm:col-span-3 border-r-2 border-slate-900 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-3 print:px-1.5">
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="col-span-5 sm:col-span-2 p-1.5 px-1.5 sm:px-3 flex gap-1 sm:gap-2 items-center min-w-0 print:col-span-2">
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">રોલ નં :</span>
                   <span>{result.rollNumber}</span>
                 </div>
               </div>
-            </div>
 
-            {!isEkam && (
-              <div className="border-b-2 border-slate-900 px-2 py-1.5 text-[11px] font-semibold tracking-tight whitespace-nowrap sm:px-3 sm:text-sm print:px-3 print:text-sm">
-                <span className="font-bold">
-                  કુલ કાર્ય દિવસ : {result.totalWorkingDays ?? "-"} માંથી હાજર દિવસ{" "}
-                  {result.attendedDays ?? "-"} છે.
-                </span>
+              {/* Line 3: GR No, Total Working Days, Present Days */}
+              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
+                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
+                  <span>{result.generalRegisterNumber || "-"}</span>
+                </div>
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
+                  <span>{result.totalWorkingDays ?? "-"}</span>
+                </div>
+                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0">હાજર દિવસ :</span>
+                  <span>{result.attendedDays ?? "-"}</span>
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Marks Table */}
             <div className="overflow-x-auto print:overflow-visible">
