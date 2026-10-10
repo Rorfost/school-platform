@@ -55,7 +55,7 @@ export function ExamResultViewer({
       <div
         id="exam-result-print"
         className="exam-result-sheet mx-auto bg-white p-1 sm:p-4 text-slate-900 print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
-        style={{ maxWidth: "195mm" }}
+        style={{ maxWidth: "190mm" }}
       >
         <div className="border-2 sm:border-4 border-slate-900 p-0.5 sm:p-1 print:border-4 print:p-1">
           <div className="border border-slate-900 sm:border-2 print:border-2">
@@ -87,7 +87,7 @@ export function ExamResultViewer({
                 {/* Red title line: always single line, width matches text */}
                 <div
                   className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-fit px-3 pt-1"
-                  style={{ fontSize: "clamp(9px, 2.2vw, 14px)" }}
+                  style={{ fontSize: "clamp(9px, 2.2vw, 16px)" }}
                 >
                   {sheetTitle}
                 </div>
@@ -98,15 +98,15 @@ export function ExamResultViewer({
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
-                  <span className="font-bold truncate">{result.studentName}</span>
+                <div className="w-full sm:w-[56%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold text-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
+                  <span className="truncate">{result.studentName}</span>
                 </div>
-                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[26%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">વર્ગ :</span>
                   <span>{result.studentClass || "-"}</span>
                 </div>
@@ -114,15 +114,15 @@ export function ExamResultViewer({
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-full sm:w-[56%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">વિદ્યાર્થી યુઆઈડી :</span>
                   <span className="truncate">{result.studentUid || "-"}</span>
                 </div>
-                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[26%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">રોલ નં :</span>
                   <span>{result.rollNumber}</span>
                 </div>
@@ -130,15 +130,15 @@ export function ExamResultViewer({
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-full sm:w-[56%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
-                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[26%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">હાજર દિવસ :</span>
                   <span>{result.attendedDays ?? "-"}</span>
                 </div>
@@ -147,7 +147,18 @@ export function ExamResultViewer({
 
             {/* Marks Table */}
             <div className="overflow-x-auto print:overflow-visible">
-              <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:text-sm">
+              <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:table-fixed print:text-sm">
+                <colgroup>
+                    
+                        <>
+                        <col className="w-[7%] print:w-[7%]" />
+                        <col className="w-[30%] print:w-[30%]" />
+                        <col className="w-[11%] print:w-[11%]" />
+                        <col className="w-[12%] print:w-[12%]" />
+                        <col className="w-[10%] print:w-[10%]" />
+                        <col className="w-[30%] print:w-[30%]" />
+                        </>
+                </colgroup>
                 <thead>
                   <tr className="bg-amber-100/90 text-slate-900">
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-7 sm:w-10 font-bold print:p-2 print:w-10 whitespace-nowrap">
@@ -162,11 +173,11 @@ export function ExamResultViewer({
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-14 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
                       મેળવેલ ગુણ
                     </th>
-                    {!isEkam && (
+                    {/* {!isEkam && ( */}
                       <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-10 sm:w-14 font-bold print:p-2 print:w-14 whitespace-nowrap">
                         ગ્રેડ
                       </th>
-                    )}
+                    {/* // )} */}
                     <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-20 sm:w-28 font-bold text-center print:p-2 print:w-28 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
@@ -246,7 +257,7 @@ export function ExamResultViewer({
               />
 
               {/* Signatures */}
-              <div className="flex justify-between items-end pt-1 min-h-0 print:min-h-28">
+              <div className="flex justify-between items-end pt-1 min-h-0 sm:h-33 print:h-33">
                 <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
                   {settings?.classTeacherSignatureUrl ? (
                     <img
@@ -315,9 +326,9 @@ export function ExamResultViewer({
             max-width: none !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 4mm 4mm !important;
             background: white !important;
-            box-shadow: none !important;
+            box-shadow: border-box !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }

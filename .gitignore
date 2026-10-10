@@ -5,6 +5,7 @@ frontend/dist/
 frontend/coverage/
 frontend/.cache/
 *.tsbuildinfo
+.wrangler/
 
 # Java and backend
 backend/target/
