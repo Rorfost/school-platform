@@ -70,7 +70,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
         );
       } else {
-        setErrorMessage("Upload failed. Check the file, then try again.");
+        setErrorMessage(`${code}`);
       }
       setSuccessMessage("");
     },
