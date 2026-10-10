@@ -38,10 +38,12 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       const headers = new Headers({ Accept: "application/json" });
       if (csrfToken) headers.set("X-XSRF-TOKEN", csrfToken);
 
-      const response = await fetch(
-        `${uploadBaseUrl}/api/v1/admin/exam-results/upload`,
-        { method: "POST", headers, body: formData, credentials: "include" },
-      );
+      const response = await fetch(`${uploadBaseUrl}/api/v1/admin/exam-results/upload`, {
+        method: "POST",
+        headers,
+        body: formData,
+        credentials: "include",
+      });
 
       if (!response.ok) {
         let code: string | undefined;
@@ -50,7 +52,9 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           const problem = (await response.json()) as { code?: string; detail?: string };
           code = problem.code;
           detail = problem.detail;
-        } catch { /* not JSON */ }
+        } catch {
+          /* not JSON */
+        }
         throw new ApiError(detail ?? "Upload failed", response.status, code);
       }
       return response.json() as Promise<{ message: string }>;
