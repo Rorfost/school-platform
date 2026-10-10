@@ -84,22 +84,22 @@ export function ExamResultViewer({
                     {locationSubtitle}
                   </p>
                 )}
-                {/* Clean, matchable red header line */}
-                <div className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-4/5 sm:w-1/2 max-w-xs pt-1 text-xs sm:text-base print:text-base">
+                {/* Red title line: 1 single line with matching width */}
+                <div className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto inline-block px-3 pt-1 text-xs sm:text-base print:text-base whitespace-nowrap">
                   {sheetTitle}
                 </div>
               </div>
             </div>
 
-            {/* Student Info – Shifted Col 2 to the left for better spacing & long name support */}
+            {/* Student Info */}
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
                   <span className="font-bold truncate">{result.studentName}</span>
                 </div>
-                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
@@ -111,11 +111,11 @@ export function ExamResultViewer({
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">વિદ્યાર્થી યુઆઈડી :</span>
                   <span className="truncate">{result.studentUid || "-"}</span>
                 </div>
-                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
@@ -127,11 +127,11 @@ export function ExamResultViewer({
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
-                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-1/2 sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
@@ -142,7 +142,7 @@ export function ExamResultViewer({
               </div>
             </div>
 
-            {/* Marks Table: Narrower Subject column, expanded Remarks column */}
+            {/* Marks Table */}
             <div className="overflow-x-auto print:overflow-visible">
               <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:text-sm">
                 <thead>
@@ -150,7 +150,7 @@ export function ExamResultViewer({
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-7 sm:w-10 font-bold print:p-2 print:w-10 whitespace-nowrap">
                       ક્રમ
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-44 font-bold text-center print:p-2 print:w-44 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 font-bold text-center print:p-2 whitespace-nowrap">
                       વિષય
                     </th>
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-16 font-bold print:p-2 print:w-16 whitespace-nowrap">
@@ -164,7 +164,7 @@ export function ExamResultViewer({
                         ગ્રેડ
                       </th>
                     )}
-                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 font-bold text-center print:p-2 whitespace-nowrap">
+                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-36 font-bold text-center print:p-2 print:w-36 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
                   </tr>
@@ -222,10 +222,10 @@ export function ExamResultViewer({
               </table>
             </div>
 
-            {/* Place, Date & Signatures Container: Clean seamless layout without harsh box borders */}
+            {/* Place, Date & Signatures Container */}
             <div className="pt-2 sm:pt-3 pb-2 px-3 sm:px-8 bg-white">
               {/* Place & Date */}
-              <div className="text-xs sm:text-sm font-semibold space-y-1 mb-2 sm:mb-4">
+              <div className="text-xs sm:text-sm font-semibold space-y-1">
                 <div className="flex gap-2 items-center">
                   <span className="font-bold text-slate-900 shrink-0">સ્થળ :</span>
                   <span>{resultPlaceValue || schoolInfo.city || "-"}</span>
@@ -236,8 +236,14 @@ export function ExamResultViewer({
                 </div>
               </div>
 
+              {/* Medium clean horizontal divider line */}
+              <div
+                className="my-2 sm:my-3 border-b border-slate-800/40 w-full"
+                aria-hidden="true"
+              />
+
               {/* Signatures */}
-              <div className="flex justify-between items-end pt-1 sm:pt-2 min-h-0 print:min-h-28">
+              <div className="flex justify-between items-end pt-1 min-h-0 print:min-h-28">
                 <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
                   {settings?.classTeacherSignatureUrl ? (
                     <img
@@ -258,11 +264,11 @@ export function ExamResultViewer({
                     <img
                       src={settings.principalSignatureUrl}
                       alt="Principal seal and signature"
-                      className="h-24 max-w-56 sm:h-28 sm:max-w-64 object-contain print:h-28 print:max-w-64"
+                      className="h-24 max-w-56 sm:h-27 sm:max-w-64 object-contain print:h-27 print:max-w-64"
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
+                    <div className="h-24 sm:h-27 print:h-27" aria-hidden="true" />
                   )}
                   <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                     આચાર્યની સહી
