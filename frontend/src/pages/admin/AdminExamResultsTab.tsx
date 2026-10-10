@@ -2,7 +2,8 @@ import { useState } from "react";
 import { CheckCircle2, Trash2, UploadCloud } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, apiRequest } from "@/api/client";
+import { ApiError, apiRequest, fetchCsrfToken } from "@/api/client";
+import { uploadBaseUrl } from "@/api/config";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -23,17 +24,36 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const uploadMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const formData = new FormData();
       formData.append("file", file!);
       formData.append("resultType", resultType);
       if (totalWorkingDays.trim()) {
         formData.append("totalWorkingDays", totalWorkingDays.trim());
       }
-      return apiRequest<{ message: string }>("/api/v1/admin/exam-results/upload", {
-        method: "POST",
-        body: formData,
-      });
+
+      // POST directly to the backend origin to bypass the Cloudflare Worker proxy.
+      // CF Workers have a hard 30-second subrequest timeout; large workbooks take longer.
+      const csrfToken = await fetchCsrfToken();
+      const headers = new Headers({ Accept: "application/json" });
+      if (csrfToken) headers.set("X-XSRF-TOKEN", csrfToken);
+
+      const response = await fetch(
+        `${uploadBaseUrl}/api/v1/admin/exam-results/upload`,
+        { method: "POST", headers, body: formData, credentials: "include" },
+      );
+
+      if (!response.ok) {
+        let code: string | undefined;
+        let detail: string | undefined;
+        try {
+          const problem = (await response.json()) as { code?: string; detail?: string };
+          code = problem.code;
+          detail = problem.detail;
+        } catch { /* not JSON */ }
+        throw new ApiError(detail ?? "Upload failed", response.status, code);
+      }
+      return response.json() as Promise<{ message: string }>;
     },
     onSuccess: (response) => {
       setSuccessMessage(response.message);
@@ -70,7 +90,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
         );
       } else {
-        setErrorMessage(`${code}`);
+        setErrorMessage("Upload failed. Check the file, then try again.");
       }
       setSuccessMessage("");
     },

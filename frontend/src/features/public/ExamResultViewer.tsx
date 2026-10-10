@@ -149,15 +149,14 @@ export function ExamResultViewer({
             <div className="overflow-x-auto print:overflow-visible">
               <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:table-fixed print:text-sm">
                 <colgroup>
-                    
-                        <>
-                        <col className="w-[7%] print:w-[7%]" />
-                        <col className="w-[30%] print:w-[30%]" />
-                        <col className="w-[11%] print:w-[11%]" />
-                        <col className="w-[12%] print:w-[12%]" />
-                        <col className="w-[10%] print:w-[10%]" />
-                        <col className="w-[30%] print:w-[30%]" />
-                        </>
+                  <>
+                    <col className="w-[7%] print:w-[7%]" />
+                    <col className="w-[30%] print:w-[30%]" />
+                    <col className="w-[11%] print:w-[11%]" />
+                    <col className="w-[12%] print:w-[12%]" />
+                    <col className="w-[10%] print:w-[10%]" />
+                    <col className="w-[30%] print:w-[30%]" />
+                  </>
                 </colgroup>
                 <thead>
                   <tr className="bg-amber-100/90 text-slate-900">
@@ -174,9 +173,9 @@ export function ExamResultViewer({
                       મેળવેલ ગુણ
                     </th>
                     {/* {!isEkam && ( */}
-                      <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-10 sm:w-14 font-bold print:p-2 print:w-14 whitespace-nowrap">
-                        ગ્રેડ
-                      </th>
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-10 sm:w-14 font-bold print:p-2 print:w-14 whitespace-nowrap">
+                      ગ્રેડ
+                    </th>
                     {/* // )} */}
                     <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-20 sm:w-28 font-bold text-center print:p-2 print:w-28 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
