@@ -3,7 +3,7 @@ import schoolLogo from "@/assets/school-logo.jpeg";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
-import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
+import { DEFAULT_SCHOOL_INFO, LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function AboutPage() {
   const school = useEffectiveSchoolInfo();
@@ -36,9 +36,7 @@ export function AboutPage() {
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
             <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700">
-              અમારી શાળા સમી તાલુકાના ધધાણા ગામમાં સ્થિત એક અગ્રણી પ્રાથમિક શાળા છે. વર્ષ{" "}
-              {toGujaratiNumber(school.establishedYear)} માં સ્થાપના પામેલી આ શાળામાં ધોરણ ૧ થી ૮
-              સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે.
+              {school.about}
             </p>
           </div>
         </div>
