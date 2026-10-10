@@ -3,7 +3,7 @@ import schoolLogo from "@/assets/school-logo.jpeg";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
-import { DEFAULT_SCHOOL_INFO, LABELS, toGujaratiNumber } from "@/utils/gujarati";
+import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
 export function AboutPage() {
   const school = useEffectiveSchoolInfo();
