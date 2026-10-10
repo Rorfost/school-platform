@@ -36,10 +36,8 @@ export function ResultsInfoPage() {
   const configuredClasses = matchedStandard?.classes ?? [];
 
   const isStandardValid = /^[1-8]$/.test(standard);
-  const isClassValid =
-    configuredClasses.length > 0
-      ? configuredClasses.includes(studentClass.trim())
-      : studentClass.trim().length > 0;
+  // Class is only valid when a specific class has been selected from the configured dropdown
+  const isClassValid = configuredClasses.length > 0 && configuredClasses.includes(studentClass);
   const isRollNumberValid = /^[1-9]\d*$/.test(rollNumber);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -49,11 +47,7 @@ export function ResultsInfoPage() {
       return;
     }
     if (!isClassValid) {
-      setError(
-        configuredClasses.length > 0
-          ? `કૃપા કરીને માન્ય વર્ગ પસંદ કરો (${configuredClasses.join(", ")}).`
-          : "કૃપા કરીને માન્ય વર્ગ દાખલ કરો.",
-      );
+      setError(`કૃપા કરીને વર્ગ પસંદ કરો (${configuredClasses.join(", ")}).`);
       return;
     }
     if (!isRollNumberValid) {
@@ -123,46 +117,45 @@ export function ResultsInfoPage() {
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, "").slice(0, 1);
                       setStandard(val);
+                      setStudentClass(""); // reset class when standard changes
                     }}
                     placeholder="દા.ત. 8"
                     aria-invalid={standard.length > 0 && !isStandardValid}
                     required
                   />
-                  {configuredClasses.length > 0 ? (
-                    <div className="w-full">
-                      <label
-                        htmlFor="class-select"
-                        className="block text-sm font-medium text-slate-700 mb-1.5"
-                      >
-                        વર્ગ
-                      </label>
-                      <select
-                        id="class-select"
-                        aria-label="વર્ગ"
-                        value={studentClass}
-                        onChange={(e) => setStudentClass(e.target.value)}
-                        className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400"
-                        required
-                      >
-                        <option value="">વર્ગ પસંદ કરો</option>
-                        {configuredClasses.map((cls) => (
-                          <option key={cls} value={cls}>
-                            {cls}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : (
-                    <Input
-                      label="વર્ગ"
-                      type="text"
+                  {/* Class — always a dropdown, disabled until a valid standard with classes is selected */}
+                  <div className="w-full">
+                    <label
+                      htmlFor="class-select"
+                      className="block text-sm font-medium text-slate-700 mb-1.5"
+                    >
+                      વર્ગ
+                    </label>
+                    <select
+                      id="class-select"
+                      aria-label="વર્ગ"
                       value={studentClass}
                       onChange={(e) => setStudentClass(e.target.value)}
-                      placeholder="દા.ત. A"
-                      aria-invalid={studentClass.length > 0 && !isClassValid}
+                      disabled={!isStandardValid || configuredClasses.length === 0}
+                      className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                       required
-                    />
-                  )}
+                    >
+                      {!isStandardValid ? (
+                        <option value="">ધોરણ પ્રથમ દાખલ કરો</option>
+                      ) : configuredClasses.length === 0 ? (
+                        <option value="">આ ધોરણ માટે વર્ગ નથી</option>
+                      ) : (
+                        <>
+                          <option value="">વર્ગ પસંદ કરો</option>
+                          {configuredClasses.map((cls) => (
+                            <option key={cls} value={cls}>
+                              {cls}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
                   <Input
                     label="રોલ નંબર"
                     type="text"
