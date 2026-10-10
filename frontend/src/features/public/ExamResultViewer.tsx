@@ -29,6 +29,7 @@ export function ExamResultViewer({
   const locationSubtitle = [
     schoolInfo.taluka ? `તા. ${schoolInfo.taluka}` : "",
     schoolInfo.district ? `જિ. ${schoolInfo.district}` : "",
+    schoolInfo.schoolCode ? `ડાયસ કોડ: ${schoolInfo.schoolCode}` : "",
   ]
     .filter(Boolean)
     .join(", ");
@@ -36,7 +37,7 @@ export function ExamResultViewer({
   const handlePrint = () => window.print();
 
   const isEkam = resultType === "EKAM_KASOTI";
-  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "વાર્ષિક પરીક્ષા";
+  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
   const sheetTitle = isEkam
     ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`
     : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
@@ -53,96 +54,103 @@ export function ExamResultViewer({
 
       <div
         id="exam-result-print"
-        className="exam-result-sheet mx-auto bg-white p-1.5 sm:p-4 text-slate-900 print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
+        className="exam-result-sheet mx-auto bg-white p-1 sm:p-4 text-slate-900 print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
         style={{ maxWidth: "195mm" }}
       >
         <div className="border-2 sm:border-4 border-slate-900 p-0.5 sm:p-1 print:border-4 print:p-1">
           <div className="border border-slate-900 sm:border-2 print:border-2">
-            {/* Header */}
-            <div className="flex items-center border-b-2 border-slate-900">
-              <div className="w-[70px] sm:w-[110px] shrink-0 p-1 sm:p-2 border-r-2 border-slate-900 flex justify-center items-center print:w-[110px] print:p-2">
+            {/* Header: Free logo with subtle vertical divider line */}
+            <div className="flex items-center border-b-2 border-slate-900 py-1.5 sm:py-2 px-1 sm:px-3 relative">
+              <div className="shrink-0 p-1 sm:p-2 flex justify-center items-center">
                 <img
                   src={logoUrl || schoolInfo.logoUrl || schoolLogo}
                   alt="School Logo"
-                  className="size-12 sm:size-20 object-contain print:size-20"
+                  className="size-14 sm:size-20 object-contain print:size-20"
                   crossOrigin="anonymous"
                 />
               </div>
-              <div className="flex-1 text-center py-2 px-1 flex flex-col justify-center leading-tight">
-                <h1 className="text-sm sm:text-2xl font-bold text-blue-900 tracking-wide print:text-2xl">
+              {/* Subtle vertical divider */}
+              <div
+                className="h-12 sm:h-16 w-px bg-slate-900/60 mx-1 sm:mx-3 shrink-0"
+                aria-hidden="true"
+              />
+
+              <div className="flex-1 text-center py-1 px-1 flex flex-col justify-center leading-tight min-w-0">
+                <h1 className="text-sm sm:text-2xl font-bold text-blue-900 tracking-wide print:text-2xl truncate sm:whitespace-normal">
                   {schoolName || schoolInfo.name}
                 </h1>
                 {locationSubtitle && (
-                  <p className="text-xs sm:text-base font-bold text-blue-900 mt-0.5 sm:mt-1 print:text-base">
+                  <p className="text-[11px] sm:text-base font-bold text-blue-900 mt-0.5 sm:mt-1 print:text-base truncate sm:whitespace-normal">
                     {locationSubtitle}
                   </p>
                 )}
-                <div className="mt-1.5 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-11/12 sm:w-3/4 pt-1 text-xs sm:text-base print:text-base">
+                {/* Clean, matchable red header line */}
+                <div className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-4/5 sm:w-1/2 max-w-xs pt-1 text-xs sm:text-base print:text-base">
                   {sheetTitle}
                 </div>
               </div>
             </div>
 
-            {/* Student Info – clean layout without boxes */}
+            {/* Student Info – Shifted Col 2 to the left for better spacing & long name support */}
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
-              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
+                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
                   <span className="font-bold truncate">{result.studentName}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">વર્ગ :</span>
                   <span>{result.studentClass || "-"}</span>
                 </div>
               </div>
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
-              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
+                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">વિદ્યાર્થી યુઆઈડી :</span>
-                  <span>{result.studentUid || "-"}</span>
+                  <span className="truncate">{result.studentUid || "-"}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">રોલ નં :</span>
                   <span>{result.rollNumber}</span>
                 </div>
               </div>
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
-              <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
+                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[32%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
+                <div className="w-1/2 sm:w-[20%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">હાજર દિવસ :</span>
                   <span>{result.attendedDays ?? "-"}</span>
                 </div>
               </div>
             </div>
 
-            {/* Marks Table */}
+            {/* Marks Table: Narrower Subject column, expanded Remarks column */}
             <div className="overflow-x-auto print:overflow-visible">
               <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:text-sm">
                 <thead>
                   <tr className="bg-amber-100/90 text-slate-900">
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-8 sm:w-10 font-bold print:p-2 print:w-10 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-7 sm:w-10 font-bold print:p-2 print:w-10 whitespace-nowrap">
                       ક્રમ
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 font-bold text-center print:p-2 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-44 font-bold text-center print:p-2 print:w-44 whitespace-nowrap">
                       વિષય
                     </th>
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-16 font-bold print:p-2 print:w-16 whitespace-nowrap">
@@ -156,7 +164,7 @@ export function ExamResultViewer({
                         ગ્રેડ
                       </th>
                     )}
-                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-36 font-bold print:p-2 print:w-36 whitespace-nowrap">
+                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 font-bold text-center print:p-2 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
                   </tr>
@@ -214,49 +222,52 @@ export function ExamResultViewer({
               </table>
             </div>
 
-            {/* Place & Date – clean layout without box borders */}
-            <div className="border-b-2 border-slate-900 p-2 px-3 sm:px-4 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 space-y-1">
-              <div className="flex gap-2 items-center">
-                <span className="font-bold text-slate-900 shrink-0">સ્થળ :</span>
-                <span>{resultPlaceValue || schoolInfo.city || "-"}</span>
+            {/* Place, Date & Signatures Container: Clean seamless layout without harsh box borders */}
+            <div className="pt-2 sm:pt-3 pb-2 px-3 sm:px-8 bg-white">
+              {/* Place & Date */}
+              <div className="text-xs sm:text-sm font-semibold space-y-1 mb-2 sm:mb-4">
+                <div className="flex gap-2 items-center">
+                  <span className="font-bold text-slate-900 shrink-0">સ્થળ :</span>
+                  <span>{resultPlaceValue || schoolInfo.city || "-"}</span>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="font-bold text-slate-900 shrink-0">તારીખ :</span>
+                  <span>{formatDate(resultDateValue)}</span>
+                </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <span className="font-bold text-slate-900 shrink-0">તારીખ :</span>
-                <span>{formatDate(resultDateValue)}</span>
-              </div>
-            </div>
 
-            {/* Signatures – flexbox layout for consistent alignment */}
-            <div className="flex justify-between items-end border-b-2 border-slate-900 bg-white px-3 sm:px-8 pt-1 sm:pt-2 pb-2 min-h-0 print:px-8 print:pt-1 print:min-h-28">
-              <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
-                {settings?.classTeacherSignatureUrl ? (
-                  <img
-                    src={settings.classTeacherSignatureUrl}
-                    alt="Class teacher signature"
-                    className="h-9 sm:h-12 max-w-28 sm:max-w-40 object-contain print:h-12 print:max-w-40"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <div className="h-9 sm:h-12 print:h-12" aria-hidden="true" />
-                )}
-                <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
-                  વર્ગ શિક્ષકની સહી
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-end min-w-[130px] sm:min-w-[170px] text-center gap-1 print:min-w-[170px]">
-                {settings?.principalSignatureUrl ? (
-                  <img
-                    src={settings.principalSignatureUrl}
-                    alt="Principal seal and signature"
-                    className="h-24 max-w-56 sm:h-28 sm:max-w-64 object-contain print:h-28 print:max-w-64"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
-                )}
-                <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
-                  આચાર્યની સહી
-                </span>
+              {/* Signatures */}
+              <div className="flex justify-between items-end pt-1 sm:pt-2 min-h-0 print:min-h-28">
+                <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
+                  {settings?.classTeacherSignatureUrl ? (
+                    <img
+                      src={settings.classTeacherSignatureUrl}
+                      alt="Class teacher signature"
+                      className="h-9 sm:h-12 max-w-28 sm:max-w-40 object-contain print:h-12 print:max-w-40"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <div className="h-9 sm:h-12 print:h-12" aria-hidden="true" />
+                  )}
+                  <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
+                    વર્ગ શિક્ષકની સહી
+                  </span>
+                </div>
+                <div className="flex flex-col items-center justify-end min-w-[130px] sm:min-w-[170px] text-center gap-1 print:min-w-[170px]">
+                  {settings?.principalSignatureUrl ? (
+                    <img
+                      src={settings.principalSignatureUrl}
+                      alt="Principal seal and signature"
+                      className="h-24 max-w-56 sm:h-28 sm:max-w-64 object-contain print:h-28 print:max-w-64"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
+                  )}
+                  <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
+                    આચાર્યની સહી
+                  </span>
+                </div>
               </div>
             </div>
 
