@@ -195,4 +195,13 @@ class AcademicConfigurationController {
     return service.replaceStandardSubjects(
         principal.schoolId(), principal.adminUserId(), standardId, request);
   }
+
+  @PutMapping("/standards/{id}/classes")
+  StandardResponse replaceStandardClasses(
+      @AuthenticationPrincipal PrincipalSession principal,
+      @PathVariable UUID id,
+      @RequestBody StandardClassesUpdateRequest request) {
+    return service.updateStandardClasses(
+        principal.schoolId(), principal.adminUserId(), id, request);
+  }
 }

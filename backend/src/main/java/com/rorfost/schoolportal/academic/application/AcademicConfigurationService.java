@@ -4,6 +4,7 @@ import com.rorfost.schoolportal.academic.api.AcademicSetupResponse;
 import com.rorfost.schoolportal.academic.api.AcademicYearRequest;
 import com.rorfost.schoolportal.academic.api.AcademicYearResponse;
 import com.rorfost.schoolportal.academic.api.ClassTeacherRequest;
+import com.rorfost.schoolportal.academic.api.StandardClassesUpdateRequest;
 import com.rorfost.schoolportal.academic.api.StandardNameRequest;
 import com.rorfost.schoolportal.academic.api.StandardRequest;
 import com.rorfost.schoolportal.academic.api.StandardResponse;
@@ -16,9 +17,11 @@ import com.rorfost.schoolportal.academic.api.SubjectResponse;
 import com.rorfost.schoolportal.academic.domain.AcademicYear;
 import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
 import com.rorfost.schoolportal.academic.domain.Standard;
+import com.rorfost.schoolportal.academic.domain.StandardClass;
 import com.rorfost.schoolportal.academic.domain.StandardSubject;
 import com.rorfost.schoolportal.academic.domain.Subject;
 import com.rorfost.schoolportal.academic.repository.AcademicYearRepository;
+import com.rorfost.schoolportal.academic.repository.StandardClassRepository;
 import com.rorfost.schoolportal.academic.repository.StandardRepository;
 import com.rorfost.schoolportal.academic.repository.StandardSubjectRepository;
 import com.rorfost.schoolportal.academic.repository.SubjectRepository;
@@ -46,6 +49,7 @@ public class AcademicConfigurationService {
   private final StandardRepository standards;
   private final SubjectRepository subjects;
   private final StandardSubjectRepository standardSubjects;
+  private final StandardClassRepository standardClasses;
   private final AuditLogService audit;
   private final StorageService storage;
 
@@ -54,12 +58,14 @@ public class AcademicConfigurationService {
       StandardRepository standards,
       SubjectRepository subjects,
       StandardSubjectRepository standardSubjects,
+      StandardClassRepository standardClasses,
       AuditLogService audit,
       StorageService storage) {
     this.academicYears = academicYears;
     this.standards = standards;
     this.subjects = subjects;
     this.standardSubjects = standardSubjects;
+    this.standardClasses = standardClasses;
     this.audit = audit;
     this.storage = storage;
   }
@@ -186,6 +192,7 @@ public class AcademicConfigurationService {
         || mappings.stream().anyMatch(mapping -> standardSubjects.isReferenced(mapping.getId())))
       throw conflict("standard_in_use");
     standardSubjects.deleteAll(mappings);
+    standardClasses.deleteByStandardId(id);
     standards.delete(standard);
     audit(schoolId, actorId, AuditAction.STANDARD_DELETED, "STANDARD", id);
   }
@@ -404,7 +411,35 @@ public class AcademicConfigurationService {
         standard.getClassTeacherSignatureObjectKey() == null
             ? null
             : storage.publicUrl(standard.getClassTeacherSignatureObjectKey());
-    return StandardResponse.from(standard, url);
+    List<String> classes =
+        standardClasses
+            .findBySchoolIdAndStandardIdOrderBySortOrder(standard.getSchoolId(), standard.getId())
+            .stream()
+            .map(StandardClass::getName)
+            .toList();
+    return StandardResponse.from(standard, url, classes);
+  }
+
+  @Transactional
+  public StandardResponse updateStandardClasses(
+      UUID schoolId, UUID actorId, UUID standardId, StandardClassesUpdateRequest request) {
+    Standard standard = requireStandard(schoolId, standardId);
+    if (standard.isArchived()) throw conflict("archived_academic_item");
+    List<String> classNames =
+        request.classes() == null
+            ? List.of()
+            : request.classes().stream()
+                .map(String::trim)
+                .filter(name -> !name.isBlank())
+                .distinct()
+                .toList();
+    standardClasses.deleteByStandardId(standardId);
+    short order = 1;
+    for (String name : classNames) {
+      standardClasses.save(new StandardClass(schoolId, standardId, name, order++));
+    }
+    audit(schoolId, actorId, AuditAction.STANDARD_UPDATED, "STANDARD_CLASSES", standardId);
+    return toStandardResponse(standard);
   }
 
   @Transactional
