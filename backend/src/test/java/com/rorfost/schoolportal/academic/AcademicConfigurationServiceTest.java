@@ -32,12 +32,16 @@ class AcademicConfigurationServiceTest {
   private final StandardRepository standards = Mockito.mock(StandardRepository.class);
   private final SubjectRepository subjects = Mockito.mock(SubjectRepository.class);
   private final StandardSubjectRepository mappings = Mockito.mock(StandardSubjectRepository.class);
+  private final com.rorfost.schoolportal.academic.repository.StandardClassRepository
+      standardClasses =
+          Mockito.mock(com.rorfost.schoolportal.academic.repository.StandardClassRepository.class);
   private final AcademicConfigurationService service =
       new AcademicConfigurationService(
           years,
           standards,
           subjects,
           mappings,
+          standardClasses,
           Mockito.mock(AuditLogService.class),
           Mockito.mock(StorageService.class));
 
@@ -191,5 +195,31 @@ class AcademicConfigurationServiceTest {
         .satisfies(
             error ->
                 assertThat(((DomainException) error).getCode()).isEqualTo("subject_not_found"));
+  }
+
+  @Test
+  void updatesStandardClassesWithNormalizedNames() {
+    UUID schoolId = UUID.randomUUID();
+    UUID standardId = UUID.randomUUID();
+    Standard standard = new Standard(schoolId, "STD_8", "Standard 8", (short) 8);
+    when(standards.findByIdAndSchoolId(standardId, schoolId)).thenReturn(Optional.of(standard));
+
+    com.rorfost.schoolportal.academic.api.StandardResponse response =
+        service.updateStandardClasses(
+            schoolId,
+            UUID.randomUUID(),
+            standardId,
+            new com.rorfost.schoolportal.academic.api.StandardClassesUpdateRequest(
+                List.of(" A ", "B", "A", "")));
+
+    verify(standardClasses).deleteByStandardId(standardId);
+    ArgumentCaptor<com.rorfost.schoolportal.academic.domain.StandardClass> captor =
+        ArgumentCaptor.forClass(com.rorfost.schoolportal.academic.domain.StandardClass.class);
+    verify(standardClasses, Mockito.times(2)).save(captor.capture());
+    List<com.rorfost.schoolportal.academic.domain.StandardClass> saved = captor.getAllValues();
+    assertThat(saved.get(0).getName()).isEqualTo("A");
+    assertThat(saved.get(0).getSortOrder()).isEqualTo((short) 1);
+    assertThat(saved.get(1).getName()).isEqualTo("B");
+    assertThat(saved.get(1).getSortOrder()).isEqualTo((short) 2);
   }
 }

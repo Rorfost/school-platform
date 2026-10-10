@@ -42,6 +42,7 @@ export interface StandardResponse {
   classTeacherName?: string | null;
   classTeacherSignatureObjectKey?: string | null;
   classTeacherSignatureUrl?: string | null;
+  classes?: string[];
 }
 
 export interface SubjectResponse {
@@ -347,13 +348,15 @@ export interface ResultPresentationSettingsResponse {
 export interface ExamResultResponse {
   id: string;
   schoolId: string;
+  studentUid?: string | null;
   studentName: string;
   standard: string;
+  studentClass?: string | null;
   rollNumber: number;
   generalRegisterNumber: string | null;
   birthDate: string | null;
-  totalWorkingDays: number | null;
-  attendedDays: number | null;
+  totalWorkingDays: string | number | null;
+  attendedDays: string | number | null;
   totalMarks: number | null;
   obtainedMarks: number | null;
   percentage: number | null;

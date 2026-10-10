@@ -41,6 +41,7 @@ export function AdminAcademicSetupPage() {
   const [subjectTarget, setSubjectTarget] = useState<SubjectResponse | null>(null);
   const [standardDialog, setStandardDialog] = useState(false);
   const [classTeacherTarget, setClassTeacherTarget] = useState<StandardResponse | null>(null);
+  const [classesTarget, setClassesTarget] = useState<StandardResponse | null>(null);
 
   const [subjectDialog, setSubjectDialog] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
@@ -169,6 +170,19 @@ export function AdminAcademicSetupPage() {
       updateStandardInSetup(updated);
       setClassTeacherTarget(null);
     },
+  });
+  const saveClasses = useMutation({
+    mutationFn: ({ standardId, classes }: { standardId: string; classes: string[] }) =>
+      apiRequest<StandardResponse>(`/api/v1/admin/standards/${standardId}/classes`, {
+        method: "PUT",
+        body: { classes },
+      }),
+    onSuccess: (updated) => {
+      updateStandardInSetup(updated);
+      setClassesTarget(null);
+      setErrorMessage(null);
+    },
+    onError: (error) => setErrorMessage(academicError(error, "Could not save Classes.")),
   });
   const uploadClassTeacherSignature = useMutation({
     mutationFn: ({ standardId, file }: { standardId: string; file: File }) => {
@@ -351,7 +365,19 @@ export function AdminAcademicSetupPage() {
                     <h2 className="text-lg font-bold text-slate-900">
                       {entry.standard.displayName}
                     </h2>
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs">
+                      <span className="font-semibold text-slate-500">વર્ગ :</span>
+                      {entry.standard.classes && entry.standard.classes.length > 0 ? (
+                        entry.standard.classes.map((cls) => (
+                          <Badge key={cls} variant="neutral" size="sm">
+                            {cls}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-slate-400">કોઈ વર્ગ નથી</span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">
                       {entry.subjects.length
                         ? `${entry.subjects.length} subject${entry.subjects.length === 1 ? "" : "s"} selected`
                         : "No Subjects assigned yet."}
@@ -370,6 +396,13 @@ export function AdminAcademicSetupPage() {
                   </Button>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2 text-xs">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setClassesTarget(entry.standard)}
+                  >
+                    <Pencil size={13} aria-hidden="true" /> Classes (વર્ગ)
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -637,6 +670,14 @@ export function AdminAcademicSetupPage() {
           }
         />
       )}
+      {classesTarget && (
+        <ClassesDialog
+          standard={classesTarget}
+          pending={saveClasses.isPending}
+          onClose={() => !saveClasses.isPending && setClassesTarget(null)}
+          onSubmit={(classes) => saveClasses.mutate({ standardId: classesTarget.id, classes })}
+        />
+      )}
 
       {subjectDialog && (
         <NameDialog
@@ -766,6 +807,92 @@ function NameDialog({
           </Button>
         </div>
       </form>
+    </Dialog>
+  );
+}
+
+function ClassesDialog({
+  standard,
+  pending,
+  onClose,
+  onSubmit,
+}: {
+  standard: StandardResponse;
+  pending: boolean;
+  onClose: () => void;
+  onSubmit: (classes: string[]) => void;
+}) {
+  const [classes, setClasses] = useState<string[]>(standard.classes ?? []);
+  const [newClass, setNewClass] = useState("");
+
+  const handleAdd = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = newClass.trim().toUpperCase();
+    if (trimmed && !classes.includes(trimmed)) {
+      setClasses([...classes, trimmed]);
+      setNewClass("");
+    }
+  };
+
+  const handleRemove = (cls: string) => {
+    setClasses(classes.filter((c) => c !== cls));
+  };
+
+  return (
+    <Dialog title={`Manage Classes (વર્ગ): ${standard.displayName}`} onClose={onClose}>
+      <div className="space-y-4">
+        <p className="text-xs text-slate-600">
+          Add or remove classes (e.g. A, B, C) for this Standard.
+        </p>
+
+        <form onSubmit={handleAdd} className="flex gap-2">
+          <Input
+            value={newClass}
+            onChange={(e) => setNewClass(e.target.value)}
+            placeholder="e.g. A"
+            className="flex-1"
+          />
+          <Button type="submit" size="sm" variant="outline">
+            <Plus size={16} aria-hidden="true" /> Add
+          </Button>
+        </form>
+
+        <div className="min-h-16 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          {classes.length === 0 ? (
+            <p className="text-center text-xs text-slate-500 py-2">
+              No classes configured yet. Add classes like A, B above.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {classes.map((cls) => (
+                <span
+                  key={cls}
+                  className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-900 border border-blue-200"
+                >
+                  {cls}
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(cls)}
+                    className="ml-1 text-blue-700 hover:text-red-700"
+                    aria-label={`Remove class ${cls}`}
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
+          <Button variant="outline" type="button" disabled={pending} onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="button" loading={pending} onClick={() => onSubmit(classes)}>
+            {pending ? "Saving..." : "Save Classes"}
+          </Button>
+        </div>
+      </div>
     </Dialog>
   );
 }

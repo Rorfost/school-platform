@@ -57,42 +57,41 @@ public class ExamResultService {
 
   @Transactional(readOnly = true)
   public ExamResultResponse getResult(String standard, Integer rollNumber, String resultType) {
+    return getResult(standard, null, rollNumber, resultType);
+  }
+
+  @Transactional(readOnly = true)
+  public ExamResultResponse getResult(
+      String standard, String studentClass, Integer rollNumber, String resultType) {
     School school = getSchool();
+    String trimmedClass =
+        (studentClass == null || studentClass.isBlank()) ? null : studentClass.trim();
     return resultRepository
-        .findBySchoolIdAndResultTypeAndStandardAndRollNumber(
-            school.getId(), validateResultType(resultType), standard, rollNumber)
+        .findResult(
+            school.getId(),
+            validateResultType(resultType),
+            standard.trim(),
+            trimmedClass,
+            rollNumber)
         .map(this::mapToResponse)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Result not found"));
   }
 
-  /**
-   * Uploads an exam-result workbook.
-   *
-   * <p>Column layout (0-indexed, after removing the old Sr.No. column):
-   *
-   * <ul>
-   *   <li>ANNUAL: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, 4 = Hajar Divas (attended
-   *       days), subjects from col 5 onward in pairs (max marks + obt marks + grade).
-   *   <li>EKAM_KASOTI: col 0 = GR No., 1 = Standard, 2 = Name, 3 = Birth Date, subjects from col 4
-   *       onward in pairs (max marks + obt marks). No Hajar Divas column.
-   * </ul>
-   *
-   * totalWorkingDays is only meaningful for ANNUAL; it is ignored (and not validated) for
-   * EKAM_KASOTI.
-   */
   @Transactional
-  public void processExcelUpload(MultipartFile file, Integer totalWorkingDays, String resultType) {
+  public void processExcelUpload(MultipartFile file, String totalWorkingDays, String resultType) {
     String validatedResultType = validateResultType(resultType);
-    if (ANNUAL.equals(validatedResultType) && (totalWorkingDays == null || totalWorkingDays < 1)) {
-      throw new DomainException(HttpStatus.BAD_REQUEST, "validation_failed");
-    }
 
     School school = getSchool();
     ResultPresentationSettings settings =
         presentationSettings
             .findById(school.getId())
             .orElseGet(() -> new ResultPresentationSettings(school.getId()));
-    Integer persistedWorkingDays = ANNUAL.equals(validatedResultType) ? totalWorkingDays : null;
+    String persistedWorkingDays =
+        ANNUAL.equals(validatedResultType)
+            ? (totalWorkingDays != null && !totalWorkingDays.isBlank()
+                ? totalWorkingDays.trim()
+                : null)
+            : null;
     List<AnnualExamResult> results =
         parseWorkbook(file, school, persistedWorkingDays, validatedResultType, settings);
     if (results.isEmpty()) {
@@ -114,7 +113,7 @@ public class ExamResultService {
   private List<AnnualExamResult> parseWorkbook(
       MultipartFile file,
       School school,
-      Integer totalWorkingDays,
+      String totalWorkingDays,
       String resultType,
       ResultPresentationSettings settings) {
     try (InputStream inputStream = file.getInputStream();
@@ -124,15 +123,19 @@ public class ExamResultService {
       List<AnnualExamResult> results = new ArrayList<>();
 
       boolean isEkam = EKAM_KASOTI.equals(resultType);
-      // Column indices after Sr.No. column has been removed from both formats:
-      //   ANNUAL:       GR=0, Std=1, Name=2, BirthDate=3, AttendedDays=4, subjects from 5
-      //   EKAM_KASOTI:  GR=0, Std=1, Name=2, BirthDate=3,               subjects from 4
+      // Column layout:
+      //   ANNUAL:      GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5, AttendedDays=6, subjects
+      // from 7
+      //   EKAM_KASOTI: GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5,                subjects
+      // from 6
       int colGr = 0;
-      int colStd = 1;
-      int colName = 2;
-      int colBirth = 3;
-      int colAttended = isEkam ? -1 : 4;
-      int colSubjectsStart = isEkam ? 4 : 5;
+      int colStudentUid = 1;
+      int colStd = 2;
+      int colClass = 3;
+      int colName = 4;
+      int colBirth = 5;
+      int colAttended = isEkam ? -1 : 6;
+      int colSubjectsStart = isEkam ? 6 : 7;
 
       int subjectColumnStep = isEkam ? 2 : 3;
 
@@ -147,17 +150,29 @@ public class ExamResultService {
           continue;
         }
 
+        String studentClass = cellText(row.getCell(colClass));
+        String rollKey =
+            standard
+                + (studentClass.isBlank()
+                    ? ""
+                    : "#" + studentClass.trim().toUpperCase(Locale.ROOT));
+
         AnnualExamResult result = new AnnualExamResult();
         result.setId(UUID.randomUUID());
         result.setSchoolId(school.getId());
         result.setResultType(resultType);
         result.setStandard(standard);
-        result.setRollNumber(standardRollCounts.merge(standard, 1, Integer::sum));
+        result.setStudentClass(studentClass.isBlank() ? null : studentClass.trim());
+        result.setRollNumber(standardRollCounts.merge(rollKey, 1, Integer::sum));
+        result.setStudentUid(cellText(row.getCell(colStudentUid)));
         result.setStudentName(name);
         result.setGeneralRegisterNumber(cellText(row.getCell(colGr)));
         result.setBirthDate(cellText(row.getCell(colBirth)));
         result.setTotalWorkingDays(totalWorkingDays);
-        result.setAttendedDays(colAttended >= 0 ? optionalInteger(row.getCell(colAttended)) : null);
+
+        String attendedValue = colAttended >= 0 ? cellText(row.getCell(colAttended)) : null;
+        result.setAttendedDays(
+            attendedValue != null && !attendedValue.isBlank() ? attendedValue : null);
 
         addSubjects(
             result,
@@ -219,7 +234,6 @@ public class ExamResultService {
       subject.setId(UUID.randomUUID());
       subject.setSubjectName(configuredSubjects.get(index).name());
 
-      // NOW FROM EXCEL
       subject.setMaximumMarks(maximumMarks);
 
       if (absent) {
@@ -535,7 +549,16 @@ public class ExamResultService {
   }
 
   private String cellText(Cell cell) {
-    return cell == null ? "" : dataFormatter.formatCellValue(cell).trim();
+    if (cell == null) {
+      return "";
+    }
+    if (cell.getCellType() == CellType.NUMERIC && !DateUtil.isCellDateFormatted(cell)) {
+      double val = cell.getNumericCellValue();
+      if (val == Math.rint(val)) {
+        return String.valueOf((long) val);
+      }
+    }
+    return dataFormatter.formatCellValue(cell).trim();
   }
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {
@@ -564,13 +587,19 @@ public class ExamResultService {
     return new ExamResultResponse(
         entity.getId(),
         entity.getSchoolId(),
+        entity.getStudentUid(),
         entity.getStudentName(),
         entity.getStandard(),
+        entity.getStudentClass(),
         entity.getRollNumber(),
         entity.getGeneralRegisterNumber(),
         entity.getBirthDate(),
-        entity.getTotalWorkingDays(),
-        entity.getAttendedDays(),
+        (entity.getTotalWorkingDays() == null || entity.getTotalWorkingDays().isBlank())
+            ? "-"
+            : entity.getTotalWorkingDays(),
+        (entity.getAttendedDays() == null || entity.getAttendedDays().isBlank())
+            ? "-"
+            : entity.getAttendedDays(),
         entity.getTotalMarks(),
         entity.getObtainedMarks(),
         entity.getPercentage(),

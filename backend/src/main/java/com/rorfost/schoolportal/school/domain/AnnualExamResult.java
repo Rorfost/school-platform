@@ -23,10 +23,16 @@ public class AnnualExamResult {
   @Column(name = "result_type")
   private String resultType;
 
+  @Column(name = "student_uid")
+  private String studentUid;
+
   @Column(name = "student_name")
   private String studentName;
 
   private String standard;
+
+  @Column(name = "student_class")
+  private String studentClass;
 
   @Column(name = "roll_number")
   private Integer rollNumber;
@@ -38,10 +44,10 @@ public class AnnualExamResult {
   private String birthDate;
 
   @Column(name = "total_working_days")
-  private Integer totalWorkingDays;
+  private String totalWorkingDays;
 
   @Column(name = "attended_days")
-  private Integer attendedDays;
+  private String attendedDays;
 
   @Column(name = "total_marks")
   private Integer totalMarks;
@@ -89,6 +95,14 @@ public class AnnualExamResult {
     this.resultType = resultType;
   }
 
+  public String getStudentUid() {
+    return studentUid;
+  }
+
+  public void setStudentUid(String studentUid) {
+    this.studentUid = studentUid;
+  }
+
   public String getStudentName() {
     return studentName;
   }
@@ -103,6 +117,14 @@ public class AnnualExamResult {
 
   public void setStandard(String standard) {
     this.standard = standard;
+  }
+
+  public String getStudentClass() {
+    return studentClass;
+  }
+
+  public void setStudentClass(String studentClass) {
+    this.studentClass = studentClass;
   }
 
   public Integer getRollNumber() {
@@ -129,19 +151,19 @@ public class AnnualExamResult {
     this.birthDate = birthDate;
   }
 
-  public Integer getTotalWorkingDays() {
+  public String getTotalWorkingDays() {
     return totalWorkingDays;
   }
 
-  public void setTotalWorkingDays(Integer totalWorkingDays) {
+  public void setTotalWorkingDays(String totalWorkingDays) {
     this.totalWorkingDays = totalWorkingDays;
   }
 
-  public Integer getAttendedDays() {
+  public String getAttendedDays() {
     return attendedDays;
   }
 
-  public void setAttendedDays(Integer attendedDays) {
+  public void setAttendedDays(String attendedDays) {
     this.attendedDays = attendedDays;
   }
 

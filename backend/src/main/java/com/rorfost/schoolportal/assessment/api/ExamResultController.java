@@ -20,18 +20,19 @@ public class ExamResultController {
   @GetMapping("/public/exam-results")
   public ResponseEntity<ExamResultResponse> getResult(
       @RequestParam("standard") String standard,
+      @RequestParam(value = "class", required = false) String studentClass,
       @RequestParam("rollNumber") Integer rollNumber,
       @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
           String resultType) {
     return ResponseEntity.ok()
         .cacheControl(CacheControl.noStore())
-        .body(service.getResult(standard, rollNumber, resultType));
+        .body(service.getResult(standard, studentClass, rollNumber, resultType));
   }
 
   @PostMapping("/admin/exam-results/upload")
   public ResponseEntity<Map<String, String>> uploadResults(
       @RequestParam("file") MultipartFile file,
-      @RequestParam(value = "totalWorkingDays", required = false) Integer totalWorkingDays,
+      @RequestParam(value = "totalWorkingDays", required = false) String totalWorkingDays,
       @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
           String resultType) {
     service.processExcelUpload(file, totalWorkingDays, resultType);

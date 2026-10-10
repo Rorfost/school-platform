@@ -26,8 +26,8 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       const formData = new FormData();
       formData.append("file", file!);
       formData.append("resultType", resultType);
-      if (isAnnual) {
-        formData.append("totalWorkingDays", totalWorkingDays);
+      if (isAnnual && totalWorkingDays.trim()) {
+        formData.append("totalWorkingDays", totalWorkingDays.trim());
       }
       return apiRequest<{ message: string }>("/api/v1/admin/exam-results/upload", {
         method: "POST",
@@ -61,11 +61,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           "Assign the required Subjects to this Standard in Academic Setup before uploading.",
         );
       } else {
-        setErrorMessage(
-          isAnnual
-            ? "Upload failed. Check the file and total working days, then try again."
-            : "Upload failed. Check the file, then try again.",
-        );
+        setErrorMessage("Upload failed. Check the file, then try again.");
       }
       setSuccessMessage("");
     },
@@ -96,11 +92,10 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!file) return;
-    if (isAnnual && !totalWorkingDays) return;
     uploadMutation.mutate();
   };
 
-  const canSubmit = Boolean(file) && (!isAnnual || Boolean(totalWorkingDays));
+  const canSubmit = Boolean(file);
 
   return (
     <Card className="max-w-2xl">
@@ -109,8 +104,8 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       </h2>
       <p className="mt-1 text-sm text-slate-600">
         {isAnnual
-          ? "Exam workbooks start with G.R. No., Standard, Name, Birth Date and Hajar Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
-          : "Trimasik Kasoti workbooks start with G.R. No., Standard, Name and Birth Date. Each subject then uses 2 columns: Maximum Marks and Obtained Marks. There is no Hajar Divas or Grade column."}
+          ? "Exam workbooks start with G.R. No., Student UID, Standard, Class, Name, Birth Date and Present Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
+          : "Trimasik Kasoti workbooks start with G.R. No., Student UID, Standard, Class, Name and Birth Date. Each subject then uses 2 columns: Maximum Marks and Obtained Marks. There is no Present Divas or Grade column."}
       </p>
 
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
@@ -127,8 +122,8 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
             min="1"
             value={totalWorkingDays}
             onChange={(event) => setTotalWorkingDays(event.target.value)}
-            placeholder="For example, 230"
-            required
+            placeholder="For example, 230 (Leave empty for -)"
+            helperText="Optional. Leave empty to display '-' on results."
           />
         )}
 

@@ -14,6 +14,25 @@ public interface AnnualExamResultRepository extends JpaRepository<AnnualExamResu
   Optional<AnnualExamResult> findBySchoolIdAndResultTypeAndStandardAndRollNumber(
       UUID schoolId, String resultType, String standard, Integer rollNumber);
 
+  @Query(
+      """
+      SELECT r FROM AnnualExamResult r
+      WHERE r.schoolId = :schoolId
+        AND r.resultType = :resultType
+        AND (LOWER(TRIM(r.standard)) = LOWER(TRIM(:standard)))
+        AND (
+          (:studentClass IS NULL AND (r.studentClass IS NULL OR TRIM(r.studentClass) = ''))
+          OR (:studentClass IS NOT NULL AND LOWER(TRIM(r.studentClass)) = LOWER(TRIM(:studentClass)))
+        )
+        AND r.rollNumber = :rollNumber
+      """)
+  Optional<AnnualExamResult> findResult(
+      @Param("schoolId") UUID schoolId,
+      @Param("resultType") String resultType,
+      @Param("standard") String standard,
+      @Param("studentClass") String studentClass,
+      @Param("rollNumber") Integer rollNumber);
+
   @Modifying
   @Query(
       "DELETE FROM AnnualExamResult r WHERE r.schoolId = :schoolId AND r.resultType = :resultType")
