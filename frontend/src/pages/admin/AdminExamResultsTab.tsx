@@ -14,7 +14,7 @@ const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
 };
 
 export function AdminExamResultsTab({ resultType }: { resultType: ResultSettingsTab }) {
-  const isAnnual = resultType === "ANNUAL";
+//   const isAnnual = resultType === "ANNUAL";
   const [file, setFile] = useState<File | null>(null);
   const [totalWorkingDays, setTotalWorkingDays] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
