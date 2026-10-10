@@ -35,7 +35,7 @@ export function AboutPage() {
             <p className="mt-2 text-xs sm:text-sm font-semibold text-blue-900">
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
-            <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700">
+            <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700 whitespace-pre-line">
               {school.about}
             </p>
           </div>

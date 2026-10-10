@@ -52,6 +52,15 @@ export function PrincipalDeskPage() {
           </p>
         </div>
 
+        {profile?.biography && (
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <h3 className="text-base font-semibold text-slate-900 mb-2">પરિચય</h3>
+            <p className="text-sm sm:text-base leading-relaxed text-slate-700 whitespace-pre-line">
+              {profile.biography}
+            </p>
+          </div>
+        )}
+
         {profile?.isContactPublic && (profile.email || profile.phone) && (
           <div className="mt-6 border-t border-slate-100 pt-4 flex flex-wrap gap-4 text-xs sm:text-sm text-slate-600">
             {profile.email && (

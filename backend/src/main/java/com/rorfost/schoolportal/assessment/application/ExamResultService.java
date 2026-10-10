@@ -137,7 +137,7 @@ public class ExamResultService {
       int colAttended = isEkam ? -1 : 6;
       int colSubjectsStart = isEkam ? 6 : 7;
 
-      int subjectColumnStep = isEkam ? 2 : 3;
+      int subjectColumnStep = detectSubjectColumnStep(sheet.getRow(0), colSubjectsStart);
 
       for (int index = 1; index <= sheet.getLastRowNum(); index++) {
         Row row = sheet.getRow(index);
@@ -167,7 +167,7 @@ public class ExamResultService {
         result.setStudentUid(cellText(row.getCell(colStudentUid)));
         result.setStudentName(name);
         result.setGeneralRegisterNumber(cellText(row.getCell(colGr)));
-        result.setBirthDate(cellText(row.getCell(colBirth)));
+        result.setBirthDate(normalizeBirthDate(row.getCell(colBirth)));
         result.setTotalWorkingDays(totalWorkingDays);
 
         String attendedValue = colAttended >= 0 ? cellText(row.getCell(colAttended)) : null;
@@ -181,7 +181,8 @@ public class ExamResultService {
             sheet.getRow(0),
             colSubjectsStart,
             subjectColumnStep,
-            !isEkam);
+            !isEkam,
+            settings);
         calculateTotals(result, settings);
         results.add(result);
       }
@@ -200,7 +201,8 @@ public class ExamResultService {
       Row headerRow,
       int subjectsStartCol,
       int subjectColumnStep,
-      boolean hasGrades) {
+      boolean isAnnual,
+      ResultPresentationSettings settings) {
 
     Map<Integer, Integer> subjectIndexToColumn =
         resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
@@ -215,28 +217,26 @@ public class ExamResultService {
 
       int maximumMarksColumn = subjectStartColumn;
       int obtainedMarksColumn = subjectStartColumn + 1;
-      int gradeColumn = subjectStartColumn + 2;
 
-      String obtainedValue = cellText(row.getCell(obtainedMarksColumn));
-
-      // Same behaviour as before:
-      // blank obtained marks = ignore this subject for this student.
-      if (obtainedValue.isBlank()) {
+      String maxMarksText = cellText(row.getCell(maximumMarksColumn));
+      if (maxMarksText.isBlank()) {
         continue;
       }
 
-      int maximumMarks = requiredPositiveInteger(row.getCell(maximumMarksColumn));
+      Integer maximumMarks = optionalInteger(row.getCell(maximumMarksColumn));
+      if (maximumMarks == null || maximumMarks <= 0) {
+        throw new DomainException(HttpStatus.BAD_REQUEST, "exam_result_format_invalid");
+      }
 
-      boolean absent = isAbsentValue(obtainedValue);
+      String obtainedValue = cellText(row.getCell(obtainedMarksColumn));
 
       AnnualExamResultSubject subject = new AnnualExamResultSubject();
-
       subject.setId(UUID.randomUUID());
       subject.setSubjectName(configuredSubjects.get(index).name());
-
       subject.setMaximumMarks(maximumMarks);
+      subject.setSortOrder(index + 1);
 
-      if (absent) {
+      if (obtainedValue.isBlank() || isAbsentValue(obtainedValue)) {
         subject.setStatus("ABSENT");
         subject.setObtainedMarks(null);
         subject.setGrade(null);
@@ -250,10 +250,14 @@ public class ExamResultService {
         subject.setStatus("PRESENT");
         subject.setObtainedMarks(obtainedMarks);
 
-        subject.setGrade(hasGrades ? cellText(row.getCell(gradeColumn)) : null);
+        if (isAnnual) {
+          double pct = (obtainedMarks * 100.0) / maximumMarks;
+          subject.setGrade(calculateGrade(pct, settings));
+        } else {
+          subject.setGrade(null);
+        }
       }
 
-      subject.setSortOrder(index + 1);
       result.addSubject(subject);
     }
 
@@ -559,6 +563,113 @@ public class ExamResultService {
       }
     }
     return dataFormatter.formatCellValue(cell).trim();
+  }
+
+  private int detectSubjectColumnStep(Row headerRow, int subjectsStartCol) {
+    if (headerRow == null) {
+      return 2;
+    }
+    int lastColumn = headerRow.getLastCellNum();
+    List<Integer> matchedCols = new ArrayList<>();
+    for (int col = subjectsStartCol; col < lastColumn; col++) {
+      String text = cellText(headerRow.getCell(col));
+      if (!text.isBlank() && isKnownSubjectName(text)) {
+        matchedCols.add(col);
+      }
+    }
+    if (matchedCols.size() >= 2) {
+      int step = matchedCols.get(1) - matchedCols.get(0);
+      if (step == 2 || step == 3) {
+        return step;
+      }
+    }
+    return 2;
+  }
+
+  private boolean isKnownSubjectName(String text) {
+    String norm = normalizeSubjectString(text);
+    if (norm.isEmpty()) return false;
+    List<String> known =
+        List.of(
+            "gujarati",
+            "guj",
+            "ગુજરાતી",
+            "mathematics",
+            "maths",
+            "math",
+            "ગણિત",
+            "science",
+            "sci",
+            "વિજ્ઞાન",
+            "hindi",
+            "hin",
+            "હિન્દી",
+            "english",
+            "eng",
+            "અંગ્રેજી",
+            "socialscience",
+            "social",
+            "ss",
+            "સામાજિકવિજ્ઞાન",
+            "sanskrit",
+            "san",
+            "સંસ્કૃત",
+            "personalitydevelopment",
+            "pd",
+            "personality",
+            "vv",
+            "વ્યક્તિત્વવિકાસ",
+            "environment",
+            "environmentalstudies",
+            "env",
+            "evs",
+            "પર્યાવરણ");
+    return known.contains(norm);
+  }
+
+  private String normalizeBirthDate(Cell cell) {
+    if (cell == null) {
+      return "";
+    }
+    if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+      try {
+        java.time.LocalDateTime ldt = cell.getLocalDateTimeCellValue();
+        if (ldt != null) {
+          return String.format(
+              Locale.ROOT,
+              "%02d/%02d/%04d",
+              ldt.getDayOfMonth(),
+              ldt.getMonthValue(),
+              ldt.getYear());
+        }
+      } catch (Exception ignored) {
+      }
+    }
+    String text = cellText(cell);
+    if (text.isBlank()) {
+      return "";
+    }
+    String[] parts = text.split("[^0-9]+");
+    if (parts.length == 3) {
+      String p1 = parts[0];
+      String p2 = parts[1];
+      String p3 = parts[2];
+      try {
+        if (p1.length() == 4) {
+          return String.format(
+              Locale.ROOT, "%02d/%02d/%s", Integer.parseInt(p3), Integer.parseInt(p2), p1);
+        } else {
+          int yearVal = Integer.parseInt(p3);
+          if (p3.length() <= 2) {
+            yearVal = yearVal > 50 ? 1900 + yearVal : 2000 + yearVal;
+          }
+          return String.format(
+              Locale.ROOT, "%02d/%02d/%04d", Integer.parseInt(p1), Integer.parseInt(p2), yearVal);
+        }
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    return text;
   }
 
   private String calculateGrade(double percentage, ResultPresentationSettings settings) {

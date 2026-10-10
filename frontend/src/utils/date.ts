@@ -44,27 +44,28 @@ export function formatDate(input: string | Date | number | null | undefined): st
   }
 
   // Match YYYY-MM-DD or YYYY/MM/DD or YYYY-MM-DDTHH:mm:ss
-  const isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  const isoMatch = str.match(/^(\d{4})[^0-9](\d{1,2})[^0-9](\d{1,2})/);
   if (isoMatch) {
     const [, y, m, d] = isoMatch;
     return `${d.padStart(2, "0")}/${m.padStart(2, "0")}/${y}`;
   }
 
-  // Match DD-MM-YYYY or DD/MM/YYYY or D/M/YYYY or M/D/YY
-  const slashMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
-  if (slashMatch) {
-    const [, p1, p2, p3] = slashMatch;
-    if (p3.length === 4) {
+  // Match DD<diff>MM<diff>YYYY or D<diff>M<diff>YY or any delimiter (. / - space etc)
+  const parts = str.split(/[^0-9]+/);
+  if (parts.length === 3) {
+    const [p1, p2, p3] = parts;
+    if (p1.length === 4) {
+      return `${p3.padStart(2, "0")}/${p2.padStart(2, "0")}/${p1}`;
+    }
+    if (p3.length === 4 || p3.length === 2) {
+      const year = p3.length === 2 ? (Number(p3) > 50 ? `19${p3}` : `20${p3}`) : p3;
       let day = p1;
       let month = p2;
       if (Number(p2) > 12) {
         day = p2;
         month = p1;
       }
-      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${p3}`;
-    } else if (p3.length === 2) {
-      const year = Number(p3) > 50 ? `19${p3}` : `20${p3}`;
-      return `${p1.padStart(2, "0")}/${p2.padStart(2, "0")}/${year}`;
+      return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
     }
   }
 

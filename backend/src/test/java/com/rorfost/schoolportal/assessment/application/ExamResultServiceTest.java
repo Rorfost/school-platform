@@ -145,26 +145,22 @@ class ExamResultServiceTest {
   }
 
   @Test
-  void blankObtainedMarks_shouldIgnoreSubject() throws Exception {
+  void blankObtainedMarks_shouldCountAsAbsent() throws Exception {
     MockMultipartFile file = createTrimasikExcel("20", "", "15");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
 
     AnnualExamResult result = getSavedResult();
 
-    assertEquals(2, result.getSubjects().size());
+    assertEquals(3, result.getSubjects().size());
 
-    assertNotNull(findSubject(result, "Gujarati"));
-    assertNotNull(findSubject(result, "English"));
+    AnnualExamResultSubject maths = findSubject(result, "Mathematics");
+    assertEquals("ABSENT", maths.getStatus());
+    assertNull(maths.getObtainedMarks());
+    assertNull(maths.getGrade());
 
-    assertTrue(
-        result.getSubjects().stream()
-            .noneMatch(subject -> subject.getSubjectName().equals("Mathematics")));
-
-    // Blank obtained marks means Maths is completely ignored.
-    assertEquals(50, result.getTotalMarks());
+    assertEquals(75, result.getTotalMarks());
     assertEquals(35, result.getObtainedMarks());
-    assertEquals(70.0, result.getPercentage().doubleValue(), 0.01);
   }
 
   @ParameterizedTest
@@ -195,18 +191,19 @@ class ExamResultServiceTest {
   }
 
   @Test
-  void missingMaximumMarks_shouldRejectWorkbook() throws Exception {
+  void missingMaximumMarks_shouldSkipSubject() throws Exception {
     MockMultipartFile file =
         createTrimasikExcelWithMax(
             "25", "20",
             "", "18",
             "25", "15");
 
-    assertThrows(
-        DomainException.class,
-        () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+    service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
 
-    verify(resultRepository, never()).saveAll(any());
+    AnnualExamResult result = getSavedResult();
+    assertEquals(2, result.getSubjects().size());
+    assertNotNull(findSubject(result, "Gujarati"));
+    assertNotNull(findSubject(result, "English"));
   }
 
   @Test
@@ -282,8 +279,8 @@ class ExamResultServiceTest {
     assertSubject(result.getSubjects().get(2), "English", 18, 25, "PRESENT");
 
     assertEquals("A", findSubject(result, "Gujarati").getGrade());
-    assertEquals("B", findSubject(result, "Mathematics").getGrade());
-    assertEquals("C", findSubject(result, "English").getGrade());
+    assertEquals("A", findSubject(result, "Mathematics").getGrade());
+    assertEquals("B", findSubject(result, "English").getGrade());
 
     assertEquals(100, result.getTotalMarks());
     assertEquals(78, result.getObtainedMarks());

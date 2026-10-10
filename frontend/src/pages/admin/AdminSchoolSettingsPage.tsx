@@ -107,6 +107,8 @@ export function AdminSchoolSettingsPage() {
       schoolCode: String(formData.get("schoolCode") || "") || null,
       address: String(formData.get("address") || "") || null,
       city: String(formData.get("city") || "") || null,
+      taluka: String(formData.get("taluka") || "") || null,
+      district: String(formData.get("district") || "") || null,
       state: String(formData.get("state") || "") || null,
       postalCode: String(formData.get("postalCode") || "") || null,
       email: String(formData.get("email") || "") || null,
@@ -270,9 +272,19 @@ export function AdminSchoolSettingsPage() {
               defaultValue={school?.address ?? ""}
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Input label="Village / City" name="city" defaultValue={school?.city ?? ""} />
-            <Input label="State" name="state" defaultValue={school?.state ?? ""} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Village / City (ગામ / શહેર)"
+              name="city"
+              defaultValue={school?.city ?? ""}
+            />
+            <Input label="Taluka (તાલુકો)" name="taluka" defaultValue={school?.taluka ?? ""} />
+            <Input
+              label="District (જિલ્લો)"
+              name="district"
+              defaultValue={school?.district ?? ""}
+            />
+            <Input label="State (રાજ્ય)" name="state" defaultValue={school?.state ?? ""} />
             <Input
               label="Postal Code / PIN"
               name="postalCode"

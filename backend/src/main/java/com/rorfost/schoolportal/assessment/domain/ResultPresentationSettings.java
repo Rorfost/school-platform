@@ -18,6 +18,9 @@ public class ResultPresentationSettings {
   @Column(name = "result_date")
   private LocalDate resultDate;
 
+  @Column(name = "result_place")
+  private String resultPlace;
+
   @Column(name = "footer_line_one")
   private String footerLineOne;
 
@@ -32,6 +35,9 @@ public class ResultPresentationSettings {
 
   @Column(name = "ekam_result_date")
   private LocalDate ekamResultDate;
+
+  @Column(name = "ekam_result_place")
+  private String ekamResultPlace;
 
   @Column(name = "ekam_result_sheet_title")
   private String ekamResultSheetTitle;
@@ -65,6 +71,10 @@ public class ResultPresentationSettings {
     return resultDate;
   }
 
+  public String getResultPlace() {
+    return resultPlace;
+  }
+
   public String getFooterLineOne() {
     return footerLineOne;
   }
@@ -83,6 +93,10 @@ public class ResultPresentationSettings {
 
   public LocalDate getEkamResultDate() {
     return ekamResultDate;
+  }
+
+  public String getEkamResultPlace() {
+    return ekamResultPlace;
   }
 
   public String getEkamResultSheetTitle() {
@@ -111,6 +125,7 @@ public class ResultPresentationSettings {
 
   public void update(
       LocalDate resultDate,
+      String resultPlace,
       String footerLineOne,
       String footerLineTwo,
       String ekamFooterLineOne,
@@ -121,8 +136,10 @@ public class ResultPresentationSettings {
       BigDecimal gradeDMin,
       String resultSheetTitle,
       LocalDate ekamResultDate,
+      String ekamResultPlace,
       String ekamResultSheetTitle) {
     this.resultDate = resultDate;
+    this.resultPlace = resultPlace;
     this.footerLineOne = footerLineOne;
     this.footerLineTwo = footerLineTwo;
     this.ekamFooterLineOne = ekamFooterLineOne;
@@ -133,6 +150,7 @@ public class ResultPresentationSettings {
     this.gradeDMin = gradeDMin;
     this.resultSheetTitle = resultSheetTitle;
     this.ekamResultDate = ekamResultDate;
+    this.ekamResultPlace = ekamResultPlace;
     this.ekamResultSheetTitle = ekamResultSheetTitle;
   }
 }

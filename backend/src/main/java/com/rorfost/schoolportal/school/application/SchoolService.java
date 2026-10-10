@@ -59,6 +59,8 @@ public class SchoolService {
         trim(request.schoolCode()),
         trim(request.address()),
         trim(request.city()),
+        trim(request.taluka()),
+        trim(request.district()),
         trim(request.state()),
         trim(request.postalCode()),
         trim(request.email()),

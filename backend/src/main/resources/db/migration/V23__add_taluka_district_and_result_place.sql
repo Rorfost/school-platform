@@ -1,0 +1,7 @@
+ALTER TABLE schools
+  ADD COLUMN IF NOT EXISTS taluka VARCHAR(100),
+  ADD COLUMN IF NOT EXISTS district VARCHAR(100);
+
+ALTER TABLE result_presentation_settings
+  ADD COLUMN IF NOT EXISTS result_place VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS ekam_result_place VARCHAR(255);
