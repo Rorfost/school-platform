@@ -232,8 +232,14 @@ public class ExamResultService {
       subject.setMaximumMarks(maximumMarks);
       subject.setSortOrder(index + 1);
 
-      if (obtainedValue.isBlank() || isAbsentValue(obtainedValue)) {
+      if (isAbsentValue(obtainedValue)) {
+        // Explicitly marked absent (AB / ABS / ABSENT / ગેરહાજર) → show "AB" on result.
         subject.setStatus("ABSENT");
+        subject.setObtainedMarks(null);
+        subject.setGrade(null);
+      } else if (obtainedValue.isBlank()) {
+        // Obtained marks cell is empty → marks not filled in; show "-" on result (not "AB").
+        subject.setStatus("PRESENT");
         subject.setObtainedMarks(null);
         subject.setGrade(null);
       } else {
@@ -257,31 +263,27 @@ public class ExamResultService {
       result.addSubject(subject);
     }
 
-    // Detect data for subjects which are not configured.
+    // Check if a subject not configured for this standard has obtained-marks data.
+    // We only check the OBTAINED column (offset 1), NOT the max-marks column (offset 0).
+    // Reason: admins fill max marks for every possible subject in the workbook and leave
+    // obtained marks blank for subjects not taken — that is valid and must not cause an error.
     Set<Integer> matchedSubjectColumns = new HashSet<>(subjectIndexToColumn.values());
 
     int lastColumn = headerRow == null ? subjectsStartCol : headerRow.getLastCellNum();
 
     for (int col = subjectsStartCol; col < lastColumn; col += subjectColumnStep) {
 
-      // This Excel subject belongs to the student's standard.
+      // Subject is configured for this standard — already processed above.
       if (matchedSubjectColumns.contains(col)) {
         continue;
       }
 
-      boolean hasData = false;
+      // Only flag an error if the student has OBTAINED MARKS data for an unconfigured subject.
+      // An unconfigured subject with only max marks filled (and blank obtained marks) is fine.
+      int obtainedCol = col + 1;
+      boolean hasObtainedData = !cellText(row.getCell(obtainedCol)).isBlank();
 
-      for (int offset = 0; offset < subjectColumnStep; offset++) {
-
-        if (!cellText(row.getCell(col + offset)).isBlank()) {
-          hasData = true;
-          break;
-        }
-      }
-
-      // Subject isn't configured for this standard,
-      // but student row contains data for it.
-      if (hasData) {
+      if (hasObtainedData) {
         throw new DomainException(HttpStatus.BAD_REQUEST, "result_subjects_not_configured");
       }
     }

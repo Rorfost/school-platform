@@ -145,7 +145,8 @@ class ExamResultServiceTest {
   }
 
   @Test
-  void blankObtainedMarks_shouldCountAsAbsent() throws Exception {
+  void blankObtainedMarks_shouldCountAsPresent_withNullMarks() throws Exception {
+    // Blank obtained marks = marks not filled in = show "-" on result (not "AB").
     MockMultipartFile file = createTrimasikExcel("20", "", "15");
 
     service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
@@ -155,11 +156,14 @@ class ExamResultServiceTest {
     assertEquals(3, result.getSubjects().size());
 
     AnnualExamResultSubject maths = findSubject(result, "Mathematics");
-    assertEquals("ABSENT", maths.getStatus());
+    // Blank obtained → PRESENT with null marks (shows "-" on result, not "AB").
+    assertEquals("PRESENT", maths.getStatus());
     assertNull(maths.getObtainedMarks());
     assertNull(maths.getGrade());
 
+    // Max marks for blank subject still counted in total.
     assertEquals(75, result.getTotalMarks());
+    // Blank obtained marks contribute 0 to obtained total.
     assertEquals(35, result.getObtainedMarks());
   }
 

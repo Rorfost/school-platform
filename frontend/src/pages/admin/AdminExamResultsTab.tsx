@@ -14,7 +14,8 @@ const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
 };
 
 export function AdminExamResultsTab({ resultType }: { resultType: ResultSettingsTab }) {
-  //   const isAnnual = resultType === "ANNUAL";
+  const isAnnual = resultType === "ANNUAL";
+  void isAnnual; // used for future conditional rendering
   const [file, setFile] = useState<File | null>(null);
   const [totalWorkingDays, setTotalWorkingDays] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -60,9 +61,17 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
         setErrorMessage(
           "Assign the required Subjects to this Standard in Academic Setup before uploading.",
         );
-      } else {
-        setErrorMessage("Upload failed. Check the file, then try again.");
-      }
+      } else if (code === "result_subjects_not_configured") {
+          setErrorMessage(
+            "One or more subjects in the workbook have obtained-marks data but are not configured for that standard in Academic Setup. Configure all required subjects first.",
+          );
+        } else if (code === "result_subject_header_invalid") {
+          setErrorMessage(
+            "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
+          );
+        } else {
+          setErrorMessage("Upload failed. Check the file, then try again.");
+        }
       setSuccessMessage("");
     },
   });
@@ -109,8 +118,9 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
 
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
         Set the Standard and its Subjects in Academic Setup. Maximum marks are read directly from
-        the Excel workbook. Enter "AB" in the Obtained Marks cell if the student was absent. Leave
-        the Obtained Marks cell empty only when that subject should be ignored.
+        the Excel workbook. Enter &quot;AB&quot; in the Obtained Marks cell if the student was
+        absent. Leave the Obtained Marks cell <strong>empty</strong> to show &quot;-&quot; for that
+        subject (useful for subjects not taken by that standard).
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
