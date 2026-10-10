@@ -36,6 +36,7 @@ public class ResultPresentationSettingsService {
         settings.findById(schoolId).orElseGet(() -> new ResultPresentationSettings(schoolId));
     value.update(
         request.resultDate(),
+        trim(request.resultPlace()),
         trim(request.footerLineOne()),
         trim(request.footerLineTwo()),
         trim(request.ekamFooterLineOne()),
@@ -46,6 +47,7 @@ public class ResultPresentationSettingsService {
         request.gradeDMin(),
         trim(request.resultSheetTitle()),
         request.ekamResultDate(),
+        trim(request.ekamResultPlace()),
         trim(request.ekamResultSheetTitle()));
     return ResultPresentationSettingsResponse.from(settings.save(value));
   }

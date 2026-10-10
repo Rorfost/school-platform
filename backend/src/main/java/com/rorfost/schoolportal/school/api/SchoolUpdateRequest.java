@@ -10,6 +10,8 @@ public record SchoolUpdateRequest(
     @Size(max = 40) String schoolCode,
     String address,
     @Size(max = 100) String city,
+    @Size(max = 100) String taluka,
+    @Size(max = 100) String district,
     @Size(max = 100) String state,
     @Size(max = 20) String postalCode,
     @Email @Size(max = 254) String email,

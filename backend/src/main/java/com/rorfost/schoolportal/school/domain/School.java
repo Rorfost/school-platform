@@ -14,6 +14,8 @@ public class School extends AuditableUuidEntity {
   private String schoolCode;
   private String address;
   private String city;
+  private String taluka;
+  private String district;
   private String state;
   private String postalCode;
   private String contactEmail;
@@ -56,6 +58,14 @@ public class School extends AuditableUuidEntity {
 
   public String getCity() {
     return city;
+  }
+
+  public String getTaluka() {
+    return taluka;
+  }
+
+  public String getDistrict() {
+    return district;
   }
 
   public String getState() {
@@ -112,6 +122,8 @@ public class School extends AuditableUuidEntity {
       String schoolCode,
       String address,
       String city,
+      String taluka,
+      String district,
       String state,
       String postalCode,
       String contactEmail,
@@ -127,6 +139,8 @@ public class School extends AuditableUuidEntity {
     this.schoolCode = schoolCode;
     this.address = address;
     this.city = city;
+    this.taluka = taluka;
+    this.district = district;
     this.state = state;
     this.postalCode = postalCode;
     this.contactEmail = contactEmail;

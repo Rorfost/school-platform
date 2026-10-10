@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 public record ResultPresentationSettingsRequest(
     LocalDate resultDate,
+    @Size(max = 255) String resultPlace,
     @Size(max = 200) String resultSheetTitle,
     @Size(max = 1000) String footerLineOne,
     @Size(max = 1000) String footerLineTwo,
@@ -19,4 +20,5 @@ public record ResultPresentationSettingsRequest(
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeCMin,
     @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeDMin,
     LocalDate ekamResultDate,
+    @Size(max = 255) String ekamResultPlace,
     @Size(max = 200) String ekamResultSheetTitle) {}

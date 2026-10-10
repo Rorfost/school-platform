@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 public record ResultPresentationSettingsResponse(
     LocalDate resultDate,
+    String resultPlace,
     String resultSheetTitle,
     String footerLineOne,
     String footerLineTwo,
@@ -16,6 +17,7 @@ public record ResultPresentationSettingsResponse(
     BigDecimal gradeCMin,
     BigDecimal gradeDMin,
     LocalDate ekamResultDate,
+    String ekamResultPlace,
     String ekamResultSheetTitle,
     String principalSignatureUrl,
     String classTeacherName,
@@ -23,6 +25,7 @@ public record ResultPresentationSettingsResponse(
   public static ResultPresentationSettingsResponse from(ResultPresentationSettings value) {
     return new ResultPresentationSettingsResponse(
         value.getResultDate(),
+        value.getResultPlace(),
         value.getResultSheetTitle(),
         value.getFooterLineOne(),
         value.getFooterLineTwo(),
@@ -33,6 +36,7 @@ public record ResultPresentationSettingsResponse(
         value.getGradeCMin(),
         value.getGradeDMin(),
         value.getEkamResultDate(),
+        value.getEkamResultPlace(),
         value.getEkamResultSheetTitle(),
         null,
         null,
@@ -43,6 +47,7 @@ public record ResultPresentationSettingsResponse(
       String principalSignatureUrl, String classTeacherName, String classTeacherSignatureUrl) {
     return new ResultPresentationSettingsResponse(
         resultDate,
+        resultPlace,
         resultSheetTitle,
         footerLineOne,
         footerLineTwo,
@@ -53,6 +58,7 @@ public record ResultPresentationSettingsResponse(
         gradeCMin,
         gradeDMin,
         ekamResultDate,
+        ekamResultPlace,
         ekamResultSheetTitle,
         principalSignatureUrl,
         classTeacherName,
