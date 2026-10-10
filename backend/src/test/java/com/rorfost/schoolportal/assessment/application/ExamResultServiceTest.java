@@ -333,6 +333,41 @@ class ExamResultServiceTest {
   }
 
   @Test
+  void trimasikUpload_withoutPresentDivasColumn_shouldReadSubjectsCorrectly() throws Exception {
+    // User's real trimasik-kasoti.xlsx has no Present Divas column — subjects start at col 6.
+    MockMultipartFile file = createTrimasikExcelWithoutAttendedDays("20", "18", "15");
+
+    service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+
+    AnnualExamResult result = getSavedResult();
+
+    assertEquals(3, result.getSubjects().size());
+    assertSubject(result.getSubjects().get(0), "Gujarati", 20, 25, "PRESENT");
+    assertSubject(result.getSubjects().get(1), "Mathematics", 18, 25, "PRESENT");
+    assertSubject(result.getSubjects().get(2), "English", 15, 25, "PRESENT");
+    // No attended days column — attended days should be null.
+    assertNull(result.getAttendedDays());
+  }
+
+  @Test
+  void annualUpload_withGradeColumnInExcel_shouldIgnoreExcelGradeAndCalculateFromPolicy()
+      throws Exception {
+    // Excel has Grade column (step=3) but backend must ignore it and compute from grade policy.
+    // Default policy: A>=80%, B>=65%, C>=50%, D>=35%.
+    // 20/25=80% -> A, 40/50=80% -> A, 18/25=72% -> B.
+    // Excel provides bogus grade values "X", "Y", "Z" which must be completely ignored.
+    MockMultipartFile file = createAnnualExcel("25", "20", "X", "50", "40", "Y", "25", "18", "Z");
+
+    service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+
+    AnnualExamResult result = getSavedResult();
+    // Grades are calculated from policy, NOT copied from Excel.
+    assertEquals("A", findSubject(result, "Gujarati").getGrade()); // 80%
+    assertEquals("A", findSubject(result, "Mathematics").getGrade()); // 80%
+    assertEquals("B", findSubject(result, "English").getGrade()); // 72%
+  }
+
+  @Test
   void uploadingNewTrimasikResult_shouldDeleteOldTrimasikResults() throws Exception {
     MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
@@ -427,19 +462,12 @@ class ExamResultServiceTest {
       Sheet sheet = workbook.createSheet("Results");
 
       /*
-       * Trimasik format:
+       * Trimasik format WITH Present Divas column:
        *
-       * 0 = GR No.
-       * 1 = Student UID
-       * 2 = Standard
-       * 3 = Class
-       * 4 = Name
-       * 5 = Birth Date
+       * 0 = GR No., 1 = Student UID, 2 = Standard, 3 = Class, 4 = Name,
+       * 5 = Birth Date, 6 = Present Divas
        *
-       * Subject groups:
-       * Gujarati    = Max + Obtained
-       * Mathematics = Max + Obtained
-       * English     = Max + Obtained
+       * Subject groups start at col 7: Gujarati = Max + Obtained
        */
 
       Row header = sheet.createRow(0);
@@ -485,6 +513,59 @@ class ExamResultServiceTest {
       return new MockMultipartFile(
           "file",
           "trimasik-result.xlsx",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          output.toByteArray());
+    }
+  }
+
+  /**
+   * Trimasik format WITHOUT Present Divas column (subjects start directly at col 6). This matches
+   * the user's real trimasik-kasoti.xlsx.
+   */
+  private MockMultipartFile createTrimasikExcelWithoutAttendedDays(
+      String gujaratiObtained, String mathematicsObtained, String englishObtained)
+      throws Exception {
+
+    try (XSSFWorkbook workbook = new XSSFWorkbook();
+        ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+      Sheet sheet = workbook.createSheet("Results");
+
+      Row header = sheet.createRow(0);
+      header.createCell(0).setCellValue("GR No.");
+      header.createCell(1).setCellValue("Student UID");
+      header.createCell(2).setCellValue("Standard");
+      header.createCell(3).setCellValue("Class");
+      header.createCell(4).setCellValue("Name");
+      header.createCell(5).setCellValue("Birth Date");
+      // No Present Divas — subjects start at col 6:
+      header.createCell(6).setCellValue("Gujarati");
+      header.createCell(7).setCellValue("Obtained");
+      header.createCell(8).setCellValue("Mathematics");
+      header.createCell(9).setCellValue("Obtained");
+      header.createCell(10).setCellValue("English");
+      header.createCell(11).setCellValue("Obtained");
+
+      Row student = sheet.createRow(1);
+      student.createCell(0).setCellValue("101");
+      student.createCell(1).setCellValue("UID-1");
+      student.createCell(2).setCellValue("3");
+      student.createCell(3).setCellValue("A");
+      student.createCell(4).setCellValue("Test Student");
+      student.createCell(5).setCellValue("01/01/2018");
+      // col 6 onwards: subject data directly
+      student.createCell(6).setCellValue("25");
+      student.createCell(7).setCellValue(gujaratiObtained);
+      student.createCell(8).setCellValue("25");
+      student.createCell(9).setCellValue(mathematicsObtained);
+      student.createCell(10).setCellValue("25");
+      student.createCell(11).setCellValue(englishObtained);
+
+      workbook.write(output);
+
+      return new MockMultipartFile(
+          "file",
+          "trimasik-no-attendance.xlsx",
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           output.toByteArray());
     }

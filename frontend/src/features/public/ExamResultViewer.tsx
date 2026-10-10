@@ -84,8 +84,11 @@ export function ExamResultViewer({
                     {locationSubtitle}
                   </p>
                 )}
-                {/* Red title line: 1 single line with matching width */}
-                <div className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto inline-block px-3 pt-1 text-xs sm:text-base print:text-base whitespace-nowrap">
+                {/* Red title line: always single line, width matches text */}
+                <div
+                  className="mt-1 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-fit px-3 pt-1"
+                  style={{ fontSize: "clamp(9px, 2.2vw, 14px)" }}
+                >
                   {sheetTitle}
                 </div>
               </div>
@@ -164,7 +167,7 @@ export function ExamResultViewer({
                         ગ્રેડ
                       </th>
                     )}
-                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-36 font-bold text-center print:p-2 print:w-36 whitespace-nowrap">
+                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-20 sm:w-28 font-bold text-center print:p-2 print:w-28 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
                   </tr>

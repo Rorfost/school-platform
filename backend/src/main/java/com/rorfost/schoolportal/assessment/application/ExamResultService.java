@@ -119,16 +119,19 @@ public class ExamResultService {
       List<AnnualExamResult> results = new ArrayList<>();
 
       boolean isEkam = EKAM_KASOTI.equals(resultType);
-      // Column layout for both ANNUAL and EKAM_KASOTI:
-      //   GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5, AttendedDays=6, subjects from 7
+      // Fixed columns: GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5
       int colGr = 0;
       int colStudentUid = 1;
       int colStd = 2;
       int colClass = 3;
       int colName = 4;
       int colBirth = 5;
-      int colAttended = 6;
-      int colSubjectsStart = 7;
+
+      // Auto-detect where subjects begin by finding the first known subject header.
+      // Col 6 is either "Present Divas" (attended days) or the first subject.
+      int colSubjectsStart = detectSubjectsStartColumn(sheet.getRow(0));
+      // The attended-days column is the one just before subjects start (if col > 6).
+      int colAttended = (colSubjectsStart > 6) ? colSubjectsStart - 1 : -1;
 
       int subjectColumnStep = detectSubjectColumnStep(sheet.getRow(0), colSubjectsStart);
 
@@ -556,6 +559,27 @@ public class ExamResultService {
       }
     }
     return dataFormatter.formatCellValue(cell).trim();
+  }
+
+  /**
+   * Scans the header row starting from column 6 to find the first column whose header is a known
+   * subject name. Returns that column index as the subjects-start column. Falls back to 7 if no
+   * known subject is found (safe default for files with an attended-days column).
+   */
+  private int detectSubjectsStartColumn(Row headerRow) {
+    if (headerRow == null) {
+      return 7;
+    }
+    int lastColumn = headerRow.getLastCellNum();
+    // The earliest a subject column can appear is index 6 (no attended-days col).
+    for (int col = 6; col < lastColumn; col++) {
+      String text = cellText(headerRow.getCell(col));
+      if (!text.isBlank() && isKnownSubjectName(text)) {
+        return col;
+      }
+    }
+    // Fallback: assume attended-days is at 6, subjects start at 7.
+    return 7;
   }
 
   private int detectSubjectColumnStep(Row headerRow, int subjectsStartCol) {
