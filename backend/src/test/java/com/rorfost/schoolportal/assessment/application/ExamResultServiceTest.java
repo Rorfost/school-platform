@@ -271,7 +271,7 @@ class ExamResultServiceTest {
   void annualUpload_shouldReadMaximumObtainedAndGradeColumns() throws Exception {
     MockMultipartFile file = createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-    service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
+    service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
 
     AnnualExamResult result = getSavedResult();
 
@@ -288,15 +288,38 @@ class ExamResultServiceTest {
     assertEquals(100, result.getTotalMarks());
     assertEquals(78, result.getObtainedMarks());
 
-    assertEquals(250, result.getTotalWorkingDays());
-    assertEquals(233, result.getAttendedDays());
+    assertEquals("250", result.getTotalWorkingDays());
+    assertEquals("233", result.getAttendedDays());
+    assertEquals("UID-1", result.getStudentUid());
+    assertEquals("A", result.getStudentClass());
+  }
+
+  @Test
+  void annualUpload_shouldAcceptEmptyTotalWorkingDays() throws Exception {
+    MockMultipartFile file = createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
+
+    service.processExcelUpload(file, (String) null, ExamResultService.ANNUAL);
+
+    AnnualExamResult result = getSavedResult();
+    assertNull(result.getTotalWorkingDays());
+  }
+
+  @Test
+  void annualUpload_shouldAcceptHyphenInAttendedDays() throws Exception {
+    MockMultipartFile file =
+        createAnnualExcelWithAttended("-", "25", "20", "A", "50", "40", "B", "25", "18", "C");
+
+    service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+
+    AnnualExamResult result = getSavedResult();
+    assertEquals("-", result.getAttendedDays());
   }
 
   @Test
   void annualUpload_shouldIgnoreGradeWhenStudentIsAbsent() throws Exception {
     MockMultipartFile file = createAnnualExcel("25", "20", "A", "25", "AB", "A", "25", "15", "B");
 
-    service.processExcelUpload(file, 250, ExamResultService.ANNUAL);
+    service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
 
     AnnualExamResult result = getSavedResult();
 
@@ -410,9 +433,11 @@ class ExamResultServiceTest {
        * Trimasik format:
        *
        * 0 = GR No.
-       * 1 = Standard
-       * 2 = Name
-       * 3 = Birth Date
+       * 1 = Student UID
+       * 2 = Standard
+       * 3 = Class
+       * 4 = Name
+       * 5 = Birth Date
        *
        * Subject groups:
        * Gujarati    = Max + Obtained
@@ -423,34 +448,38 @@ class ExamResultServiceTest {
       Row header = sheet.createRow(0);
 
       header.createCell(0).setCellValue("GR No.");
-      header.createCell(1).setCellValue("Standard");
-      header.createCell(2).setCellValue("Name");
-      header.createCell(3).setCellValue("Birth Date");
+      header.createCell(1).setCellValue("Student UID");
+      header.createCell(2).setCellValue("Standard");
+      header.createCell(3).setCellValue("Class");
+      header.createCell(4).setCellValue("Name");
+      header.createCell(5).setCellValue("Birth Date");
 
-      header.createCell(4).setCellValue("Gujarati");
-      header.createCell(5).setCellValue("Obtained");
-
-      header.createCell(6).setCellValue("Mathematics");
+      header.createCell(6).setCellValue("Gujarati");
       header.createCell(7).setCellValue("Obtained");
 
-      header.createCell(8).setCellValue("English");
+      header.createCell(8).setCellValue("Mathematics");
       header.createCell(9).setCellValue("Obtained");
+
+      header.createCell(10).setCellValue("English");
+      header.createCell(11).setCellValue("Obtained");
 
       Row student = sheet.createRow(1);
 
       student.createCell(0).setCellValue("101");
-      student.createCell(1).setCellValue("3");
-      student.createCell(2).setCellValue("Test Student");
-      student.createCell(3).setCellValue("01/01/2018");
+      student.createCell(1).setCellValue("UID-1");
+      student.createCell(2).setCellValue("3");
+      student.createCell(3).setCellValue("A");
+      student.createCell(4).setCellValue("Test Student");
+      student.createCell(5).setCellValue("01/01/2018");
 
-      student.createCell(4).setCellValue(gujaratiMax);
-      student.createCell(5).setCellValue(gujaratiObtained);
+      student.createCell(6).setCellValue(gujaratiMax);
+      student.createCell(7).setCellValue(gujaratiObtained);
 
-      student.createCell(6).setCellValue(mathematicsMax);
-      student.createCell(7).setCellValue(mathematicsObtained);
+      student.createCell(8).setCellValue(mathematicsMax);
+      student.createCell(9).setCellValue(mathematicsObtained);
 
-      student.createCell(8).setCellValue(englishMax);
-      student.createCell(9).setCellValue(englishObtained);
+      student.createCell(10).setCellValue(englishMax);
+      student.createCell(11).setCellValue(englishObtained);
 
       workbook.write(output);
 
@@ -477,6 +506,31 @@ class ExamResultServiceTest {
       String englishObtained,
       String englishGrade)
       throws Exception {
+    return createAnnualExcelWithAttended(
+        "233",
+        gujaratiMax,
+        gujaratiObtained,
+        gujaratiGrade,
+        mathematicsMax,
+        mathematicsObtained,
+        mathematicsGrade,
+        englishMax,
+        englishObtained,
+        englishGrade);
+  }
+
+  private MockMultipartFile createAnnualExcelWithAttended(
+      String attendedDays,
+      String gujaratiMax,
+      String gujaratiObtained,
+      String gujaratiGrade,
+      String mathematicsMax,
+      String mathematicsObtained,
+      String mathematicsGrade,
+      String englishMax,
+      String englishObtained,
+      String englishGrade)
+      throws Exception {
 
     try (XSSFWorkbook workbook = new XSSFWorkbook();
         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
@@ -487,10 +541,12 @@ class ExamResultServiceTest {
        * Annual format:
        *
        * 0 = GR No.
-       * 1 = Standard
-       * 2 = Name
-       * 3 = Birth Date
-       * 4 = Hajar Divas
+       * 1 = Student UID
+       * 2 = Standard
+       * 3 = Class
+       * 4 = Name
+       * 5 = Birth Date
+       * 6 = Present Divas
        *
        * Subject groups:
        * Gujarati    = Max + Obtained + Grade
@@ -501,42 +557,46 @@ class ExamResultServiceTest {
       Row header = sheet.createRow(0);
 
       header.createCell(0).setCellValue("GR No.");
-      header.createCell(1).setCellValue("Standard");
-      header.createCell(2).setCellValue("Name");
-      header.createCell(3).setCellValue("Birth Date");
-      header.createCell(4).setCellValue("Hajar Divas");
+      header.createCell(1).setCellValue("Student UID");
+      header.createCell(2).setCellValue("Standard");
+      header.createCell(3).setCellValue("Class");
+      header.createCell(4).setCellValue("Name");
+      header.createCell(5).setCellValue("Birth Date");
+      header.createCell(6).setCellValue("Present Divas");
 
-      header.createCell(5).setCellValue("Gujarati");
-      header.createCell(6).setCellValue("Obtained");
-      header.createCell(7).setCellValue("Grade");
+      header.createCell(7).setCellValue("Gujarati");
+      header.createCell(8).setCellValue("Obtained");
+      header.createCell(9).setCellValue("Grade");
 
-      header.createCell(8).setCellValue("Mathematics");
-      header.createCell(9).setCellValue("Obtained");
-      header.createCell(10).setCellValue("Grade");
+      header.createCell(10).setCellValue("Mathematics");
+      header.createCell(11).setCellValue("Obtained");
+      header.createCell(12).setCellValue("Grade");
 
-      header.createCell(11).setCellValue("English");
-      header.createCell(12).setCellValue("Obtained");
-      header.createCell(13).setCellValue("Grade");
+      header.createCell(13).setCellValue("English");
+      header.createCell(14).setCellValue("Obtained");
+      header.createCell(15).setCellValue("Grade");
 
       Row student = sheet.createRow(1);
 
       student.createCell(0).setCellValue("101");
-      student.createCell(1).setCellValue("3");
-      student.createCell(2).setCellValue("Test Student");
-      student.createCell(3).setCellValue("01/01/2018");
-      student.createCell(4).setCellValue("233");
+      student.createCell(1).setCellValue("UID-1");
+      student.createCell(2).setCellValue("3");
+      student.createCell(3).setCellValue("A");
+      student.createCell(4).setCellValue("Test Student");
+      student.createCell(5).setCellValue("01/01/2018");
+      student.createCell(6).setCellValue(attendedDays);
 
-      student.createCell(5).setCellValue(gujaratiMax);
-      student.createCell(6).setCellValue(gujaratiObtained);
-      student.createCell(7).setCellValue(gujaratiGrade);
+      student.createCell(7).setCellValue(gujaratiMax);
+      student.createCell(8).setCellValue(gujaratiObtained);
+      student.createCell(9).setCellValue(gujaratiGrade);
 
-      student.createCell(8).setCellValue(mathematicsMax);
-      student.createCell(9).setCellValue(mathematicsObtained);
-      student.createCell(10).setCellValue(mathematicsGrade);
+      student.createCell(10).setCellValue(mathematicsMax);
+      student.createCell(11).setCellValue(mathematicsObtained);
+      student.createCell(12).setCellValue(mathematicsGrade);
 
-      student.createCell(11).setCellValue(englishMax);
-      student.createCell(12).setCellValue(englishObtained);
-      student.createCell(13).setCellValue(englishGrade);
+      student.createCell(13).setCellValue(englishMax);
+      student.createCell(14).setCellValue(englishObtained);
+      student.createCell(15).setCellValue(englishGrade);
 
       workbook.write(output);
 
