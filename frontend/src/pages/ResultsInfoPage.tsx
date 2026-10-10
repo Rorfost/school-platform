@@ -89,87 +89,92 @@ export function ResultsInfoPage() {
       />
 
       {!result && (
-        <Card className="mx-auto max-w-lg p-6">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 mb-4">પરિણામ શોધો</h2>
-              <div className="space-y-4">
-                <label className="flex flex-col gap-2 text-base font-semibold text-slate-800">
-                  પરિણામનો પ્રકાર
-                  <select
-                    value={resultType}
-                    onChange={(event) =>
-                      setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")
-                    }
-                    className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                  >
-                    <option value="ANNUAL">પરીક્ષા પરિણામ</option>
-                    <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
-                  </select>
+        <Card className="mx-auto max-w-lg p-5 sm:p-6">
+          <form onSubmit={handleSearch} className="space-y-5">
+            <h2 className="text-lg font-bold text-slate-900">પરિણામ શોધો</h2>
+
+            {/* Result type */}
+            <div className="w-full">
+              <label
+                htmlFor="result-type"
+                className="block text-sm font-medium text-slate-700 mb-1.5"
+              >
+                પરિણામનો પ્રકાર
+              </label>
+              <select
+                id="result-type"
+                value={resultType}
+                onChange={(event) => setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")}
+                className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400"
+              >
+                <option value="ANNUAL">પરીક્ષા પરિણામ</option>
+                <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
+              </select>
+            </div>
+
+            {/* Standard + Class — side by side */}
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="ધોરણ"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={standard}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 1);
+                  setStandard(val);
+                  setStudentClass("");
+                }}
+                placeholder="દા.ત. 8"
+                aria-invalid={standard.length > 0 && !isStandardValid}
+                required
+              />
+              <div className="w-full">
+                <label
+                  htmlFor="class-select"
+                  className="block text-sm font-medium text-slate-700 mb-1.5"
+                >
+                  વર્ગ
                 </label>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <Input
-                    label="ધોરણ"
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={standard}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "").slice(0, 1);
-                      setStandard(val);
-                      setStudentClass(""); // reset class when standard changes
-                    }}
-                    placeholder="દા.ત. 8"
-                    aria-invalid={standard.length > 0 && !isStandardValid}
-                    required
-                  />
-                  {/* Class — always a dropdown, disabled until a valid standard with classes is selected */}
-                  <div className="w-full">
-                    <label
-                      htmlFor="class-select"
-                      className="block text-sm font-medium text-slate-700 mb-1.5"
-                    >
-                      વર્ગ
-                    </label>
-                    <select
-                      id="class-select"
-                      aria-label="વર્ગ"
-                      value={studentClass}
-                      onChange={(e) => setStudentClass(e.target.value)}
-                      disabled={!isStandardValid || configuredClasses.length === 0}
-                      className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                      required
-                    >
-                      {!isStandardValid ? (
-                        <option value="">ધોરણ પ્રથમ દાખલ કરો</option>
-                      ) : configuredClasses.length === 0 ? (
-                        <option value="">આ ધોરણ માટે વર્ગ નથી</option>
-                      ) : (
-                        <>
-                          <option value="">વર્ગ પસંદ કરો</option>
-                          {configuredClasses.map((cls) => (
-                            <option key={cls} value={cls}>
-                              {cls}
-                            </option>
-                          ))}
-                        </>
-                      )}
-                    </select>
-                  </div>
-                  <Input
-                    label="રોલ નંબર"
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={rollNumber}
-                    onChange={(e) => setRollNumber(e.target.value.replace(/\D/g, ""))}
-                    placeholder="દા.ત. 1"
-                    aria-invalid={rollNumber.length > 0 && !isRollNumberValid}
-                    required
-                  />
-                </div>
+                <select
+                  id="class-select"
+                  aria-label="વર્ગ"
+                  value={studentClass}
+                  onChange={(e) => setStudentClass(e.target.value)}
+                  disabled={!isStandardValid || configuredClasses.length === 0}
+                  className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+                  required
+                >
+                  {!isStandardValid ? (
+                    <option value="">ધોરણ દાખલ કરો</option>
+                  ) : configuredClasses.length === 0 ? (
+                    <option value="">વર્ગ ઉપલબ્ધ નથી</option>
+                  ) : (
+                    <>
+                      <option value="">વર્ગ પસંદ કરો</option>
+                      {configuredClasses.map((cls) => (
+                        <option key={cls} value={cls}>
+                          {cls}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
               </div>
             </div>
+
+            {/* Roll number — full width */}
+            <Input
+              label="રોલ નંબર"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={rollNumber}
+              onChange={(e) => setRollNumber(e.target.value.replace(/\D/g, ""))}
+              placeholder="દા.ત. 1"
+              aria-invalid={rollNumber.length > 0 && !isRollNumberValid}
+              required
+            />
 
             {error && (
               <p className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
@@ -178,7 +183,7 @@ export function ResultsInfoPage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full gap-2 mt-2"
+              className="w-full gap-2"
               loading={loading}
               loadingText="પરિણામ શોધી રહ્યા છીએ..."
               disabled={!isStandardValid || !isClassValid || !isRollNumberValid}
