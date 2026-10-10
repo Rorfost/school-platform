@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { formatDate } from "@/utils/date";
 import schoolLogo from "@/assets/school-logo.jpeg";
+import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function ExamResultViewer({
   result,
@@ -33,6 +34,7 @@ export function ExamResultViewer({
     .join(", ");
 
   const handlePrint = () => window.print();
+
   const isEkam = resultType === "EKAM_KASOTI";
   const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "વાર્ષિક પરીક્ષા";
   const sheetTitle = isEkam
@@ -52,7 +54,7 @@ export function ExamResultViewer({
       <div
         id="exam-result-print"
         className="exam-result-sheet mx-auto bg-white p-1.5 sm:p-4 text-slate-900 print:p-0 print:m-0 print:w-full print:shadow-none font-sans"
-        style={{ maxWidth: "210mm" }}
+        style={{ maxWidth: "195mm" }}
       >
         <div className="border-2 sm:border-4 border-slate-900 p-0.5 sm:p-1 print:border-4 print:p-1">
           <div className="border border-slate-900 sm:border-2 print:border-2">
@@ -137,24 +139,24 @@ export function ExamResultViewer({
               <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:text-sm">
                 <thead>
                   <tr className="bg-amber-100/90 text-slate-900">
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-8 sm:w-12 font-bold print:p-2 print:w-12 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-8 sm:w-10 font-bold print:p-2 print:w-10 whitespace-nowrap">
                       ક્રમ
                     </th>
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 font-bold text-center print:p-2 whitespace-nowrap">
                       વિષય
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-14 sm:w-24 font-bold print:p-2 print:w-24 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-16 font-bold print:p-2 print:w-16 whitespace-nowrap">
                       કુલ ગુણ
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-16 sm:w-28 font-bold print:p-2 print:w-28 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-14 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
                       મેળવેલ ગુણ
                     </th>
                     {!isEkam && (
-                      <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
+                      <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-10 sm:w-14 font-bold print:p-2 print:w-14 whitespace-nowrap">
                         ગ્રેડ
                       </th>
                     )}
-                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 font-bold print:p-2 whitespace-nowrap">
+                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-28 sm:w-36 font-bold print:p-2 print:w-36 whitespace-nowrap">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
                   </tr>
@@ -225,7 +227,7 @@ export function ExamResultViewer({
             </div>
 
             {/* Signatures – flexbox layout for consistent alignment */}
-            <div className="flex justify-between items-end border-b-2 border-slate-900 bg-white px-3 sm:px-8 pt-1 sm:pt-2 pb-2 min-h-0 print:px-8 print:pt-1 print:min-h-24">
+            <div className="flex justify-between items-end border-b-2 border-slate-900 bg-white px-3 sm:px-8 pt-1 sm:pt-2 pb-2 min-h-0 print:px-8 print:pt-1 print:min-h-28">
               <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
                 {settings?.classTeacherSignatureUrl ? (
                   <img
@@ -241,16 +243,16 @@ export function ExamResultViewer({
                   વર્ગ શિક્ષકની સહી
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
+              <div className="flex flex-col items-center justify-end min-w-[130px] sm:min-w-[170px] text-center gap-1 print:min-w-[170px]">
                 {settings?.principalSignatureUrl ? (
                   <img
                     src={settings.principalSignatureUrl}
                     alt="Principal seal and signature"
-                    className="h-20 max-w-50 object-contain sm:h-24 sm:max-w-60 print:h-24 print:max-w-64"
+                    className="h-24 max-w-56 sm:h-28 sm:max-w-64 object-contain print:h-28 print:max-w-64"
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
+                  <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
                 )}
                 <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                   આચાર્યની સહી
