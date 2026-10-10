@@ -43,6 +43,13 @@ describe("ResultsInfoPage", () => {
     expect(screen.getByRole("button", { name: /પરિણામ જુઓ/ })).toBeDisabled();
   });
 
+  it("disables the class dropdown when no standard has been entered", () => {
+    renderResultsInfoPage();
+
+    const classSelect = screen.getByRole("combobox", { name: "વર્ગ" });
+    expect(classSelect).toBeDisabled();
+  });
+
   it("offers annual and Trimasik result types", () => {
     renderResultsInfoPage();
 
