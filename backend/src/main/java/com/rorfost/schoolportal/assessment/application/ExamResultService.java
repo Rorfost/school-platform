@@ -135,6 +135,11 @@ public class ExamResultService {
 
       int subjectColumnStep = detectSubjectColumnStep(sheet.getRow(0), colSubjectsStart);
 
+      // Cache configured subjects and resolved header column mappings per standard
+      // to avoid N+1 database queries and 200+ redundant header scans.
+      Map<String, StandardSubjectContext> subjectContextCache = new HashMap<>();
+      Row headerRow = sheet.getRow(0);
+
       for (int index = 1; index <= sheet.getLastRowNum(); index++) {
         Row row = sheet.getRow(index);
         if (row == null) {
@@ -170,11 +175,24 @@ public class ExamResultService {
         result.setAttendedDays(
             attendedValue != null && !attendedValue.isBlank() ? attendedValue : null);
 
+        // Reuse cached subject context — avoids DB lookups and header resolution for every row.
+        StandardSubjectContext context =
+            subjectContextCache.computeIfAbsent(
+                standard,
+                s -> {
+                  List<ConfiguredSubject> configured = configuredSubjects(school.getId(), s);
+                  Map<Integer, Integer> indexToCol =
+                      resolveSubjectColumns(
+                          headerRow, configured, colSubjectsStart, subjectColumnStep);
+                  Set<Integer> matchedCols = new HashSet<>(indexToCol.values());
+                  return new StandardSubjectContext(configured, indexToCol, matchedCols);
+                });
+
         addSubjects(
             result,
             row,
-            configuredSubjects(school.getId(), standard),
-            sheet.getRow(0),
+            context,
+            headerRow,
             colSubjectsStart,
             subjectColumnStep,
             !isEkam,
@@ -193,15 +211,15 @@ public class ExamResultService {
   private void addSubjects(
       AnnualExamResult result,
       Row row,
-      List<ConfiguredSubject> configuredSubjects,
+      StandardSubjectContext context,
       Row headerRow,
       int subjectsStartCol,
       int subjectColumnStep,
       boolean isAnnual,
       ResultPresentationSettings settings) {
 
-    Map<Integer, Integer> subjectIndexToColumn =
-        resolveSubjectColumns(headerRow, configuredSubjects, subjectsStartCol, subjectColumnStep);
+    List<ConfiguredSubject> configuredSubjects = context.configuredSubjects();
+    Map<Integer, Integer> subjectIndexToColumn = context.subjectIndexToColumn();
 
     for (int index = 0; index < configuredSubjects.size(); index++) {
 
@@ -265,9 +283,7 @@ public class ExamResultService {
 
     // Check if a subject not configured for this standard has obtained-marks data.
     // We only check the OBTAINED column (offset 1), NOT the max-marks column (offset 0).
-    // Reason: admins fill max marks for every possible subject in the workbook and leave
-    // obtained marks blank for subjects not taken — that is valid and must not cause an error.
-    Set<Integer> matchedSubjectColumns = new HashSet<>(subjectIndexToColumn.values());
+    Set<Integer> matchedSubjectColumns = context.matchedSubjectColumns();
 
     int lastColumn = headerRow == null ? subjectsStartCol : headerRow.getLastCellNum();
 
@@ -376,20 +392,25 @@ public class ExamResultService {
     return text.toLowerCase().replaceAll("[^a-z0-9\\u0900-\\u097F\\u0A80-\\u0AFF]", "").trim();
   }
 
-  private boolean isSubjectAliasMatch(String a, String b) {
-    List<List<String>> aliasGroups =
-        List.of(
-            List.of("gujarati", "guj", "ગુજરાતી"),
-            List.of("mathematics", "maths", "math", "ગણિત"),
-            List.of("science", "sci", "વિજ્ઞાન"),
-            List.of("hindi", "hin", "હિન્દી"),
-            List.of("english", "eng", "અંગ્રેજી"),
-            List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
-            List.of("sanskrit", "san", "સંસ્કૃત"),
-            List.of("personalitydevelopment", "pd", "personality", "vv", "વ્યક્તિત્વવિકાસ"),
-            List.of("environment", "environmentalstudies", "env", "evs", "પર્યાવરણ"));
+  private static final List<List<String>> ALIAS_GROUPS =
+      List.of(
+          List.of("gujarati", "guj", "ગુજરાતી"),
+          List.of("mathematics", "maths", "math", "ગણિત"),
+          List.of("science", "sci", "વિજ્ઞાન"),
+          List.of("hindi", "hin", "હિન્દી"),
+          List.of("english", "eng", "અંગ્રેજી"),
+          List.of("socialscience", "social", "ss", "સામાજિકવિજ્ઞાન"),
+          List.of("sanskrit", "san", "સંસ્કૃત"),
+          List.of("personalitydevelopment", "pd", "personality", "vv", "વ્યક્તિત્વવિકાસ"),
+          List.of("environment", "environmentalstudies", "env", "evs", "પર્યાવરણ"));
 
-    for (List<String> group : aliasGroups) {
+  private record StandardSubjectContext(
+      List<ConfiguredSubject> configuredSubjects,
+      Map<Integer, Integer> subjectIndexToColumn,
+      Set<Integer> matchedSubjectColumns) {}
+
+  private boolean isSubjectAliasMatch(String a, String b) {
+    for (List<String> group : ALIAS_GROUPS) {
       if (group.contains(a) && group.contains(b)) {
         return true;
       }
