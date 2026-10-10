@@ -21,7 +21,7 @@ export function ContactPage() {
         backLabel={LABELS.home}
       />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card className="space-y-4">
+        <Card className="self-start space-y-4">
           <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
             આચાર્યશ્રીનો સંપર્ક
           </h2>
@@ -44,6 +44,7 @@ export function ContactPage() {
               </a>
             </div>
           </div>
+
           <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
             <a
               href={`tel:${dialablePhone}`}
@@ -62,25 +63,59 @@ export function ContactPage() {
           </div>
         </Card>
         <div className="space-y-6">
-          <Card className="space-y-4">
+          <Card className="flex h-full min-w-0 flex-col gap-4">
             <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
               શાળાનું સરનામું
             </h2>
+
             <div className="flex items-start gap-3 text-sm text-slate-700">
               <Building2 className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
-              <div>
+              <div className="min-w-0">
                 <p className="font-semibold text-slate-900">{school.name}</p>
-                <p className="mt-1 text-slate-600">{school.address}</p>
+                <p className="mt-1 break-words text-slate-600">{school.address}</p>
               </div>
             </div>
+
             <div className="flex items-start gap-3 text-sm text-slate-700">
               <MapPin className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
-              <p className="text-slate-600">
-                {[school.city, school.state, school.postalCode].filter(Boolean).join(", ")}
-              </p>
+              <div className="min-w-0">
+                <p className="text-slate-600">
+                  {[school.city, school.state, school.postalCode].filter(Boolean).join(", ")}
+                </p>
+
+                {school.mapsUrl?.trim() && (
+                  <a
+                    href={school.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex min-h-8 items-center gap-1 font-medium text-blue-900 hover:underline"
+                  >
+                    Google Maps પર જુઓ ↗
+                  </a>
+                )}
+              </div>
             </div>
+
+            {/* Email at the bottom */}
+            {school.email && (
+              <div className="mt-4 border-t border-slate-400 pt-4 md:mt-auto">
+                <div className="flex items-start gap-3 text-sm text-slate-700">
+                  <Mail className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900">ઇમેઇલ</p>
+                    <a
+                      href={`mailto:${school.email}`}
+                      className="mt-1 block break-all font-medium text-blue-900 hover:underline"
+                    >
+                      {school.email}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </Card>
-          {school.email && (
+
+          {/* {school.email && (
             <Card className="flex items-start gap-3">
               <Mail className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
               <div className="min-w-0">
@@ -93,7 +128,7 @@ export function ContactPage() {
                 </a>
               </div>
             </Card>
-          )}
+          )} */}
         </div>
       </div>
     </div>

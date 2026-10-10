@@ -36,8 +36,7 @@ export function AboutPage() {
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
             <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700 whitespace-pre-line">
-              {school.about ||
-                "અમારી શાળામાં ધોરણ ૧ થી ૮ સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે."}
+              {school.about}
             </p>
           </div>
         </div>

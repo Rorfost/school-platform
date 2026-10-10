@@ -38,5 +38,6 @@ export function useEffectiveSchoolInfo() {
     about: school?.about || "",
     establishedYear: school?.establishedYear ?? DEFAULT_SCHOOL_INFO.establishedYear,
     logoUrl: school?.logoUrl ?? null,
+    mapsUrl: school?.mapsUrl || "",
   };
 }
