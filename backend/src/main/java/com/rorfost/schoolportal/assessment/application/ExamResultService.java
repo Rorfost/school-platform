@@ -87,11 +87,7 @@ public class ExamResultService {
             .findById(school.getId())
             .orElseGet(() -> new ResultPresentationSettings(school.getId()));
     String persistedWorkingDays =
-        ANNUAL.equals(validatedResultType)
-            ? (totalWorkingDays != null && !totalWorkingDays.isBlank()
-                ? totalWorkingDays.trim()
-                : null)
-            : null;
+        (totalWorkingDays != null && !totalWorkingDays.isBlank()) ? totalWorkingDays.trim() : null;
     List<AnnualExamResult> results =
         parseWorkbook(file, school, persistedWorkingDays, validatedResultType, settings);
     if (results.isEmpty()) {
@@ -123,19 +119,16 @@ public class ExamResultService {
       List<AnnualExamResult> results = new ArrayList<>();
 
       boolean isEkam = EKAM_KASOTI.equals(resultType);
-      // Column layout:
-      //   ANNUAL:      GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5, AttendedDays=6, subjects
-      // from 7
-      //   EKAM_KASOTI: GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5,                subjects
-      // from 6
+      // Column layout for both ANNUAL and EKAM_KASOTI:
+      //   GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5, AttendedDays=6, subjects from 7
       int colGr = 0;
       int colStudentUid = 1;
       int colStd = 2;
       int colClass = 3;
       int colName = 4;
       int colBirth = 5;
-      int colAttended = isEkam ? -1 : 6;
-      int colSubjectsStart = isEkam ? 6 : 7;
+      int colAttended = 6;
+      int colSubjectsStart = 7;
 
       int subjectColumnStep = detectSubjectColumnStep(sheet.getRow(0), colSubjectsStart);
 

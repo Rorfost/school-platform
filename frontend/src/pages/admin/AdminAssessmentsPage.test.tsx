@@ -49,7 +49,7 @@ describe("AdminAssessmentsPage", () => {
     expect(screen.getByLabelText("Total working days")).toBeVisible();
   });
 
-  it("hides working days on the Trimasik Kasoti tab", () => {
+  it("shows working days on the Trimasik Kasoti tab", () => {
     renderPage();
 
     fireEvent.click(screen.getByRole("tab", { name: "Trimasik Kasoti Result" }));
@@ -60,6 +60,6 @@ describe("AdminAssessmentsPage", () => {
       }),
     ).toBeVisible();
 
-    expect(screen.queryByLabelText("Total working days")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Total working days")).toBeVisible();
   });
 });

@@ -450,15 +450,16 @@ class ExamResultServiceTest {
       header.createCell(3).setCellValue("Class");
       header.createCell(4).setCellValue("Name");
       header.createCell(5).setCellValue("Birth Date");
+      header.createCell(6).setCellValue("Present Divas");
 
-      header.createCell(6).setCellValue("Gujarati");
-      header.createCell(7).setCellValue("Obtained");
+      header.createCell(7).setCellValue("Gujarati");
+      header.createCell(8).setCellValue("Obtained");
 
-      header.createCell(8).setCellValue("Mathematics");
-      header.createCell(9).setCellValue("Obtained");
+      header.createCell(9).setCellValue("Mathematics");
+      header.createCell(10).setCellValue("Obtained");
 
-      header.createCell(10).setCellValue("English");
-      header.createCell(11).setCellValue("Obtained");
+      header.createCell(11).setCellValue("English");
+      header.createCell(12).setCellValue("Obtained");
 
       Row student = sheet.createRow(1);
 
@@ -468,15 +469,16 @@ class ExamResultServiceTest {
       student.createCell(3).setCellValue("A");
       student.createCell(4).setCellValue("Test Student");
       student.createCell(5).setCellValue("01/01/2018");
+      student.createCell(6).setCellValue("-");
 
-      student.createCell(6).setCellValue(gujaratiMax);
-      student.createCell(7).setCellValue(gujaratiObtained);
+      student.createCell(7).setCellValue(gujaratiMax);
+      student.createCell(8).setCellValue(gujaratiObtained);
 
-      student.createCell(8).setCellValue(mathematicsMax);
-      student.createCell(9).setCellValue(mathematicsObtained);
+      student.createCell(9).setCellValue(mathematicsMax);
+      student.createCell(10).setCellValue(mathematicsObtained);
 
-      student.createCell(10).setCellValue(englishMax);
-      student.createCell(11).setCellValue(englishObtained);
+      student.createCell(11).setCellValue(englishMax);
+      student.createCell(12).setCellValue(englishObtained);
 
       workbook.write(output);
 

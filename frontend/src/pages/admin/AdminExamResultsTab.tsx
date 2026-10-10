@@ -26,7 +26,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       const formData = new FormData();
       formData.append("file", file!);
       formData.append("resultType", resultType);
-      if (isAnnual && totalWorkingDays.trim()) {
+      if (totalWorkingDays.trim()) {
         formData.append("totalWorkingDays", totalWorkingDays.trim());
       }
       return apiRequest<{ message: string }>("/api/v1/admin/exam-results/upload", {
@@ -103,9 +103,8 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
         Upload {RESULT_TYPE_LABELS[resultType]} Workbook
       </h2>
       <p className="mt-1 text-sm text-slate-600">
-        {isAnnual
-          ? "Exam workbooks start with G.R. No., Student UID, Standard, Class, Name, Birth Date and Present Divas. Each subject then uses 3 columns: Maximum Marks, Obtained Marks and Grade."
-          : "Trimasik Kasoti workbooks start with G.R. No., Student UID, Standard, Class, Name and Birth Date. Each subject then uses 2 columns: Maximum Marks and Obtained Marks. There is no Present Divas or Grade column."}
+        Workbooks start with G.R. No., Student UID, Standard, Class, Name, Birth Date and Present
+        Divas (or "-"). Each subject then uses 2 columns: Maximum Marks and Obtained Marks.
       </p>
 
       <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
@@ -115,17 +114,15 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
-        {isAnnual && (
-          <Input
-            label="Total working days"
-            type="number"
-            min="1"
-            value={totalWorkingDays}
-            onChange={(event) => setTotalWorkingDays(event.target.value)}
-            placeholder="For example, 230 (Leave empty for -)"
-            helperText="Optional. Leave empty to display '-' on results."
-          />
-        )}
+        <Input
+          label="Total working days"
+          type="number"
+          min="1"
+          value={totalWorkingDays}
+          onChange={(event) => setTotalWorkingDays(event.target.value)}
+          placeholder="For example, 230 (Leave empty for -)"
+          helperText="Optional. Leave empty to display '-' on results."
+        />
 
         <label className="block text-sm font-medium text-slate-700">
           Excel workbook
