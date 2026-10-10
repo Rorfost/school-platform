@@ -74,7 +74,7 @@ export function ExamResultViewer({
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
               <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold text-blue-900 shrink-0">વિદ્યાર્થીનું નામ :</span>
                   <span className="font-bold truncate">{result.studentName}</span>
                 </div>
@@ -82,7 +82,7 @@ export function ExamResultViewer({
                   <span className="font-bold shrink-0">ધોરણ :</span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">વર્ગ :</span>
                   <span>{result.studentClass || "-"}</span>
                 </div>
@@ -90,7 +90,7 @@ export function ExamResultViewer({
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
               <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">વિદ્યાર્થી યુઆઈડી :</span>
                   <span>{result.studentUid || "-"}</span>
                 </div>
@@ -98,7 +98,7 @@ export function ExamResultViewer({
                   <span className="font-bold shrink-0">જન્મ તારીખ :</span>
                   <span className="truncate">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">રોલ નં :</span>
                   <span>{result.rollNumber}</span>
                 </div>
@@ -106,7 +106,7 @@ export function ExamResultViewer({
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
               <div className="grid grid-cols-12 gap-1 sm:gap-2 items-center">
-                <div className="col-span-12 sm:col-span-6 print:col-span-6 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-12 sm:col-span-7 print:col-span-7 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">જનરલ રજીસ્ટર નંબર :</span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
@@ -114,7 +114,7 @@ export function ExamResultViewer({
                   <span className="font-bold shrink-0">કુલ કાર્ય દિવસ :</span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="col-span-6 sm:col-span-3 print:col-span-3 flex gap-1.5 items-center min-w-0">
+                <div className="col-span-6 sm:col-span-2 print:col-span-2 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0">હાજર દિવસ :</span>
                   <span>{result.attendedDays ?? "-"}</span>
                 </div>
