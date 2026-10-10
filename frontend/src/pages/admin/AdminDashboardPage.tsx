@@ -107,7 +107,8 @@ export function AdminDashboardPage() {
               Welcome back, {profile?.fullName || principal?.email || "Principal"}
             </h1>
             <p className="text-sm text-slate-300 mt-1">
-              {school.name} — DISE Code: {school.schoolCode || "24030401801"}
+              {school.name}
+              {school.schoolCode ? ` — DISE Code: ${school.schoolCode}` : ""}
             </p>
           </div>
           <Link

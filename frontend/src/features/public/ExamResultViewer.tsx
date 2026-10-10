@@ -24,6 +24,14 @@ export function ExamResultViewer({
         `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,
       ),
   });
+  const schoolInfo = useEffectiveSchoolInfo();
+  const locationSubtitle = [
+    schoolInfo.taluka ? `તા. ${schoolInfo.taluka}` : "",
+    schoolInfo.district ? `જિ. ${schoolInfo.district}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   const handlePrint = () => window.print();
   const isEkam = resultType === "EKAM_KASOTI";
   const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "વાર્ષિક પરીક્ષા";
@@ -31,6 +39,7 @@ export function ExamResultViewer({
     ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`
     : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
   const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
+  const resultPlaceValue = isEkam ? settings?.ekamResultPlace : settings?.resultPlace;
 
   return (
     <div className="space-y-4">
@@ -51,7 +60,7 @@ export function ExamResultViewer({
             <div className="flex items-center border-b-2 border-slate-900">
               <div className="w-[70px] sm:w-[110px] shrink-0 p-1 sm:p-2 border-r-2 border-slate-900 flex justify-center items-center print:w-[110px] print:p-2">
                 <img
-                  src={logoUrl || schoolLogo}
+                  src={logoUrl || schoolInfo.logoUrl || schoolLogo}
                   alt="School Logo"
                   className="size-12 sm:size-20 object-contain print:size-20"
                   crossOrigin="anonymous"
@@ -59,11 +68,13 @@ export function ExamResultViewer({
               </div>
               <div className="flex-1 text-center py-2 px-1 flex flex-col justify-center leading-tight">
                 <h1 className="text-sm sm:text-2xl font-bold text-blue-900 tracking-wide print:text-2xl">
-                  {schoolName}
+                  {schoolName || schoolInfo.name}
                 </h1>
-                <p className="text-xs sm:text-base font-bold text-blue-900 mt-0.5 sm:mt-1 print:text-base">
-                  તા. સમી, જિ. પાટણ
-                </p>
+                {locationSubtitle && (
+                  <p className="text-xs sm:text-base font-bold text-blue-900 mt-0.5 sm:mt-1 print:text-base">
+                    {locationSubtitle}
+                  </p>
+                )}
                 <div className="mt-1.5 sm:mt-2 text-red-700 font-bold border-t-2 border-red-700 mx-auto w-11/12 sm:w-3/4 pt-1 text-xs sm:text-base print:text-base">
                   {sheetTitle}
                 </div>
@@ -201,13 +212,15 @@ export function ExamResultViewer({
               </table>
             </div>
 
-            {/* Footer Date */}
-            <div className="grid grid-cols-[auto_1fr] border-b-2 border-slate-900 text-xs sm:text-sm font-bold print:text-sm">
-              <div className="p-2 px-3 sm:px-4 border-r-2 border-slate-900 print:px-4">
-                પરિણામ તારીખ :
+            {/* Place & Date – clean layout without box borders */}
+            <div className="border-b-2 border-slate-900 p-2 px-3 sm:px-4 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 space-y-1">
+              <div className="flex gap-2 items-center">
+                <span className="font-bold text-slate-900 shrink-0">સ્થળ :</span>
+                <span>{resultPlaceValue || schoolInfo.city || "-"}</span>
               </div>
-              <div className="p-2 px-3 sm:px-4 print:px-4">
-                {formatDate(resultDateValue || (isEkam ? null : "08/06/2026"))}
+              <div className="flex gap-2 items-center">
+                <span className="font-bold text-slate-900 shrink-0">તારીખ :</span>
+                <span>{formatDate(resultDateValue)}</span>
               </div>
             </div>
 

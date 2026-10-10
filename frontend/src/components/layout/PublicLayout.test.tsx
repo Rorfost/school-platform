@@ -2,10 +2,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { queryKeys } from "@/api/queryKeys";
 
 function renderLayout() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
+  });
+  queryClient.setQueryData(queryKeys.school, {
+    id: "s1",
+    name: "શાળા પોર્ટલ",
+    email: "principal@example.com",
   });
 
   return render(
@@ -26,9 +32,9 @@ describe("PublicLayout", () => {
     renderLayout();
 
     expect(screen.getByText("મુખ્ય વિષયવસ્તુ પર જાઓ")).toBeInTheDocument();
-    expect(screen.getAllByText("પીએમ શ્રી ધધાણા પ્રાથમિક શાળા")[0]).toBeVisible();
+    expect(screen.getAllByText("શાળા પોર્ટલ")[0]).toBeVisible();
     expect(screen.getByText("મુખ્ય સામગ્રી")).toBeVisible();
-    expect(screen.getByText(/principal24030401801@ssguj.in/)).toBeVisible();
+    expect(screen.getByText(/principal@example.com/)).toBeVisible();
     expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
   });
 

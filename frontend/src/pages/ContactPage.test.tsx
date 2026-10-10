@@ -4,8 +4,21 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { ContactPage } from "@/pages/ContactPage";
 
+import { queryKeys } from "@/api/queryKeys";
+
 function renderContactPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  queryClient.setQueryData(queryKeys.school, {
+    id: "s1",
+    name: "શાળા",
+    phone: "+91 9714862818",
+    email: "school@example.com",
+    address: "ગામ",
+  });
+  queryClient.setQueryData(queryKeys.principalProfile, {
+    fullName: "Rakesh Patel",
+    phone: "+91 9714862818",
+  });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>

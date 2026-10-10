@@ -35,10 +35,9 @@ export function AboutPage() {
             <p className="mt-2 text-xs sm:text-sm font-semibold text-blue-900">
               ॥ સા વિદ્યા યા વિમુક્તયે ॥
             </p>
-            <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700">
-              અમારી શાળા સમી તાલુકાના ધધાણા ગામમાં સ્થિત એક અગ્રણી પ્રાથમિક શાળા છે. વર્ષ{" "}
-              {toGujaratiNumber(school.establishedYear)} માં સ્થાપના પામેલી આ શાળામાં ધોરણ ૧ થી ૮
-              સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે.
+            <p className="mt-4 text-sm sm:text-base leading-relaxed text-slate-700 whitespace-pre-line">
+              {school.about ||
+                "અમારી શાળામાં ધોરણ ૧ થી ૮ સુધીના બાળકોને સંસ્કારયુક્ત અને ગુણવત્તાયુક્ત પ્રાથમિક શિક્ષણ આપવામાં આવે છે."}
             </p>
           </div>
         </div>

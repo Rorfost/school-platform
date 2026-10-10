@@ -5,6 +5,8 @@ export interface SchoolResponse {
   schoolCode: string | null;
   address: string | null;
   city: string | null;
+  taluka: string | null;
+  district: string | null;
   state: string | null;
   postalCode: string | null;
   email: string | null;
@@ -176,6 +178,8 @@ export interface SchoolUpdateRequest {
   schoolCode?: string | null;
   address?: string | null;
   city?: string | null;
+  taluka?: string | null;
+  district?: string | null;
   state?: string | null;
   postalCode?: string | null;
   email?: string | null;
@@ -329,12 +333,14 @@ export interface ExamResultSubjectResponse {
 
 export interface ResultPresentationSettingsResponse {
   resultDate: string | null;
+  resultPlace?: string | null;
   resultSheetTitle: string | null;
   footerLineOne: string | null;
   footerLineTwo: string | null;
   ekamFooterLineOne?: string | null;
   ekamFooterLineTwo?: string | null;
   ekamResultDate?: string | null;
+  ekamResultPlace?: string | null;
   ekamResultSheetTitle?: string | null;
   gradeAMin: number;
   gradeBMin: number;

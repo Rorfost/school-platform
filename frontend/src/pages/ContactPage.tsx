@@ -7,7 +7,7 @@ import { LABELS } from "@/utils/gujarati";
 export function ContactPage() {
   const school = useEffectiveSchoolInfo();
   const { data: principal } = usePublicPrincipalProfile();
-  const principalName = principal?.fullName || "Rakesh Patel";
+  const principalName = principal?.fullName || "આચાર્યશ્રી";
   const phone = principal?.phone || school.phone;
   const dialablePhone = phone.replace(/[^\d+]/g, "");
   const whatsappNumber = phone.replace(/\D/g, "");

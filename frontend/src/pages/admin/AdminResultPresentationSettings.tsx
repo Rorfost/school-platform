@@ -44,6 +44,9 @@ export function AdminResultPresentationSettings({
             resultDate: isAnnual
               ? String(form.get("resultDate") || "") || null
               : (value.resultDate ?? null),
+            resultPlace: isAnnual
+              ? String(form.get("resultPlace") || "") || null
+              : (value.resultPlace ?? null),
             resultSheetTitle: isAnnual
               ? String(form.get("resultSheetTitle") || "") || null
               : (value.resultSheetTitle ?? null),
@@ -56,6 +59,9 @@ export function AdminResultPresentationSettings({
             ekamResultDate: isAnnual
               ? (value.ekamResultDate ?? null)
               : String(form.get("ekamResultDate") || "") || null,
+            ekamResultPlace: isAnnual
+              ? (value.ekamResultPlace ?? null)
+              : String(form.get("ekamResultPlace") || "") || null,
             ekamResultSheetTitle: isAnnual
               ? (value.ekamResultSheetTitle ?? null)
               : String(form.get("ekamResultSheetTitle") || "") || null,
@@ -74,12 +80,20 @@ export function AdminResultPresentationSettings({
       >
         {isAnnual ? (
           <>
-            <Input
-              label="Result date"
-              name="resultDate"
-              type="date"
-              defaultValue={value.resultDate ?? ""}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Result place (સ્થળ)"
+                name="resultPlace"
+                defaultValue={value.resultPlace ?? ""}
+                placeholder="દા.ત. ધધાણા"
+              />
+              <Input
+                label="Result date (તારીખ)"
+                name="resultDate"
+                type="date"
+                defaultValue={value.resultDate ?? ""}
+              />
+            </div>
             <Input
               label="Result sheet title (e.g. વાર્ષિક પરીક્ષા પરિણામ પત્રક : ૨૦૨૫-૨૬)"
               name="resultSheetTitle"
@@ -140,12 +154,20 @@ export function AdminResultPresentationSettings({
           </>
         ) : (
           <>
-            <Input
-              label="Result date"
-              name="ekamResultDate"
-              type="date"
-              defaultValue={value.ekamResultDate ?? ""}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                label="Result place (સ્થળ)"
+                name="ekamResultPlace"
+                defaultValue={value.ekamResultPlace ?? ""}
+                placeholder="દા.ત. ધધાણા"
+              />
+              <Input
+                label="Result date (તારીખ)"
+                name="ekamResultDate"
+                type="date"
+                defaultValue={value.ekamResultDate ?? ""}
+              />
+            </div>
             <Input
               label="Result sheet title (e.g. ત્રિમાસિક કસોટી પરિણામ પત્રક : ૨૦૨૫-૨૬)"
               name="ekamResultSheetTitle"

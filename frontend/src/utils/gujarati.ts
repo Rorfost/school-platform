@@ -1,16 +1,16 @@
 export const DEFAULT_SCHOOL_INFO = {
-  name: "પીએમ શ્રી ધધાણા પ્રાથમિક શાળા",
-  shortName: "ધધાણા પ્રાથમિક શાળા",
-  address: "મુ. પો. ધધાણા, તા. સમી, જિ. પાટણ",
-  city: "ધધાણા",
-  taluka: "સમી",
-  district: "પાટણ",
-  establishedYear: 1950,
-  establishedDate: "૧૦/૧૦/૧૯૫૦",
-  diseCode: "૨૪૦૩૦૪૦૧૮૦૧",
-  email: "principal24030401801@ssguj.in",
-  phone: "+91 9714862818",
-  motto: "સા વિદ્યા યા વિમુક્તયે",
+  name: "",
+  shortName: "",
+  address: "",
+  city: "",
+  taluka: "",
+  district: "",
+  establishedYear: undefined as number | string | undefined,
+  establishedDate: "",
+  diseCode: "",
+  email: "",
+  phone: "",
+  motto: "",
 };
 
 const GUJARATI_DIGITS = ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"];
