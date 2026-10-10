@@ -675,9 +675,7 @@ export function AdminAcademicSetupPage() {
           standard={classesTarget}
           pending={saveClasses.isPending}
           onClose={() => !saveClasses.isPending && setClassesTarget(null)}
-          onSubmit={(classes) =>
-            saveClasses.mutate({ standardId: classesTarget.id, classes })
-          }
+          onSubmit={(classes) => saveClasses.mutate({ standardId: classesTarget.id, classes })}
         />
       )}
 
@@ -898,4 +896,3 @@ function ClassesDialog({
     </Dialog>
   );
 }
-

@@ -61,9 +61,7 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
           "Assign the required Subjects to this Standard in Academic Setup before uploading.",
         );
       } else {
-        setErrorMessage(
-          "Upload failed. Check the file, then try again.",
-        );
+        setErrorMessage("Upload failed. Check the file, then try again.");
       }
       setSuccessMessage("");
     },
