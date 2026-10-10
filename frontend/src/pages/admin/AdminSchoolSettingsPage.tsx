@@ -273,9 +273,17 @@ export function AdminSchoolSettingsPage() {
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="Village / City (ગામ / શહેર)" name="city" defaultValue={school?.city ?? ""} />
+            <Input
+              label="Village / City (ગામ / શહેર)"
+              name="city"
+              defaultValue={school?.city ?? ""}
+            />
             <Input label="Taluka (તાલુકો)" name="taluka" defaultValue={school?.taluka ?? ""} />
-            <Input label="District (જિલ્લો)" name="district" defaultValue={school?.district ?? ""} />
+            <Input
+              label="District (જિલ્લો)"
+              name="district"
+              defaultValue={school?.district ?? ""}
+            />
             <Input label="State (રાજ્ય)" name="state" defaultValue={school?.state ?? ""} />
             <Input
               label="Postal Code / PIN"
