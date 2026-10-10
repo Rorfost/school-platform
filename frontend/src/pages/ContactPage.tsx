@@ -21,7 +21,7 @@ export function ContactPage() {
         backLabel={LABELS.home}
       />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card className="space-y-4">
+        <Card className="self-start space-y-4">
           <h2 className="border-b border-slate-100 pb-3 text-lg font-bold text-slate-900">
             આચાર્યશ્રીનો સંપર્ક
           </h2>
@@ -75,29 +75,23 @@ export function ContactPage() {
             </div>
 
             <div className="flex items-start gap-3 text-sm text-slate-700">
-                <MapPin
-                    className="mt-0.5 shrink-0 text-blue-900"
-                    size={20}
-                    aria-hidden="true"
-                />
-                <div className="min-w-0">
-                    <p className="text-slate-600">
-                    {[school.city, school.state, school.postalCode]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
+              <MapPin className="mt-0.5 shrink-0 text-blue-900" size={20} aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="text-slate-600">
+                  {[school.city, school.state, school.postalCode].filter(Boolean).join(", ")}
+                </p>
 
-                    {school.mapsUrl?.trim() && (
-                    <a
-                        href={school.mapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
-                    >
-                        Google Maps પર જુઓ ↗
-                    </a>
-                    )}
-                </div>
+                {school.mapsUrl?.trim() && (
+                  <a
+                    href={school.mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
+                  >
+                    Google Maps પર જુઓ ↗
+                  </a>
+                )}
+              </div>
             </div>
           </Card>
           {school.email && (
