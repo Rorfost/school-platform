@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { apiRequest, ApiError } from "@/api/client";
 import type { ExamResultResponse } from "@/api/types";
 import { ExamResultViewer } from "@/features/public/ExamResultViewer";
@@ -94,23 +95,15 @@ export function ResultsInfoPage() {
             <h2 className="text-lg font-bold text-slate-900">પરિણામ શોધો</h2>
 
             {/* Result type */}
-            <div className="w-full">
-              <label
-                htmlFor="result-type"
-                className="block text-sm font-medium text-slate-700 mb-1.5"
-              >
-                પરિણામનો પ્રકાર
-              </label>
-              <select
-                id="result-type"
-                value={resultType}
-                onChange={(event) => setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")}
-                className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400"
-              >
-                <option value="ANNUAL">પરીક્ષા પરિણામ</option>
-                <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
-              </select>
-            </div>
+            <Select
+              id="result-type"
+              label="પરિણામનો પ્રકાર"
+              value={resultType}
+              onChange={(event) => setResultType(event.target.value as "ANNUAL" | "EKAM_KASOTI")}
+            >
+              <option value="ANNUAL">પરીક્ષા પરિણામ</option>
+              <option value="EKAM_KASOTI">ત્રિમાસિક કસોટી પરિણામ</option>
+            </Select>
 
             {/* Standard + Class — side by side */}
             <div className="grid grid-cols-2 gap-3">
@@ -129,38 +122,30 @@ export function ResultsInfoPage() {
                 aria-invalid={standard.length > 0 && !isStandardValid}
                 required
               />
-              <div className="w-full">
-                <label
-                  htmlFor="class-select"
-                  className="block text-sm font-medium text-slate-700 mb-1.5"
-                >
-                  વર્ગ
-                </label>
-                <select
-                  id="class-select"
-                  aria-label="વર્ગ"
-                  value={studentClass}
-                  onChange={(e) => setStudentClass(e.target.value)}
-                  disabled={!isStandardValid || configuredClasses.length === 0}
-                  className="w-full min-h-11 rounded-lg border border-slate-300 py-2 px-3.5 text-sm text-slate-900 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors hover:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-                  required
-                >
-                  {!isStandardValid ? (
-                    <option value="">ધોરણ દાખલ કરો</option>
-                  ) : configuredClasses.length === 0 ? (
-                    <option value="">વર્ગ ઉપલબ્ધ નથી</option>
-                  ) : (
-                    <>
-                      <option value="">વર્ગ પસંદ કરો</option>
-                      {configuredClasses.map((cls) => (
-                        <option key={cls} value={cls}>
-                          {cls}
-                        </option>
-                      ))}
-                    </>
-                  )}
-                </select>
-              </div>
+              <Select
+                id="class-select"
+                label="વર્ગ"
+                aria-label="વર્ગ"
+                value={studentClass}
+                onChange={(e) => setStudentClass(e.target.value)}
+                disabled={!isStandardValid || configuredClasses.length === 0}
+                required
+              >
+                {!isStandardValid ? (
+                  <option value="">ધોરણ દાખલ કરો</option>
+                ) : configuredClasses.length === 0 ? (
+                  <option value="">વર્ગ ઉપલબ્ધ નથી</option>
+                ) : (
+                  <>
+                    <option value="">વર્ગ પસંદ કરો</option>
+                    {configuredClasses.map((cls) => (
+                      <option key={cls} value={cls}>
+                        {cls}
+                      </option>
+                    ))}
+                  </>
+                )}
+              </Select>
             </div>
 
             {/* Roll number — full width */}
