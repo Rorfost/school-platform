@@ -93,7 +93,10 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
         setErrorMessage(
           "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
         );
-      } else if (reason instanceof ApiError && (reason.status === 524 || reason.status === 504 || reason.status === 502)) {
+      } else if (
+        reason instanceof ApiError &&
+        (reason.status === 524 || reason.status === 504 || reason.status === 502)
+      ) {
         setErrorMessage(
           "The cloud proxy timed out during upload. If the server was waking up, the results may still be processing — refresh the page in a few minutes to check.",
         );

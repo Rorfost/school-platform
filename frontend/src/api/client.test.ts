@@ -50,9 +50,7 @@ describe("api client & error utilities", () => {
     });
 
     expect(mockFetch).toHaveBeenCalledTimes(2);
-    expect(mockFetch.mock.calls[0][0]).toBe(
-      `${apiBaseUrl}/api/v1/admin/auth/csrf`,
-    );
+    expect(mockFetch.mock.calls[0][0]).toBe(`${apiBaseUrl}/api/v1/admin/auth/csrf`);
     const calledInit = mockFetch.mock.calls[1][1];
     const headers = calledInit?.headers as Headers;
     expect(headers.get("X-CSRF-TOKEN")).toBe("csrf-token");
