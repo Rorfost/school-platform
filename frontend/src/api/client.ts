@@ -167,31 +167,35 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 }
 
 /**
- * Wakes up the backend server by polling /actuator/health until it responds
- * with HTTP 200, or throws after `timeoutMs` milliseconds.
+ * Wakes up the backend server by polling /api/v1/public/school until it
+ * responds with HTTP 200, or throws after ~70 seconds.
  *
- * Use this before any file upload when the server may be in a cold-start
- * state (e.g. Render free tier spins down after inactivity).
+ * Render free tier can take up to 50 s on a cold start. Each attempt is
+ * kept open for 55 s so a single cold-start response always succeeds.
  */
-export async function wakeServer(timeoutMs = 45_000): Promise<void> {
+export async function wakeServer(timeoutMs = 70_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
-  const interval = 3_000; // poll every 3 s
 
   while (Date.now() < deadline) {
+    const remaining = deadline - Date.now();
+    const attemptTimeout = Math.min(55_000, remaining);
+    if (attemptTimeout <= 0) break;
+
     try {
-      const signal = AbortSignal.timeout(5_000);
+      const signal = AbortSignal.timeout(attemptTimeout);
       const response = await fetch(`${apiBaseUrl}/api/v1/public/school`, {
         method: "GET",
         credentials: "include",
         signal,
       });
-      if (response.ok) return; // server is awake
+      if (response.ok) return; // server is awake ✓
     } catch {
-      // network error or timeout — keep polling
+      // network error or timeout — wait briefly then retry
     }
-    const remaining = deadline - Date.now();
-    if (remaining <= 0) break;
-    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, remaining)));
+
+    const gap = deadline - Date.now();
+    if (gap <= 0) break;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(3_000, gap)));
   }
   throw new Error("Server did not respond in time. Please try again.");
 }
