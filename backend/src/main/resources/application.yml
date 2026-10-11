@@ -17,6 +17,10 @@ spring:
       ddl-auto: validate
     properties:
       hibernate.jdbc.time_zone: UTC
+      hibernate.jdbc.batch_size: 100
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.jdbc.batch_versioned_data: true
   flyway:
     enabled: true
   session:

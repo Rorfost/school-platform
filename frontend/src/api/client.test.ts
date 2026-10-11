@@ -1,4 +1,5 @@
 import { apiRequest, getCsrfTokenFromCookie } from "@/api/client";
+import { apiBaseUrl } from "@/api/config";
 import { getGujaratiErrorMessage } from "@/utils/errors";
 
 describe("api client & error utilities", () => {
@@ -50,7 +51,7 @@ describe("api client & error utilities", () => {
 
     expect(mockFetch).toHaveBeenCalledTimes(2);
     expect(mockFetch.mock.calls[0][0]).toBe(
-      "https://school-platform-gxrt.onrender.com/api/v1/admin/auth/csrf",
+      `${apiBaseUrl}/api/v1/admin/auth/csrf`,
     );
     const calledInit = mockFetch.mock.calls[1][1];
     const headers = calledInit?.headers as Headers;
