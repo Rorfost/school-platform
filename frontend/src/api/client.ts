@@ -165,3 +165,33 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   return JSON.parse(responseText) as T;
 }
+
+/**
+ * Wakes up the backend server by polling /actuator/health until it responds
+ * with HTTP 200, or throws after `timeoutMs` milliseconds.
+ *
+ * Use this before any file upload when the server may be in a cold-start
+ * state (e.g. Render free tier spins down after inactivity).
+ */
+export async function wakeServer(timeoutMs = 45_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  const interval = 3_000; // poll every 3 s
+
+  while (Date.now() < deadline) {
+    try {
+      const signal = AbortSignal.timeout(5_000);
+      const response = await fetch(`${apiBaseUrl}/actuator/health`, {
+        method: "GET",
+        credentials: "include",
+        signal,
+      });
+      if (response.ok) return; // server is awake
+    } catch {
+      // network error or timeout — keep polling
+    }
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, remaining)));
+  }
+  throw new Error("Server did not respond in time. Please try again.");
+}

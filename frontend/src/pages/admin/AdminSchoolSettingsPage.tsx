@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ImageUp, Save, School as SchoolIcon, Trash2 } from "lucide-react";
-import { ApiError, apiRequest } from "@/api/client";
+import { CheckCircle2, ImageUp, Loader2, Save, School as SchoolIcon, Trash2 } from "lucide-react";
+import { ApiError, apiRequest, wakeServer } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import type { SchoolResponse, SchoolUpdateRequest } from "@/api/types";
 import { Button } from "@/components/ui/Button";
@@ -22,6 +22,8 @@ export function AdminSchoolSettingsPage() {
   const [sealFile, setSealFile] = useState<File | null>(null);
   const [sealPreview, setSealPreview] = useState<string | null>(null);
   const [sealError, setSealError] = useState<string | null>(null);
+  // Tracks which upload ("logo" | "seal" | null) is in the server-wake phase
+  const [wakingFor, setWakingFor] = useState<"logo" | "seal" | null>(null);
 
   const {
     data: school,
@@ -66,7 +68,10 @@ export function AdminSchoolSettingsPage() {
   };
 
   const uploadLogoMutation = useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
+      setWakingFor("logo");
+      await wakeServer();
+      setWakingFor(null);
       const formData = new FormData();
       formData.append("file", file);
       return apiRequest<SchoolResponse>("/api/v1/admin/school/logo", {
@@ -74,8 +79,8 @@ export function AdminSchoolSettingsPage() {
         body: formData,
       });
     },
-    onSuccess: (updated) => updateBranding(updated, "School logo updated successfully."),
-    onError: () => setLogoError("Could not upload the logo. Please try again."),
+    onSuccess: (updated) => { setWakingFor(null); updateBranding(updated, "School logo updated successfully."); },
+    onError: () => { setWakingFor(null); setLogoError("Could not upload the logo. Please try again."); },
   });
 
   const removeLogoMutation = useMutation({
@@ -85,7 +90,10 @@ export function AdminSchoolSettingsPage() {
   });
 
   const uploadSealMutation = useMutation({
-    mutationFn: (file: File) => {
+    mutationFn: async (file: File) => {
+      setWakingFor("seal");
+      await wakeServer();
+      setWakingFor(null);
       const formData = new FormData();
       formData.append("file", file);
       return apiRequest<SchoolResponse>("/api/v1/admin/school/seal", {
@@ -93,8 +101,8 @@ export function AdminSchoolSettingsPage() {
         body: formData,
       });
     },
-    onSuccess: (updated) => updateSeal(updated, "School seal updated successfully."),
-    onError: () => setSealError("Could not upload the seal. Please try again."),
+    onSuccess: (updated) => { setWakingFor(null); updateSeal(updated, "School seal updated successfully."); },
+    onError: () => { setWakingFor(null); setSealError("Could not upload the seal. Please try again."); },
   });
 
   const removeSealMutation = useMutation({
@@ -204,6 +212,18 @@ export function AdminSchoolSettingsPage() {
         <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-semibold flex items-center gap-2">
           <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
           <span>{successMessage}</span>
+        </div>
+      )}
+
+      {wakingFor && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-sm font-medium flex items-center gap-3">
+          <Loader2 size={18} className="text-amber-600 shrink-0 animate-spin" />
+          <div>
+            <p className="font-semibold">Server is waking up…</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              The server was in sleep mode. Your {wakingFor} will upload automatically once it's ready (up to 45 s).
+            </p>
+          </div>
         </div>
       )}
 
