@@ -180,7 +180,7 @@ export async function wakeServer(timeoutMs = 45_000): Promise<void> {
   while (Date.now() < deadline) {
     try {
       const signal = AbortSignal.timeout(5_000);
-      const response = await fetch(`${apiBaseUrl}/actuator/health`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/public/school`, {
         method: "GET",
         credentials: "include",
         signal,
