@@ -93,7 +93,8 @@ export function Footer() {
         <div className="w-full border-t border-slate-100 pt-2 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
             <p>
-              © {new Date().getFullYear()} {school.name || "School Portal"}
+              © {new Date().getFullYear()} Rakesh Patel, Principal at PM SHRI Dhadhana Primary
+              School
             </p>
             {/* <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p> */}
           </div>
