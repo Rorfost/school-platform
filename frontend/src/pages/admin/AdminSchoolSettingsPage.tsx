@@ -75,13 +75,27 @@ export function AdminSchoolSettingsPage() {
       });
     },
     onSuccess: (updated) => updateBranding(updated, "School logo updated successfully."),
-    onError: () => setLogoError("Could not upload the logo. Please try again."),
+    onError: (err: unknown) =>
+      setLogoError(
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Could not upload the logo. Please try again.",
+      ),
   });
 
   const removeLogoMutation = useMutation({
     mutationFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school/logo", { method: "DELETE" }),
     onSuccess: (updated) => updateBranding(updated, "School logo removed successfully."),
-    onError: () => setLogoError("Could not remove the logo. Please try again."),
+    onError: (err: unknown) =>
+      setLogoError(
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Could not remove the logo. Please try again.",
+      ),
   });
 
   const uploadSealMutation = useMutation({
@@ -94,13 +108,27 @@ export function AdminSchoolSettingsPage() {
       });
     },
     onSuccess: (updated) => updateSeal(updated, "School seal updated successfully."),
-    onError: () => setSealError("Could not upload the seal. Please try again."),
+    onError: (err: unknown) =>
+      setSealError(
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Could not upload the seal. Please try again.",
+      ),
   });
 
   const removeSealMutation = useMutation({
     mutationFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school/seal", { method: "DELETE" }),
     onSuccess: (updated) => updateSeal(updated, "School seal removed successfully."),
-    onError: () => setSealError("Could not remove the seal. Please try again."),
+    onError: (err: unknown) =>
+      setSealError(
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Could not remove the seal. Please try again.",
+      ),
   });
 
   useEffect(
