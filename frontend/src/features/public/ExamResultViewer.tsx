@@ -37,10 +37,8 @@ export function ExamResultViewer({
   const handlePrint = () => window.print();
 
   const isEkam = resultType === "EKAM_KASOTI";
-  const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
-  const sheetTitle = isEkam
-    ? settings?.ekamResultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`
-    : settings?.resultSheetTitle || `${resultTypeLabel} પરિણામ પત્રક`;
+  //   const resultTypeLabel = isEkam ? "ત્રિમાસિક કસોટી" : "પરીક્ષા";
+  const sheetTitle = isEkam ? settings?.ekamResultSheetTitle : settings?.resultSheetTitle;
   const resultDateValue = isEkam ? settings?.ekamResultDate : settings?.resultDate;
   const resultPlaceValue = isEkam ? settings?.ekamResultPlace : settings?.resultPlace;
 
