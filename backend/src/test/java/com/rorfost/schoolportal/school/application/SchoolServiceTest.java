@@ -87,7 +87,7 @@ class SchoolServiceTest {
             "checksum",
             "file-id");
     when(schools.findById(schoolId)).thenReturn(Optional.of(school));
-    when(storage.uploadPublicImage(eq("branding/example-school/seal"), any())).thenReturn(uploaded);
+    when(storage.uploadPublicImage(eq("branding/example-school"), any())).thenReturn(uploaded);
     when(storage.publicUrl(uploaded.objectKey())).thenReturn("https://assets.example/seal/new.png");
 
     var response =
