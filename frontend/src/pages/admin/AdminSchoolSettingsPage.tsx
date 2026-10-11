@@ -279,7 +279,8 @@ export function AdminSchoolSettingsPage() {
               શાળાનો સિક્કો (School Seal / Stamp)
             </h3>
             <p className="text-xs text-slate-500 mb-3">
-              Upload the official school rubber stamp/seal image. It will appear on the exam result sheet between the class teacher&apos;s and principal&apos;s signatures.
+              Upload the official school rubber stamp/seal image. It will appear on the exam result
+              sheet between the class teacher&apos;s and principal&apos;s signatures.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               {sealPreview || school?.sealUrl ? (
@@ -295,7 +296,9 @@ export function AdminSchoolSettingsPage() {
                 </div>
               )}
               <div className="space-y-3">
-                <p className="text-sm text-slate-600">Choose a PNG, JPG or WebP image up to 10 MB.</p>
+                <p className="text-sm text-slate-600">
+                  Choose a PNG, JPG or WebP image up to 10 MB.
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50">
                     <ImageUp size={16} aria-hidden="true" />

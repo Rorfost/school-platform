@@ -99,19 +99,21 @@ export function ExamResultViewer({
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold text-slate-900 shrink-0 whitespace-nowrap">વિદ્યાર્થીનું નામ :</span>
+                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold text-slate-900 shrink-0 whitespace-nowrap">
+                    વિદ્યાર્થીનું નામ :
+                  </span>
                   <span className="truncate">{result.studentName}</span>
                 </div>
-                <div className="w-[58%] sm:w-[35%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[88px] sm:w-[102px] flex justify-between whitespace-nowrap">
+                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">ધોરણ</span>
                     <span>:</span>
                   </span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="w-[42%] sm:w-[17%] shrink-0 flex gap-1.5 items-center min-w-0">
-                  <span className="font-bold shrink-0 w-[68px] sm:w-[78px] flex justify-between whitespace-nowrap">
+                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">વર્ગ</span>
                     <span>:</span>
                   </span>
@@ -121,22 +123,22 @@ export function ExamResultViewer({
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[98px] sm:w-[110px] flex justify-between whitespace-nowrap">
+                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[98px] sm:w-[100px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">વિદ્યાર્થી યુઆઈડી</span>
                     <span>:</span>
                   </span>
                   <span className="truncate">{result.studentUid || "-"}</span>
                 </div>
-                <div className="w-[58%] sm:w-[35%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[88px] sm:w-[102px] flex justify-between whitespace-nowrap">
+                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">જન્મ તારીખ</span>
                     <span>:</span>
                   </span>
                   <span className="shrink-0 whitespace-nowrap">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="w-[42%] sm:w-[17%] shrink-0 flex gap-1.5 items-center min-w-0">
-                  <span className="font-bold shrink-0 w-[68px] sm:w-[78px] flex justify-between whitespace-nowrap">
+                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">રોલ નં</span>
                     <span>:</span>
                   </span>
@@ -146,22 +148,22 @@ export function ExamResultViewer({
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[48%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[98px] sm:w-[110px] flex justify-between whitespace-nowrap">
+                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[98px] sm:w-[100px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">જ. રજી. નંબર</span>
                     <span>:</span>
                   </span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
-                <div className="w-[58%] sm:w-[35%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[88px] sm:w-[102px] flex justify-between whitespace-nowrap">
+                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">કુલ કાર્ય દિવસ</span>
                     <span>:</span>
                   </span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="w-[42%] sm:w-[17%] shrink-0 flex gap-1.5 items-center min-w-0">
-                  <span className="font-bold shrink-0 w-[68px] sm:w-[78px] flex justify-between whitespace-nowrap">
+                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                  <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">હાજર દિવસ</span>
                     <span>:</span>
                   </span>
@@ -299,7 +301,6 @@ export function ExamResultViewer({
                   </span>
                 </div>
               </div>
-
 
               {/* Signatures & School Seal */}
               <div className="flex justify-between items-end pt-1 min-h-[110px] sm:min-h-[130px] print:min-h-[130px] gap-2">
