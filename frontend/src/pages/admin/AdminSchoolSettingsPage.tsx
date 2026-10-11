@@ -19,6 +19,9 @@ export function AdminSchoolSettingsPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [sealFile, setSealFile] = useState<File | null>(null);
+  const [sealPreview, setSealPreview] = useState<string | null>(null);
+  const [sealError, setSealError] = useState<string | null>(null);
 
   const {
     data: school,
@@ -53,6 +56,15 @@ export function AdminSchoolSettingsPage() {
     setSuccessMessage(message);
   };
 
+  const updateSeal = (updated: SchoolResponse, message: string) => {
+    queryClient.setQueryData(queryKeys.school, updated);
+    queryClient.invalidateQueries({ queryKey: queryKeys.school });
+    setSealFile(null);
+    setSealPreview(null);
+    setSealError(null);
+    setSuccessMessage(message);
+  };
+
   const uploadLogoMutation = useMutation({
     mutationFn: (file: File) => {
       const formData = new FormData();
@@ -72,11 +84,31 @@ export function AdminSchoolSettingsPage() {
     onError: () => setLogoError("Could not remove the logo. Please try again."),
   });
 
+  const uploadSealMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiRequest<SchoolResponse>("/api/v1/admin/school/seal", {
+        method: "POST",
+        body: formData,
+      });
+    },
+    onSuccess: (updated) => updateSeal(updated, "School seal updated successfully."),
+    onError: () => setSealError("Could not upload the seal. Please try again."),
+  });
+
+  const removeSealMutation = useMutation({
+    mutationFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school/seal", { method: "DELETE" }),
+    onSuccess: (updated) => updateSeal(updated, "School seal removed successfully."),
+    onError: () => setSealError("Could not remove the seal. Please try again."),
+  });
+
   useEffect(
     () => () => {
       if (logoPreview) URL.revokeObjectURL(logoPreview);
+      if (sealPreview) URL.revokeObjectURL(sealPreview);
     },
-    [logoPreview],
+    [logoPreview, sealPreview],
   );
 
   const selectLogo = (file: File | null) => {
@@ -96,6 +128,25 @@ export function AdminSchoolSettingsPage() {
     }
     setLogoFile(file);
     setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const selectSeal = (file: File | null) => {
+    setSealError(null);
+    if (!file) return;
+    if (!LOGO_TYPES.has(file.type)) {
+      setSealFile(null);
+      setSealPreview(null);
+      setSealError("Please choose a PNG, JPG or WebP image.");
+      return;
+    }
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
+      setSealFile(null);
+      setSealPreview(null);
+      setSealError("The seal file is too large.");
+      return;
+    }
+    setSealFile(file);
+    setSealPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -219,6 +270,71 @@ export function AdminSchoolSettingsPage() {
                   {logoError}
                 </p>
               )}
+            </div>
+          </div>
+
+          {/* School Seal (શાળાનો સિક્કો) */}
+          <div className="border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-semibold text-slate-900 mb-1">
+              શાળાનો સિક્કો (School Seal / Stamp)
+            </h3>
+            <p className="text-xs text-slate-500 mb-3">
+              Upload the official school rubber stamp/seal image. It will appear on the exam result sheet between the class teacher&apos;s and principal&apos;s signatures.
+            </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              {sealPreview || school?.sealUrl ? (
+                <img
+                  src={sealPreview ?? school?.sealUrl ?? ""}
+                  alt="Current school seal"
+                  className="size-24 rounded-lg border border-slate-200 bg-white object-contain p-1"
+                />
+              ) : (
+                <div className="size-24 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center text-slate-400 p-2 text-center text-xs">
+                  <ImageUp size={24} className="mb-1 text-slate-400" />
+                  <span>No seal</span>
+                </div>
+              )}
+              <div className="space-y-3">
+                <p className="text-sm text-slate-600">Choose a PNG, JPG or WebP image up to 10 MB.</p>
+                <div className="flex flex-wrap gap-2">
+                  <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50">
+                    <ImageUp size={16} aria-hidden="true" />
+                    <span>{school?.sealUrl ? "Change Seal" : "Choose Seal"}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(event) => selectSeal(event.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                  {sealFile && (
+                    <Button
+                      type="button"
+                      onClick={() => uploadSealMutation.mutate(sealFile)}
+                      loading={uploadSealMutation.isPending}
+                    >
+                      Upload Seal
+                    </Button>
+                  )}
+                  {school?.sealUrl && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => removeSealMutation.mutate()}
+                      loading={removeSealMutation.isPending}
+                      className="text-red-700"
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                      Remove Seal
+                    </Button>
+                  )}
+                </div>
+                {sealError && (
+                  <p role="alert" className="text-sm text-red-700">
+                    {sealError}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </Card>

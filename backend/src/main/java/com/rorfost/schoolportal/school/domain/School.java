@@ -27,6 +27,7 @@ public class School extends AuditableUuidEntity {
   private String medium;
   private String schoolType;
   private String logoObjectKey;
+  private String sealObjectKey;
   private boolean isActive = true;
 
   protected School() {}
@@ -112,6 +113,10 @@ public class School extends AuditableUuidEntity {
     return logoObjectKey;
   }
 
+  public String getSealObjectKey() {
+    return sealObjectKey;
+  }
+
   public boolean isActive() {
     return isActive;
   }
@@ -155,5 +160,9 @@ public class School extends AuditableUuidEntity {
 
   public void changeLogo(String logoObjectKey) {
     this.logoObjectKey = logoObjectKey;
+  }
+
+  public void changeSeal(String sealObjectKey) {
+    this.sealObjectKey = sealObjectKey;
   }
 }

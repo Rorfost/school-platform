@@ -18,6 +18,7 @@ export interface SchoolResponse {
   medium: string | null;
   schoolType: string | null;
   logoUrl: string | null;
+  sealUrl: string | null;
 }
 
 export interface PrincipalProfileResponse {

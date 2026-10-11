@@ -22,8 +22,9 @@ public record SchoolResponse(
     String establishedYear,
     String medium,
     String schoolType,
-    String logoUrl) {
-  public static SchoolResponse from(School school, String logoUrl) {
+    String logoUrl,
+    String sealUrl) {
+  public static SchoolResponse from(School school, String logoUrl, String sealUrl) {
     return new SchoolResponse(
         school.getId(),
         school.getName(),
@@ -43,6 +44,11 @@ public record SchoolResponse(
         school.getEstablishedYear(),
         school.getMedium(),
         school.getSchoolType(),
-        logoUrl);
+        logoUrl,
+        sealUrl);
+  }
+
+  public static SchoolResponse from(School school, String logoUrl) {
+    return from(school, logoUrl, null);
   }
 }

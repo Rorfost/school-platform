@@ -71,4 +71,48 @@ class SchoolServiceTest {
     verify(schools).saveAndFlush(school);
     verify(storage).deletePublicObject("branding/example-school/old.jpg");
   }
+
+  @Test
+  void replacesThePersistedSealAndCleansUpThePreviousObject() {
+    UUID schoolId = UUID.randomUUID();
+    School school = new School("Example School", "example-school");
+    school.changeSeal("branding/example-school/seal/old.png");
+    StoredObject uploaded =
+        new StoredObject(
+            "imagekit",
+            "branding/example-school/seal/new.png",
+            "new.png",
+            "image/png",
+            3,
+            "checksum",
+            "file-id");
+    when(schools.findById(schoolId)).thenReturn(Optional.of(school));
+    when(storage.uploadPublicImage(eq("branding/example-school/seal"), any())).thenReturn(uploaded);
+    when(storage.publicUrl(uploaded.objectKey())).thenReturn("https://assets.example/seal/new.png");
+
+    var response =
+        service.replaceSeal(
+            schoolId,
+            UUID.randomUUID(),
+            new MockMultipartFile("file", "new.png", "image/png", new byte[] {1, 2, 3}));
+
+    assertThat(school.getSealObjectKey()).isEqualTo(uploaded.objectKey());
+    assertThat(response.sealUrl()).isEqualTo("https://assets.example/seal/new.png");
+    verify(schools).saveAndFlush(school);
+    verify(storage).deletePublicObject("branding/example-school/seal/old.png");
+  }
+
+  @Test
+  void removesThePersistedSealOnlyAfterSavingTheEmptyReference() {
+    UUID schoolId = UUID.randomUUID();
+    School school = new School("Example School", "example-school");
+    school.changeSeal("branding/example-school/seal/old.png");
+    when(schools.findById(schoolId)).thenReturn(Optional.of(school));
+
+    service.removeSeal(schoolId, UUID.randomUUID());
+
+    assertThat(school.getSealObjectKey()).isNull();
+    verify(schools).saveAndFlush(school);
+    verify(storage).deletePublicObject("branding/example-school/seal/old.png");
+  }
 }

@@ -195,6 +195,7 @@ export function ResultsInfoPage() {
             result={result}
             schoolName={school.name}
             logoUrl={school.logoUrl}
+            sealUrl={school.sealUrl}
             resultType={resultType}
           />
         </div>

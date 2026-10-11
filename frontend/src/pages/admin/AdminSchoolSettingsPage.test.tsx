@@ -1,4 +1,4 @@
-﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -54,6 +54,7 @@ const mockSchool = {
   medium: "Gujarati",
   schoolType: "Primary",
   logoUrl: "https://assets.example/school-logo.png",
+  sealUrl: "https://assets.example/school-seal.png",
 };
 
 function renderWithData(ui: React.ReactElement, preloaded = true) {

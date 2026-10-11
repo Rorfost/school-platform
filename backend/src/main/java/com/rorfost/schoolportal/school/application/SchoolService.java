@@ -116,6 +116,48 @@ public class SchoolService {
     return schoolResponse(school);
   }
 
+  @Transactional
+  public SchoolResponse replaceSeal(
+      UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
+    School school = requireSchool(schoolId);
+    StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug() + "/seal", file);
+    String previousKey = school.getSealObjectKey();
+    try {
+      school.changeSeal(uploaded.objectKey());
+      schoolRepository.saveAndFlush(school);
+    } catch (RuntimeException exception) {
+      cleanUpNewSeal(uploaded);
+      throw exception;
+    }
+    auditLogService.record(
+        schoolId,
+        actorId,
+        AuditAction.SCHOOL_UPDATED,
+        "SCHOOL_SEAL",
+        schoolId,
+        MDC.get("requestId"));
+    deletePreviousSeal(previousKey);
+    return schoolResponse(school);
+  }
+
+  @Transactional
+  public SchoolResponse removeSeal(UUID schoolId, UUID actorId) {
+    School school = requireSchool(schoolId);
+    String previousKey = school.getSealObjectKey();
+    if (previousKey == null) return schoolResponse(school);
+    school.changeSeal(null);
+    schoolRepository.saveAndFlush(school);
+    auditLogService.record(
+        schoolId,
+        actorId,
+        AuditAction.SCHOOL_UPDATED,
+        "SCHOOL_SEAL",
+        schoolId,
+        MDC.get("requestId"));
+    deletePreviousSeal(previousKey);
+    return schoolResponse(school);
+  }
+
   @Transactional(readOnly = true)
   public PrincipalProfileResponse getProfile(UUID schoolId) {
     return principalProfileRepository
@@ -256,7 +298,9 @@ public class SchoolService {
   private SchoolResponse schoolResponse(School school) {
     String logoUrl =
         school.getLogoObjectKey() == null ? null : storage.publicUrl(school.getLogoObjectKey());
-    return SchoolResponse.from(school, logoUrl);
+    String sealUrl =
+        school.getSealObjectKey() == null ? null : storage.publicUrl(school.getSealObjectKey());
+    return SchoolResponse.from(school, logoUrl, sealUrl);
   }
 
   private void cleanUpNewLogo(StoredObject uploaded) {
@@ -273,6 +317,23 @@ public class SchoolService {
       storage.deletePublicObject(previousKey);
     } catch (RuntimeException cleanupFailure) {
       log.error("Could not delete the replaced school logo", cleanupFailure);
+    }
+  }
+
+  private void cleanUpNewSeal(StoredObject uploaded) {
+    try {
+      storage.delete(uploaded);
+    } catch (RuntimeException cleanupFailure) {
+      log.error("Could not clean up the newly uploaded school seal", cleanupFailure);
+    }
+  }
+
+  private void deletePreviousSeal(String previousKey) {
+    if (previousKey == null) return;
+    try {
+      storage.deletePublicObject(previousKey);
+    } catch (RuntimeException cleanupFailure) {
+      log.error("Could not delete the replaced school seal", cleanupFailure);
     }
   }
 }

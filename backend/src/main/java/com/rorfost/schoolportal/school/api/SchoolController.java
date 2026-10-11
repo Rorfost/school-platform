@@ -54,6 +54,17 @@ class SchoolController {
     return schoolService.removeLogo(principal.schoolId(), principal.adminUserId());
   }
 
+  @PostMapping(value = "/api/v1/admin/school/seal", consumes = "multipart/form-data")
+  SchoolResponse replaceSeal(
+      @AuthenticationPrincipal PrincipalSession principal, @RequestParam MultipartFile file) {
+    return schoolService.replaceSeal(principal.schoolId(), principal.adminUserId(), file);
+  }
+
+  @DeleteMapping("/api/v1/admin/school/seal")
+  SchoolResponse removeSeal(@AuthenticationPrincipal PrincipalSession principal) {
+    return schoolService.removeSeal(principal.schoolId(), principal.adminUserId());
+  }
+
   @GetMapping("/api/v1/admin/principal-profile")
   PrincipalProfileResponse profile(@AuthenticationPrincipal PrincipalSession principal) {
     return schoolService.getProfile(principal.schoolId());
