@@ -149,14 +149,24 @@ export function ExamResultViewer({
             <div className="overflow-x-auto print:overflow-visible">
               <table className="w-full text-center text-xs sm:text-sm font-semibold border-collapse print:table-fixed print:text-sm">
                 <colgroup>
-                  <>
-                    <col className="w-[7%] print:w-[7%]" />
-                    <col className="w-[30%] print:w-[30%]" />
-                    <col className="w-[11%] print:w-[11%]" />
-                    <col className="w-[12%] print:w-[12%]" />
-                    <col className="w-[10%] print:w-[10%]" />
-                    <col className="w-[30%] print:w-[30%]" />
-                  </>
+                  {isEkam ? (
+                    <>
+                      <col className="w-[7%] print:w-[7%]" />
+                      <col className="w-[30%] print:w-[30%]" />
+                      <col className="w-[14%] print:w-[14%]" />
+                      <col className="w-[17%] print:w-[17%]" />
+                      <col className="w-[32%] print:w-[32%]" />
+                    </>
+                  ) : (
+                    <>
+                      <col className="w-[7%] print:w-[7%]" />
+                      <col className="w-[30%] print:w-[30%]" />
+                      <col className="w-[11%] print:w-[11%]" />
+                      <col className="w-[12%] print:w-[12%]" />
+                      <col className="w-[10%] print:w-[10%]" />
+                      <col className="w-[30%] print:w-[30%]" />
+                    </>
+                  )}
                 </colgroup>
                 <thead>
                   <tr className="bg-amber-100/90 text-slate-900">
