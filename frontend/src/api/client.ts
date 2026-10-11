@@ -165,4 +165,3 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   return JSON.parse(responseText) as T;
 }
-

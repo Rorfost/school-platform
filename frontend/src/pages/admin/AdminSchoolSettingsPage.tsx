@@ -23,7 +23,6 @@ export function AdminSchoolSettingsPage() {
   const [sealPreview, setSealPreview] = useState<string | null>(null);
   const [sealError, setSealError] = useState<string | null>(null);
 
-
   const {
     data: school,
     isLoading,
@@ -207,8 +206,6 @@ export function AdminSchoolSettingsPage() {
           <span>{successMessage}</span>
         </div>
       )}
-
-
 
       {errorMessage && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
