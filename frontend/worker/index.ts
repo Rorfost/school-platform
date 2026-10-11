@@ -15,18 +15,20 @@ export default {
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set("Host", targetUrl.host);
 
+      const hasMutatingBody =
+        ["POST", "PUT", "PATCH", "DELETE"].includes(request.method.toUpperCase()) &&
+        request.body !== null;
+
       const proxyInit: RequestInit = {
         method: request.method,
         headers: requestHeaders,
         redirect: "manual",
+        // Required by the Fetch spec when streaming a request body to another
+        // host. Without this, multipart/form-data uploads are silently dropped
+        // and the backend receives an empty body → 400/500 → Cloudflare 502.
+        ...(hasMutatingBody ? { body: request.body, duplex: "half" } : {}),
+        signal: AbortSignal.timeout(60_000),
       };
-
-      if (
-        ["POST", "PUT", "PATCH", "DELETE"].includes(request.method.toUpperCase()) &&
-        request.body
-      ) {
-        proxyInit.body = request.body;
-      }
 
       try {
         const backendResponse = await fetch(targetUrl.toString(), proxyInit);
