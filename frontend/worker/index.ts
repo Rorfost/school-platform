@@ -19,15 +19,18 @@ export default {
         ["POST", "PUT", "PATCH", "DELETE"].includes(request.method.toUpperCase()) &&
         request.body !== null;
 
+      // Buffer the body up-front so we can forward it as a plain ArrayBuffer.
+      // Streaming request.body directly requires duplex:"half" which is not
+      // reliably supported across all Workers runtimes and causes fetch() to
+      // throw, resulting in a 503 from our catch block. Buffering is fine for
+      // uploads ≤ 10 MB (enforced by the backend).
+      const bufferedBody = hasMutatingBody ? await request.arrayBuffer() : undefined;
+
       const proxyInit: RequestInit = {
         method: request.method,
         headers: requestHeaders,
         redirect: "manual",
-        // Required by the Fetch spec when streaming a request body to another
-        // host. Without this, multipart/form-data uploads are silently dropped
-        // and the backend receives an empty body → 400/500 → Cloudflare 502.
-        ...(hasMutatingBody ? { body: request.body, duplex: "half" } : {}),
-        signal: AbortSignal.timeout(60_000),
+        ...(bufferedBody !== undefined ? { body: bufferedBody } : {}),
       };
 
       try {
