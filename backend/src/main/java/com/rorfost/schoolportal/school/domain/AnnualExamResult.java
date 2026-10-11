@@ -21,8 +21,7 @@ import org.springframework.data.domain.Persistable;
 public class AnnualExamResult implements Persistable<UUID> {
   @Id private UUID id;
 
-  @Transient
-  private boolean isNew = true;
+  @Transient private boolean isNew = true;
 
   @Override
   public boolean isNew() {
