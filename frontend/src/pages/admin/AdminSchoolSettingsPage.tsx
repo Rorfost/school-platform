@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/common/StatusPanel";
-import schoolLogo from "@/assets/school-logo.jpeg";
 
 const MAX_LOGO_SIZE_BYTES = 10 * 1024 * 1024;
 const LOGO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -249,21 +248,24 @@ export function AdminSchoolSettingsPage() {
             <span>School Branding</span>
           </h2>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <img
-              src={logoPreview ?? school?.logoUrl ?? schoolLogo}
-              alt="Current school logo"
-              onError={(event) => {
-                event.currentTarget.onerror = null;
-                event.currentTarget.src = schoolLogo;
-              }}
-              className="size-24 rounded-full border border-slate-200 bg-white object-contain p-1"
-            />
+            {logoPreview || school?.logoUrl ? (
+              <img
+                src={logoPreview ?? school?.logoUrl ?? ""}
+                alt="Current school logo"
+                className="size-24 rounded-full border border-slate-200 bg-white object-contain p-1"
+              />
+            ) : (
+              <div className="size-24 rounded-full border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center text-slate-400 p-2 text-center text-xs">
+                <ImageUp size={24} className="mb-1 text-slate-400" />
+                <span>No logo</span>
+              </div>
+            )}
             <div className="space-y-3">
               <p className="text-sm text-slate-600">Choose a PNG, JPG or WebP image up to 10 MB.</p>
               <div className="flex flex-wrap gap-2">
                 <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50">
                   <ImageUp size={16} aria-hidden="true" />
-                  <span>Change Logo</span>
+                  <span>{school?.logoUrl ? "Change Logo" : "Choose Logo"}</span>
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"

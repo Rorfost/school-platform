@@ -4,7 +4,6 @@ import { apiRequest } from "@/api/client";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { formatDate } from "@/utils/date";
-import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
 export function ExamResultViewer({
@@ -62,19 +61,23 @@ export function ExamResultViewer({
           <div className="border border-slate-900 sm:border-2 print:border-2">
             {/* Header: Free logo with subtle vertical divider line */}
             <div className="flex items-center border-b-2 border-slate-900 py-1.5 sm:py-2 px-1 sm:px-3 relative">
-              <div className="shrink-0 p-1 sm:p-2 flex justify-center items-center">
-                <img
-                  src={logoUrl || schoolInfo.logoUrl || schoolLogo}
-                  alt="School Logo"
-                  className="size-14 sm:size-20 object-contain print:size-20"
-                  crossOrigin="anonymous"
-                />
-              </div>
-              {/* Subtle vertical divider */}
-              <div
-                className="h-12 sm:h-16 w-px bg-slate-900/60 mx-1 sm:mx-3 shrink-0"
-                aria-hidden="true"
-              />
+              {logoUrl || schoolInfo.logoUrl ? (
+                <>
+                  <div className="shrink-0 p-1 sm:p-2 flex justify-center items-center">
+                    <img
+                      src={logoUrl || schoolInfo.logoUrl || ""}
+                      alt="School Logo"
+                      className="size-14 sm:size-20 object-contain print:size-20"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                  {/* Subtle vertical divider */}
+                  <div
+                    className="h-12 sm:h-16 w-px bg-slate-900/60 mx-1 sm:mx-3 shrink-0"
+                    aria-hidden="true"
+                  />
+                </>
+              ) : null}
 
               <div className="flex-1 text-center py-1 px-1 flex flex-col justify-center leading-tight min-w-0">
                 <h1 className="text-sm sm:text-2xl font-bold text-blue-900 tracking-wide print:text-2xl truncate sm:whitespace-normal">

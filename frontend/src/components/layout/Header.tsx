@@ -1,6 +1,5 @@
-import { Menu } from "lucide-react";
+import { Menu, School } from "lucide-react";
 import { Link } from "react-router-dom";
-import schoolLogo from "@/assets/school-logo.jpeg";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { LABELS, toGujaratiNumber } from "@/utils/gujarati";
 
@@ -47,15 +46,17 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
             to="/"
             className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
           >
-            <img
-              src={school.logoUrl ?? schoolLogo}
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = schoolLogo;
-              }}
-              alt="શાળા લોગો"
-              className="size-9 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
-            />
+            {school.logoUrl ? (
+              <img
+                src={school.logoUrl}
+                alt="શાળા લોગો"
+                className="size-9 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
+              />
+            ) : (
+              <div className="flex size-9 sm:size-12 shrink-0 items-center justify-center rounded-full border-2 border-blue-100 bg-blue-50 text-blue-900 shadow-sm">
+                <School size={20} aria-hidden="true" />
+              </div>
+            )}
 
             <div className="flex min-w-0 flex-1 flex-col leading-tight overflow-hidden">
               {/* Line 1: School Name */}

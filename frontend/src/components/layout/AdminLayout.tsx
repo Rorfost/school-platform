@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  School as SchoolIcon,
   Settings,
   ShieldCheck,
   UserCheck,
@@ -18,7 +19,6 @@ import {
   X,
 } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import schoolLogo from "@/assets/school-logo.jpeg";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
@@ -172,15 +172,17 @@ export function AdminLayout() {
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            <img
-              src={school.logoUrl ?? schoolLogo}
-              onError={(event) => {
-                event.currentTarget.onerror = null;
-                event.currentTarget.src = schoolLogo;
-              }}
-              alt="Logo"
-              className="size-9 rounded-full object-contain border border-slate-200"
-            />
+            {school.logoUrl ? (
+              <img
+                src={school.logoUrl}
+                alt="Logo"
+                className="size-9 rounded-full object-contain border border-slate-200"
+              />
+            ) : (
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600">
+                <SchoolIcon size={18} aria-hidden="true" />
+              </div>
+            )}
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm sm:text-base font-bold text-slate-900">
@@ -241,15 +243,17 @@ export function AdminLayout() {
             >
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <img
-                    src={school.logoUrl ?? schoolLogo}
-                    onError={(event) => {
-                      event.currentTarget.onerror = null;
-                      event.currentTarget.src = schoolLogo;
-                    }}
-                    alt="Logo"
-                    className="size-8 rounded-full border border-slate-200"
-                  />
+                  {school.logoUrl ? (
+                    <img
+                      src={school.logoUrl}
+                      alt="Logo"
+                      className="size-8 rounded-full border border-slate-200 object-contain"
+                    />
+                  ) : (
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600">
+                      <SchoolIcon size={16} aria-hidden="true" />
+                    </div>
+                  )}
                   <span className="font-bold text-slate-900 text-sm">Navigation Menu</span>
                 </div>
                 <button

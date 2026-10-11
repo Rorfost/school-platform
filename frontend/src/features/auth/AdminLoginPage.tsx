@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Lock, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Lock, School, ShieldAlert } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import schoolLogo from "@/assets/school-logo.jpeg";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
@@ -63,15 +62,17 @@ export function AdminLoginPage() {
     <div className="flex min-h-screen flex-col justify-center bg-slate-100 px-4 py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <img
-            src={school.logoUrl ?? schoolLogo}
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = schoolLogo;
-            }}
-            alt="School Logo"
-            className="size-16 rounded-full object-contain border border-slate-200 shadow-sm"
-          />
+          {school.logoUrl ? (
+            <img
+              src={school.logoUrl}
+              alt="School Logo"
+              className="size-16 rounded-full object-contain border border-slate-200 shadow-sm"
+            />
+          ) : (
+            <div className="flex size-16 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-900 shadow-sm">
+              <School size={28} aria-hidden="true" />
+            </div>
+          )}
         </div>
         <h1 className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900">
           Principal Admin Portal

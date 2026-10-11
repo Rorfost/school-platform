@@ -1,5 +1,4 @@
-import { Award, BookOpen, Calendar } from "lucide-react";
-import schoolLogo from "@/assets/school-logo.jpeg";
+import { Award, BookOpen, Calendar, School } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
@@ -20,15 +19,17 @@ export function AboutPage() {
       {/* Main Profile */}
       <Card className="p-6 sm:p-8">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8">
-          <img
-            src={school.logoUrl ?? schoolLogo}
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = schoolLogo;
-            }}
-            alt="શાળા લોગો"
-            className="size-28 sm:size-36 rounded-full object-contain border border-blue-100 shadow-sm p-1"
-          />
+          {school.logoUrl ? (
+            <img
+              src={school.logoUrl}
+              alt="શાળા લોગો"
+              className="size-28 sm:size-36 rounded-full object-contain border border-blue-100 shadow-sm p-1"
+            />
+          ) : (
+            <div className="flex size-28 sm:size-36 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-900 shadow-sm">
+              <School size={48} aria-hidden="true" />
+            </div>
+          )}
           <div className="flex-1 text-center md:text-left">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{school.name}</h2>
             <p className="mt-1 text-sm sm:text-base text-slate-600">{school.address}</p>
