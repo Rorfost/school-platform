@@ -322,16 +322,16 @@ export function ExamResultViewer({
                 </div>
 
                 {/* 2. School Seal (શાળાનો સિક્કો) in the middle */}
-                <div className="flex flex-col items-center justify-end min-w-[95px] sm:min-w-[130px] text-center gap-1 print:min-w-[130px]">
+                <div className="flex flex-col items-center justify-end min-w-[100px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
                   {effectiveSealUrl ? (
                     <img
                       src={effectiveSealUrl}
                       alt="School seal"
-                      className="h-20 w-20 sm:h-24 sm:w-24 object-contain print:h-24 print:w-24"
+                      className="h-24 w-24 sm:h-28 sm:w-28 object-contain print:h-28 print:w-28"
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="h-20 sm:h-24 print:h-24" aria-hidden="true" />
+                    <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
                   )}
                   <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
                     શાળાનો સિક્કો
