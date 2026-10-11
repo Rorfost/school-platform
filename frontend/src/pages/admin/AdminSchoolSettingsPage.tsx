@@ -278,10 +278,10 @@ export function AdminSchoolSettingsPage() {
             <h3 className="text-sm font-semibold text-slate-900 mb-1">
               શાળાનો સિક્કો (School Seal / Stamp)
             </h3>
-            <p className="text-xs text-slate-500 mb-3">
+            {/* <p className="text-xs text-slate-500 mb-3">
               Upload the official school rubber stamp/seal image. It will appear on the exam result
               sheet between the class teacher&apos;s and principal&apos;s signatures.
-            </p>
+            </p> */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               {sealPreview || school?.sealUrl ? (
                 <img
