@@ -120,7 +120,8 @@ public class SchoolService {
   public SchoolResponse replaceSeal(
       UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
     School school = requireSchool(schoolId);
-    StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug() + "/seal", file);
+    StoredObject uploaded =
+        storage.uploadPublicImage("branding/" + school.getSlug() + "/seal", file);
     String previousKey = school.getSealObjectKey();
     try {
       school.changeSeal(uploaded.objectKey());
