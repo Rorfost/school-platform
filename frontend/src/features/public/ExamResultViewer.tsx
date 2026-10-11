@@ -269,7 +269,8 @@ export function ExamResultViewer({
                       </td>
                     )}
                     <td className="p-1 sm:p-2.5 text-center font-bold text-xs sm:text-base print:text-base print:p-2.5 whitespace-nowrap">
-                      ટકા : <span className="hidden sm:inline print:inline">&nbsp;&nbsp;</span>{result.percentage ?? "-"} %
+                      ટકા : <span className="hidden sm:inline print:inline">&nbsp;&nbsp;</span>
+                      {result.percentage ?? "-"} %
                     </td>
                   </tr>
                 </tbody>
@@ -385,8 +386,11 @@ export function ExamResultViewer({
         </div>
       </div>
       <style>{`
+        @page {
+          size: A4 portrait;
+          margin: 8mm;
+        }
         @media print {
-          @page { size: A4 portrait; margin: 8mm; }
           html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
           body * { visibility: hidden !important; }
           #exam-result-print, #exam-result-print * { visibility: visible !important; }
