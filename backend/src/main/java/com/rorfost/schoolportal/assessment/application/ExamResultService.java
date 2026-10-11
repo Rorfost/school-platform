@@ -650,42 +650,7 @@ public class ExamResultService {
   private boolean isKnownSubjectName(String text) {
     String norm = normalizeSubjectString(text);
     if (norm.isEmpty()) return false;
-    List<String> known =
-        List.of(
-            "gujarati",
-            "guj",
-            "ગુજરાતી",
-            "mathematics",
-            "maths",
-            "math",
-            "ગણિત",
-            "science",
-            "sci",
-            "વિજ્ઞાન",
-            "hindi",
-            "hin",
-            "હિન્દી",
-            "english",
-            "eng",
-            "અંગ્રેજી",
-            "socialscience",
-            "social",
-            "ss",
-            "સામાજિકવિજ્ઞાન",
-            "sanskrit",
-            "san",
-            "સંસ્કૃત",
-            "personalitydevelopment",
-            "pd",
-            "personality",
-            "vv",
-            "વ્યક્તિત્વવિકાસ",
-            "environment",
-            "environmentalstudies",
-            "env",
-            "evs",
-            "પર્યાવરણ");
-    return known.contains(norm);
+    return ALIAS_GROUPS.stream().anyMatch(group -> group.contains(norm));
   }
 
   private String normalizeBirthDate(Cell cell) {
