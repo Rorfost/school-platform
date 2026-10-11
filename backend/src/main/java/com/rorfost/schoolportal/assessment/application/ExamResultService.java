@@ -286,7 +286,10 @@ public class ExamResultService {
         subject.setObtainedMarks(obtainedMarks);
 
         if (isAnnual) {
-          double pct = (obtainedMarks * 100.0) / maximumMarks;
+          BigDecimal pct =
+              BigDecimal.valueOf(obtainedMarks)
+                  .multiply(BigDecimal.valueOf(100))
+                  .divide(BigDecimal.valueOf(maximumMarks), 2, RoundingMode.HALF_UP);
           subject.setGrade(calculateGrade(pct, settings));
         } else {
           subject.setGrade(null);
@@ -549,8 +552,11 @@ public class ExamResultService {
     result.setTotalMarks(maximumMarks);
     result.setObtainedMarks(obtainedMarks);
     if (maximumMarks > 0) {
-      double percentage = obtainedMarks * 100.0 / maximumMarks;
-      result.setPercentage(BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP));
+      BigDecimal percentage =
+          BigDecimal.valueOf(obtainedMarks)
+              .multiply(BigDecimal.valueOf(100))
+              .divide(BigDecimal.valueOf(maximumMarks), 2, RoundingMode.HALF_UP);
+      result.setPercentage(percentage);
       if (!EKAM_KASOTI.equals(result.getResultType())) {
         result.setOverallGrade(calculateGrade(percentage, settings));
       }
@@ -727,11 +733,11 @@ public class ExamResultService {
     return text;
   }
 
-  private String calculateGrade(double percentage, ResultPresentationSettings settings) {
-    if (percentage >= settings.getGradeAMin().doubleValue()) return "A";
-    if (percentage >= settings.getGradeBMin().doubleValue()) return "B";
-    if (percentage >= settings.getGradeCMin().doubleValue()) return "C";
-    if (percentage >= settings.getGradeDMin().doubleValue()) return "D";
+  private String calculateGrade(BigDecimal percentage, ResultPresentationSettings settings) {
+    if (percentage.compareTo(settings.getGradeAMin()) >= 0) return "A";
+    if (percentage.compareTo(settings.getGradeBMin()) >= 0) return "B";
+    if (percentage.compareTo(settings.getGradeCMin()) >= 0) return "C";
+    if (percentage.compareTo(settings.getGradeDMin()) >= 0) return "D";
     return "E";
   }
 
