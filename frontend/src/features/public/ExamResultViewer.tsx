@@ -182,20 +182,20 @@ export function ExamResultViewer({
                 <colgroup>
                   {isEkam ? (
                     <>
-                      <col className="w-[7%] print:w-[7%]" />
-                      <col className="w-[30%] print:w-[30%]" />
-                      <col className="w-[14%] print:w-[14%]" />
-                      <col className="w-[17%] print:w-[17%]" />
-                      <col className="w-[32%] print:w-[32%]" />
+                      <col className="w-[7%] sm:w-[7%] print:w-[7%]" />
+                      <col className="w-[38%] sm:w-[30%] print:w-[30%]" />
+                      <col className="w-[14%] sm:w-[14%]" />
+                      <col className="w-[16%] sm:w-[17%] print:w-[17%]" />
+                      <col className="w-[25%] sm:w-[32%] print:w-[32%]" />
                     </>
                   ) : (
                     <>
-                      <col className="w-[7%] print:w-[7%]" />
-                      <col className="w-[30%] print:w-[30%]" />
-                      <col className="w-[11%] print:w-[11%]" />
-                      <col className="w-[12%] print:w-[12%]" />
-                      <col className="w-[10%] print:w-[10%]" />
-                      <col className="w-[30%] print:w-[30%]" />
+                      <col className="w-[7%] sm:w-[7%] print:w-[7%]" />
+                      <col className="w-[37%] sm:w-[30%] print:w-[30%]" />
+                      <col className="w-[11%] sm:w-[11%] print:w-[11%]" />
+                      <col className="w-[11%] sm:w-[12%] print:w-[12%]" />
+                      <col className="w-[10%] sm:w-[10%]" />
+                      <col className="w-[24%] sm:w-[30%] print:w-[30%]" />
                     </>
                   )}
                 </colgroup>
@@ -210,7 +210,7 @@ export function ExamResultViewer({
                     <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-16 font-bold print:p-2 print:w-16 whitespace-nowrap">
                       કુલ ગુણ
                     </th>
-                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-14 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
+                    <th className="border-b-2 border-r-2 border-slate-900 p-1 sm:p-2 w-12 sm:w-20 font-bold print:p-2 print:w-20 whitespace-nowrap">
                       મેળવેલ ગુણ
                     </th>
                     {!isEkam && (
@@ -218,7 +218,7 @@ export function ExamResultViewer({
                         ગ્રેડ
                       </th>
                     )}
-                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-20 sm:w-28 font-bold text-center print:p-2 print:w-28 whitespace-nowrap">
+                    <th className="border-b-2 border-slate-900 p-1 sm:p-2 w-16 sm:w-28 font-bold text-center print:p-2 print:w-28 whitespace-normal sm:whitespace-nowrap leading-tight">
                       વિષયના સંદર્ભમાં નોંધ
                     </th>
                   </tr>
@@ -268,8 +268,8 @@ export function ExamResultViewer({
                         {result.overallGrade ?? "-"}
                       </td>
                     )}
-                    <td className="p-1.5 sm:p-2.5 text-center font-bold text-xs sm:text-base print:text-base print:p-2.5">
-                      ટકા : &nbsp;&nbsp;&nbsp;{result.percentage ?? "-"} %
+                    <td className="p-1 sm:p-2.5 text-center font-bold text-xs sm:text-base print:text-base print:p-2.5 whitespace-nowrap">
+                      ટકા : <span className="hidden sm:inline print:inline">&nbsp;&nbsp;</span>{result.percentage ?? "-"} %
                     </td>
                   </tr>
                 </tbody>
