@@ -79,8 +79,14 @@ export function AdminSchoolSettingsPage() {
         body: formData,
       });
     },
-    onSuccess: (updated) => { setWakingFor(null); updateBranding(updated, "School logo updated successfully."); },
-    onError: () => { setWakingFor(null); setLogoError("Could not upload the logo. Please try again."); },
+    onSuccess: (updated) => {
+      setWakingFor(null);
+      updateBranding(updated, "School logo updated successfully.");
+    },
+    onError: () => {
+      setWakingFor(null);
+      setLogoError("Could not upload the logo. Please try again.");
+    },
   });
 
   const removeLogoMutation = useMutation({
@@ -101,8 +107,14 @@ export function AdminSchoolSettingsPage() {
         body: formData,
       });
     },
-    onSuccess: (updated) => { setWakingFor(null); updateSeal(updated, "School seal updated successfully."); },
-    onError: () => { setWakingFor(null); setSealError("Could not upload the seal. Please try again."); },
+    onSuccess: (updated) => {
+      setWakingFor(null);
+      updateSeal(updated, "School seal updated successfully.");
+    },
+    onError: () => {
+      setWakingFor(null);
+      setSealError("Could not upload the seal. Please try again.");
+    },
   });
 
   const removeSealMutation = useMutation({
@@ -221,7 +233,8 @@ export function AdminSchoolSettingsPage() {
           <div>
             <p className="font-semibold">Server is waking up…</p>
             <p className="text-xs text-amber-700 mt-0.5">
-              The server was in sleep mode. Your {wakingFor} will upload automatically once it's ready (up to 45 s).
+              The server was in sleep mode. Your {wakingFor} will upload automatically once it's
+              ready (up to 45 s).
             </p>
           </div>
         </div>
