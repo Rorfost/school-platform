@@ -102,20 +102,21 @@ export function ExamResultViewer({
             <div className="border-b-2 border-slate-900 p-2 sm:p-3 space-y-1.5 sm:space-y-2 text-xs sm:text-sm font-semibold print:text-sm print:p-2.5 print:space-y-1.5">
               {/* Line 1: Name, Standard, Class */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold text-slate-900 shrink-0 whitespace-nowrap">
-                    વિદ્યાર્થીનું નામ :
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[100px] flex justify-between whitespace-nowrap">
+                    <span className="whitespace-nowrap">વિદ્યાર્થીનું નામ</span>
+                    <span>:</span>
                   </span>
-                  <span className="truncate">{result.studentName}</span>
+                  <span className="truncate">{result.studentName || "-"}</span>
                 </div>
-                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">ધોરણ</span>
                     <span>:</span>
                   </span>
                   <span>{result.standard}</span>
                 </div>
-                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-[42%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">વર્ગ</span>
                     <span>:</span>
@@ -126,21 +127,21 @@ export function ExamResultViewer({
 
               {/* Line 2: Student UID, Birthdate, Roll No */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[98px] sm:w-[100px] flex justify-between whitespace-nowrap">
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[100px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">વિદ્યાર્થી યુઆઈડી</span>
                     <span>:</span>
                   </span>
                   <span className="truncate">{result.studentUid || "-"}</span>
                 </div>
-                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">જન્મ તારીખ</span>
                     <span>:</span>
                   </span>
                   <span className="shrink-0 whitespace-nowrap">{formatDate(result.birthDate)}</span>
                 </div>
-                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-[42%] sm:w-[19%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">રોલ નં</span>
                     <span>:</span>
@@ -151,21 +152,21 @@ export function ExamResultViewer({
 
               {/* Line 3: GR No, Total Working Days, Present Days */}
               <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
-                <div className="w-full sm:w-[54%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                  <span className="font-bold shrink-0 w-[98px] sm:w-[100px] flex justify-between whitespace-nowrap">
+                <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                  <span className="font-bold shrink-0 w-[88px] sm:w-[100px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">જ. રજી. નંબર</span>
                     <span>:</span>
                   </span>
                   <span>{result.generalRegisterNumber || "-"}</span>
                 </div>
-                <div className="w-[58%] sm:w-[28%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                   <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">કુલ કાર્ય દિવસ</span>
                     <span>:</span>
                   </span>
                   <span>{result.totalWorkingDays ?? "-"}</span>
                 </div>
-                <div className="w-[42%] sm:w-[18%] shrink-0 flex gap-1.5 items-center min-w-0">
+                <div className="w-[42%] sm:w-[19%] shrink-0 flex gap-1.5 items-center min-w-0">
                   <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
                     <span className="whitespace-nowrap">હાજર દિવસ</span>
                     <span>:</span>
@@ -306,54 +307,54 @@ export function ExamResultViewer({
               </div>
 
               {/* Signatures & School Seal */}
-              <div className="flex justify-between items-end pt-1 min-h-[110px] sm:min-h-[130px] print:min-h-[130px] gap-2">
+              <div className="flex justify-between items-end pt-1 min-h-[100px] sm:min-h-[130px] print:min-h-[130px] gap-1 sm:gap-2">
                 {/* 1. Class Teacher Sign */}
-                <div className="flex flex-col items-center justify-end min-w-[95px] sm:min-w-[130px] text-center gap-1 print:min-w-[130px]">
+                <div className="flex flex-col items-center justify-end min-w-0 w-[30%] sm:min-w-[130px] sm:w-auto text-center gap-1 print:min-w-[130px]">
                   {settings?.classTeacherSignatureUrl ? (
                     <img
                       src={settings.classTeacherSignatureUrl}
                       alt="Class teacher signature"
-                      className="h-9 sm:h-12 max-w-28 sm:max-w-40 object-contain print:h-12 print:max-w-40"
+                      className="h-9 sm:h-12 w-full max-w-[90px] sm:max-w-40 object-contain print:h-12 print:max-w-40"
                       crossOrigin="anonymous"
                     />
                   ) : (
                     <div className="h-9 sm:h-12 print:h-12" aria-hidden="true" />
                   )}
-                  <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
+                  <span className="font-bold text-[10px] sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-1 sm:px-2 w-full text-center">
                     વર્ગ શિક્ષકની સહી
                   </span>
                 </div>
 
                 {/* 2. School Seal (શાળાનો સિક્કો) in the middle */}
-                <div className="flex flex-col items-center justify-end min-w-[100px] sm:min-w-[140px] text-center gap-1 print:min-w-[140px]">
+                <div className="flex flex-col items-center justify-end min-w-0 w-[36%] sm:min-w-[140px] sm:w-auto text-center gap-1 print:min-w-[140px]">
                   {effectiveSealUrl ? (
                     <img
                       src={effectiveSealUrl}
                       alt="School seal"
-                      className="h-24 w-24 sm:h-28 sm:w-28 object-contain print:h-28 print:w-28"
+                      className="h-16 w-16 sm:h-28 sm:w-28 object-contain print:h-28 print:w-28 mx-auto"
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="h-24 sm:h-28 print:h-28" aria-hidden="true" />
+                    <div className="h-16 sm:h-28 print:h-28" aria-hidden="true" />
                   )}
-                  <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
+                  <span className="font-bold text-[10px] sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-1 sm:px-2 w-full text-center">
                     શાળાનો સિક્કો
                   </span>
                 </div>
 
                 {/* 3. Principal Sign */}
-                <div className="flex flex-col items-center justify-end min-w-[110px] sm:min-w-[160px] text-center gap-1 print:min-w-[160px]">
+                <div className="flex flex-col items-center justify-end min-w-0 w-[34%] sm:min-w-[160px] sm:w-auto text-center gap-1 print:min-w-[160px]">
                   {settings?.principalSignatureUrl ? (
                     <img
                       src={settings.principalSignatureUrl}
                       alt="Principal seal and signature"
-                      className="h-24 max-w-56 sm:h-27 sm:max-w-64 object-contain print:h-27 print:max-w-64"
+                      className="h-16 w-full max-w-[110px] sm:h-27 sm:max-w-64 object-contain print:h-27 print:max-w-64"
                       crossOrigin="anonymous"
                     />
                   ) : (
-                    <div className="h-24 sm:h-27 print:h-27" aria-hidden="true" />
+                    <div className="h-16 sm:h-27 print:h-27" aria-hidden="true" />
                   )}
-                  <span className="font-bold text-xs sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-2">
+                  <span className="font-bold text-[10px] sm:text-sm text-slate-900 print:text-sm whitespace-nowrap border-t border-slate-400 pt-1 px-1 sm:px-2 w-full text-center">
                     આચાર્યની સહી
                   </span>
                 </div>
