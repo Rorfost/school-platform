@@ -2,13 +2,13 @@
 
 Current production direction:
 
-| Component | Initial service |
-| --- | --- |
-| Frontend | Cloudflare Workers |
-| Backend | Render Free initially |
-| Database | Aiven PostgreSQL |
-| Object storage | ImageKit |
-| DNS/CDN/TLS | Cloudflare |
+| Component      | Initial service       |
+| -------------- | --------------------- |
+| Frontend       | Cloudflare Workers    |
+| Backend        | Render Free initially |
+| Database       | Aiven PostgreSQL      |
+| Object storage | ImageKit              |
+| DNS/CDN/TLS    | Cloudflare            |
 
 Expected domain shape is `school-domain.example`, `api.school-domain.example`, and `assets.school-domain.example`; no real domain is selected yet. Deploy frontend static assets through Cloudflare, run the backend as a standard JVM/container service, connect it privately/securely to managed PostgreSQL and ImageKit, and inject production secrets through provider configuration.
 

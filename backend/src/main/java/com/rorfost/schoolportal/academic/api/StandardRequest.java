@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record StandardRequest(
-    @NotBlank @Size(max = 20) String code,
-    @NotBlank @Size(max = 80) String displayName,
-    @NotNull @Positive Short sortOrder,
-    @NotNull Boolean archived) {}
+        @NotBlank @Size(max = 20) String code,
+        @NotBlank @Size(max = 80) String displayName,
+        @NotNull @Positive Short sortOrder,
+        @NotNull Boolean archived) {}

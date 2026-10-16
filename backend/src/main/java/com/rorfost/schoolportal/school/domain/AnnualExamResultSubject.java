@@ -6,119 +6,120 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "annual_exam_result_subjects")
 public class AnnualExamResultSubject {
-  @Id private UUID id;
+    @Id private UUID id;
 
-  @ManyToOne
-  @JoinColumn(name = "exam_result_id")
-  private AnnualExamResult examResult;
+    @ManyToOne
+    @JoinColumn(name = "exam_result_id")
+    private AnnualExamResult examResult;
 
-  @Column(name = "subject_name")
-  private String subjectName;
+    @Column(name = "subject_name")
+    private String subjectName;
 
-  @Column(name = "maximum_marks")
-  private Integer maximumMarks;
+    @Column(name = "maximum_marks")
+    private Integer maximumMarks;
 
-  @Column(name = "obtained_marks")
-  private Integer obtainedMarks;
+    @Column(name = "obtained_marks")
+    private Integer obtainedMarks;
 
-  private String grade;
+    private String grade;
 
-  @Column(name = "status")
-  private String status = "PRESENT";
+    @Column(name = "status")
+    private String status = "PRESENT";
 
-  @Column(name = "sort_order")
-  private Integer sortOrder;
+    @Column(name = "sort_order")
+    private Integer sortOrder;
 
-  @Column(name = "created_at", insertable = false, updatable = false)
-  private Instant createdAt;
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Instant createdAt;
 
-  @Column(name = "updated_at", insertable = false, updatable = false)
-  private Instant updatedAt;
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private Instant updatedAt;
 
-  // Getters and Setters
-  public UUID getId() {
-    return id;
-  }
+    // Getters and Setters
+    public UUID getId() {
+        return id;
+    }
 
-  public void setId(UUID id) {
-    this.id = id;
-  }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-  public AnnualExamResult getExamResult() {
-    return examResult;
-  }
+    public AnnualExamResult getExamResult() {
+        return examResult;
+    }
 
-  public void setExamResult(AnnualExamResult examResult) {
-    this.examResult = examResult;
-  }
+    public void setExamResult(AnnualExamResult examResult) {
+        this.examResult = examResult;
+    }
 
-  public String getSubjectName() {
-    return subjectName;
-  }
+    public String getSubjectName() {
+        return subjectName;
+    }
 
-  public void setSubjectName(String subjectName) {
-    this.subjectName = subjectName;
-  }
+    public void setSubjectName(String subjectName) {
+        this.subjectName = subjectName;
+    }
 
-  public Integer getMaximumMarks() {
-    return maximumMarks;
-  }
+    public Integer getMaximumMarks() {
+        return maximumMarks;
+    }
 
-  public void setMaximumMarks(Integer maximumMarks) {
-    this.maximumMarks = maximumMarks;
-  }
+    public void setMaximumMarks(Integer maximumMarks) {
+        this.maximumMarks = maximumMarks;
+    }
 
-  public Integer getObtainedMarks() {
-    return obtainedMarks;
-  }
+    public Integer getObtainedMarks() {
+        return obtainedMarks;
+    }
 
-  public void setObtainedMarks(Integer obtainedMarks) {
-    this.obtainedMarks = obtainedMarks;
-  }
+    public void setObtainedMarks(Integer obtainedMarks) {
+        this.obtainedMarks = obtainedMarks;
+    }
 
-  public String getGrade() {
-    return grade;
-  }
+    public String getGrade() {
+        return grade;
+    }
 
-  public void setGrade(String grade) {
-    this.grade = grade;
-  }
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
 
-  public String getStatus() {
-    return status;
-  }
+    public String getStatus() {
+        return status;
+    }
 
-  public void setStatus(String status) {
-    this.status = status;
-  }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-  public Integer getSortOrder() {
-    return sortOrder;
-  }
+    public Integer getSortOrder() {
+        return sortOrder;
+    }
 
-  public void setSortOrder(Integer sortOrder) {
-    this.sortOrder = sortOrder;
-  }
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
+    }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-  public void setCreatedAt(Instant createdAt) {
-    this.createdAt = createdAt;
-  }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public void setUpdatedAt(Instant updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

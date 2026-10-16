@@ -1,25 +1,25 @@
 spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    hikari:
-      maximum-pool-size: 2
-  jpa:
-    hibernate:
-      ddl-auto: validate
+    config:
+        activate:
+            on-profile: test
+    datasource:
+        hikari:
+            maximum-pool-size: 2
+    jpa:
+        hibernate:
+            ddl-auto: validate
 
 app:
-  frontend-url: http://localhost:5173
-  cors:
-    allowed-origins: http://localhost:5173
-  storage:
-    url-endpoint: https://ik.imagekit.io/test
-  security:
-    login-max-attempts: 5
-    login-attempt-window: 10m
+    frontend-url: http://localhost:5173
+    cors:
+        allowed-origins: http://localhost:5173
+    storage:
+        url-endpoint: https://ik.imagekit.io/test
+    security:
+        login-max-attempts: 5
+        login-attempt-window: 10m
 
 management:
-  endpoint:
-    health:
-      show-details: never
+    endpoint:
+        health:
+            show-details: never

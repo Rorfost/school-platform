@@ -4,21 +4,21 @@ Use environment-based configuration only. Keep local, test, and production profi
 
 ## Backend environment
 
-| Variable | Purpose |
-| --- | --- |
-| `SPRING_PROFILES_ACTIVE` | `local`, `test`, or `prod` profile selection. |
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection. |
-| `DB_POOL_MAX_SIZE`, `DB_POOL_MIN_IDLE` | Optional conservative HikariCP limits; defaults are 5 and 1. |
-| `CORS_ALLOWED_ORIGINS` | Explicit frontend origins allowed to call the API. |
-| `SESSION_COOKIE_SECURE`, `SESSION_TIMEOUT` | Servlet session-cookie security and session lifetime; secure defaults to true outside local. |
-| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | Frontend origin and explicit browser origins permitted to call the API. |
-| `UPLOAD_MAX_FILE_SIZE`, `UPLOAD_MAX_REQUEST_SIZE` | Conservative server request ceilings. They do not approve upload MIME types; a feature must define that policy before accepting files. |
+| Variable                                                                     | Purpose                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SPRING_PROFILES_ACTIVE`                                                     | `local`, `test`, or `prod` profile selection.                                                                                                                                                                                        |
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`                                       | PostgreSQL connection.                                                                                                                                                                                                               |
+| `DB_POOL_MAX_SIZE`, `DB_POOL_MIN_IDLE`                                       | Optional conservative HikariCP limits; defaults are 5 and 1.                                                                                                                                                                         |
+| `CORS_ALLOWED_ORIGINS`                                                       | Explicit frontend origins allowed to call the API.                                                                                                                                                                                   |
+| `SESSION_COOKIE_SECURE`, `SESSION_TIMEOUT`                                   | Servlet session-cookie security and session lifetime; secure defaults to true outside local.                                                                                                                                         |
+| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`                                       | Frontend origin and explicit browser origins permitted to call the API.                                                                                                                                                              |
+| `UPLOAD_MAX_FILE_SIZE`, `UPLOAD_MAX_REQUEST_SIZE`                            | Conservative server request ceilings. They do not approve upload MIME types; a feature must define that policy before accepting files.                                                                                               |
 | `ADMIN_INITIAL_EMAIL`, `ADMIN_INITIAL_PASSWORD`, `ADMIN_INITIAL_SCHOOL_SLUG` | First-principal bootstrap inputs. All three must be present only after the selected school exists. The password is BCrypt-hashed, never logged, and is never used to overwrite an existing administrator. Remove it after bootstrap. |
-| `LOGIN_MAX_ATTEMPTS`, `LOGIN_ATTEMPT_WINDOW` | Optional local login limiter settings. Defaults are five failed attempts per direct client address in ten minutes. |
-| `APP_LOG_LEVEL` | Application package logging level. Do not use logging configuration to expose request bodies, credentials, PINs, or storage secrets. |
-| `IMAGEKIT_PRIVATE_KEY` | Server-only ImageKit private API key for file upload, lookup, and deletion. |
-| `IMAGEKIT_URL_ENDPOINT` | Public ImageKit URL endpoint, such as `https://ik.imagekit.io/your_imagekit_id`. |
-| `PORT` | HTTP port supplied by Render; defaults to `8080` locally. |
+| `LOGIN_MAX_ATTEMPTS`, `LOGIN_ATTEMPT_WINDOW`                                 | Optional local login limiter settings. Defaults are five failed attempts per direct client address in ten minutes.                                                                                                                   |
+| `APP_LOG_LEVEL`                                                              | Application package logging level. Do not use logging configuration to expose request bodies, credentials, PINs, or storage secrets.                                                                                                 |
+| `IMAGEKIT_PRIVATE_KEY`                                                       | Server-only ImageKit private API key for file upload, lookup, and deletion.                                                                                                                                                          |
+| `IMAGEKIT_URL_ENDPOINT`                                                      | Public ImageKit URL endpoint, such as `https://ik.imagekit.io/your_imagekit_id`.                                                                                                                                                     |
+| `PORT`                                                                       | HTTP port supplied by Render; defaults to `8080` locally.                                                                                                                                                                            |
 
 ## Frontend environment
 

@@ -1,25 +1,26 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-school_portal}
-      POSTGRES_USER: ${POSTGRES_USER:-school_portal}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-school_portal_local}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - school-portal-local
+    postgres:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB:-school_portal}
+            POSTGRES_USER: ${POSTGRES_USER:-school_portal}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-school_portal_local}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+            test:
+                ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - school-portal-local
 
 volumes:
-  postgres-data:
+    postgres-data:
 
 networks:
-  school-portal-local:
-    driver: bridge
+    school-portal-local:
+        driver: bridge

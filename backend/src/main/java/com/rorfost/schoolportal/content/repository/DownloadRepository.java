@@ -2,20 +2,22 @@ package com.rorfost.schoolportal.content.repository;
 
 import com.rorfost.schoolportal.content.domain.Download;
 import com.rorfost.schoolportal.content.domain.PublicationStatus;
-import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.UUID;
+
 public interface DownloadRepository extends JpaRepository<Download, UUID> {
-  Page<Download> findBySchoolIdAndStatus(
-      UUID schoolId, PublicationStatus status, Pageable pageable);
+    Page<Download> findBySchoolIdAndStatus(
+            UUID schoolId, PublicationStatus status, Pageable pageable);
 
-  Page<Download> findBySchoolId(UUID schoolId, Pageable pageable);
+    Page<Download> findBySchoolId(UUID schoolId, Pageable pageable);
 
-  java.util.Optional<Download> findByIdAndSchoolId(UUID id, UUID schoolId);
+    java.util.Optional<Download> findByIdAndSchoolId(UUID id, UUID schoolId);
 
-  long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);
+    long countBySchoolIdAndStatus(UUID schoolId, PublicationStatus status);
 
-  long countBySchoolId(UUID schoolId);
+    long countBySchoolId(UUID schoolId);
 }

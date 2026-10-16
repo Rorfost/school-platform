@@ -1,80 +1,83 @@
 package com.rorfost.schoolportal.audit.domain;
 
 import com.rorfost.schoolportal.common.persistence.UuidEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.UUID;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs")
 public class AuditLog extends UuidEntity {
 
-  private UUID schoolId;
-  private UUID actorAdminUserId;
-  private String action;
-  private String targetType;
-  private UUID targetId;
-  private String requestId;
+    private UUID schoolId;
+    private UUID actorAdminUserId;
+    private String action;
+    private String targetType;
+    private UUID targetId;
+    private String requestId;
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(columnDefinition = "jsonb")
-  private String metadata;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private String metadata;
 
-  @Column(name = "created_at", insertable = false, updatable = false)
-  private Instant createdAt;
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Instant createdAt;
 
-  protected AuditLog() {}
+    protected AuditLog() {}
 
-  public AuditLog(
-      UUID schoolId,
-      UUID actorAdminUserId,
-      AuditAction action,
-      String targetType,
-      UUID targetId,
-      String requestId,
-      String metadata) {
-    this.schoolId = schoolId;
-    this.actorAdminUserId = actorAdminUserId;
-    this.action = action.name();
-    this.targetType = targetType;
-    this.targetId = targetId;
-    this.requestId = requestId;
-    this.metadata = metadata;
-  }
+    public AuditLog(
+            UUID schoolId,
+            UUID actorAdminUserId,
+            AuditAction action,
+            String targetType,
+            UUID targetId,
+            String requestId,
+            String metadata) {
+        this.schoolId = schoolId;
+        this.actorAdminUserId = actorAdminUserId;
+        this.action = action.name();
+        this.targetType = targetType;
+        this.targetId = targetId;
+        this.requestId = requestId;
+        this.metadata = metadata;
+    }
 
-  public UUID getSchoolId() {
-    return schoolId;
-  }
+    public UUID getSchoolId() {
+        return schoolId;
+    }
 
-  public UUID getActorAdminUserId() {
-    return actorAdminUserId;
-  }
+    public UUID getActorAdminUserId() {
+        return actorAdminUserId;
+    }
 
-  public String getAction() {
-    return action;
-  }
+    public String getAction() {
+        return action;
+    }
 
-  public String getTargetType() {
-    return targetType;
-  }
+    public String getTargetType() {
+        return targetType;
+    }
 
-  public UUID getTargetId() {
-    return targetId;
-  }
+    public UUID getTargetId() {
+        return targetId;
+    }
 
-  public String getRequestId() {
-    return requestId;
-  }
+    public String getRequestId() {
+        return requestId;
+    }
 
-  public String getMetadata() {
-    return metadata;
-  }
+    public String getMetadata() {
+        return metadata;
+    }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }

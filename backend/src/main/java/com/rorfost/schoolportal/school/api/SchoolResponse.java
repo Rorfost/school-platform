@@ -1,54 +1,55 @@
 package com.rorfost.schoolportal.school.api;
 
 import com.rorfost.schoolportal.school.domain.School;
+
 import java.util.UUID;
 
 public record SchoolResponse(
-    UUID id,
-    String name,
-    String shortName,
-    String schoolCode,
-    String address,
-    String city,
-    String taluka,
-    String district,
-    String state,
-    String postalCode,
-    String email,
-    String phone,
-    String website,
-    String mapsUrl,
-    String about,
-    String establishedYear,
-    String medium,
-    String schoolType,
-    String logoUrl,
-    String sealUrl) {
-  public static SchoolResponse from(School school, String logoUrl, String sealUrl) {
-    return new SchoolResponse(
-        school.getId(),
-        school.getName(),
-        school.getShortName(),
-        school.getSchoolCode(),
-        school.getAddress(),
-        school.getCity(),
-        school.getTaluka(),
-        school.getDistrict(),
-        school.getState(),
-        school.getPostalCode(),
-        school.getContactEmail(),
-        school.getContactPhone(),
-        school.getWebsite(),
-        school.getMapsUrl(),
-        school.getAbout(),
-        school.getEstablishedYear(),
-        school.getMedium(),
-        school.getSchoolType(),
-        logoUrl,
-        sealUrl);
-  }
+        UUID id,
+        String name,
+        String shortName,
+        String schoolCode,
+        String address,
+        String city,
+        String taluka,
+        String district,
+        String state,
+        String postalCode,
+        String email,
+        String phone,
+        String website,
+        String mapsUrl,
+        String about,
+        String establishedYear,
+        String medium,
+        String schoolType,
+        String logoUrl,
+        String sealUrl) {
+    public static SchoolResponse from(School school, String logoUrl, String sealUrl) {
+        return new SchoolResponse(
+                school.getId(),
+                school.getName(),
+                school.getShortName(),
+                school.getSchoolCode(),
+                school.getAddress(),
+                school.getCity(),
+                school.getTaluka(),
+                school.getDistrict(),
+                school.getState(),
+                school.getPostalCode(),
+                school.getContactEmail(),
+                school.getContactPhone(),
+                school.getWebsite(),
+                school.getMapsUrl(),
+                school.getAbout(),
+                school.getEstablishedYear(),
+                school.getMedium(),
+                school.getSchoolType(),
+                logoUrl,
+                sealUrl);
+    }
 
-  public static SchoolResponse from(School school, String logoUrl) {
-    return from(school, logoUrl, null);
-  }
+    public static SchoolResponse from(School school, String logoUrl) {
+        return from(school, logoUrl, null);
+    }
 }

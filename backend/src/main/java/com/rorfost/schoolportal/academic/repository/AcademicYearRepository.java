@@ -2,15 +2,17 @@ package com.rorfost.schoolportal.academic.repository;
 
 import com.rorfost.schoolportal.academic.domain.AcademicYear;
 import com.rorfost.schoolportal.academic.domain.AcademicYearStatus;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AcademicYearRepository extends JpaRepository<AcademicYear, UUID> {
-  Optional<AcademicYear> findBySchoolIdAndStatus(UUID schoolId, AcademicYearStatus status);
+    Optional<AcademicYear> findBySchoolIdAndStatus(UUID schoolId, AcademicYearStatus status);
 
-  List<AcademicYear> findBySchoolIdOrderByStartsOnDesc(UUID schoolId);
+    List<AcademicYear> findBySchoolIdOrderByStartsOnDesc(UUID schoolId);
 
-  boolean existsBySchoolIdAndName(UUID schoolId, String name);
+    boolean existsBySchoolIdAndName(UUID schoolId, String name);
 }

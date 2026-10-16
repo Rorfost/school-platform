@@ -1,10 +1,12 @@
 package com.rorfost.schoolportal.content.domain;
 
 import com.rorfost.schoolportal.common.persistence.AuditableUuidEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,120 +14,120 @@ import java.util.UUID;
 @Table(name = "notices")
 public class Notice extends AuditableUuidEntity {
 
-  private UUID schoolId;
-  private String title;
-  private String body;
-  private String attachmentBucket;
-  private String attachmentObjectKey;
-  private String attachmentFilename;
-  private String attachmentContentType;
-  private Long attachmentByteSize;
-  private String attachmentImagekitFileId;
-  private boolean isPinned;
-  private Instant expiresAt;
+    private UUID schoolId;
+    private String title;
+    private String body;
+    private String attachmentBucket;
+    private String attachmentObjectKey;
+    private String attachmentFilename;
+    private String attachmentContentType;
+    private Long attachmentByteSize;
+    private String attachmentImagekitFileId;
+    private boolean isPinned;
+    private Instant expiresAt;
 
-  @Enumerated(EnumType.STRING)
-  private PublicationStatus status = PublicationStatus.DRAFT;
+    @Enumerated(EnumType.STRING)
+    private PublicationStatus status = PublicationStatus.DRAFT;
 
-  private Instant publishedAt;
-  private Instant archivedAt;
+    private Instant publishedAt;
+    private Instant archivedAt;
 
-  protected Notice() {}
+    protected Notice() {}
 
-  public Notice(UUID schoolId, String title, String body) {
-    this.schoolId = schoolId;
-    this.title = title;
-    this.body = body;
-  }
+    public Notice(UUID schoolId, String title, String body) {
+        this.schoolId = schoolId;
+        this.title = title;
+        this.body = body;
+    }
 
-  public UUID getSchoolId() {
-    return schoolId;
-  }
+    public UUID getSchoolId() {
+        return schoolId;
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public String getBody() {
-    return body;
-  }
+    public String getBody() {
+        return body;
+    }
 
-  public String getAttachmentBucket() {
-    return attachmentBucket;
-  }
+    public String getAttachmentBucket() {
+        return attachmentBucket;
+    }
 
-  public String getAttachmentObjectKey() {
-    return attachmentObjectKey;
-  }
+    public String getAttachmentObjectKey() {
+        return attachmentObjectKey;
+    }
 
-  public String getAttachmentFilename() {
-    return attachmentFilename;
-  }
+    public String getAttachmentFilename() {
+        return attachmentFilename;
+    }
 
-  public String getAttachmentContentType() {
-    return attachmentContentType;
-  }
+    public String getAttachmentContentType() {
+        return attachmentContentType;
+    }
 
-  public Long getAttachmentByteSize() {
-    return attachmentByteSize;
-  }
+    public Long getAttachmentByteSize() {
+        return attachmentByteSize;
+    }
 
-  public String getAttachmentImagekitFileId() {
-    return attachmentImagekitFileId;
-  }
+    public String getAttachmentImagekitFileId() {
+        return attachmentImagekitFileId;
+    }
 
-  public boolean isPinned() {
-    return isPinned;
-  }
+    public boolean isPinned() {
+        return isPinned;
+    }
 
-  public Instant getExpiresAt() {
-    return expiresAt;
-  }
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
 
-  public PublicationStatus getStatus() {
-    return status;
-  }
+    public PublicationStatus getStatus() {
+        return status;
+    }
 
-  public Instant getPublishedAt() {
-    return publishedAt;
-  }
+    public Instant getPublishedAt() {
+        return publishedAt;
+    }
 
-  public void update(String title, String body, boolean pinned, Instant expiresAt) {
-    this.title = title;
-    this.body = body;
-    this.isPinned = pinned;
-    this.expiresAt = expiresAt;
-  }
+    public void update(String title, String body, boolean pinned, Instant expiresAt) {
+        this.title = title;
+        this.body = body;
+        this.isPinned = pinned;
+        this.expiresAt = expiresAt;
+    }
 
-  public void setAttachment(
-      String bucket,
-      String key,
-      String filename,
-      String contentType,
-      long byteSize,
-      String imagekitFileId) {
-    attachmentBucket = bucket;
-    attachmentObjectKey = key;
-    attachmentFilename = filename;
-    attachmentContentType = contentType;
-    attachmentByteSize = byteSize;
-    attachmentImagekitFileId = imagekitFileId;
-  }
+    public void setAttachment(
+            String bucket,
+            String key,
+            String filename,
+            String contentType,
+            long byteSize,
+            String imagekitFileId) {
+        attachmentBucket = bucket;
+        attachmentObjectKey = key;
+        attachmentFilename = filename;
+        attachmentContentType = contentType;
+        attachmentByteSize = byteSize;
+        attachmentImagekitFileId = imagekitFileId;
+    }
 
-  public void publish(Instant at) {
-    status = PublicationStatus.PUBLISHED;
-    publishedAt = at;
-    archivedAt = null;
-  }
+    public void publish(Instant at) {
+        status = PublicationStatus.PUBLISHED;
+        publishedAt = at;
+        archivedAt = null;
+    }
 
-  public void unpublish() {
-    status = PublicationStatus.DRAFT;
-    publishedAt = null;
-    archivedAt = null;
-  }
+    public void unpublish() {
+        status = PublicationStatus.DRAFT;
+        publishedAt = null;
+        archivedAt = null;
+    }
 
-  public void archive(Instant at) {
-    status = PublicationStatus.ARCHIVED;
-    archivedAt = at;
-  }
+    public void archive(Instant at) {
+        status = PublicationStatus.ARCHIVED;
+        archivedAt = at;
+    }
 }

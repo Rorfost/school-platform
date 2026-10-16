@@ -1,7 +1,8 @@
 package com.rorfost.schoolportal.common.config;
 
-import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
 
 @ConfigurationProperties("app.cors")
 public record CorsProperties(List<String> allowedOrigins) {}

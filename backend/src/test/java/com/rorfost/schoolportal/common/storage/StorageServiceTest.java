@@ -9,129 +9,137 @@ import static org.mockito.Mockito.when;
 import com.rorfost.schoolportal.common.config.StorageProperties;
 import com.rorfost.schoolportal.common.config.UploadProperties;
 import com.rorfost.schoolportal.common.exception.DomainException;
-import java.io.InputStream;
-import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.unit.DataSize;
 
+import java.io.InputStream;
+import java.util.regex.Pattern;
+
 class StorageServiceTest {
-  private static final Pattern MATERIAL_PATH =
-      Pattern.compile("materials/school-slug/[0-9a-f-]{36}\\.pdf");
+    private static final Pattern MATERIAL_PATH =
+            Pattern.compile("materials/school-slug/[0-9a-f-]{36}\\.pdf");
 
-  private final ObjectStorage objectStorage = Mockito.mock(ObjectStorage.class);
+    private final ObjectStorage objectStorage = Mockito.mock(ObjectStorage.class);
 
-  @Test
-  void uploadsPdfUnderTheSchoolSlugWithUuidFilenameAndOriginalFilenameMetadata() throws Exception {
-    StorageService service = service(DataSize.ofMegabytes(10));
-    MockMultipartFile file =
-        new MockMultipartFile(
-            "file", "Lesson plan.pdf", "application/pdf", "%PDF-sample".getBytes());
+    @Test
+    void uploadsPdfUnderTheSchoolSlugWithUuidFilenameAndOriginalFilenameMetadata()
+            throws Exception {
+        StorageService service = service(DataSize.ofMegabytes(10));
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "Lesson plan.pdf", "application/pdf", "%PDF-sample".getBytes());
 
-    StoredObject object = service.uploadPublicDocument("materials/school-slug", file);
+        StoredObject object = service.uploadPublicDocument("materials/school-slug", file);
 
-    ArgumentCaptor<String> objectKey = ArgumentCaptor.forClass(String.class);
-    verify(objectStorage)
-        .put(
-            org.mockito.ArgumentMatchers.eq("imagekit"),
-            objectKey.capture(),
-            any(InputStream.class),
-            org.mockito.ArgumentMatchers.eq(11L),
-            org.mockito.ArgumentMatchers.eq("application/pdf"));
-    assertThat(objectKey.getValue()).matches(MATERIAL_PATH);
-    assertThat(object.objectKey()).isEqualTo(objectKey.getValue());
-    assertThat(object.originalFilename()).isEqualTo("Lesson plan.pdf");
-  }
+        ArgumentCaptor<String> objectKey = ArgumentCaptor.forClass(String.class);
+        verify(objectStorage)
+                .put(
+                        org.mockito.ArgumentMatchers.eq("imagekit"),
+                        objectKey.capture(),
+                        any(InputStream.class),
+                        org.mockito.ArgumentMatchers.eq(11L),
+                        org.mockito.ArgumentMatchers.eq("application/pdf"));
+        assertThat(objectKey.getValue()).matches(MATERIAL_PATH);
+        assertThat(object.objectKey()).isEqualTo(objectKey.getValue());
+        assertThat(object.originalFilename()).isEqualTo("Lesson plan.pdf");
+    }
 
-  @Test
-  void createsPublicUrlFromImageKitEndpointAndStoredPath() {
-    StorageService service = service(DataSize.ofMegabytes(10));
+    @Test
+    void createsPublicUrlFromImageKitEndpointAndStoredPath() {
+        StorageService service = service(DataSize.ofMegabytes(10));
 
-    assertThat(service.publicUrl("materials/school-slug/abc.pdf"))
-        .isEqualTo("https://ik.imagekit.io/account/materials/school-slug/abc.pdf");
-  }
+        assertThat(service.publicUrl("materials/school-slug/abc.pdf"))
+                .isEqualTo("https://ik.imagekit.io/account/materials/school-slug/abc.pdf");
+    }
 
-  @Test
-  void createsAnOptimizedImageKitThumbnailUrl() {
-    StorageService service = service(DataSize.ofMegabytes(10));
+    @Test
+    void createsAnOptimizedImageKitThumbnailUrl() {
+        StorageService service = service(DataSize.ofMegabytes(10));
 
-    assertThat(service.publicImageThumbnailUrl("gallery/school-slug/photo.jpg"))
-        .isEqualTo(
-            "https://ik.imagekit.io/account/gallery/school-slug/photo.jpg?tr=w-800,h-600,c-at_max,q-80");
-  }
+        assertThat(service.publicImageThumbnailUrl("gallery/school-slug/photo.jpg"))
+                .isEqualTo(
+                        "https://ik.imagekit.io/account/gallery/school-slug/photo.jpg?tr=w-800,h-600,c-at_max,q-80");
+    }
 
-  @Test
-  void uploadsSignatureCheckedPngImagesForSchoolBranding() {
-    StorageService service = service(DataSize.ofMegabytes(10));
-    MockMultipartFile file =
-        new MockMultipartFile(
-            "file",
-            "school.png",
-            "image/png",
-            new byte[] {(byte) 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a});
+    @Test
+    void uploadsSignatureCheckedPngImagesForSchoolBranding() {
+        StorageService service = service(DataSize.ofMegabytes(10));
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "school.png",
+                        "image/png",
+                        new byte[] {(byte) 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a});
 
-    StoredObject object = service.uploadPublicImage("branding/school-slug", file);
+        StoredObject object = service.uploadPublicImage("branding/school-slug", file);
 
-    assertThat(object.objectKey()).matches("branding/school-slug/[0-9a-f-]{36}\\.png");
-    assertThat(object.contentType()).isEqualTo("image/png");
-  }
+        assertThat(object.objectKey()).matches("branding/school-slug/[0-9a-f-]{36}\\.png");
+        assertThat(object.contentType()).isEqualTo("image/png");
+    }
 
-  @Test
-  void delegatesDeleteAndExistsToStorage() {
-    StorageService service = service(DataSize.ofMegabytes(10));
-    when(objectStorage.exists("imagekit", "downloads/school-slug/file.pdf")).thenReturn(true);
+    @Test
+    void delegatesDeleteAndExistsToStorage() {
+        StorageService service = service(DataSize.ofMegabytes(10));
+        when(objectStorage.exists("imagekit", "downloads/school-slug/file.pdf")).thenReturn(true);
 
-    service.delete("imagekit", "downloads/school-slug/file.pdf");
+        service.delete("imagekit", "downloads/school-slug/file.pdf");
 
-    assertThat(service.exists("imagekit", "downloads/school-slug/file.pdf")).isTrue();
-    verify(objectStorage).delete("imagekit", "downloads/school-slug/file.pdf", null);
-  }
+        assertThat(service.exists("imagekit", "downloads/school-slug/file.pdf")).isTrue();
+        verify(objectStorage).delete("imagekit", "downloads/school-slug/file.pdf", null);
+    }
 
-  @Test
-  void rejectsUnsupportedMimeType() {
-    StorageService service = service(DataSize.ofMegabytes(10));
-    MockMultipartFile file =
-        new MockMultipartFile("file", "notes.txt", "text/plain", "plain text".getBytes());
+    @Test
+    void rejectsUnsupportedMimeType() {
+        StorageService service = service(DataSize.ofMegabytes(10));
+        MockMultipartFile file =
+                new MockMultipartFile("file", "notes.txt", "text/plain", "plain text".getBytes());
 
-    assertUploadFailure(
-        () -> service.uploadPublicDocument("materials/school-slug", file),
-        "upload_type_unsupported");
-  }
+        assertUploadFailure(
+                () -> service.uploadPublicDocument("materials/school-slug", file),
+                "upload_type_unsupported");
+    }
 
-  @Test
-  void rejectsAnInvalidFileSignature() {
-    StorageService service = service(DataSize.ofMegabytes(10));
-    MockMultipartFile file =
-        new MockMultipartFile("file", "notes.pdf", "application/pdf", "not a PDF".getBytes());
+    @Test
+    void rejectsAnInvalidFileSignature() {
+        StorageService service = service(DataSize.ofMegabytes(10));
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "notes.pdf", "application/pdf", "not a PDF".getBytes());
 
-    assertUploadFailure(
-        () -> service.uploadPublicDocument("materials/school-slug", file),
-        "upload_content_invalid");
-  }
+        assertUploadFailure(
+                () -> service.uploadPublicDocument("materials/school-slug", file),
+                "upload_content_invalid");
+    }
 
-  @Test
-  void rejectsAFileLargerThanTheConfiguredMaximum() {
-    StorageService service = service(DataSize.ofBytes(5));
-    MockMultipartFile file =
-        new MockMultipartFile("file", "notes.pdf", "application/pdf", "%PDF-too-large".getBytes());
+    @Test
+    void rejectsAFileLargerThanTheConfiguredMaximum() {
+        StorageService service = service(DataSize.ofBytes(5));
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "notes.pdf", "application/pdf", "%PDF-too-large".getBytes());
 
-    assertUploadFailure(
-        () -> service.uploadPublicDocument("materials/school-slug", file), "upload_too_large");
-  }
+        assertUploadFailure(
+                () -> service.uploadPublicDocument("materials/school-slug", file),
+                "upload_too_large");
+    }
 
-  private StorageService service(DataSize maxFileSize) {
-    return new StorageService(
-        objectStorage,
-        new StorageProperties("https://ik.imagekit.io/account/"),
-        new UploadProperties(maxFileSize, DataSize.ofMegabytes(12)));
-  }
+    private StorageService service(DataSize maxFileSize) {
+        return new StorageService(
+                objectStorage,
+                new StorageProperties("https://ik.imagekit.io/account/"),
+                new UploadProperties(maxFileSize, DataSize.ofMegabytes(12)));
+    }
 
-  private void assertUploadFailure(Runnable action, String code) {
-    assertThatThrownBy(() -> action.run())
-        .isInstanceOf(DomainException.class)
-        .satisfies(
-            exception -> assertThat(((DomainException) exception).getCode()).isEqualTo(code));
-  }
+    private void assertUploadFailure(Runnable action, String code) {
+        assertThatThrownBy(() -> action.run())
+                .isInstanceOf(DomainException.class)
+                .satisfies(
+                        exception ->
+                                assertThat(((DomainException) exception).getCode())
+                                        .isEqualTo(code));
+    }
 }

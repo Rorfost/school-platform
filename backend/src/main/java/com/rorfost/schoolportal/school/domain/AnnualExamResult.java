@@ -9,239 +9,241 @@ import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+
+import org.springframework.data.domain.Persistable;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "annual_exam_results")
 public class AnnualExamResult implements Persistable<UUID> {
-  @Id private UUID id;
+    @Id private UUID id;
 
-  @Transient private boolean isNew = true;
+    @Transient private boolean isNew = true;
 
-  @Override
-  public boolean isNew() {
-    return isNew;
-  }
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
 
-  @PostLoad
-  @PostPersist
-  void markNotNew() {
-    this.isNew = false;
-  }
+    @PostLoad
+    @PostPersist
+    void markNotNew() {
+        this.isNew = false;
+    }
 
-  @Column(name = "school_id")
-  private UUID schoolId;
+    @Column(name = "school_id")
+    private UUID schoolId;
 
-  @Column(name = "result_type")
-  private String resultType;
+    @Column(name = "result_type")
+    private String resultType;
 
-  @Column(name = "student_uid")
-  private String studentUid;
+    @Column(name = "student_uid")
+    private String studentUid;
 
-  @Column(name = "student_name")
-  private String studentName;
+    @Column(name = "student_name")
+    private String studentName;
 
-  private String standard;
+    private String standard;
 
-  @Column(name = "student_class")
-  private String studentClass;
+    @Column(name = "student_class")
+    private String studentClass;
 
-  @Column(name = "roll_number")
-  private Integer rollNumber;
+    @Column(name = "roll_number")
+    private Integer rollNumber;
 
-  @Column(name = "general_register_number")
-  private String generalRegisterNumber;
+    @Column(name = "general_register_number")
+    private String generalRegisterNumber;
 
-  @Column(name = "birth_date")
-  private String birthDate;
+    @Column(name = "birth_date")
+    private String birthDate;
 
-  @Column(name = "total_working_days")
-  private String totalWorkingDays;
+    @Column(name = "total_working_days")
+    private String totalWorkingDays;
 
-  @Column(name = "attended_days")
-  private String attendedDays;
+    @Column(name = "attended_days")
+    private String attendedDays;
 
-  @Column(name = "total_marks")
-  private Integer totalMarks;
+    @Column(name = "total_marks")
+    private Integer totalMarks;
 
-  @Column(name = "obtained_marks")
-  private Integer obtainedMarks;
+    @Column(name = "obtained_marks")
+    private Integer obtainedMarks;
 
-  private BigDecimal percentage;
+    private BigDecimal percentage;
 
-  @Column(name = "overall_grade")
-  private String overallGrade;
+    @Column(name = "overall_grade")
+    private String overallGrade;
 
-  @Column(name = "created_at", insertable = false, updatable = false)
-  private Instant createdAt;
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Instant createdAt;
 
-  @Column(name = "updated_at", insertable = false, updatable = false)
-  private Instant updatedAt;
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private Instant updatedAt;
 
-  @OneToMany(mappedBy = "examResult", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<AnnualExamResultSubject> subjects = new ArrayList<>();
+    @OneToMany(mappedBy = "examResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AnnualExamResultSubject> subjects = new ArrayList<>();
 
-  // Getters and Setters
+    // Getters and Setters
 
-  public UUID getId() {
-    return id;
-  }
+    public UUID getId() {
+        return id;
+    }
 
-  public void setId(UUID id) {
-    this.id = id;
-  }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-  public UUID getSchoolId() {
-    return schoolId;
-  }
+    public UUID getSchoolId() {
+        return schoolId;
+    }
 
-  public void setSchoolId(UUID schoolId) {
-    this.schoolId = schoolId;
-  }
+    public void setSchoolId(UUID schoolId) {
+        this.schoolId = schoolId;
+    }
 
-  public String getResultType() {
-    return resultType;
-  }
+    public String getResultType() {
+        return resultType;
+    }
 
-  public void setResultType(String resultType) {
-    this.resultType = resultType;
-  }
+    public void setResultType(String resultType) {
+        this.resultType = resultType;
+    }
 
-  public String getStudentUid() {
-    return studentUid;
-  }
+    public String getStudentUid() {
+        return studentUid;
+    }
 
-  public void setStudentUid(String studentUid) {
-    this.studentUid = studentUid;
-  }
+    public void setStudentUid(String studentUid) {
+        this.studentUid = studentUid;
+    }
 
-  public String getStudentName() {
-    return studentName;
-  }
+    public String getStudentName() {
+        return studentName;
+    }
 
-  public void setStudentName(String studentName) {
-    this.studentName = studentName;
-  }
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
 
-  public String getStandard() {
-    return standard;
-  }
+    public String getStandard() {
+        return standard;
+    }
 
-  public void setStandard(String standard) {
-    this.standard = standard;
-  }
+    public void setStandard(String standard) {
+        this.standard = standard;
+    }
 
-  public String getStudentClass() {
-    return studentClass;
-  }
+    public String getStudentClass() {
+        return studentClass;
+    }
 
-  public void setStudentClass(String studentClass) {
-    this.studentClass = studentClass;
-  }
+    public void setStudentClass(String studentClass) {
+        this.studentClass = studentClass;
+    }
 
-  public Integer getRollNumber() {
-    return rollNumber;
-  }
+    public Integer getRollNumber() {
+        return rollNumber;
+    }
 
-  public void setRollNumber(Integer rollNumber) {
-    this.rollNumber = rollNumber;
-  }
+    public void setRollNumber(Integer rollNumber) {
+        this.rollNumber = rollNumber;
+    }
 
-  public String getGeneralRegisterNumber() {
-    return generalRegisterNumber;
-  }
+    public String getGeneralRegisterNumber() {
+        return generalRegisterNumber;
+    }
 
-  public void setGeneralRegisterNumber(String generalRegisterNumber) {
-    this.generalRegisterNumber = generalRegisterNumber;
-  }
+    public void setGeneralRegisterNumber(String generalRegisterNumber) {
+        this.generalRegisterNumber = generalRegisterNumber;
+    }
 
-  public String getBirthDate() {
-    return birthDate;
-  }
+    public String getBirthDate() {
+        return birthDate;
+    }
 
-  public void setBirthDate(String birthDate) {
-    this.birthDate = birthDate;
-  }
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
 
-  public String getTotalWorkingDays() {
-    return totalWorkingDays;
-  }
+    public String getTotalWorkingDays() {
+        return totalWorkingDays;
+    }
 
-  public void setTotalWorkingDays(String totalWorkingDays) {
-    this.totalWorkingDays = totalWorkingDays;
-  }
+    public void setTotalWorkingDays(String totalWorkingDays) {
+        this.totalWorkingDays = totalWorkingDays;
+    }
 
-  public String getAttendedDays() {
-    return attendedDays;
-  }
+    public String getAttendedDays() {
+        return attendedDays;
+    }
 
-  public void setAttendedDays(String attendedDays) {
-    this.attendedDays = attendedDays;
-  }
+    public void setAttendedDays(String attendedDays) {
+        this.attendedDays = attendedDays;
+    }
 
-  public Integer getTotalMarks() {
-    return totalMarks;
-  }
+    public Integer getTotalMarks() {
+        return totalMarks;
+    }
 
-  public void setTotalMarks(Integer totalMarks) {
-    this.totalMarks = totalMarks;
-  }
+    public void setTotalMarks(Integer totalMarks) {
+        this.totalMarks = totalMarks;
+    }
 
-  public Integer getObtainedMarks() {
-    return obtainedMarks;
-  }
+    public Integer getObtainedMarks() {
+        return obtainedMarks;
+    }
 
-  public void setObtainedMarks(Integer obtainedMarks) {
-    this.obtainedMarks = obtainedMarks;
-  }
+    public void setObtainedMarks(Integer obtainedMarks) {
+        this.obtainedMarks = obtainedMarks;
+    }
 
-  public BigDecimal getPercentage() {
-    return percentage;
-  }
+    public BigDecimal getPercentage() {
+        return percentage;
+    }
 
-  public void setPercentage(BigDecimal percentage) {
-    this.percentage = percentage;
-  }
+    public void setPercentage(BigDecimal percentage) {
+        this.percentage = percentage;
+    }
 
-  public String getOverallGrade() {
-    return overallGrade;
-  }
+    public String getOverallGrade() {
+        return overallGrade;
+    }
 
-  public void setOverallGrade(String overallGrade) {
-    this.overallGrade = overallGrade;
-  }
+    public void setOverallGrade(String overallGrade) {
+        this.overallGrade = overallGrade;
+    }
 
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-  public void setCreatedAt(Instant createdAt) {
-    this.createdAt = createdAt;
-  }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public void setUpdatedAt(Instant updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-  public List<AnnualExamResultSubject> getSubjects() {
-    return subjects;
-  }
+    public List<AnnualExamResultSubject> getSubjects() {
+        return subjects;
+    }
 
-  public void setSubjects(List<AnnualExamResultSubject> subjects) {
-    this.subjects = subjects;
-  }
+    public void setSubjects(List<AnnualExamResultSubject> subjects) {
+        this.subjects = subjects;
+    }
 
-  public void addSubject(AnnualExamResultSubject subject) {
-    subjects.add(subject);
-    subject.setExamResult(this);
-  }
+    public void addSubject(AnnualExamResultSubject subject) {
+        subjects.add(subject);
+        subject.setExamResult(this);
+    }
 }
