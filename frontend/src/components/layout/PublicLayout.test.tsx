@@ -5,61 +5,61 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { queryKeys } from "@/api/queryKeys";
 
 function renderLayout() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  queryClient.setQueryData(queryKeys.school, {
-    id: "s1",
-    name: "શાળા પોર્ટલ",
-    email: "principal@example.com",
-  });
+    const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+    });
+    queryClient.setQueryData(queryKeys.school, {
+        id: "s1",
+        name: "શાળા પોર્ટલ",
+        email: "principal@example.com",
+    });
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/"]}>
-        <Routes>
-          <Route element={<PublicLayout />}>
-            <Route index element={<div>મુખ્ય સામગ્રી</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={["/"]}>
+                <Routes>
+                    <Route element={<PublicLayout />}>
+                        <Route index element={<div>મુખ્ય સામગ્રી</div>} />
+                    </Route>
+                </Routes>
+            </MemoryRouter>
+        </QueryClientProvider>,
+    );
 }
 
 describe("PublicLayout", () => {
-  it("renders skip link, header, main content, and footer", () => {
-    renderLayout();
+    it("renders skip link, header, main content, and footer", () => {
+        renderLayout();
 
-    expect(screen.getByText("મુખ્ય વિષયવસ્તુ પર જાઓ")).toBeInTheDocument();
-    expect(screen.getAllByText("શાળા પોર્ટલ")[0]).toBeVisible();
-    expect(screen.getByText("મુખ્ય સામગ્રી")).toBeVisible();
-    expect(screen.getByText(/principal@example.com/)).toBeVisible();
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
-  });
+        expect(screen.getByText("મુખ્ય વિષયવસ્તુ પર જાઓ")).toBeInTheDocument();
+        expect(screen.getAllByText("શાળા પોર્ટલ")[0]).toBeVisible();
+        expect(screen.getByText("મુખ્ય સામગ્રી")).toBeVisible();
+        expect(screen.getByText(/principal@example.com/)).toBeVisible();
+        expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+    });
 
-  it("opens and closes mobile navigation drawer on toggle", () => {
-    renderLayout();
+    it("opens and closes mobile navigation drawer on toggle", () => {
+        renderLayout();
 
-    const menuButton = screen.getByRole("button", { name: "મુખ્ય મેનૂ ખોલો" });
-    expect(menuButton).toBeVisible();
+        const menuButton = screen.getByRole("button", { name: "મુખ્ય મેનૂ ખોલો" });
+        expect(menuButton).toBeVisible();
 
-    // Click menu button
-    fireEvent.click(menuButton);
+        // Click menu button
+        fireEvent.click(menuButton);
 
-    const dialog = screen.getByRole("dialog", { name: "મુખ્ય મેનૂ" });
-    expect(dialog).toBeVisible();
-    expect(dialog).toHaveClass("left-0");
+        const dialog = screen.getByRole("dialog", { name: "મુખ્ય મેનૂ" });
+        expect(dialog).toBeVisible();
+        expect(dialog).toHaveClass("left-0");
 
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(screen.queryByRole("dialog", { name: "મુખ્ય મેનૂ" })).not.toBeInTheDocument();
+        fireEvent.keyDown(window, { key: "Escape" });
+        expect(screen.queryByRole("dialog", { name: "મુખ્ય મેનૂ" })).not.toBeInTheDocument();
 
-    fireEvent.click(menuButton);
+        fireEvent.click(menuButton);
 
-    // Close menu
-    const closeButton = screen.getByRole("button", { name: "મેનૂ બંધ કરો" });
-    fireEvent.click(closeButton);
+        // Close menu
+        const closeButton = screen.getByRole("button", { name: "મેનૂ બંધ કરો" });
+        fireEvent.click(closeButton);
 
-    expect(screen.queryByRole("dialog", { name: "મુખ્ય મેનૂ" })).not.toBeInTheDocument();
-  });
+        expect(screen.queryByRole("dialog", { name: "મુખ્ય મેનૂ" })).not.toBeInTheDocument();
+    });
 });

@@ -8,13 +8,13 @@ The frontend is a React 19, TypeScript, and Vite static single-page application 
 - **Student Corner (Gujarati)**: Study Materials (filtered by Standard & Subject), Examination Results Lookup (with privacy PIN verification & printable marksheet view), Downloads, and Student Notices.
 - **School Tools (Gujarati)**: Client-side age/date, attendance, marks, and subject-wise percentage utilities for teachers, parents, and children. Entered calculation values are not stored.
 - **Principal Admin Panel (English)**:
-  - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
-  - Operational Dashboard with quick links.
-  - School Settings & Principal Profile management, including ImageKit-backed school-logo replacement and removal.
-  - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
-  - Results & Marks setup (internally generic assessments), subject maximum/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
-  - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.
-  - Account & Security management.
+    - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
+    - Operational Dashboard with quick links.
+    - School Settings & Principal Profile management, including ImageKit-backed school-logo replacement and removal.
+    - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
+    - Results & Marks setup (internally generic assessments), subject maximum/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
+    - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.
+    - Account & Security management.
 
 ## Pending Inputs
 

@@ -6,10 +6,10 @@ import { queryKeys } from "@/api/queryKeys";
 import type { MaterialResponse, PageResponse } from "@/api/types";
 import { Badge } from "@/components/ui/Badge";
 import {
-  ContentSkeleton,
-  EmptyState,
-  ErrorState,
-  LoadingState,
+    ContentSkeleton,
+    EmptyState,
+    ErrorState,
+    LoadingState,
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -17,48 +17,48 @@ import { Input } from "@/components/ui/Input";
 import { LABELS } from "@/utils/gujarati";
 
 export function MaterialsPage() {
-  //   const [selectedType, setSelectedType] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState("");
+    //   const [selectedType, setSelectedType] = useState<string>("");
+    const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: queryKeys.materials({ page: 0, size: 50 }),
-    queryFn: () =>
-      apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
-  });
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: queryKeys.materials({ page: 0, size: 50 }),
+        queryFn: () =>
+            apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
+    });
 
-  const materials = data?.items ?? [];
+    const materials = data?.items ?? [];
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredMaterials = materials.filter((item) => {
-    if (!item.title.toLowerCase().includes(normalizedSearch)) return false;
-    // if (selectedType && item.materialType !== selectedType) return false;
-    return true;
-  });
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const filteredMaterials = materials.filter((item) => {
+        if (!item.title.toLowerCase().includes(normalizedSearch)) return false;
+        // if (selectedType && item.materialType !== selectedType) return false;
+        return true;
+    });
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={LABELS.materials}
-        description="ધોરણ ૧ થી ૮ ના વિદ્યાર્થીઓ માટે ડિજિટલ અભ્યાસ સામગ્રી અને સંદર્ભ સાહિત્ય"
-        backTo="/student"
-        backLabel={LABELS.studentCorner}
-      />
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title={LABELS.materials}
+                description="ધોરણ ૧ થી ૮ ના વિદ્યાર્થીઓ માટે ડિજિટલ અભ્યાસ સામગ્રી અને સંદર્ભ સાહિત્ય"
+                backTo="/student"
+                backLabel={LABELS.studentCorner}
+            />
 
-      {/* Material types are part of the public response; standard/subject filters await an approved API contract. */}
-      {/* <Card className="p-4 sm:p-5 bg-slate-50/70 border-slate-200"> */}
-      {/* <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-800">
+            {/* Material types are part of the public response; standard/subject filters await an approved API contract. */}
+            {/* <Card className="p-4 sm:p-5 bg-slate-50/70 border-slate-200"> */}
+            {/* <div className="flex items-center gap-2 mb-3 text-sm font-semibold text-slate-800">
           <Filter size={16} className="text-blue-900" aria-hidden="true" />
           <span>અભ્યાસ સામગ્રી શોધો</span>
         </div> */}
-      <div className="grid gap-3 sm:grid-cols-2 sm:max-w-3xl">
-        <Input
-          type="search"
-          placeholder="અભ્યાસ સામગ્રી શોધો..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          leftIcon={<Search size={18} aria-hidden="true" />}
-        />
-        {/* <div>
+            <div className="grid gap-3 sm:grid-cols-2 sm:max-w-3xl">
+                <Input
+                    type="search"
+                    placeholder="અભ્યાસ સામગ્રી શોધો..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    leftIcon={<Search size={18} aria-hidden="true" />}
+                />
+                {/* <div>
             <label htmlFor="type-select" className="block text-xs font-medium text-slate-700 mb-1">
               સામગ્રીનો પ્રકાર
             </label>
@@ -76,93 +76,95 @@ export function MaterialsPage() {
               <option value="REFERENCE">સંદર્ભ સાહિત્ય</option>
             </select>
           </div> */}
-      </div>
-      {/* </Card> */}
+            </div>
+            {/* </Card> */}
 
-      {/* Materials List */}
-      {isLoading ? (
-        <>
-          <LoadingState
-            message="અભ્યાસ સામગ્રી લોડ થઈ રહી છે..."
-            delayedMessage="થોડો સમય લાગી શકે છે."
-          />
-          <ContentSkeleton />
-        </>
-      ) : error ? (
-        <ErrorState onRetry={() => refetch()} />
-      ) : filteredMaterials.length === 0 ? (
-        <EmptyState
-          icon={BookOpen}
-          title="હાલ કોઈ અભ્યાસ સામગ્રી ઉપલબ્ધ નથી."
-          description={
-            searchTerm
-              ? "શોધેલા શીર્ષક મુજબ કોઈ સામગ્રી મળી નથી."
-              : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
-          }
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredMaterials.map((item) => (
-            <Card
-              key={item.id}
-              className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
-                      <FileText size={20} aria-hidden="true" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900 text-base">{item.title}</h3>
-                      {item.description && (
-                        <p className="mt-1 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {item.materialType && (
-                    <Badge variant="secondary" size="sm" className="shrink-0">
-                      {item.materialType}
-                    </Badge>
-                  )}
+            {/* Materials List */}
+            {isLoading ? (
+                <>
+                    <LoadingState
+                        message="અભ્યાસ સામગ્રી લોડ થઈ રહી છે..."
+                        delayedMessage="થોડો સમય લાગી શકે છે."
+                    />
+                    <ContentSkeleton />
+                </>
+            ) : error ? (
+                <ErrorState onRetry={() => refetch()} />
+            ) : filteredMaterials.length === 0 ? (
+                <EmptyState
+                    icon={BookOpen}
+                    title="હાલ કોઈ અભ્યાસ સામગ્રી ઉપલબ્ધ નથી."
+                    description={
+                        searchTerm
+                            ? "શોધેલા શીર્ષક મુજબ કોઈ સામગ્રી મળી નથી."
+                            : "શિક્ષકો દ્વારા નવી સામગ્રી ઉમેરાતાં જ અહીં ઉપલબ્ધ થશે."
+                    }
+                />
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredMaterials.map((item) => (
+                        <Card
+                            key={item.id}
+                            className="p-5 flex flex-col justify-between hover:border-blue-200 transition-colors shadow-xs"
+                        >
+                            <div>
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
+                                            <FileText size={20} aria-hidden="true" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate-900 text-base">
+                                                {item.title}
+                                            </h3>
+                                            {item.description && (
+                                                <p className="mt-1 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                                    {item.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {item.materialType && (
+                                        <Badge variant="secondary" size="sm" className="shrink-0">
+                                            {item.materialType}
+                                        </Badge>
+                                    )}
+                                </div>
+                                {(item.standardName || item.subjectName) && (
+                                    <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-700">
+                                        {item.standardName && (
+                                            <Badge variant="secondary" size="sm">
+                                                {item.standardName}
+                                            </Badge>
+                                        )}
+                                        {item.subjectName && (
+                                            <Badge variant="secondary" size="sm">
+                                                {item.subjectName}
+                                            </Badge>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                                <span className="min-w-0 truncate">{item.filename}</span>
+                                {item.url ? (
+                                    <a
+                                        href={item.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-blue-50 px-3 py-1.5 font-semibold text-blue-900 transition-colors hover:bg-blue-100 hover:underline"
+                                    >
+                                        <Download size={14} aria-hidden="true" />
+                                        <span>ડાઉનલોડ કરો</span>
+                                    </a>
+                                ) : (
+                                    <span className="font-medium text-slate-400">ડાઉનલોડ</span>
+                                )}
+                            </div>
+                        </Card>
+                    ))}
                 </div>
-                {(item.standardName || item.subjectName) && (
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-700">
-                    {item.standardName && (
-                      <Badge variant="secondary" size="sm">
-                        {item.standardName}
-                      </Badge>
-                    )}
-                    {item.subjectName && (
-                      <Badge variant="secondary" size="sm">
-                        {item.subjectName}
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                <span className="min-w-0 truncate">{item.filename}</span>
-                {item.url ? (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-blue-50 px-3 py-1.5 font-semibold text-blue-900 transition-colors hover:bg-blue-100 hover:underline"
-                  >
-                    <Download size={14} aria-hidden="true" />
-                    <span>ડાઉનલોડ કરો</span>
-                  </a>
-                ) : (
-                  <span className="font-medium text-slate-400">ડાઉનલોડ</span>
-                )}
-              </div>
-            </Card>
-          ))}
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

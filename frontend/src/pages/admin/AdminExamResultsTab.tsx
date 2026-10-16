@@ -10,222 +10,225 @@ import { Input } from "@/components/ui/Input";
 import type { ResultSettingsTab } from "./AdminAssessmentsPage";
 
 const RESULT_TYPE_LABELS: Record<ResultSettingsTab, string> = {
-  ANNUAL: "Exam Result",
-  EKAM_KASOTI: "Trimasik Kasoti Result",
+    ANNUAL: "Exam Result",
+    EKAM_KASOTI: "Trimasik Kasoti Result",
 };
 
 export function AdminExamResultsTab({ resultType }: { resultType: ResultSettingsTab }) {
-  const isAnnual = resultType === "ANNUAL";
-  void isAnnual; // used for future conditional rendering
-  const [file, setFile] = useState<File | null>(null);
-  const [totalWorkingDays, setTotalWorkingDays] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const isAnnual = resultType === "ANNUAL";
+    void isAnnual; // used for future conditional rendering
+    const [file, setFile] = useState<File | null>(null);
+    const [totalWorkingDays, setTotalWorkingDays] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const uploadMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData();
-      formData.append("file", file!);
-      formData.append("resultType", resultType);
-      if (totalWorkingDays.trim()) {
-        formData.append("totalWorkingDays", totalWorkingDays.trim());
-      }
+    const uploadMutation = useMutation({
+        mutationFn: async () => {
+            const formData = new FormData();
+            formData.append("file", file!);
+            formData.append("resultType", resultType);
+            if (totalWorkingDays.trim()) {
+                formData.append("totalWorkingDays", totalWorkingDays.trim());
+            }
 
-      // POST directly to the backend origin to bypass the Cloudflare Worker proxy.
-      // CF Workers have a hard 30-second subrequest timeout; large workbooks take longer.
-      const csrfToken = await fetchCsrfToken();
-      const headers = new Headers({ Accept: "application/json" });
-      if (csrfToken) headers.set("X-XSRF-TOKEN", csrfToken);
+            // POST directly to the backend origin to bypass the Cloudflare Worker proxy.
+            // CF Workers have a hard 30-second subrequest timeout; large workbooks take longer.
+            const csrfToken = await fetchCsrfToken();
+            const headers = new Headers({ Accept: "application/json" });
+            if (csrfToken) headers.set("X-XSRF-TOKEN", csrfToken);
 
-      const response = await fetch(`${uploadBaseUrl}/api/v1/admin/exam-results/upload`, {
-        method: "POST",
-        headers,
-        body: formData,
-        credentials: "include",
-      });
+            const response = await fetch(`${uploadBaseUrl}/api/v1/admin/exam-results/upload`, {
+                method: "POST",
+                headers,
+                body: formData,
+                credentials: "include",
+            });
 
-      if (!response.ok) {
-        let code: string | undefined;
-        let detail: string | undefined;
-        try {
-          const problem = (await response.json()) as { code?: string; detail?: string };
-          code = problem.code;
-          detail = problem.detail;
-        } catch {
-          /* not JSON */
-        }
-        throw new ApiError(detail ?? "Upload failed", response.status, code);
-      }
-      return response.json() as Promise<{ message: string }>;
-    },
-    onSuccess: (response) => {
-      setSuccessMessage(response.message);
-      setErrorMessage("");
-      setFile(null);
-      setTotalWorkingDays("");
-    },
-    onError: (reason) => {
-      const code = reason instanceof ApiError ? reason.code : undefined;
-      if (code === "school_not_configured") {
-        setErrorMessage("School details must be configured before results can be uploaded.");
-      } else if (reason instanceof ApiError && reason.status === 404) {
-        setErrorMessage(
-          "The result-upload service is unavailable. Deploy the latest backend, then try again.",
-        );
-      } else if (code === "exam_result_format_invalid") {
-        setErrorMessage(
-          "This file does not match the required result workbook format. Check the header and marks columns.",
-        );
-      } else if (code === "result_standard_not_configured") {
-        setErrorMessage(
-          "Set up the Standard in Academic Setup first. Its name or number must match the Standard column in this workbook.",
-        );
-      } else if (code === "result_subject_not_configured") {
-        setErrorMessage(
-          "Assign the required Subjects to this Standard in Academic Setup before uploading.",
-        );
-      } else if (code === "result_subjects_not_configured") {
-        setErrorMessage(
-          "One or more subjects in the workbook have obtained-marks data but are not configured for that standard in Academic Setup. Configure all required subjects first.",
-        );
-      } else if (code === "result_subject_header_invalid") {
-        setErrorMessage(
-          "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
-        );
-      } else if (
-        reason instanceof ApiError &&
-        (reason.status === 524 || reason.status === 504 || reason.status === 502)
-      ) {
-        setErrorMessage(
-          "The cloud proxy timed out during upload. If the server was waking up, the results may still be processing — refresh the page in a few minutes to check.",
-        );
-      } else {
-        setErrorMessage("Upload failed. Check the file, then try again.");
-      }
-      setSuccessMessage("");
-    },
-  });
-
-  const clearMutation = useMutation({
-    mutationFn: () =>
-      apiRequest<{ message: string }>(
-        `/api/v1/admin/exam-results?resultType=${encodeURIComponent(resultType)}`,
-        {
-          method: "DELETE",
+            if (!response.ok) {
+                let code: string | undefined;
+                let detail: string | undefined;
+                try {
+                    const problem = (await response.json()) as { code?: string; detail?: string };
+                    code = problem.code;
+                    detail = problem.detail;
+                } catch {
+                    /* not JSON */
+                }
+                throw new ApiError(detail ?? "Upload failed", response.status, code);
+            }
+            return response.json() as Promise<{ message: string }>;
         },
-      ),
+        onSuccess: (response) => {
+            setSuccessMessage(response.message);
+            setErrorMessage("");
+            setFile(null);
+            setTotalWorkingDays("");
+        },
+        onError: (reason) => {
+            const code = reason instanceof ApiError ? reason.code : undefined;
+            if (code === "school_not_configured") {
+                setErrorMessage(
+                    "School details must be configured before results can be uploaded.",
+                );
+            } else if (reason instanceof ApiError && reason.status === 404) {
+                setErrorMessage(
+                    "The result-upload service is unavailable. Deploy the latest backend, then try again.",
+                );
+            } else if (code === "exam_result_format_invalid") {
+                setErrorMessage(
+                    "This file does not match the required result workbook format. Check the header and marks columns.",
+                );
+            } else if (code === "result_standard_not_configured") {
+                setErrorMessage(
+                    "Set up the Standard in Academic Setup first. Its name or number must match the Standard column in this workbook.",
+                );
+            } else if (code === "result_subject_not_configured") {
+                setErrorMessage(
+                    "Assign the required Subjects to this Standard in Academic Setup before uploading.",
+                );
+            } else if (code === "result_subjects_not_configured") {
+                setErrorMessage(
+                    "One or more subjects in the workbook have obtained-marks data but are not configured for that standard in Academic Setup. Configure all required subjects first.",
+                );
+            } else if (code === "result_subject_header_invalid") {
+                setErrorMessage(
+                    "A subject configured in Academic Setup could not be found in the workbook headers. Check that the subject names in the workbook match those in Academic Setup.",
+                );
+            } else if (
+                reason instanceof ApiError &&
+                (reason.status === 524 || reason.status === 504 || reason.status === 502)
+            ) {
+                setErrorMessage(
+                    "The cloud proxy timed out during upload. If the server was waking up, the results may still be processing — refresh the page in a few minutes to check.",
+                );
+            } else {
+                setErrorMessage("Upload failed. Check the file, then try again.");
+            }
+            setSuccessMessage("");
+        },
+    });
 
-    onSuccess: () => {
-      setSuccessMessage(`${RESULT_TYPE_LABELS[resultType]} cleared successfully.`);
-      setErrorMessage("");
-      setShowClearConfirm(false);
-    },
+    const clearMutation = useMutation({
+        mutationFn: () =>
+            apiRequest<{ message: string }>(
+                `/api/v1/admin/exam-results?resultType=${encodeURIComponent(resultType)}`,
+                {
+                    method: "DELETE",
+                },
+            ),
 
-    onError: () => {
-      setSuccessMessage("");
-      setErrorMessage(`Failed to clear ${RESULT_TYPE_LABELS[resultType]}. Please try again.`);
-      setShowClearConfirm(false);
-    },
-  });
+        onSuccess: () => {
+            setSuccessMessage(`${RESULT_TYPE_LABELS[resultType]} cleared successfully.`);
+            setErrorMessage("");
+            setShowClearConfirm(false);
+        },
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!file) return;
-    uploadMutation.mutate();
-  };
+        onError: () => {
+            setSuccessMessage("");
+            setErrorMessage(`Failed to clear ${RESULT_TYPE_LABELS[resultType]}. Please try again.`);
+            setShowClearConfirm(false);
+        },
+    });
 
-  const canSubmit = Boolean(file);
+    const submit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!file) return;
+        uploadMutation.mutate();
+    };
 
-  return (
-    <Card className="max-w-2xl">
-      <h2 className="text-lg font-bold text-slate-900">
-        Upload {RESULT_TYPE_LABELS[resultType]} Workbook
-      </h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Workbooks start with G.R. No., Student UID, Standard, Class, Name, Birth Date and Present
-        Divas (or "-"). Each subject then uses 2 columns: Maximum Marks and Obtained Marks.
-      </p>
+    const canSubmit = Boolean(file);
 
-      <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
-        Set the Standard and its Subjects in Academic Setup. Maximum marks are read directly from
-        the Excel workbook. Enter &quot;AB&quot; in the Obtained Marks cell if the student was
-        absent. Leave the Obtained Marks cell <strong>empty</strong> to show &quot;-&quot; for that
-        subject (useful for subjects not taken by that standard).
-      </p>
+    return (
+        <Card className="max-w-2xl">
+            <h2 className="text-lg font-bold text-slate-900">
+                Upload {RESULT_TYPE_LABELS[resultType]} Workbook
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+                Workbooks start with G.R. No., Student UID, Standard, Class, Name, Birth Date and
+                Present Divas (or "-"). Each subject then uses 2 columns: Maximum Marks and Obtained
+                Marks.
+            </p>
 
-      <form onSubmit={submit} className="mt-5 space-y-4">
-        <Input
-          label="Total working days"
-          type="number"
-          min="1"
-          value={totalWorkingDays}
-          onChange={(event) => setTotalWorkingDays(event.target.value)}
-          placeholder="For example, 230 (Leave empty for -)"
-          helperText="Optional. Leave empty to display '-' on results."
-        />
+            <p className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
+                Set the Standard and its Subjects in Academic Setup. Maximum marks are read directly
+                from the Excel workbook. Enter &quot;AB&quot; in the Obtained Marks cell if the
+                student was absent. Leave the Obtained Marks cell <strong>empty</strong> to show
+                &quot;-&quot; for that subject (useful for subjects not taken by that standard).
+            </p>
 
-        <label className="block text-sm font-medium text-slate-700">
-          Excel workbook
-          <input
-            type="file"
-            accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-            required
-            onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
-              setSuccessMessage("");
-              setErrorMessage("");
-            }}
-            className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-4 file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0d2461] hover:file:bg-blue-100"
-          />
-        </label>
+            <form onSubmit={submit} className="mt-5 space-y-4">
+                <Input
+                    label="Total working days"
+                    type="number"
+                    min="1"
+                    value={totalWorkingDays}
+                    onChange={(event) => setTotalWorkingDays(event.target.value)}
+                    placeholder="For example, 230 (Leave empty for -)"
+                    helperText="Optional. Leave empty to display '-' on results."
+                />
 
-        {successMessage && (
-          <p className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
-            <CheckCircle2 size={18} aria-hidden="true" /> {successMessage}
-          </p>
-        )}
-        {errorMessage && (
-          <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
-            {errorMessage}
-          </p>
-        )}
+                <label className="block text-sm font-medium text-slate-700">
+                    Excel workbook
+                    <input
+                        type="file"
+                        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                        required
+                        onChange={(event) => {
+                            setFile(event.target.files?.[0] ?? null);
+                            setSuccessMessage("");
+                            setErrorMessage("");
+                        }}
+                        className="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white text-sm text-slate-600 file:mr-4 file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0d2461] hover:file:bg-blue-100"
+                    />
+                </label>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button
-            type="submit"
-            className="gap-2"
-            disabled={!canSubmit || clearMutation.isPending}
-            loading={uploadMutation.isPending}
-            loadingText="Uploading result..."
-          >
-            <UploadCloud size={18} aria-hidden="true" />
-            Upload {RESULT_TYPE_LABELS[resultType]}
-          </Button>
+                {successMessage && (
+                    <p className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
+                        <CheckCircle2 size={18} aria-hidden="true" /> {successMessage}
+                    </p>
+                )}
+                {errorMessage && (
+                    <p className="rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">
+                        {errorMessage}
+                    </p>
+                )}
 
-          <Button
-            type="button"
-            variant="danger"
-            className="gap-2"
-            disabled={uploadMutation.isPending}
-            onClick={() => setShowClearConfirm(true)}
-          >
-            <Trash2 size={18} aria-hidden="true" />
-            Clear {RESULT_TYPE_LABELS[resultType]}
-          </Button>
-        </div>
-      </form>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button
+                        type="submit"
+                        className="gap-2"
+                        disabled={!canSubmit || clearMutation.isPending}
+                        loading={uploadMutation.isPending}
+                        loadingText="Uploading result..."
+                    >
+                        <UploadCloud size={18} aria-hidden="true" />
+                        Upload {RESULT_TYPE_LABELS[resultType]}
+                    </Button>
 
-      <ConfirmModal
-        isOpen={showClearConfirm}
-        onClose={() => setShowClearConfirm(false)}
-        onConfirm={() => clearMutation.mutate()}
-        title={`Clear ${RESULT_TYPE_LABELS[resultType]}?`}
-        description={`This will permanently delete all uploaded ${RESULT_TYPE_LABELS[resultType]} data. Students will no longer be able to view these results. This action cannot be undone.`}
-        confirmText="Clear Results"
-        variant="danger"
-        isLoading={clearMutation.isPending}
-      />
-    </Card>
-  );
+                    <Button
+                        type="button"
+                        variant="danger"
+                        className="gap-2"
+                        disabled={uploadMutation.isPending}
+                        onClick={() => setShowClearConfirm(true)}
+                    >
+                        <Trash2 size={18} aria-hidden="true" />
+                        Clear {RESULT_TYPE_LABELS[resultType]}
+                    </Button>
+                </div>
+            </form>
+
+            <ConfirmModal
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => clearMutation.mutate()}
+                title={`Clear ${RESULT_TYPE_LABELS[resultType]}?`}
+                description={`This will permanently delete all uploaded ${RESULT_TYPE_LABELS[resultType]} data. Students will no longer be able to view these results. This action cannot be undone.`}
+                confirmText="Clear Results"
+                variant="danger"
+                isLoading={clearMutation.isPending}
+            />
+        </Card>
+    );
 }

@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import { usePublicNotices } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import {
-  ContentSkeleton,
-  EmptyState,
-  ErrorState,
-  LoadingState,
+    ContentSkeleton,
+    EmptyState,
+    ErrorState,
+    LoadingState,
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -16,118 +16,123 @@ import { LABELS } from "@/utils/gujarati";
 import { formatDate } from "@/utils/date";
 
 export function NoticesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const { data, isLoading, error, refetch } = usePublicNotices(0, 50);
+    const [searchTerm, setSearchTerm] = useState("");
+    const { data, isLoading, error, refetch } = usePublicNotices(0, 50);
 
-  const notices = data?.items ?? [];
+    const notices = data?.items ?? [];
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredNotices = notices.filter((notice) =>
-    notice.title.toLowerCase().includes(normalizedSearch),
-  );
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const filteredNotices = notices.filter((notice) =>
+        notice.title.toLowerCase().includes(normalizedSearch),
+    );
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={LABELS.notices}
-        description="શાળાની સત્તાવાર જાહેરાતો, રજાઓની યાદી અને અગત્યના પરિપત્રો"
-        backTo="/"
-        backLabel={LABELS.home}
-      />
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title={LABELS.notices}
+                description="શાળાની સત્તાવાર જાહેરાતો, રજાઓની યાદી અને અગત્યના પરિપત્રો"
+                backTo="/"
+                backLabel={LABELS.home}
+            />
 
-      <div className="max-w-md">
-        <Input
-          type="search"
-          placeholder="સૂચનાઓ શોધો..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          leftIcon={<Search size={18} aria-hidden="true" />}
-        />
-      </div>
+            <div className="max-w-md">
+                <Input
+                    type="search"
+                    placeholder="સૂચનાઓ શોધો..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    leftIcon={<Search size={18} aria-hidden="true" />}
+                />
+            </div>
 
-      {isLoading ? (
-        <>
-          <LoadingState message="સૂચનાઓ લોડ થઈ રહી છે..." delayedMessage="થોડો સમય લાગી શકે છે." />
-          <ContentSkeleton />
-        </>
-      ) : error ? (
-        <ErrorState onRetry={() => refetch()} />
-      ) : filteredNotices.length === 0 ? (
-        <EmptyState
-          icon={Newspaper}
-          title="હાલ કોઈ સૂચના મળી નથી."
-          description={
-            searchTerm
-              ? "તમે શોધેલી વિગત મુજબ કોઈ સૂચના નથી."
-              : "શાળા દ્વારા નવી સૂચના જાહેર થતાં જ અહીં જોવા મળશે."
-          }
-        />
-      ) : (
-        <div className="space-y-4">
-          {filteredNotices.map((item) => (
-            <Card
-              key={item.id}
-              className="p-5 sm:p-6 transition-all hover:border-blue-200 shadow-xs"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
-                    <FileText size={20} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        to={`/notices/${item.id}`}
-                        className="text-base sm:text-lg font-bold text-slate-900 hover:text-blue-900 transition-colors"
-                      >
-                        {item.title}
-                      </Link>
-                      {item.pinned && (
-                        <Badge variant="accent" size="sm" className="gap-1">
-                          <Pin size={11} aria-hidden="true" />
-                          <span>મહત્વપૂર્ણ</span>
-                        </Badge>
-                      )}
-                    </div>
-                    {item.expiresAt && (
-                      <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                        <Calendar size={13} aria-hidden="true" />
-                        <span>મુદત: {formatDate(item.expiresAt)}</span>
-                      </div>
-                    )}
-                  </div>
+            {isLoading ? (
+                <>
+                    <LoadingState
+                        message="સૂચનાઓ લોડ થઈ રહી છે..."
+                        delayedMessage="થોડો સમય લાગી શકે છે."
+                    />
+                    <ContentSkeleton />
+                </>
+            ) : error ? (
+                <ErrorState onRetry={() => refetch()} />
+            ) : filteredNotices.length === 0 ? (
+                <EmptyState
+                    icon={Newspaper}
+                    title="હાલ કોઈ સૂચના મળી નથી."
+                    description={
+                        searchTerm
+                            ? "તમે શોધેલી વિગત મુજબ કોઈ સૂચના નથી."
+                            : "શાળા દ્વારા નવી સૂચના જાહેર થતાં જ અહીં જોવા મળશે."
+                    }
+                />
+            ) : (
+                <div className="space-y-4">
+                    {filteredNotices.map((item) => (
+                        <Card
+                            key={item.id}
+                            className="p-5 sm:p-6 transition-all hover:border-blue-200 shadow-xs"
+                        >
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
+                                        <FileText size={20} aria-hidden="true" />
+                                    </div>
+                                    <div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Link
+                                                to={`/notices/${item.id}`}
+                                                className="text-base sm:text-lg font-bold text-slate-900 hover:text-blue-900 transition-colors"
+                                            >
+                                                {item.title}
+                                            </Link>
+                                            {item.pinned && (
+                                                <Badge variant="accent" size="sm" className="gap-1">
+                                                    <Pin size={11} aria-hidden="true" />
+                                                    <span>મહત્વપૂર્ણ</span>
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {item.expiresAt && (
+                                            <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+                                                <Calendar size={13} aria-hidden="true" />
+                                                <span>મુદત: {formatDate(item.expiresAt)}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <Link
+                                    to={`/notices/${item.id}`}
+                                    className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-blue-900 hover:bg-blue-50 hover:underline shrink-0"
+                                >
+                                    <Eye size={14} aria-hidden="true" />
+                                    <span>વિગત જુઓ</span>
+                                </Link>
+                            </div>
+
+                            <div className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-700 whitespace-pre-line leading-relaxed line-clamp-3">
+                                {item.body}
+                            </div>
+
+                            {item.attachmentFilename && item.attachmentUrl && (
+                                <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                                    <span className="break-words">
+                                        Attachment: {item.attachmentFilename}
+                                    </span>
+                                    <a
+                                        href={item.attachmentUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-semibold text-blue-900 hover:bg-blue-50 hover:underline"
+                                    >
+                                        <Download size={13} aria-hidden="true" />
+                                        <span>ડાઉનલોડ કરો</span>
+                                    </a>
+                                </div>
+                            )}
+                        </Card>
+                    ))}
                 </div>
-                <Link
-                  to={`/notices/${item.id}`}
-                  className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-blue-900 hover:bg-blue-50 hover:underline shrink-0"
-                >
-                  <Eye size={14} aria-hidden="true" />
-                  <span>વિગત જુઓ</span>
-                </Link>
-              </div>
-
-              <div className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-700 whitespace-pre-line leading-relaxed line-clamp-3">
-                {item.body}
-              </div>
-
-              {item.attachmentFilename && item.attachmentUrl && (
-                <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="break-words">Attachment: {item.attachmentFilename}</span>
-                  <a
-                    href={item.attachmentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2 font-semibold text-blue-900 hover:bg-blue-50 hover:underline"
-                  >
-                    <Download size={13} aria-hidden="true" />
-                    <span>ડાઉનલોડ કરો</span>
-                  </a>
-                </div>
-              )}
-            </Card>
-          ))}
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

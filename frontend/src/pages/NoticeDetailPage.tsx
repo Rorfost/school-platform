@@ -3,10 +3,10 @@ import { useParams } from "react-router-dom";
 import { usePublicNotice } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import {
-  ContentSkeleton,
-  EmptyState,
-  ErrorState,
-  LoadingState,
+    ContentSkeleton,
+    EmptyState,
+    ErrorState,
+    LoadingState,
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -14,100 +14,100 @@ import { LABELS } from "@/utils/gujarati";
 import { formatDate } from "@/utils/date";
 
 export function NoticeDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const { data: notice, isLoading, error } = usePublicNotice(id);
+    const { id } = useParams<{ id: string }>();
+    const { data: notice, isLoading, error } = usePublicNotice(id);
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6 max-w-3xl">
-        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
-        <LoadingState
-          message="સૂચના વિગત લોડ થઈ રહી છે..."
-          delayedMessage="થોડો સમય લાગી શકે છે."
-        />
-        <ContentSkeleton rows={1} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="space-y-6 max-w-3xl">
-        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
-        <ErrorState />
-      </div>
-    );
-  }
-
-  if (!notice) {
-    return (
-      <div className="space-y-6 max-w-3xl">
-        <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
-        <EmptyState
-          icon={Newspaper}
-          title="સૂચના મળી નથી."
-          description="તમે શોધેલી સૂચના ઉપલબ્ધ નથી અથવા દૂર કરવામાં આવી છે."
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6 max-w-3xl">
-      <PageHeader
-        title={notice.title}
-        description="સૂચના વિગત"
-        backTo="/notices"
-        backLabel={LABELS.notices}
-      />
-
-      <Card className="p-6 sm:p-8 space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
-              <FileText size={20} aria-hidden="true" />
+    if (isLoading) {
+        return (
+            <div className="space-y-6 max-w-3xl">
+                <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
+                <LoadingState
+                    message="સૂચના વિગત લોડ થઈ રહી છે..."
+                    delayedMessage="થોડો સમય લાગી શકે છે."
+                />
+                <ContentSkeleton rows={1} />
             </div>
-            {notice.pinned && (
-              <Badge variant="accent" size="sm" className="gap-1">
-                <Pin size={11} aria-hidden="true" />
-                <span>મહત્વપૂર્ણ</span>
-              </Badge>
-            )}
-          </div>
-          {notice.expiresAt && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200">
-              <Calendar size={13} aria-hidden="true" />
-              <span>મુદત તારીખ: {formatDate(notice.expiresAt)}</span>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="space-y-6 max-w-3xl">
+                <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
+                <ErrorState />
             </div>
-          )}
+        );
+    }
+
+    if (!notice) {
+        return (
+            <div className="space-y-6 max-w-3xl">
+                <PageHeader title={LABELS.notices} backTo="/notices" backLabel={LABELS.notices} />
+                <EmptyState
+                    icon={Newspaper}
+                    title="સૂચના મળી નથી."
+                    description="તમે શોધેલી સૂચના ઉપલબ્ધ નથી અથવા દૂર કરવામાં આવી છે."
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 max-w-3xl">
+            <PageHeader
+                title={notice.title}
+                description="સૂચના વિગત"
+                backTo="/notices"
+                backLabel={LABELS.notices}
+            />
+
+            <Card className="p-6 sm:p-8 space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div className="flex items-center gap-2">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900">
+                            <FileText size={20} aria-hidden="true" />
+                        </div>
+                        {notice.pinned && (
+                            <Badge variant="accent" size="sm" className="gap-1">
+                                <Pin size={11} aria-hidden="true" />
+                                <span>મહત્વપૂર્ણ</span>
+                            </Badge>
+                        )}
+                    </div>
+                    {notice.expiresAt && (
+                        <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200">
+                            <Calendar size={13} aria-hidden="true" />
+                            <span>મુદત તારીખ: {formatDate(notice.expiresAt)}</span>
+                        </div>
+                    )}
+                </div>
+
+                <div className="text-base text-slate-800 whitespace-pre-line leading-relaxed">
+                    {notice.body}
+                </div>
+
+                {notice.attachmentFilename && notice.attachmentUrl && (
+                    <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-blue-50/50 p-4 sm:flex-row sm:items-center">
+                        <div>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                સામેલ ફાઈલ / જોડાણ
+                            </p>
+                            <p className="text-sm font-semibold text-slate-900 mt-0.5">
+                                {notice.attachmentFilename}
+                            </p>
+                        </div>
+                        <a
+                            href={notice.attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-950 shrink-0"
+                        >
+                            <Download size={16} aria-hidden="true" />
+                            <span>ફાઈલ ડાઉનલોડ કરો</span>
+                        </a>
+                    </div>
+                )}
+            </Card>
         </div>
-
-        <div className="text-base text-slate-800 whitespace-pre-line leading-relaxed">
-          {notice.body}
-        </div>
-
-        {notice.attachmentFilename && notice.attachmentUrl && (
-          <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-blue-50/50 p-4 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                સામેલ ફાઈલ / જોડાણ
-              </p>
-              <p className="text-sm font-semibold text-slate-900 mt-0.5">
-                {notice.attachmentFilename}
-              </p>
-            </div>
-            <a
-              href={notice.attachmentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-950 shrink-0"
-            >
-              <Download size={16} aria-hidden="true" />
-              <span>ફાઈલ ડાઉનલોડ કરો</span>
-            </a>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
+    );
 }

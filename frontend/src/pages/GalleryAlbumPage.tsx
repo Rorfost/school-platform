@@ -4,156 +4,159 @@ import { useParams } from "react-router-dom";
 import { usePublicGalleryImages } from "@/features/public/usePublicContent";
 import type { GalleryImageResponse } from "@/api/types";
 import {
-  CardGridSkeleton,
-  EmptyState,
-  ErrorState,
-  LoadingState,
+    CardGridSkeleton,
+    EmptyState,
+    ErrorState,
+    LoadingState,
 } from "@/components/common/StatusPanel";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
 
 export function GalleryAlbumPage() {
-  const { albumId } = useParams<{ albumId: string }>();
-  const { data: images, isLoading, error, refetch } = usePublicGalleryImages(albumId);
-  const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
-  const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
+    const { albumId } = useParams<{ albumId: string }>();
+    const { data: images, isLoading, error, refetch } = usePublicGalleryImages(albumId);
+    const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
+    const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
 
-  const markImageFailed = (imageId: string) => {
-    setFailedImageIds((current) => new Set(current).add(imageId));
-  };
-
-  useEffect(() => {
-    if (!selectedImage) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedImage(null);
+    const markImageFailed = (imageId: string) => {
+        setFailedImageIds((current) => new Set(current).add(imageId));
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedImage]);
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title={LABELS.gallery}
-        description="આલ્બમના તસવીરો"
-        backTo="/gallery"
-        backLabel={LABELS.gallery}
-      />
+    useEffect(() => {
+        if (!selectedImage) return;
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setSelectedImage(null);
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [selectedImage]);
 
-      {isLoading ? (
-        <>
-          <LoadingState message="તસવીરો લોડ થઈ રહી છે..." delayedMessage="થોડો સમય લાગી શકે છે." />
-          <CardGridSkeleton cards={9} />
-        </>
-      ) : error ? (
-        <ErrorState onRetry={() => refetch()} />
-      ) : !images || images.length === 0 ? (
-        <EmptyState
-          icon={Camera}
-          title="આ આલ્બમમાં તસવીરો ઉપલબ્ધ નથી."
-          description="ટૂંક સમયમાં નવી તસવીરો અહીં ઉમેરવામાં આવશે."
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {images.map((img) => (
-            <Card
-              key={img.id}
-              variant="interactive"
-              className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
-              role="button"
-              aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
-              onClick={() => setSelectedImage(img)}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSelectedImage(img);
-                }
-              }}
-            >
-              <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
-                {img.url && !failedImageIds.has(img.id) ? (
-                  <img
-                    src={img.thumbnailUrl || img.url}
-                    alt={img.altText || "ગેલેરી તસવીર"}
-                    className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                    onError={() => markImageFailed(img.id)}
-                  />
-                ) : (
-                  <div className="size-full flex items-center justify-center text-slate-400">
-                    <ImageIcon size={32} aria-hidden="true" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                  <ZoomIn size={24} aria-hidden="true" />
-                </div>
-              </div>
-              {(img.altText || img.caption) && (
-                <div className="p-3 text-xs text-slate-700 font-medium truncate">
-                  {img.caption || img.altText}
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-      )}
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title={LABELS.gallery}
+                description="આલ્બમના તસવીરો"
+                backTo="/gallery"
+                backLabel={LABELS.gallery}
+            />
 
-      {/* Image Lightbox Modal */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="તસવીર મોટી જુઓ"
-        >
-          <div
-            className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-              <span className="text-sm font-semibold text-slate-900">
-                {selectedImage.caption || selectedImage.altText || "તસવીર"}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedImage(null)}
-                aria-label="બંધ કરો"
-                className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
-              >
-                <X size={20} aria-hidden="true" />
-              </button>
-            </div>
-            <div className="flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
-              {selectedImage.url ? (
-                <img
-                  src={selectedImage.url}
-                  alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
-                  className="max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-lg"
+            {isLoading ? (
+                <>
+                    <LoadingState
+                        message="તસવીરો લોડ થઈ રહી છે..."
+                        delayedMessage="થોડો સમય લાગી શકે છે."
+                    />
+                    <CardGridSkeleton cards={9} />
+                </>
+            ) : error ? (
+                <ErrorState onRetry={() => refetch()} />
+            ) : !images || images.length === 0 ? (
+                <EmptyState
+                    icon={Camera}
+                    title="આ આલ્બમમાં તસવીરો ઉપલબ્ધ નથી."
+                    description="ટૂંક સમયમાં નવી તસવીરો અહીં ઉમેરવામાં આવશે."
                 />
-              ) : (
-                <div className="p-12 text-slate-400 text-center">
-                  <ImageIcon size={48} className="mx-auto mb-2" />
-                  <p>તસવીર ઉપલબ્ધ નથી</p>
+            ) : (
+                <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+                    {images.map((img) => (
+                        <Card
+                            key={img.id}
+                            variant="interactive"
+                            className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
+                            role="button"
+                            aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
+                            onClick={() => setSelectedImage(img)}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    setSelectedImage(img);
+                                }
+                            }}
+                        >
+                            <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
+                                {img.url && !failedImageIds.has(img.id) ? (
+                                    <img
+                                        src={img.thumbnailUrl || img.url}
+                                        alt={img.altText || "ગેલેરી તસવીર"}
+                                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                        onError={() => markImageFailed(img.id)}
+                                    />
+                                ) : (
+                                    <div className="size-full flex items-center justify-center text-slate-400">
+                                        <ImageIcon size={32} aria-hidden="true" />
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                    <ZoomIn size={24} aria-hidden="true" />
+                                </div>
+                            </div>
+                            {(img.altText || img.caption) && (
+                                <div className="p-3 text-xs text-slate-700 font-medium truncate">
+                                    {img.caption || img.altText}
+                                </div>
+                            )}
+                        </Card>
+                    ))}
                 </div>
-              )}
-            </div>
-            {selectedImage.caption && (
-              <div className="p-4 border-t border-slate-100 text-sm text-slate-700 text-center">
-                {selectedImage.caption}
-              </div>
             )}
-          </div>
+
+            {/* Image Lightbox Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setSelectedImage(null)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="તસવીર મોટી જુઓ"
+                >
+                    <div
+                        className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
+                            <span className="text-sm font-semibold text-slate-900">
+                                {selectedImage.caption || selectedImage.altText || "તસવીર"}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedImage(null)}
+                                aria-label="બંધ કરો"
+                                className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+                            >
+                                <X size={20} aria-hidden="true" />
+                            </button>
+                        </div>
+                        <div className="flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
+                            {selectedImage.url ? (
+                                <img
+                                    src={selectedImage.url}
+                                    alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
+                                    className="max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-lg"
+                                />
+                            ) : (
+                                <div className="p-12 text-slate-400 text-center">
+                                    <ImageIcon size={48} className="mx-auto mb-2" />
+                                    <p>તસવીર ઉપલબ્ધ નથી</p>
+                                </div>
+                            )}
+                        </div>
+                        {selectedImage.caption && (
+                            <div className="p-4 border-t border-slate-100 text-sm text-slate-700 text-center">
+                                {selectedImage.caption}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

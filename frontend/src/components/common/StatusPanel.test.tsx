@@ -2,48 +2,50 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/StatusPanel";
 
 describe("StatusPanel components", () => {
-  it("renders LoadingState with accessible role and message", () => {
-    render(<LoadingState message="વિગતો આવી રહી છે..." />);
+    it("renders LoadingState with accessible role and message", () => {
+        render(<LoadingState message="વિગતો આવી રહી છે..." />);
 
-    const statuses = screen.getAllByRole("status");
-    expect(statuses[0]).toBeVisible();
-    expect(screen.getByText("વિગતો આવી રહી છે...")).toBeVisible();
-  });
+        const statuses = screen.getAllByRole("status");
+        expect(statuses[0]).toBeVisible();
+        expect(screen.getByText("વિગતો આવી રહી છે...")).toBeVisible();
+    });
 
-  it("shows a delayed wake-up message only after the configured delay", () => {
-    vi.useFakeTimers();
-    render(
-      <LoadingState
-        message="Loading data..."
-        delayedMessage="This may take a moment."
-        delayMs={500}
-      />,
-    );
+    it("shows a delayed wake-up message only after the configured delay", () => {
+        vi.useFakeTimers();
+        render(
+            <LoadingState
+                message="Loading data..."
+                delayedMessage="This may take a moment."
+                delayMs={500}
+            />,
+        );
 
-    expect(screen.queryByText("This may take a moment.")).not.toBeInTheDocument();
-    act(() => vi.advanceTimersByTime(500));
-    expect(screen.getByText("This may take a moment.")).toBeInTheDocument();
-    vi.useRealTimers();
-  });
+        expect(screen.queryByText("This may take a moment.")).not.toBeInTheDocument();
+        act(() => vi.advanceTimersByTime(500));
+        expect(screen.getByText("This may take a moment.")).toBeInTheDocument();
+        vi.useRealTimers();
+    });
 
-  it("renders ErrorState and triggers retry callback", () => {
-    const handleRetry = vi.fn();
-    render(<ErrorState message="કંઈક ખોટું થયું." onRetry={handleRetry} />);
+    it("renders ErrorState and triggers retry callback", () => {
+        const handleRetry = vi.fn();
+        render(<ErrorState message="કંઈક ખોટું થયું." onRetry={handleRetry} />);
 
-    expect(screen.getByRole("alert")).toBeVisible();
-    expect(screen.getByText("કંઈક ખોટું થયું.")).toBeVisible();
+        expect(screen.getByRole("alert")).toBeVisible();
+        expect(screen.getByText("કંઈક ખોટું થયું.")).toBeVisible();
 
-    const retryButton = screen.getByRole("button", { name: "ફરી પ્રયત્ન કરો" });
-    expect(retryButton).toBeVisible();
-    fireEvent.click(retryButton);
+        const retryButton = screen.getByRole("button", { name: "ફરી પ્રયત્ન કરો" });
+        expect(retryButton).toBeVisible();
+        fireEvent.click(retryButton);
 
-    expect(handleRetry).toHaveBeenCalledTimes(1);
-  });
+        expect(handleRetry).toHaveBeenCalledTimes(1);
+    });
 
-  it("renders EmptyState with title and description", () => {
-    render(<EmptyState title="કોઈ ફાઈલ મળી નથી." description="થોડા સમય પછી ફરી પ્રયત્ન કરો." />);
+    it("renders EmptyState with title and description", () => {
+        render(
+            <EmptyState title="કોઈ ફાઈલ મળી નથી." description="થોડા સમય પછી ફરી પ્રયત્ન કરો." />,
+        );
 
-    expect(screen.getByText("કોઈ ફાઈલ મળી નથી.")).toBeVisible();
-    expect(screen.getByText("થોડા સમય પછી ફરી પ્રયત્ન કરો.")).toBeVisible();
-  });
+        expect(screen.getByText("કોઈ ફાઈલ મળી નથી.")).toBeVisible();
+        expect(screen.getByText("થોડા સમય પછી ફરી પ્રયત્ન કરો.")).toBeVisible();
+    });
 });

@@ -6,80 +6,82 @@ import { AdminLoginPage } from "@/features/auth/AdminLoginPage";
 import * as UseAuthModule from "@/features/auth/useAuth";
 
 function renderLoginPage(initialState?: unknown, mockAuth = {}) {
-  vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
-    principal: null,
-    isAuthenticated: false,
-    isLoading: false,
-    login: vi.fn(),
-    logout: vi.fn(),
-    refetchSession: vi.fn(),
-    ...mockAuth,
-  });
+    vi.spyOn(UseAuthModule, "useAuth").mockReturnValue({
+        principal: null,
+        isAuthenticated: false,
+        isLoading: false,
+        login: vi.fn(),
+        logout: vi.fn(),
+        refetchSession: vi.fn(),
+        ...mockAuth,
+    });
 
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+    const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+    });
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[{ pathname: "/admin/login", state: initialState }]}>
-        <AdminLoginPage />
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+    return render(
+        <QueryClientProvider client={queryClient}>
+            <MemoryRouter initialEntries={[{ pathname: "/admin/login", state: initialState }]}>
+                <AdminLoginPage />
+            </MemoryRouter>
+        </QueryClientProvider>,
+    );
 }
 
 describe("AdminLoginPage", () => {
-  it("renders login form and title", () => {
-    renderLoginPage();
+    it("renders login form and title", () => {
+        renderLoginPage();
 
-    expect(screen.getByText("Principal Admin Portal")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Sign in to Admin/i })).toBeInTheDocument();
-  });
-
-  it("displays expired session notice when redirected due to session expiration", () => {
-    renderLoginPage({ expired: true });
-
-    expect(screen.getByText("Your session has expired. Please sign in again.")).toBeInTheDocument();
-  });
-
-  it("toggles password visibility without submitting the form", () => {
-    const mockLogin = vi.fn();
-    renderLoginPage(undefined, { login: mockLogin });
-    const password = screen.getByLabelText("Password");
-
-    expect(password).toHaveAttribute("type", "password");
-    fireEvent.click(screen.getByRole("button", { name: "Show password" }));
-    expect(password).toHaveAttribute("type", "text");
-    expect(screen.getByRole("button", { name: "Hide password" })).toBeInTheDocument();
-    expect(mockLogin).not.toHaveBeenCalled();
-  });
-
-  it("handles valid form submission and calls login handler", async () => {
-    const mockLogin = vi.fn().mockResolvedValue({
-      id: "1",
-      email: "principal@school.edu",
-      role: "PRINCIPAL",
-      mustChangePassword: false,
-      schoolSlug: "dhadhana-primary",
+        expect(screen.getByText("Principal Admin Portal")).toBeInTheDocument();
+        expect(screen.getByLabelText(/Email Address/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /Sign in to Admin/i })).toBeInTheDocument();
     });
 
-    renderLoginPage(undefined, { login: mockLogin });
+    it("displays expired session notice when redirected due to session expiration", () => {
+        renderLoginPage({ expired: true });
 
-    fireEvent.change(screen.getByLabelText(/Email Address/i), {
-      target: { value: "principal@school.edu" },
-    });
-    fireEvent.change(screen.getByLabelText(/^Password$/i), {
-      target: { value: "SecurePassword123" },
+        expect(
+            screen.getByText("Your session has expired. Please sign in again."),
+        ).toBeInTheDocument();
     });
 
-    const submitButton = screen.getByRole("button", { name: /Sign in to Admin/i });
-    fireEvent.submit(submitButton.closest("form")!);
+    it("toggles password visibility without submitting the form", () => {
+        const mockLogin = vi.fn();
+        renderLoginPage(undefined, { login: mockLogin });
+        const password = screen.getByLabelText("Password");
 
-    await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith("principal@school.edu", "SecurePassword123");
+        expect(password).toHaveAttribute("type", "password");
+        fireEvent.click(screen.getByRole("button", { name: "Show password" }));
+        expect(password).toHaveAttribute("type", "text");
+        expect(screen.getByRole("button", { name: "Hide password" })).toBeInTheDocument();
+        expect(mockLogin).not.toHaveBeenCalled();
     });
-  });
+
+    it("handles valid form submission and calls login handler", async () => {
+        const mockLogin = vi.fn().mockResolvedValue({
+            id: "1",
+            email: "principal@school.edu",
+            role: "PRINCIPAL",
+            mustChangePassword: false,
+            schoolSlug: "dhadhana-primary",
+        });
+
+        renderLoginPage(undefined, { login: mockLogin });
+
+        fireEvent.change(screen.getByLabelText(/Email Address/i), {
+            target: { value: "principal@school.edu" },
+        });
+        fireEvent.change(screen.getByLabelText(/^Password$/i), {
+            target: { value: "SecurePassword123" },
+        });
+
+        const submitButton = screen.getByRole("button", { name: /Sign in to Admin/i });
+        fireEvent.submit(submitButton.closest("form")!);
+
+        await waitFor(() => {
+            expect(mockLogin).toHaveBeenCalledWith("principal@school.edu", "SecurePassword123");
+        });
+    });
 });

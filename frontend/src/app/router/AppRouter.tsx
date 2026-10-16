@@ -10,181 +10,186 @@ import { RouteErrorPage } from "@/pages/RouteErrorPage";
 import { LoadingState } from "@/components/common/StatusPanel";
 
 const AboutPage = lazy(() =>
-  import("@/pages/AboutPage").then(({ AboutPage }) => ({ default: AboutPage })),
+    import("@/pages/AboutPage").then(({ AboutPage }) => ({ default: AboutPage })),
 );
 const ContactPage = lazy(() =>
-  import("@/pages/ContactPage").then(({ ContactPage }) => ({ default: ContactPage })),
+    import("@/pages/ContactPage").then(({ ContactPage }) => ({ default: ContactPage })),
 );
 const DownloadsPage = lazy(() =>
-  import("@/pages/DownloadsPage").then(({ DownloadsPage }) => ({ default: DownloadsPage })),
+    import("@/pages/DownloadsPage").then(({ DownloadsPage }) => ({ default: DownloadsPage })),
 );
 const GalleryAlbumPage = lazy(() =>
-  import("@/pages/GalleryAlbumPage").then(({ GalleryAlbumPage }) => ({
-    default: GalleryAlbumPage,
-  })),
+    import("@/pages/GalleryAlbumPage").then(({ GalleryAlbumPage }) => ({
+        default: GalleryAlbumPage,
+    })),
 );
 const GalleryPage = lazy(() =>
-  import("@/pages/GalleryPage").then(({ GalleryPage }) => ({ default: GalleryPage })),
+    import("@/pages/GalleryPage").then(({ GalleryPage }) => ({ default: GalleryPage })),
 );
 const HomePage = lazy(() =>
-  import("@/pages/HomePage").then(({ HomePage }) => ({ default: HomePage })),
+    import("@/pages/HomePage").then(({ HomePage }) => ({ default: HomePage })),
 );
 const MaterialsPage = lazy(() =>
-  import("@/pages/MaterialsPage").then(({ MaterialsPage }) => ({ default: MaterialsPage })),
+    import("@/pages/MaterialsPage").then(({ MaterialsPage }) => ({ default: MaterialsPage })),
 );
 const NoticeDetailPage = lazy(() =>
-  import("@/pages/NoticeDetailPage").then(({ NoticeDetailPage }) => ({
-    default: NoticeDetailPage,
-  })),
+    import("@/pages/NoticeDetailPage").then(({ NoticeDetailPage }) => ({
+        default: NoticeDetailPage,
+    })),
 );
 const NoticesPage = lazy(() =>
-  import("@/pages/NoticesPage").then(({ NoticesPage }) => ({ default: NoticesPage })),
+    import("@/pages/NoticesPage").then(({ NoticesPage }) => ({ default: NoticesPage })),
 );
 const PrincipalDeskPage = lazy(() =>
-  import("@/pages/PrincipalDeskPage").then(({ PrincipalDeskPage }) => ({
-    default: PrincipalDeskPage,
-  })),
+    import("@/pages/PrincipalDeskPage").then(({ PrincipalDeskPage }) => ({
+        default: PrincipalDeskPage,
+    })),
 );
 const ResultsInfoPage = lazy(() =>
-  import("@/pages/ResultsInfoPage").then(({ ResultsInfoPage }) => ({ default: ResultsInfoPage })),
+    import("@/pages/ResultsInfoPage").then(({ ResultsInfoPage }) => ({ default: ResultsInfoPage })),
 );
 const StudentCornerPage = lazy(() =>
-  import("@/pages/StudentCornerPage").then(({ StudentCornerPage }) => ({
-    default: StudentCornerPage,
-  })),
+    import("@/pages/StudentCornerPage").then(({ StudentCornerPage }) => ({
+        default: StudentCornerPage,
+    })),
 );
 const ToolsPage = lazy(() =>
-  import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })),
+    import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })),
 );
 
 const AdminAcademicYearsPage = lazy(() =>
-  import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({
-    default: AdminAcademicYearsPage,
-  })),
+    import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({
+        default: AdminAcademicYearsPage,
+    })),
 );
 const AdminAccountPage = lazy(() =>
-  import("@/pages/admin/AdminAccountPage").then(({ AdminAccountPage }) => ({
-    default: AdminAccountPage,
-  })),
+    import("@/pages/admin/AdminAccountPage").then(({ AdminAccountPage }) => ({
+        default: AdminAccountPage,
+    })),
 );
 const AdminAssessmentsPage = lazy(() =>
-  import("@/pages/admin/AdminAssessmentsPage").then(({ AdminAssessmentsPage }) => ({
-    default: AdminAssessmentsPage,
-  })),
+    import("@/pages/admin/AdminAssessmentsPage").then(({ AdminAssessmentsPage }) => ({
+        default: AdminAssessmentsPage,
+    })),
 );
 const AdminDashboardPage = lazy(() =>
-  import("@/pages/admin/AdminDashboardPage").then(({ AdminDashboardPage }) => ({
-    default: AdminDashboardPage,
-  })),
+    import("@/pages/admin/AdminDashboardPage").then(({ AdminDashboardPage }) => ({
+        default: AdminDashboardPage,
+    })),
 );
 const AdminDownloadsPage = lazy(() =>
-  import("@/pages/admin/AdminDownloadsPage").then(({ AdminDownloadsPage }) => ({
-    default: AdminDownloadsPage,
-  })),
+    import("@/pages/admin/AdminDownloadsPage").then(({ AdminDownloadsPage }) => ({
+        default: AdminDownloadsPage,
+    })),
 );
 const AdminGalleryPage = lazy(() =>
-  import("@/pages/admin/AdminGalleryPage").then(({ AdminGalleryPage }) => ({
-    default: AdminGalleryPage,
-  })),
+    import("@/pages/admin/AdminGalleryPage").then(({ AdminGalleryPage }) => ({
+        default: AdminGalleryPage,
+    })),
 );
 const AdminGalleryAlbumPage = lazy(() =>
-  import("@/pages/admin/AdminGalleryAlbumPage").then(({ AdminGalleryAlbumPage }) => ({
-    default: AdminGalleryAlbumPage,
-  })),
+    import("@/pages/admin/AdminGalleryAlbumPage").then(({ AdminGalleryAlbumPage }) => ({
+        default: AdminGalleryAlbumPage,
+    })),
 );
 const AdminMaterialsPage = lazy(() =>
-  import("@/pages/admin/AdminMaterialsPage").then(({ AdminMaterialsPage }) => ({
-    default: AdminMaterialsPage,
-  })),
+    import("@/pages/admin/AdminMaterialsPage").then(({ AdminMaterialsPage }) => ({
+        default: AdminMaterialsPage,
+    })),
 );
 const AdminNoticesPage = lazy(() =>
-  import("@/pages/admin/AdminNoticesPage").then(({ AdminNoticesPage }) => ({
-    default: AdminNoticesPage,
-  })),
+    import("@/pages/admin/AdminNoticesPage").then(({ AdminNoticesPage }) => ({
+        default: AdminNoticesPage,
+    })),
 );
 const AdminPrincipalProfilePage = lazy(() =>
-  import("@/pages/admin/AdminPrincipalProfilePage").then(({ AdminPrincipalProfilePage }) => ({
-    default: AdminPrincipalProfilePage,
-  })),
+    import("@/pages/admin/AdminPrincipalProfilePage").then(({ AdminPrincipalProfilePage }) => ({
+        default: AdminPrincipalProfilePage,
+    })),
 );
 const AdminSchoolSettingsPage = lazy(() =>
-  import("@/pages/admin/AdminSchoolSettingsPage").then(({ AdminSchoolSettingsPage }) => ({
-    default: AdminSchoolSettingsPage,
-  })),
+    import("@/pages/admin/AdminSchoolSettingsPage").then(({ AdminSchoolSettingsPage }) => ({
+        default: AdminSchoolSettingsPage,
+    })),
 );
 const AdminAcademicSetupPage = lazy(() =>
-  import("@/pages/admin/AdminAcademicSetupPage").then(({ AdminAcademicSetupPage }) => ({
-    default: AdminAcademicSetupPage,
-  })),
+    import("@/pages/admin/AdminAcademicSetupPage").then(({ AdminAcademicSetupPage }) => ({
+        default: AdminAcademicSetupPage,
+    })),
 );
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <PublicLayout />,
-    errorElement: <RouteErrorPage />,
-    children: [
-      { index: true, element: <HomePage /> },
-      { path: "about", element: <AboutPage /> },
-      { path: "principal", element: <PrincipalDeskPage /> },
-      { path: "student", element: <StudentCornerPage /> },
-      { path: "student/materials", element: <MaterialsPage /> },
-      { path: "student/results", element: <ResultsInfoPage /> },
-      { path: "student/downloads", element: <DownloadsPage /> },
-      { path: "tools", element: <ToolsPage /> },
-      { path: "notices", element: <NoticesPage /> },
-      { path: "notices/:id", element: <NoticeDetailPage /> },
-      { path: "gallery", element: <GalleryPage /> },
-      { path: "gallery/:albumId", element: <GalleryAlbumPage /> },
-      { path: "contact", element: <ContactPage /> },
-      { path: "*", element: <NotFoundPage /> },
-    ],
-  },
-  {
-    path: "/admin/login",
-    element: <AdminLoginPage />,
-    errorElement: <RouteErrorPage />,
-  },
-  {
-    path: "/admin",
-    element: <RequireAdmin />,
-    errorElement: <RouteErrorPage />,
-    children: [
-      {
-        element: <AdminLayout />,
+    {
+        path: "/",
+        element: <PublicLayout />,
+        errorElement: <RouteErrorPage />,
         children: [
-          { index: true, element: <AdminDashboardPage /> },
-          { path: "school", element: <AdminSchoolSettingsPage /> },
-          { path: "principal", element: <AdminPrincipalProfilePage /> },
-          { path: "academic-years", element: <AdminAcademicYearsPage /> },
-          { path: "academics", element: <AdminAcademicSetupPage /> },
-          { path: "standards", element: <Navigate to="/admin/academics" replace /> },
-          { path: "subjects", element: <Navigate to="/admin/academics" replace /> },
-          { path: "subject-mappings", element: <Navigate to="/admin/academics" replace /> },
-          { path: "assessments", element: <AdminAssessmentsPage /> },
-          { path: "materials", element: <AdminMaterialsPage /> },
-          { path: "notices", element: <AdminNoticesPage /> },
-          { path: "gallery", element: <AdminGalleryPage /> },
-          { path: "gallery/:albumId", element: <AdminGalleryAlbumPage /> },
-          { path: "downloads", element: <AdminDownloadsPage /> },
-          { path: "account", element: <AdminAccountPage /> },
+            { index: true, element: <HomePage /> },
+            { path: "about", element: <AboutPage /> },
+            { path: "principal", element: <PrincipalDeskPage /> },
+            { path: "student", element: <StudentCornerPage /> },
+            { path: "student/materials", element: <MaterialsPage /> },
+            { path: "student/results", element: <ResultsInfoPage /> },
+            { path: "student/downloads", element: <DownloadsPage /> },
+            { path: "tools", element: <ToolsPage /> },
+            { path: "notices", element: <NoticesPage /> },
+            { path: "notices/:id", element: <NoticeDetailPage /> },
+            { path: "gallery", element: <GalleryPage /> },
+            { path: "gallery/:albumId", element: <GalleryAlbumPage /> },
+            { path: "contact", element: <ContactPage /> },
+            { path: "*", element: <NotFoundPage /> },
         ],
-      },
-    ],
-  },
+    },
+    {
+        path: "/admin/login",
+        element: <AdminLoginPage />,
+        errorElement: <RouteErrorPage />,
+    },
+    {
+        path: "/admin",
+        element: <RequireAdmin />,
+        errorElement: <RouteErrorPage />,
+        children: [
+            {
+                element: <AdminLayout />,
+                children: [
+                    { index: true, element: <AdminDashboardPage /> },
+                    { path: "school", element: <AdminSchoolSettingsPage /> },
+                    { path: "principal", element: <AdminPrincipalProfilePage /> },
+                    { path: "academic-years", element: <AdminAcademicYearsPage /> },
+                    { path: "academics", element: <AdminAcademicSetupPage /> },
+                    { path: "standards", element: <Navigate to="/admin/academics" replace /> },
+                    { path: "subjects", element: <Navigate to="/admin/academics" replace /> },
+                    {
+                        path: "subject-mappings",
+                        element: <Navigate to="/admin/academics" replace />,
+                    },
+                    { path: "assessments", element: <AdminAssessmentsPage /> },
+                    { path: "materials", element: <AdminMaterialsPage /> },
+                    { path: "notices", element: <AdminNoticesPage /> },
+                    { path: "gallery", element: <AdminGalleryPage /> },
+                    { path: "gallery/:albumId", element: <AdminGalleryAlbumPage /> },
+                    { path: "downloads", element: <AdminDownloadsPage /> },
+                    { path: "account", element: <AdminAccountPage /> },
+                ],
+            },
+        ],
+    },
 ]);
 
 export function AppRouter() {
-  const isAdminRoute = window.location.pathname.startsWith("/admin");
-  return (
-    <Suspense
-      fallback={
-        <div className="p-4 sm:p-6">
-          <LoadingState message={isAdminRoute ? "Loading page..." : "પાનું ખૂલી રહ્યું છે..."} />
-        </div>
-      }
-    >
-      <RouterProvider router={router} />
-    </Suspense>
-  );
+    const isAdminRoute = window.location.pathname.startsWith("/admin");
+    return (
+        <Suspense
+            fallback={
+                <div className="p-4 sm:p-6">
+                    <LoadingState
+                        message={isAdminRoute ? "Loading page..." : "પાનું ખૂલી રહ્યું છે..."}
+                    />
+                </div>
+            }
+        >
+            <RouterProvider router={router} />
+        </Suspense>
+    );
 }
