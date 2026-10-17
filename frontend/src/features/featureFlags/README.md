@@ -9,4 +9,5 @@ This directory is reserved for client-side feature flag integration (Sprint 01).
 - `FeatureGate.tsx` — Declarative wrapper component to conditionally render UI elements based on active flags.
 
 ## Current State (As-Is)
+
 All UI features and navigation items are unconditionally visible. Sprints 16–18 introduce dynamic backend enforcement and frontend feature awareness.

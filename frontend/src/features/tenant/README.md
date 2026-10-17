@@ -9,4 +9,5 @@ This directory is reserved for tenant-specific context, hooks, and utilities (Sp
 - `tenantConfig.ts` — Dynamic configuration derived from verified tenant responses.
 
 ## Current State (As-Is)
+
 Single school deployment mode. `useSchoolData.ts` and `Footer.tsx` contain Dhadhana-specific default fallbacks. Dynamic branding and multi-tenant worker awareness are scheduled for Sprints 19–20.
