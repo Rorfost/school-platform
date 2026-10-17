@@ -1,17 +1,26 @@
 package com.rorfost.schoolportal.school.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.school.application.SchoolService;
 import com.rorfost.schoolportal.school.domain.AdminRole;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.UUID;
 
@@ -36,8 +45,21 @@ class SchoolControllerTest {
                         adminUserId, schoolId, "principal@example.com", AdminRole.PRINCIPAL, false);
     }
 
+    @AfterEach
+    void tearDown() {
+        RequestContextHolder.resetRequestAttributes();
+    }
+
+    private void bindTenant(UUID id, String slug) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        TenantContextHolder.setTenantContext(request, new TenantContext(id, slug));
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
     @Test
-    void publicSchool_shouldReturnPublicSchoolData() {
+    void publicSchool_shouldReturnPublicSchoolDataForVerifiedTenant() {
+        bindTenant(schoolId, "dhadhana-school");
+
         SchoolResponse mockSchool =
                 new SchoolResponse(
                         schoolId,
@@ -61,17 +83,30 @@ class SchoolControllerTest {
                         "https://ik.imagekit.io/logo.png",
                         "https://ik.imagekit.io/seal.png");
 
-        when(schoolService.getPublic()).thenReturn(mockSchool);
+        when(schoolService.getPublic(schoolId)).thenReturn(mockSchool);
 
         SchoolResponse response = controller.publicSchool();
 
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("શ્રી ધાણધાર પ્રાથમિક શાળા");
         assertThat(response.schoolCode()).isEqualTo("24020100101");
+        verify(schoolService).getPublic(schoolId);
     }
 
     @Test
-    void publicProfile_shouldReturnPublicPrincipalProfile() {
+    void publicSchool_shouldFailWhenTenantMissing() {
+        RequestContextHolder.resetRequestAttributes();
+
+        assertThatThrownBy(() -> controller.publicSchool())
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
+                .hasFieldOrPropertyWithValue("code", "school_not_found");
+    }
+
+    @Test
+    void publicProfile_shouldReturnPublicPrincipalProfileForVerifiedTenant() {
+        bindTenant(schoolId, "dhadhana-school");
+
         PrincipalProfileResponse mockProfile =
                 new PrincipalProfileResponse(
                         "રમેશભાઈ એમ. પટેલ",
@@ -87,13 +122,24 @@ class SchoolControllerTest {
                         true,
                         true);
 
-        when(schoolService.getPublicProfile()).thenReturn(mockProfile);
+        when(schoolService.getPublicProfile(schoolId)).thenReturn(mockProfile);
 
         PrincipalProfileResponse response = controller.publicProfile();
 
         assertThat(response).isNotNull();
         assertThat(response.fullName()).isEqualTo("રમેશભાઈ એમ. પટેલ");
         assertThat(response.designation()).isEqualTo("આચાર્ય");
+        verify(schoolService).getPublicProfile(schoolId);
+    }
+
+    @Test
+    void publicProfile_shouldFailWhenTenantMissing() {
+        RequestContextHolder.resetRequestAttributes();
+
+        assertThatThrownBy(() -> controller.publicProfile())
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
+                .hasFieldOrPropertyWithValue("code", "school_not_found");
     }
 
     @Test

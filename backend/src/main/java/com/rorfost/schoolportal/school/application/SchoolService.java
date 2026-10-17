@@ -13,6 +13,8 @@ import com.rorfost.schoolportal.school.domain.PrincipalProfile;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.PrincipalProfileRepository;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +50,13 @@ public class SchoolService {
     }
 
     @Transactional(readOnly = true)
+    public SchoolResponse getPublic(UUID schoolId) {
+        return schoolResponse(requirePublicSchool(schoolId));
+    }
+
+    @Transactional(readOnly = true)
     public SchoolResponse getPublic() {
-        return schoolResponse(requirePublicSchool());
+        return getPublic(resolveCurrentTenantSchoolId());
     }
 
     @Transactional
@@ -176,10 +183,11 @@ public class SchoolService {
     }
 
     @Transactional(readOnly = true)
-    public PrincipalProfileResponse getPublicProfile() {
+    public PrincipalProfileResponse getPublicProfile(UUID schoolId) {
+        requirePublicSchool(schoolId);
         PrincipalProfile profile =
                 principalProfileRepository
-                        .findBySchoolId(requirePublicSchool().getId())
+                        .findBySchoolId(schoolId)
                         .filter(PrincipalProfile::isPublic)
                         .orElseThrow(
                                 () ->
@@ -187,6 +195,11 @@ public class SchoolService {
                                                 HttpStatus.NOT_FOUND,
                                                 "principal_profile_not_found"));
         return principalProfileResponse(profile, true);
+    }
+
+    @Transactional(readOnly = true)
+    public PrincipalProfileResponse getPublicProfile() {
+        return getPublicProfile(resolveCurrentTenantSchoolId());
     }
 
     @Transactional
@@ -302,11 +315,19 @@ public class SchoolService {
                 : PrincipalProfileResponse.admin(profile, signatureUrl);
     }
 
-    private School requirePublicSchool() {
+    private School requirePublicSchool(UUID schoolId) {
+        if (schoolId == null) {
+            throw new DomainException(HttpStatus.NOT_FOUND, "school_not_found");
+        }
         return schoolRepository
-                .findFirstByIsActiveTrueOrderByCreatedAtAsc()
-                .orElseThrow(
-                        () -> new DomainException(HttpStatus.NOT_FOUND, "school_not_configured"));
+                .findByIdAndIsActiveTrue(schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
+    }
+
+    private UUID resolveCurrentTenantSchoolId() {
+        return TenantContextHolder.getCurrentTenant()
+                .map(TenantContext::schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
     }
 
     private String trim(String value) {

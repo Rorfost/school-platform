@@ -5,9 +5,10 @@ The backend is a Java 21 / Spring Boot 4.x Maven modular monolith providing REST
 ## As-Is vs. Target Architecture
 
 ### Current State (As-Is)
-- Single-school deployment (reference: Dhadhana Primary School).
-- Controllers resolve the default school via `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`.
-- Database: Aiven PostgreSQL with Flyway migrations V1–V24.
+- Single-school deployment (reference: Dhadhana Primary School) transitioning to multi-tenancy.
+- Public school identity and principal profile endpoints resolve the verified school strictly via request-scoped `TenantContext` and `SchoolRepository.findByIdAndIsActiveTrue(schoolId)`.
+- Remaining legacy modules (content, academic, results, visits) will transition incrementally in subsequent sprints.
+- Database: PostgreSQL with Flyway migrations V1–V25.
 - Storage: ImageKit single account/bucket.
 
 ### Target State (Multi-Tenant Plan)

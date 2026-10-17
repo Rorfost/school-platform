@@ -1,10 +1,14 @@
 package com.rorfost.schoolportal.school.api;
 
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.school.application.SchoolService;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @RestController
 class SchoolController {
@@ -25,12 +31,18 @@ class SchoolController {
 
     @GetMapping("/api/v1/public/school")
     SchoolResponse publicSchool() {
-        return schoolService.getPublic();
+        return schoolService.getPublic(resolveTenantSchoolId());
     }
 
     @GetMapping("/api/v1/public/principal-profile")
     PrincipalProfileResponse publicProfile() {
-        return schoolService.getPublicProfile();
+        return schoolService.getPublicProfile(resolveTenantSchoolId());
+    }
+
+    private UUID resolveTenantSchoolId() {
+        return TenantContextHolder.getCurrentTenant()
+                .map(TenantContext::schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
     }
 
     @GetMapping("/api/v1/admin/school")
