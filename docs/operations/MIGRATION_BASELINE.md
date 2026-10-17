@@ -64,5 +64,5 @@ This document establishes the verified operational baseline and safety freeze in
 1. **Sprint 02 Gate:** Human confirms freeze of School 1 auto-deploy on Render and Cloudflare; baseline tests pass.
 2. **Sprint 05 Gate:** Reverse-proxy gateway token verification in place; forged client headers rejected.
 3. **Sprint 14 Gate:** Principal isolation complete; Principal A cannot view or alter School B on any endpoint.
-4. **Sprint 23 Gate:** Dry run database restore to Neon staging branch verified with sanitized parity check.
+4. **Sprint 23 Gate (VERIFIED):** Dry run database restore to Neon staging branch rehearsed and verified with sanitized parity check, session truncation plan, zero orphan records, and documented runbook report in `MIGRATION_REHEARSAL_REPORT.md`.
 5. **Sprint 28 Gate:** Formal human authorization for production maintenance window, data freeze, and Neon cutover.
