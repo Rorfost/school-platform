@@ -56,6 +56,8 @@ logging:
         com.rorfost.schoolportal: ${APP_LOG_LEVEL:INFO}
 
 app:
+    gateway:
+        enabled: ${APP_GATEWAY_ENABLED:false}
     frontend-url: ${FRONTEND_URL:}
     cors:
         allowed-origins: ${CORS_ALLOWED_ORIGINS}
