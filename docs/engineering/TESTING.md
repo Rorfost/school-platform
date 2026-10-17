@@ -1,7 +1,52 @@
-# Testing Strategy
+# Testing Strategy — Rorfost School Platform
 
-Backend testing uses JUnit 5, Mockito, Spring Boot Test, MockMvc, and PostgreSQL Testcontainers. The persistence integration suite starts PostgreSQL, applies every Flyway migration to an empty database, validates Hibernate mappings, and verifies important database constraints. It never substitutes H2 for PostgreSQL. Storage tests use mocked ImageKit clients and a test-profile storage double, so they never call ImageKit. Frontend testing uses Vitest and React Testing Library, with a Gujarati home-shell rendering test. Playwright will cover critical end-to-end journeys.
+## Test Hierarchy & Execution
 
-Test behavior at the appropriate level: service rules and validation, controller authorization/error contracts, repository/migration integration, accessible Gujarati UI states, and mobile-responsive critical flows. Include negative security tests for admin access, CSRF, result lookup enumeration, and upload validation.
+Quality and multi-tenant security are validated through layered testing:
 
-The planned end-to-end result journey is principal login → create assessment → import valid workbook → preview → confirm → publish → student lookup. The Excel-dependent portion is deferred until the owner provides the actual workbook contract; no fixture or parser schema should be invented before then.
+```
+┌────────────────────────────────────────────────────────┐
+│  Cross-Tenant & Negative Security Tests (Sprint 24)    │
+│  - Spoofed Gateway Tokens, Cross-School Session Replay │
+├────────────────────────────────────────────────────────┤
+│  Persistence & Migration Tests (Testcontainers)        │
+│  - Real PostgreSQL, Append-Only Flyway V1-V24+         │
+├────────────────────────────────────────────────────────┤
+│  Backend Service & Controller Unit Tests (JUnit 5)     │
+│  - Validation, Authorization, Business Rules, Mocks    │
+├────────────────────────────────────────────────────────┤
+│  Frontend Test Suite (Vitest & RTL)                    │
+│  - UI Render, Gujarati Copy, Responsive State, A4 Print│
+└────────────────────────────────────────────────────────┘
+```
+
+## Backend Testing
+
+- **Unit Testing:** JUnit 5, Mockito, Spring Boot Test, and MockMvc verify domain rules, controller status codes, problem details, and service transactions. Run with:
+  ```bash
+  mvn test
+  ```
+- **Persistence & Integration:** Uses Testcontainers with real PostgreSQL to execute all Flyway migrations and verify relational integrity and composite foreign keys.
+  > **Note on Local Execution:** If the local Docker daemon is not active, run unit tests via `mvn test -Dtest="!*IntegrationTest"`. Integration tests are mandatory and enforced in CI prior to release.
+- **Storage Testing:** ImageKit operations are tested using isolated mock doubles and fake storage providers; tests never connect to live ImageKit accounts.
+
+## Frontend Testing
+
+- **Unit & Component Testing:** Vitest and React Testing Library verify component behavior, modal interactions, form validations, and accessible roles.
+- **Linting & Typechecking:** Prettier format checks, ESLint rules, and TypeScript typechecking are enforced:
+  ```bash
+  npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build
+  ```
+
+## Multi-Tenant Negative Security Tests
+
+In accordance with the multi-tenant rollout plan, cross-tenant negative tests verify that:
+1. Requests lacking `X-Portal-Gateway-Token` are rejected.
+2. Forged headers (`X-School-Id`, `X-Forwarded-Host`) cannot override tenant resolution.
+3. Principal credentials for School A cannot authenticate on School B's portal.
+4. An active session for School A replayed on School B's portal is denied with 403.
+5. School A cannot view, update, upload, or delete data belonging to School B.
+
+## Test Data Discipline
+
+All test fixtures must use synthetic, fictitious student names, sample marks, and non-sensitive identifiers. Real student names, G.R. numbers, Aadhaar numbers, or production database dumps are strictly prohibited from test suites.

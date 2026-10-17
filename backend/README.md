@@ -1,31 +1,54 @@
-# Backend
+# Backend — Rorfost School Platform
 
-The backend is a Java 21 Spring Boot 4.x Maven modular monolith. It includes Flyway-owned PostgreSQL schema, JDBC-backed principal sessions, BCrypt authentication, CSRF/CORS/security-header controls, safe audit events, request IDs, restricted Actuator health, and an ImageKit-backed object-storage abstraction. It includes a narrow Standard 3 Ekam Kasoti parser based on the documented owner-provided workbook; it never reads or stores the workbook's Aadhaar column.
+The backend is a Java 21 / Spring Boot 4.x Maven modular monolith providing REST APIs, relational persistence via PostgreSQL, JDBC-backed principal sessions, BCrypt authentication, CSRF/CORS/security-header controls, audit logging, request IDs, and an ImageKit-backed object-storage abstraction.
+
+## As-Is vs. Target Architecture
+
+### Current State (As-Is)
+- Single-school deployment (reference: Dhadhana Primary School).
+- Controllers resolve the default school via `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`.
+- Database: Aiven PostgreSQL with Flyway migrations V1–V24.
+- Storage: ImageKit single account/bucket.
+
+### Target State (Multi-Tenant Plan)
+- Multi-tenant architecture serving multiple schools on a shared Render Free backend.
+- Request-scoped `TenantContext` populated by a cryptographic gateway filter (`X-Portal-Gateway-Token` verification).
+- Strict `school_id` isolation across all domain services, repositories, and child entity relationships.
+- Database: Neon PostgreSQL with shared schema and append-only Flyway migrations.
+- Media: ImageKit with school-partitioned directory prefixes (`schools/<school-uuid>/...`).
+- Feature enforcement: School-level feature flags via `com.rorfost.schoolportal.featureflag`.
 
 ## Commands
 
 ```bash
+# Run locally with local profile
 mvn spring-boot:run -Dspring-boot.run.profiles=local
+
+# Run unit tests
 mvn test
+
+# Run full verification (including Testcontainers if Docker is active)
 mvn verify
+
+# Check and apply Spotless code style
+mvn spotless:check
 mvn spotless:apply
 ```
 
-Use Java 21 for development and deployment. Java versions newer than 21 can compile with the configured release target, but Java 21 is the supported baseline. Copy `.env.example` to an untracked local environment file only if your shell tooling loads it; Spring itself reads environment variables.
+Use Java 21 as the supported baseline. Configuration uses environment variables with `.env.example` as a template.
 
-## Configuration
+## Package Boundaries
 
-Profiles are `local`, `test`, and `prod`. `application.yml` contains shared safe defaults, while profile files select environment-specific behavior. Secrets are always environment variables. The local profile connects to Docker Compose PostgreSQL and ImageKit through environment variables; production remains portable to Render or another standard JVM/container host, Aiven PostgreSQL, and ImageKit.
+### Existing Core Packages
+- `com.rorfost.schoolportal.common`: Configuration, security, exceptions, and ImageKit storage abstraction.
+- `com.rorfost.schoolportal.auth`: Principal authentication, session restore, password lifecycle, and login rate limiting.
+- `com.rorfost.schoolportal.school`: School branding, principal profile, settings, and visitor metrics.
+- `com.rorfost.schoolportal.academic`: Academic years, standards, subjects, standard-subject mappings, and student roster.
+- `com.rorfost.schoolportal.assessment`: Annual and Ekam Kasoti examination results, marksheet calculation, and presentation settings.
+- `com.rorfost.schoolportal.content`: Notices, study materials, photo gallery, and official downloads.
+- `com.rorfost.schoolportal.dashboard`: Administrative summary and metrics aggregation.
+- `com.rorfost.schoolportal.audit`: Append-only administrative event logging.
 
-## Structure
-
-- `common/config` — properties and shared infrastructure configuration
-- `common/security` — security, CORS, CSRF, and session-compatible defaults
-- `common/storage` — provider-neutral object storage interface and ImageKit implementation
-- `common/exception` — API error and request identifier foundation
-
-The `auth` package owns principal login, bootstrap, password change, rate limiting, and DTOs. The `school`, `academic`, `assessment`, `content`, and `audit` packages retain feature-oriented persistence boundaries. See the root [README](../README.md) and [engineering documentation](../docs/engineering/SECURITY.md).
-
-## Current backend scope
-
-Authentication, school/profile, academic configuration, generic assessment configuration, and public/admin content API foundations are implemented. Standard 3 Ekam Kasoti import requires students to be pre-enrolled with school-controlled numeric roll numbers and matches rows by normalized student name. Other exam formats and timetable features remain pending source material.
+### Planned Multi-Tenant Packages (Sprint 01 Foundation)
+- `com.rorfost.schoolportal.tenant`: Tenant context holder, gateway credential entity, repository, and filter (Sprints 03–05).
+- `com.rorfost.schoolportal.featureflag`: School feature entity, registry, service, and endpoint enforcement (Sprints 16–17).

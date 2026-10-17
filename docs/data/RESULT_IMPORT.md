@@ -1,65 +1,36 @@
-# Result Import Contract and Safety
+# Result Import Contract and Safety — Rorfost School Platform
 
-## Intended responsibilities
+## Overview & Multi-Tenant Boundaries
 
-The principal creates an assessment, obtains or provides the approved format, uploads a workbook, reviews validation and a preview, explicitly confirms a transactional import, and then separately publishes draft results. Apache POI is the planned parser once the contract exists.
+The result import workflow enables school principals to upload approved spreadsheet workbooks (`.xlsx`) to populate student marks for Annual and Ekam Kasoti examinations.
 
-## Import principles
+### As-Is vs. Target Multi-Tenant Behavior
+- **Current State (As-Is):** The upload service resolves the active school via `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`.
+- **Target State (Sprint 09):** The upload endpoint accepts the authenticated principal's `TenantContext.schoolId` and transactionally deletes and replaces only results for that specific school. Uploading results for School A cannot affect School B.
 
-- Accept uploads only from an authorized principal and under a documented server-side size/type policy.
-- Keep temporary source files private, short-lived, and cleaned after success/failure according to the implemented policy.
-- Validate before mutation; show a human-readable preview and errors before confirmation.
-- Confirmation performs a transactional import where possible. On failure, do not leave partial result records; record safe audit details and provide rollback/recovery guidance.
-- Detect duplicate imports or overlapping result data using the eventual approved business key; require an explicit, auditable resolution rather than silently overwriting data.
-- Imported results are draft. Only explicit principal publication makes an assessment available to public individual lookup.
-- Tests will use owner-provided representative workbooks after the real contract is documented.
+## Import Principles & Security
 
-## Tri-masik Ekam Kasoti — Standard 3 Workbook Contract
+1. **Strict Authentication & CSRF:** Uploads are restricted to authenticated administrators (`ROLE_PRINCIPAL`) on same-origin endpoints with valid CSRF tokens.
+2. **Transactional Replacement:** An upload for a given `resultType` (`ANNUAL` or `EKAM_KASOTI`) replaces existing rows for that type within the active school in a single database transaction. If validation fails, changes are completely rolled back.
+3. **No Government Identifiers:** The portal strictly prohibits reading, logging, hashing, or storing government identifiers (such as Aadhaar UID). Student identity begins with school-assigned General Register Number (`generalRegisterNumber`), Standard, and Roll Number.
+4. **Draft vs. Published Lifecycle:** Uploaded results are draft until explicit publication, and public lookups require student standard and roll number with `Cache-Control: no-store`.
 
-This contract was observed locally from the ignored source workbook. It deliberately excludes student names, identifiers, marks, and other real student data.
+## Approved Shared Workbook Layouts
 
-### Observed
+### 1. Annual Exam Result (વાર્ષિક પરીક્ષા પરિણામ)
+- Sheet contains headers on Row 0 and data starting from Row 1.
+- Column 0: G.R. No. (જી.આર. નં)
+- Column 1: Standard (ધોરણ)
+- Column 2: Student Name (વિદ્યાર્થીનું નામ)
+- Column 3: Birth Date (જન્મ તારીખ)
+- Column 4: Attended Days (હાજર દિવસ)
+- Columns 5+: Subject Mark & Grade pairs (Gujarati, Maths, Science, Hindi, English, Social Science, Sanskrit, Personality Development, Environment).
+- Admin supplies `totalWorkingDays` (કુલ કાર્ય દિવસ) during upload.
 
-- The input is one visible Office Open XML workbook (`.xlsx`) with one sheet named `Sheet 1`.
-- The effective populated content is columns `A:H`, rows 1–37. The workbook reports a larger used-row extent because of trailing formatting; those trailing rows contain no values and are not student records.
-- `A1:H1` is merged. Its Gujarati title identifies Standard 3, the first trimester/Ekam Kasoti assessment, and academic year `2026-27`.
-- Row 2 is the sole header row: `AadhaarUID`, `StudentName`, `Attendance`, `GUJARATI (40)`, `MATHS (40)`, `EVS (40)`, `ENGLISH (40)`, and `TOTAL (160)`.
-- Student rows follow immediately after the header and end before two summary rows. Attendance is a one-character text value. Subject marks are numeric cells except for the observed absent marker `-`. `TOTAL` is a `SUM` formula across the four subject columns.
-- The source contains 33 populated student rows. Blank rows do not separate students.
-- `A36:C36` and `A37:C37` are merged summary labels. The first reports class averages for the subject columns; the second reports class percentages. These are aggregate presentation fields, not per-student marks.
-- No row/column is hidden. There are no additional sheets. No dates, grades, pass/fail result, rank, roll number, PIN, or maximum marks separate from the four subject headers were observed.
+### 2. Ekam Kasoti Result (એકમ કસોટી પરિણામ)
+- Same structure as Annual Exam, but lacks Attended Days column; subject marks begin at Column 4.
+- Total working days is not collected or required.
 
-### Required for a future parser
+## Testing & Fixture Rules
 
-- A single visible sheet with the exact row-2 headers, the merged title range, four subject columns carrying a parenthesized maximum, and formula totals in column H.
-- A title that resolves to Standard 3 and the observed assessment/year context supplied by the principal-created assessment.
-- Numeric subject marks from zero through the maximum declared in each subject header, or the observed `-` absent marker. Formula totals must be recomputed from subject marks rather than trusted as a stored source value.
-- Summary rows must be excluded from student parsing; trailing styled rows must not be interpreted as data.
-
-### Optional
-
-- The `TOTAL` formula is useful for preview cross-checking only. It is not persisted because total and percentage can be derived from imported subject marks and configured maxima.
-- Attendance can be preserved in preview diagnostics, but there is no approved persistence field for it in V1.
-
-### Derived
-
-- Four assessment subjects can map to the existing generic assessment model with maximum mark 40 each and an assessment maximum of 160.
-- `EKAM_KASOTI` remains the appropriate existing generic type. The human-readable assessment name must retain the workbook title’s Tri-masik/Ekam Kasoti wording.
-
-### Unknown or pending — import is blocked
-
-- The only workbook identity column is `AadhaarUID`, a government identifier. The portal privacy model prohibits storing it. The workbook contains no roll number, no alternate approved student key, and no result PIN.
-- There is therefore no safe mapping from a workbook row to the required `students.roll_number`, nor a safe public lookup workflow. Hashing or retaining the Aadhaar identifier would still create an unapproved government-ID handling scheme.
-- The owner must approve one of: (1) a workbook revision containing a school-controlled non-government roll number; or (2) a separate, documented pre-import enrollment/mapping workflow that supplies roll numbers and a secure PIN-distribution process. Until then, preview, confirmation, persistence, publication, and public lookup are intentionally not implemented.
-- Other exam-result workbook formats, exam timetable, and school timetable remain pending real samples or requirements.
-
-### Current implementation
-
-Exam Result and Ekam Kasoti Result use related but not identical workbooks. Neither format includes a Sr.No. column. Student identity starts at G.R. No.
-
-- **ANNUAL:** columns are G.R. No., Standard, Name, Birth Date, Hajar Divas (attended days), then subject mark/grade pairs.
-- **EKAM_KASOTI:** columns are G.R. No., Standard, Name, Birth Date, then subject mark/grade pairs. There is no Hajar Divas column.
-
-The principal chooses Exam or Ekam Kasoti on the admin Results page. Each complete upload replaces every previously uploaded result of the selected type. Total working days is collected only for Exam Result uploads. Public lookup requires the selected result type, standard, and roll number. Result date, sheet title, and footer lines are stored separately for Exam and Ekam Kasoti. Grades and attendance are presentation fields for Exam Result only.
-
-The historical Standard 3 Aadhaar-based workbook above is not accepted by the current importer. The approved shared workbook contains no Aadhaar column, so the portal never reads, logs, hashes, or stores a government identifier.
+All automated tests and local verification must use synthetic mock workbooks containing fictitious student names and numbers. Real student records or production marksheet files must never be committed to the repository or uploaded to AI tools.

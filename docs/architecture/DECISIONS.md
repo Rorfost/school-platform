@@ -32,7 +32,7 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 ## Production direction and local parity
 
-**Context:** keep initial hosting inexpensive and portable. **Decision:** Cloudflare frontend/DNS, Render Free backend initially, Aiven PostgreSQL, and ImageKit public storage. **Reason:** managed services with no provider-specific application design. **Trade-offs:** Render Free availability limitations. **Reconsider when:** reliability, cost, or region requirements change.
+**Context:** keep initial hosting inexpensive and portable. **Decision:** Cloudflare frontend/DNS, Render Free backend initially, Aiven PostgreSQL (as-is) moving to Neon PostgreSQL (target), and ImageKit public storage. **Reason:** managed services with no provider-specific application design. **Trade-offs:** Render Free availability limitations. **Reconsider when:** reliability, cost, or region requirements change.
 
 ## V1 database foundation before feature workflows
 
@@ -58,14 +58,6 @@ Each decision is intentional and may be revisited only when a concrete requireme
 
 **Context:** one school runs initially, but reuse must be safe without an expensive redesign. **Decision:** retain `school_id` on important records, use composite foreign keys where relationships cross school-scoped tables, enforce publication/archive states and one current academic year in PostgreSQL. **Reason:** application code alone cannot reliably protect cross-school references or concurrent lifecycle changes. **Trade-offs:** selected tables carry integrity-key repetition and migrations are more detailed. **Reconsider when:** a confirmed multi-school authorization model needs a different ownership boundary.
 
-## No infrastructure directory at this stage
-
-**Context:** the inspected `infrastructure/` directory contained guidance only; Docker Compose already has the conventional root location and no provider/runtime asset is versioned yet. **Decision:** remove the empty infrastructure boundary rather than retain a placeholder directory. **Reason:** the repository should not imply deployment assets exist when there are none. **Trade-offs:** a future genuine provider-neutral script or deployment asset will reintroduce the directory with that asset and documentation. **Reconsider when:** such an asset is required.
-
-## Testcontainers 2.x for current Docker engines
-
-**Context:** the existing Testcontainers 1.21.3 client cannot negotiate with the installed Docker Engine 29 API, blocking PostgreSQL persistence tests. **Decision:** use the current Testcontainers 2.x test-only modules. **Reason:** it supports current Docker engine behavior while retaining disposable PostgreSQL integration tests. **Trade-offs:** module artifact names use the 2.x `testcontainers-` prefix. **Reconsider when:** the project standardizes on a managed dependency version that provides the same compatibility.
-
 ## Principal session authentication in PostgreSQL
 
 **Context:** the browser-based admin panel needs revocable server-side authentication while the first deployment remains a single instance with a limited operational footprint. **Decision:** use Spring Security, Spring Session JDBC, PostgreSQL, BCrypt, and the sole `PRINCIPAL` role. **Reason:** this provides secure session invalidation, durable sessions, and adaptive password hashing without JWT or Redis. **Trade-offs:** each authenticated request reads session state from PostgreSQL. **Reconsider when:** measured multi-instance scale needs a dedicated session store.
@@ -81,3 +73,11 @@ Each decision is intentional and may be revisited only when a concrete requireme
 ## Audit hardening for content APIs
 
 **Context:** the completion audit found public content query methods without routes and lifecycle mutations occurring outside a service transaction. **Decision:** expose DTO-only, bounded public content routes; exclude expired notices in the query; make content mutations transactional; flush newly uploaded metadata within the object-cleanup boundary; and set `Cache-Control: no-store` for every admin response. **Reason:** published content must be reachable while administrative data and writes must not be silently lost or cached. **Trade-offs:** uploads hold a short database transaction while storage writes, and larger asynchronous workflows remain out of scope. **Reconsider when:** measured upload contention requires an approved outbox or cleanup workflow.
+
+## ADR-001: Multi-Tenant Routing via Reverse-Proxy Gateway Secret
+
+**Context:** Moving from single-school deployment to multi-tenant Rorfost School Platform on shared Render Free and shared PostgreSQL (Neon). Render origins are publicly reachable; untrusted incoming HTTP headers cannot be used for tenant authorization.
+**Decision:** Each school has a separate Cloudflare Worker with an offline-generated, cryptographically random `PORTAL_GATEWAY_TOKEN` secret. Workers strip incoming client tenant headers and inject `X-Portal-Gateway-Token`. Render hashes this value with SHA-256 and resolves the active school into an immutable `TenantContext`. On admin APIs, `PrincipalSession.schoolId` must match `TenantContext.schoolId`.
+**Reason:** Prevents tenant spoofing without expensive infrastructure or separate backend services per school.
+**Trade-offs:** Shared Render failure domain across schools; token rotation and revocation procedures must be maintained.
+**Status:** Planned for phased implementation in Sprints 03–05.

@@ -1,11 +1,33 @@
-Rorfost School Portal
-Copyright © 2026 Raj Patel / Rorfost.
+Rorfost School Platform
+Copyright (c) 2026 Raj Patel and other identified contributors, as applicable.
 All rights reserved.
 
-This software was developed by Raj Patel / Rorfost. School names, logos, photos,
-documents, and other institutional content may belong to their respective owners.
-Third-party dependencies remain subject to their respective licenses.
+1. PRODUCT & REFERENCE DEPLOYMENT
+   This repository contains the source code for the "Rorfost School Platform", a modular
+   school management and public information system. The "Dhadhana portal"
+   (Dhadhana Primary School) is the initial reference deployment.
 
-Public availability of this repository does not grant ownership of school or student
-data, or of third-party assets. Never commit real student records, private
-credentials, passwords, or confidential school information.
+2. SOFTWARE VS. INSTITUTIONAL CONTENT
+   - Platform software, APIs, database schemas, and frontend architectures were developed
+     by Raj Patel and contributing team members.
+   - School names, institutional logos, seal artwork, photographs, teacher/principal signatures,
+     academic documents, and student marksheet content belong to their respective schools
+     and authorized institutional representatives.
+   - Inclusion of reference school branding in deployment assets does not imply that software
+     code belongs to the school, nor that institutional media belongs to the software developers.
+
+3. THIRD-PARTY DEPENDENCIES
+   This project relies on third-party libraries, frameworks, fonts, and runtime tools
+   (including Spring Boot, React, Tailwind CSS, Lucide icons, Vite, ImageKit SDK,
+   and PostgreSQL JDBC). These components remain subject to their respective licenses.
+
+4. PRIVACY & DATA POLICY
+   Public availability of this repository does not grant ownership or permission to access
+   student or institutional data. Real student records, examination PINs, workbooks,
+   database dumps, and production secrets are strictly prohibited from this repository.
+
+5. PERMISSIONS & INQUIRIES
+   For inquiries regarding code inspection, permissions, or school deployment:
+   Contact through the repository's published contact channels or project maintainer.
+
+[Note: Contributor attributions and institutional media agreements remain subject to human review.]

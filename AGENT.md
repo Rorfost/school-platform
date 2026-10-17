@@ -1,34 +1,46 @@
 # Working Agreement
 
-This file applies to every developer and coding tool working in this repository.
+This agreement applies to every developer, contributor, and AI coding agent working in this repository.
 
-## Before work
+## 1. Before Work
 
-1. Read this file, the root README, the PRD, architecture, decisions, and code rules.
-2. Read documentation relevant to the task (a lil bit from web and from Root/docs folder).
-3. Check the current branch and `git status`.
-4. Review relevant recent commits before changing existing code.
+1. Read this agreement, the root [README](README.md), [PRD](docs/product/PRD.md), [Architecture](docs/architecture/ARCHITECTURE.md), [Decisions](docs/architecture/DECISIONS.md), and [Code Rules](docs/engineering/CODE_RULES.md).
+2. For multi-tenant migration work, consult the relevant sprint prompt and [Multi-Tenant Rollout Plan](docs/operations/TENANT_ROLLOUT.md).
+3. Check the current branch and `git status`. Never work directly on `main` or push to production.
+4. Review recent commits and test suite status before modifying code.
 
-## Scope and decisions
+## 2. Product vs. Deployment Scope
 
-Work only on the requested scope. Do not silently change architecture, add libraries for fashion, make speculative abstractions, or improve unrelated files. When a business requirement is absent, document the uncertainty or leave a clear TODO instead of inventing behavior.
+- **Product:** **Rorfost School Platform** — a reusable, multi-tenant modular monolith for primary and secondary schools.
+- **Reference Deployment (As-Is):** **Dhadhana portal** (Dhadhana Primary School) — the first production instance.
+- Distinguish generic software architecture from school-specific content/branding.
+- Do not assume multi-tenancy is active in current code; respect the documented **as-is** vs. **target** state.
 
-## Excel rule
+## 3. Strict Scope & Incremental Sprints
 
-**Never infer or invent the result Excel structure.** Until the owner provides the actual workbook/template, do not implement Excel parsing business logic. See [RESULT_IMPORT.md](docs/data/RESULT_IMPORT.md).
+Work strictly within the requested scope. Do not silently rewrite architecture, introduce speculative abstractions, or touch unrelated packages. When executing migration sprints, complete only the single designated micro-sprint and its acceptance tests.
 
-## Gujarati UI and design
+## 4. Excel & Student Privacy Rule
 
-All user-facing text must be clear, natural, simple Gujarati unless explicitly approved otherwise. English remains appropriate for code, APIs, database names, logs, and developer documentation. Design for Standard 1–8 students, parents, and the principal: mobile-first, accessible, calm, clean, professional, and easy to understand. Avoid excessive gradients, glassmorphism, huge animated heroes, floating decoration, neon, unnecessary motion, and generic SaaS copy.
+**Never invent or assume unverified student result schemas.** Student data privacy is paramount:
+- Government identifiers (such as Aadhaar UID) must NEVER be read, persisted, logged, or hashed.
+- Student results must use school-controlled roll numbers and secure result access policies.
+- See [RESULT_IMPORT.md](docs/data/RESULT_IMPORT.md) and [EXAM_RESULT_SYSTEM_FLOW.md](docs/EXAM_RESULT_SYSTEM_FLOW.md).
 
-## Code quality
+## 5. Gujarati UI and Design Standards
 
-Prefer simple, explicit, readable, tested, cohesive, secure code. Avoid dead code, duplicated business logic, giant methods/components, and cleverness without a concrete benefit. Follow [CODE_RULES.md](docs/engineering/CODE_RULES.md).
+All student-, parent-, and visitor-facing interfaces must use clear, natural, simple Gujarati copy. English is reserved for developer code, APIs, database tables, and system logs.
+- Mobile-first, calm, high-contrast, professional, and accessible.
+- Avoid unnecessary animations, glassmorphism, heavy gradients, or generic SaaS marketing copy.
 
-Comments explain why, constraints, non-obvious behavior, security choices, or business rules—not line-by-line code. Use concise professional English. Never add automated-assistance attribution to commits, comments, source, or documentation.
+## 6. Code Quality & Security by Default
 
-## Commits and documentation
+- Keep methods and components small, cohesive, and feature-scoped. Follow [CODE_RULES.md](docs/engineering/CODE_RULES.md).
+- Never trust client-supplied tenant identifiers (`schoolId`, `slug`, `Host`, or custom headers). In target architecture, all tenant resolution must derive from verified gateway credentials or server-side sessions.
+- Comments must explain **why** (constraints, security rationale, business rules), not narrate self-explanatory code. Never add automated-tool attribution in code or commits.
 
-Make small, logical, professional commits after meaningful, tested units of work. Before committing, run checks relevant to changed areas. Update documentation in the same change when architecture, config, API, database, security, deployment, or workflows change.
+## 7. Commits and Verification
 
-Never commit credentials, real student records, private result workbooks, database dumps, or production secrets. Use safe examples and synthetic test data only.
+- Run relevant frontend and backend checks prior to committing.
+- Commit messages must be clear, concise, and professional.
+- Never commit credentials, production secrets, real student workbooks, or database dumps.

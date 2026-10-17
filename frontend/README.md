@@ -1,25 +1,35 @@
-# Frontend
+# Frontend — Rorfost School Platform
 
-The frontend is a React 19, TypeScript, and Vite static single-page application for Rorfost Primary School. It provides the full public school website (in natural Gujarati), Student Corner (materials, result lookup, downloads), and the complete Principal Admin Panel (in clear English).
+The frontend is a React 19, TypeScript, and Vite single-page application and Cloudflare Worker proxy providing a Gujarati-first public portal and an administrative panel for school principals.
+
+- **Platform Product:** Rorfost School Platform
+- **Reference Deployment (As-Is):** Dhadhana Primary School Portal
+
+## As-Is vs. Target Architecture
+
+### Current State (As-Is)
+- Single Cloudflare Worker deployment (`dhadhana-school`).
+- Hardcoded fallback school metadata (`DEFAULT_SCHOOL_INFO`) and Dhadhana footer credits in local fallback utilities.
+- Cloudflare Worker proxies `/api/*` directly without cryptographic gateway authentication.
+
+### Target State (Multi-Tenant Plan)
+- Unified codebase deployed to independent named Cloudflare Workers per school (`school-a`, `school-b`, `school-c`).
+- Each Worker holds a unique `PORTAL_GATEWAY_TOKEN` secret and injects it into upstream `/api/*` requests to Render.
+- Dynamic branding: School name, logo, principal information, and footer copyright derived strictly from API data, with generic neutral defaults.
+- Feature Flag Awareness: UI navigation and page elements conditionally rendered based on active school feature flags.
 
 ## Features Implemented
 
-- **Public School Website (Gujarati)**: Home, About School, Principal's Desk, Notices & Notice Details, Photo Gallery & Album Viewer, Contact Page, and Footer/Header navigation.
-- **Student Corner (Gujarati)**: Study Materials (filtered by Standard & Subject), Examination Results Lookup (with privacy PIN verification & printable marksheet view), Downloads, and Student Notices.
-- **School Tools (Gujarati)**: Client-side age/date, attendance, marks, and subject-wise percentage utilities for teachers, parents, and children. Entered calculation values are not stored.
-- **Principal Admin Panel (English)**:
-    - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
-    - Operational Dashboard with quick links.
-    - School Settings & Principal Profile management, including ImageKit-backed school-logo replacement and removal.
-    - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
-    - Results & Marks setup (internally generic assessments), subject maximum/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
-    - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.
-    - Account & Security management.
-
-## Pending Inputs
-
-- **Result Import Excel Schema**: The documented Standard 3 Ekam Kasoti workbook can be imported after its students are enrolled with school-controlled numeric roll numbers. Other result formats still require an approved workbook contract.
-- **Timetables**: Exam timetable and school timetable features remain pending backend model inputs.
+- **Public School Website (Gujarati):** Home, About School, Principal's Desk, Notices, Photo Gallery, Downloads, and Contact.
+- **Student Corner (Gujarati):** Study Materials, Examination Results (with privacy PIN verification, marksheet display, and single-page A4 print), and Downloads.
+- **School Tools (Gujarati):** Client-side educational and administrative calculators (age, attendance, marks percentage).
+- **Principal Admin Panel (English):**
+  - Session authentication, CSRF handling, password change lifecycle.
+  - Operational Dashboard with school overview.
+  - School Settings & Principal Profile with ImageKit-backed logo management.
+  - Academic setup: Academic years, standards, subjects, and standard-subject mapping.
+  - Results & Marks: Assessment setup, Excel import (Annual & Ekam Kasoti), and publish controls.
+  - Content management: Notices, study materials, photo gallery albums, and downloads.
 
 ## Commands
 
@@ -33,17 +43,17 @@ npm run test
 npm run build
 ```
 
-Copy `.env.example` to `.env.local` for local values. Every `VITE_*` value is embedded in the browser bundle and is public; never put secrets there.
+## Directory Structure
 
-## Structure
-
-- `src/app` — application providers and route configuration (`AppRouter.tsx`)
-- `src/api` — shared HTTP client foundation and TypeScript DTO definitions (`types.ts`)
-- `src/components` — shared layout (`Header`, `Footer`, `MobileNav`, `AdminLayout`), UI components (`Button`, `Card`, `Input`, `Badge`, `ConfirmModal`), and feedback primitives
-- `src/pages` — public pages and `src/pages/admin/` principal management pages
-- `src/features` — domain hooks (`auth`, `public`, `school`)
-- `src/styles` — global design tokens and base styling
-
-## Deployment
-
-Cloudflare Workers is the intended frontend host. The checked-in Worker configuration builds the SPA into `dist`, serves assets with SPA fallback, and proxies `/api/` requests to the configured backend origin. Use `npm run deploy` only with provider credentials supplied outside the repository. No frontend Docker deployment is required.
+- `src/app` — Application routes (`AppRouter.tsx`) and root providers.
+- `src/api` — HTTP client (`client.ts`), CSRF handling, and TypeScript DTOs (`types.ts`).
+- `src/components` — Shared UI elements, layout headers/footers, and admin shell.
+- `src/pages` — Public pages and `src/pages/admin/` principal views.
+- `src/features/` — Cohesive domain features:
+  - `auth` — Principal login, session restoration, and route guards.
+  - `public` — Result marksheet viewer and public content components.
+  - `school` — School metadata and settings hooks.
+  - `tools` — Gujarati educational calculators.
+  - `tenant` — Planned tenant context and multi-school routing awareness (Sprint 01).
+  - `featureFlags` — Planned client-side feature flag gates (Sprint 01).
+- `worker/` — Cloudflare Worker script (`index.ts`) proxying same-origin API requests to the backend.

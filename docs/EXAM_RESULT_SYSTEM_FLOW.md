@@ -1,30 +1,36 @@
-# Annual Exam Result System — End-to-End Architecture & Workflow
+# Annual Exam Result System — Architecture & Workflow
 
-This document outlines the complete technical architecture, database setup, Excel parsing mechanics, and frontend presentation workflow for the **Annual Exam Result System (વાર્ષિક પરીક્ષા પરિણામ)** in the School Platform.
+This document outlines the complete technical architecture, database schema, Excel parsing mechanics, and frontend presentation workflow for the **Annual Exam Result System (વાર્ષિક પરીક્ષા પરિણામ)** in the Rorfost School Platform.
 
 ---
 
-## 1. Overview & Architecture
+## 1. Overview & Multi-Tenant Architecture
 
-The Annual Exam Result System allows school administrators to upload a single consolidated Excel sheet (`.xlsx`) containing exam performance data for students across all standards (Std 1 to 8). Students and parents can instantly view and print their official annual marksheet by providing their **Standard (ધોરણ)** and **Roll Number (રોલ નંબર)**.
+The Annual Exam Result System allows school administrators to upload an Excel sheet (`.xlsx`) containing exam performance data for students across Standards 1 to 8. Students and parents can instantly view and print their official annual marksheet by selecting their **Standard (ધોરણ)** and entering their **Roll Number (રોલ નંબર)**.
+
+### As-Is vs. Target Multi-Tenant Flow
+
+- **Current State (As-Is):** Single school deployment. The backend resolves the active school via `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`.
+- **Target State (Sprint 09):** The upload and public lookup flows are strictly isolated to `TenantContext.schoolId`. An admin from School A can only upload or clear results for School A; students querying results on School B's portal only see School B's results.
 
 ```
 ┌─────────────────────────┐       Upload Excel (.xlsx)       ┌──────────────────────────────────┐
 │   Admin Panel Upload    │ ───────────────────────────────> │  ExamResultService (Spring Boot) │
-│ (/admin/assessments)    │  + Total Working Days (હાજર દિવસ)│  - Replaces prior result type    │
-└─────────────────────────┘                                  │  - Parses Apache POI Rows        │
+│ (/admin/assessments)    │  + Total Working Days (હાજર દિવસ)│  - Scoped to TenantContext       │
+└─────────────────────────┘                                  │  - Replaces tenant result type   │
+                                                             │  - Parses Apache POI Rows        │
                                                              └────────────────┬─────────────────┘
                                                                               │
                                                                               ▼
 ┌─────────────────────────┐      Query (Standard + Roll)     ┌──────────────────────────────────┐
 │  Public Results Page    │ <─────────────────────────────── │  AnnualExamResult Repository     │
-│  (/student/results)     │  Returns ExamResultResponse JSON │  (PostgreSQL / H2 Database)      │
-└────────────┬────────────┘                                  └──────────────────────────────────┘
+│  (/student/results)     │  Returns ExamResultResponse JSON │  (PostgreSQL scoped to school_id)│
+└────────────┬────────────┘  + Cache-Control: no-store       └──────────────────────────────────┘
              │
              ▼
 ┌─────────────────────────┐
 │  ExamResultViewer.tsx   │
-│  - Standard Marksheet   │
+│  - Dynamic School Info  │
 │  - A4 Printable Layout  │
 └─────────────────────────┘
 ```
@@ -40,7 +46,7 @@ The Annual Exam Result System allows school administrators to upload a single co
 | Column Name               | Type           | Description                                        |
 | :------------------------ | :------------- | :------------------------------------------------- |
 | `id`                      | `UUID` (PK)    | Unique primary key                                 |
-| `school_id`               | `UUID` (FK)    | Reference to active school                         |
+| `school_id`               | `UUID` (FK)    | Reference to active school tenant                  |
 | `standard`                | `VARCHAR(32)`  | Student Standard (e.g. `1`, `2`, `3`, ..., `8`)    |
 | `roll_number`             | `INT`          | Roll number assigned sequentially per standard     |
 | `student_name`            | `VARCHAR(255)` | Student's full name in Gujarati                    |
@@ -94,7 +100,7 @@ There is no Sr.No. column. Indices below are 0-based.
 
 ### 3.2 Ekam Kasoti Excel Column Layout Index
 
-Same as Exam Result after dropping Sr.No., then dropping Hajar Divas so every later column shifts left by one more. Subjects begin at column `4`. Attendance is not imported or shown.
+Same as Exam Result after dropping Attended Days; subject columns shift left by one, starting at index 4.
 
 | Column Index | Column Name in Excel     | Field Mapping in Code   |
 | :----------: | :----------------------- | :---------------------- |
@@ -104,9 +110,6 @@ Same as Exam Result after dropping Sr.No., then dropping Hajar Divas so every la
 |     `3`      | Birth Date               | `birthDate`             |
 |  `4` onward  | Subject mark/grade pairs | configured subjects     |
 
-> **Note on Standard-Subject Dynamic Handling:**
-> Lower standards (e.g. Std 1-3) may not have marks for subjects like English or Sanskrit in the Excel sheet. The code dynamically checks if the marks cell is non-empty before adding the subject. Empty subject cells are automatically skipped and omitted from both the total max marks calculation and the student's result card.
-
 ---
 
 ## 4. Backend Processing Mechanics (`ExamResultService.java`)
@@ -114,111 +117,49 @@ Same as Exam Result after dropping Sr.No., then dropping Hajar Divas so every la
 When an administrator uploads an Excel file via `POST /api/v1/admin/exam-results/upload`:
 
 1. **Transactional Re-upload Handling:**
-   To allow easy re-uploads without duplicate key errors, the backend executes a custom batch query:
-
-    ```java
-    resultRepository.deleteBySchoolIdAndResultType(school.getId(), resultType);
-    ```
+   To allow re-uploads without duplicate key errors, the backend deletes prior results within the active school scope:
+   ```java
+   resultRepository.deleteBySchoolIdAndResultType(school.getId(), resultType);
+   ```
 
 2. **Sequential Roll Number Assignment:**
-   Roll numbers are automatically generated per standard in sequence based on row order:
+   Roll numbers are assigned sequentially per standard based on row order:
+   ```java
+   int roll = standardRollCounts.getOrDefault(standard, 0) + 1;
+   standardRollCounts.put(standard, roll);
+   result.setRollNumber(roll);
+   ```
 
-    ```java
-    int roll = standardRollCounts.getOrDefault(standard, 0) + 1;
-    standardRollCounts.put(standard, roll);
-    result.setRollNumber(roll);
-    ```
-
-3. **Subject Extraction & Grade Calculation:**
-   Each subject pair (Marks Cell, Grade Cell) is extracted safely:
-
-    ```java
-    private int addSubject(AnnualExamResult result, String name, int max, Cell marksCell, Cell gradeCell, int sortOrder) {
-        String marks = getCellString(marksCell);
-        String grade = getCellString(gradeCell);
-        if (marks == null || marks.isBlank()) return 0; // Skip empty subject
-
-        AnnualExamResultSubject sub = new AnnualExamResultSubject();
-        sub.setSubjectName(name);
-        sub.setMaximumMarks(max);
-        sub.setSortOrder(sortOrder);
-        sub.setGrade(grade);
-        sub.setObtainedMarks((int) Double.parseDouble(marks));
-        result.addSubject(sub);
-        return max;
-    }
-    ```
-
-4. **Overall Grade & Percentage Formula:**
+3. **Grade and Percentage Formula:**
    $$\text{Percentage } (p) = \frac{\text{Total Obtained Marks} \times 100}{\text{Total Maximum Marks}}$$
-
-    Grade evaluation criteria:
-    - **$p \ge 80\%$**: Grade **A**
-    - **$65\% \le p < 80\%$**: Grade **B**
-    - **$50\% \le p < 65\%$**: Grade **C**
-    - **$35\% \le p < 50\%$**: Grade **D**
-    - **$p < 35\%$**: Grade **E**
+   - $p \ge 80\%$: Grade **A**
+   - $65\% \le p < 80\%$: Grade **B**
+   - $50\% \le p < 65\%$: Grade **C**
+   - $35\% \le p < 50\%$: Grade **D**
+   - $p < 35\%$: Grade **E**
 
 ---
 
 ## 5. Public Frontend Lookup & Presentation Flow
 
 ### 5.1 Student Search (`ResultsInfoPage.tsx`)
-
 1. Student selects **Standard (ધોરણ)** (1 to 8) and enters **Roll Number (રોલ નંબર)**.
-2. Form triggers API request `GET /api/v1/public/exam-results?standard={std}&rollNumber={roll}`.
-3. Upon response, the `ExamResultViewer` component mounts and renders the marksheet.
+2. Form triggers API request `GET /api/v1/public/exam-results?standard={std}&rollNumber={roll}&resultType={type}`.
+3. Upon response, `ExamResultViewer` renders the marksheet.
 
-### 5.2 Marksheet Formatting & Presentation (`ExamResultViewer.tsx`)
-
-The marksheet follows the official Primary Education Board layout:
-
-- **School Header:** School Logo, Official Name, Subtitle (`તા. સમી, જિ. પાટણ`), Title Banner (`પરિણામ પત્રક : ૨૦૨૫-૨૬`).
-- **Student Details Grid:**
-    - **વિદ્યાર્થીનું નામ (Name):** Student Full Name
-    - **ધોરણ (Standard):** Gujarati Number (e.g. `૧`, `૫`, `૮`)
-    - **જી.આર. નંબર (G.R. No):** General Register Number
-    - **જન્મ તારીખ (Birth Date):** Date of Birth
-    - **રોલ નંબર (Roll No):** Roll Number
-    - **કાર્ય દિવસ (Working Days):** Total Working Days vs Attended Days (`૧૮૦ માંથી ૧૬૫`)
-- **Marks Table:**
-    - **Col 1:** Serial No (ક્રમ)
-    - **Col 2:** Subject Name (વિષય)
-    - **Col 3:** Max Marks (કુલ ગુણ - English numerals)
-    - **Col 4:** Obtained Marks (મેળવેલ ગુણ - English numerals)
-    - **Col 5:** Grade (ગ્રેડ)
-    - **Col 6:** Subject Remarks (નોંધ)
-- **Footer Summary:**
-    - **મેળવેલ કુલ ગુણ / ગ્રેડ (Total Obtained / Grade):** Summary row with Total Max Marks, Total Obtained Marks, Overall Grade, and Percentage (`%`).
-    - **સહી (Signatures):** Class Teacher Signature (`વર્ગ શિક્ષકની સહી`) & Principal Signature (`આચાર્યની સહી`).
-    - **Vacation Reopening Date Note:** Standard primary school announcement text.
-
-### 5.3 Number Localization Rules
-
-- **Result Mark Values (Numbers in Marksheet Table):** Formatted in **English (Western Arabic) numerals** (e.g. `200`, `154`, `85.50%`) as requested.
-- **Structural Text & Standard Headers:** Formatted in **Gujarati text and numerals** (`ધોરણ ૫`, `ક્રમ ૧`).
-
-### 5.4 A4 Print Optimization
-
-- Clicking **Print Result (પ્રિન્ટ પરિણામ)** calls `window.print()`.
-- `@media print` rules hide sidebars, headers, footers, and background UI elements, isolating `#exam-result-print` into a crisp, single A4 page printout.
+### 5.2 Dynamic Marksheet Formatting (`ExamResultViewer.tsx`)
+- **Header:** Dynamic School Logo, Official School Name, Subtitle, and Title Banner from the active school's profile.
+- **Student Details Grid:** Gujarati labels for student name, standard, G.R. number, birth date, roll number, and attended vs. total working days.
+- **Marks Table:** English numerals for mark figures; Gujarati numerals for standard/serial numbers.
+- **Signatures & Seal:** Dynamic Class Teacher & Principal signatures and official school seal where configured.
+- **A4 Print:** Clean single-page printout via `@media print` rules hiding navigation and controls.
 
 ---
 
 ## 6. API Endpoints Summary
 
-| Method | Endpoint                            | Access                   | Purpose                                                                        |
-| :----- | :---------------------------------- | :----------------------- | :----------------------------------------------------------------------------- |
-| `GET`  | `/api/v1/public/exam-results`       | Public (`permitAll`)     | Fetch result by `standard`, `rollNumber`, and `resultType`                     |
-| `POST` | `/api/v1/admin/exam-results/upload` | Admin (`ROLE_PRINCIPAL`) | Upload the approved shared Excel file with `totalWorkingDays` and `resultType` |
-
----
-
-## 7. Files Reference List
-
-- **Backend Controller:** `com.rorfost.schoolportal.assessment.api.ExamResultController`
-- **Backend Service:** `com.rorfost.schoolportal.assessment.application.ExamResultService`
-- **Backend Entity:** `com.rorfost.schoolportal.school.domain.AnnualExamResult`
-- **Frontend Search Page:** `frontend/src/pages/ResultsInfoPage.tsx`
-- **Frontend Viewer & Print:** `frontend/src/features/public/ExamResultViewer.tsx`
-- **Gujarati Number Utility:** `frontend/src/utils/gujarati.ts`
+| Method | Endpoint | Access | Purpose |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/public/exam-results` | Public | Fetch result by standard, rollNumber, and resultType (scoped to tenant) |
+| `POST` | `/api/v1/admin/exam-results/upload` | Admin (`ROLE_PRINCIPAL`) + CSRF | Upload Excel file with totalWorkingDays and resultType |
+| `DELETE` | `/api/v1/admin/exam-results` | Admin (`ROLE_PRINCIPAL`) + CSRF | Clear uploaded results for the specified resultType |
