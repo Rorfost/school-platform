@@ -47,6 +47,46 @@ npm run test
 npm run build
 ```
 
+## Cloudflare Worker Environments & Deployments
+
+The frontend uses a single codebase deployed to independent Cloudflare Workers using named `env` blocks in `wrangler.jsonc`.
+
+### Named Environments
+
+- `school_a` — Worker `school-a-portal`
+- `school_b` — Worker `school-b-portal`
+- `school_c` — Worker `school-c-portal`
+
+### Secret Provisioning
+
+Each school Worker requires a unique `PORTAL_GATEWAY_TOKEN` secret provisioned outside Git:
+
+```bash
+npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_a
+npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_b
+npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_c
+```
+
+### Targeted Deployments
+
+To deploy an individual school frontend without affecting other tenants:
+
+```bash
+# Build production assets
+npm run build
+
+# Deploy specific environment
+npx wrangler deploy --env school_a
+npx wrangler deploy --env school_b
+npx wrangler deploy --env school_c
+```
+
+### Same-Origin & Upload Proxying
+
+- In production, client API requests and file uploads use same-origin relative paths (`/api/*`).
+- `VITE_API_BASE_URL` and `VITE_UPLOAD_BASE_URL` remain empty strings, avoiding direct browser backend bypass.
+- The Cloudflare Worker streams multipart upload bodies (e.g., student assessment Excel files up to Spring Boot's 10MB/12MB thresholds) directly upstream while preserving session cookies and CSRF headers.
+
 ## Directory Structure
 
 - `src/app` — Application routes (`AppRouter.tsx`) with `FeatureRouteGuard` and root providers.

@@ -13,4 +13,27 @@
         "not_found_handling": "single-page-application",
         "run_worker_first": ["/api/*"],
     },
+    "env": {
+        "school_a": {
+            "name": "school-a-portal",
+            "vars": {
+                "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
+                "SCHOOL_SLUG": "school-a",
+            },
+        },
+        "school_b": {
+            "name": "school-b-portal",
+            "vars": {
+                "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
+                "SCHOOL_SLUG": "school-b",
+            },
+        },
+        "school_c": {
+            "name": "school-c-portal",
+            "vars": {
+                "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
+                "SCHOOL_SLUG": "school-c",
+            },
+        },
+    },
 }

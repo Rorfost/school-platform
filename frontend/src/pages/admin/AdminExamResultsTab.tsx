@@ -32,8 +32,8 @@ export function AdminExamResultsTab({ resultType }: { resultType: ResultSettings
                 formData.append("totalWorkingDays", totalWorkingDays.trim());
             }
 
-            // POST directly to the backend origin to bypass the Cloudflare Worker proxy.
-            // CF Workers have a hard 30-second subrequest timeout; large workbooks take longer.
+            // Stream the bounded upload (multipart Excel) through the same-origin Cloudflare Worker proxy.
+            // Preserves session cookies and CSRF headers without direct-browser backend bypass.
             const csrfToken = await fetchCsrfToken();
             const headers = new Headers({ Accept: "application/json" });
             if (csrfToken) headers.set("X-XSRF-TOKEN", csrfToken);

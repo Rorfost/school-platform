@@ -250,6 +250,76 @@ describe("Cloudflare Worker Gateway Proxy", () => {
             expect(proxyInit.method).toBe("POST");
             expect(proxyInit.body).toBeDefined();
         });
+
+        it("streams multipart/form-data request body on exam results Excel upload", async () => {
+            mockGlobalFetch.mockResolvedValueOnce(
+                new Response(JSON.stringify({ message: "Exam results uploaded successfully" }), {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                }),
+            );
+
+            const multipartBody =
+                "--WebKitFormBoundary7MA4YWxkTrZu0gW\r\n" +
+                'Content-Disposition: form-data; name="academicYearId"\r\n\r\n' +
+                "year-2026-27\r\n" +
+                "--WebKitFormBoundary7MA4YWxkTrZu0gW\r\n" +
+                'Content-Disposition: form-data; name="file"; filename="results.xlsx"\r\n' +
+                "Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n" +
+                "binary content\r\n" +
+                "--WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
+
+            const request = new Request(
+                "https://school-a-portal.workers.dev/api/v1/admin/exam-results/upload",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW",
+                    },
+                    body: multipartBody,
+                },
+            );
+
+            const response = await worker.fetch(request, env);
+
+            expect(mockGlobalFetch).toHaveBeenCalledTimes(1);
+            const [targetUrl, proxyInit] = mockGlobalFetch.mock.calls[0];
+            expect(targetUrl).toBe(
+                "https://school-backend.internal/api/v1/admin/exam-results/upload",
+            );
+            expect(proxyInit.method).toBe("POST");
+            expect(proxyInit.body).toBeDefined();
+            expect(response.status).toBe(200);
+            const resBody = (await response.json()) as { message: string };
+            expect(resBody.message).toBe("Exam results uploaded successfully");
+        });
+    });
+
+    describe("Environment Isolation", () => {
+        it("forwards distinct school slug and gateway token for distinct environment configurations", async () => {
+            mockGlobalFetch.mockResolvedValue(
+                new Response(JSON.stringify({ ok: true }), { status: 200 }),
+            );
+
+            const envSchoolB: Env = {
+                ASSETS: { fetch: mockAssetsFetch } as unknown as Fetcher,
+                BACKEND_ORIGIN: "https://school-platform-gxrt.onrender.com",
+                PORTAL_GATEWAY_TOKEN: "school-b-distinct-secret-token",
+                SCHOOL_SLUG: "school-b",
+            };
+
+            const requestB = new Request(
+                "https://school-b-portal.workers.dev/api/v1/public/school",
+            );
+            await worker.fetch(requestB, envSchoolB);
+
+            expect(mockGlobalFetch).toHaveBeenCalledTimes(1);
+            const [, proxyInitB] = mockGlobalFetch.mock.calls[0];
+            const headersB = proxyInitB.headers as Headers;
+            expect(headersB.get("X-Portal-School-Slug")).toBe("school-b");
+            expect(headersB.get("X-Portal-Gateway-Token")).toBe("school-b-distinct-secret-token");
+        });
     });
 
     describe("Backend Error Handling", () => {
