@@ -106,6 +106,10 @@ public class SchoolGatewayCredential extends UuidEntity {
         this.rotatedAt = Objects.requireNonNull(rotatedAt, "rotatedAt must not be null");
     }
 
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
     public UUID getSchoolId() {
         return schoolId;
     }

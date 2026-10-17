@@ -166,4 +166,12 @@ public class School extends AuditableUuidEntity {
     public void changeSeal(String sealObjectKey) {
         this.sealObjectKey = sealObjectKey;
     }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
+    }
 }
