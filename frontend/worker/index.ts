@@ -1,63 +1,175 @@
 export interface Env {
     ASSETS: Fetcher;
     BACKEND_ORIGIN?: string;
+    PORTAL_GATEWAY_TOKEN?: string;
+    SCHOOL_SLUG?: string;
 }
+
+const FORBIDDEN_INCOMING_HEADERS = [
+    "forwarded",
+    "host",
+    "x-forwarded-for",
+    "x-forwarded-host",
+    "x-forwarded-proto",
+    "x-forwarded-server",
+];
 
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
         const url = new URL(request.url);
 
-        // Proxy API requests to backend origin
-        if (url.pathname.startsWith("/api/")) {
-            const backendOrigin = (env.BACKEND_ORIGIN || "http://localhost:8080").replace(
-                /\/$/,
-                "",
-            );
-            const targetUrl = new URL(url.pathname + url.search, backendOrigin);
-
-            const requestHeaders = new Headers(request.headers);
-            requestHeaders.set("Host", targetUrl.host);
-
-            const proxyInit: RequestInit = {
-                method: request.method,
-                headers: requestHeaders,
-                redirect: "manual",
-            };
-
-            if (
-                ["POST", "PUT", "PATCH", "DELETE"].includes(request.method.toUpperCase()) &&
-                request.body
-            ) {
-                proxyInit.body = request.body;
-            }
-
-            try {
-                const backendResponse = await fetch(targetUrl.toString(), proxyInit);
-                const responseHeaders = new Headers(backendResponse.headers);
-
-                return new Response(backendResponse.body, {
-                    status: backendResponse.status,
-                    statusText: backendResponse.statusText,
-                    headers: responseHeaders,
-                });
-            } catch {
-                return new Response(
-                    JSON.stringify({
-                        status: 503,
-                        code: "backend_unavailable",
-                        detail: "હમણાં માહિતી મળી શકી નથી. ફરી પ્રયત્ન કરો.",
-                    }),
-                    {
-                        status: 503,
-                        headers: {
-                            "Content-Type": "application/json;charset=UTF-8",
-                        },
-                    },
-                );
-            }
+        // Serve static frontend assets / SPA routing for non-API requests
+        if (!url.pathname.startsWith("/api/")) {
+            return env.ASSETS.fetch(request);
         }
 
-        // Serve static frontend assets / SPA routing
-        return env.ASSETS.fetch(request);
+        // Prevent path traversal attacks and URL-encoded bypasses within API routes
+        let decodedPath = url.pathname;
+        try {
+            decodedPath = decodeURIComponent(decodeURIComponent(url.pathname));
+        } catch {
+            return new Response(
+                JSON.stringify({
+                    status: 400,
+                    code: "invalid_path",
+                    detail: "અમાન્ય વિનંતી પાથ.",
+                }),
+                {
+                    status: 400,
+                    headers: {
+                        "Content-Type": "application/json;charset=UTF-8",
+                    },
+                },
+            );
+        }
+
+        if (
+            decodedPath.includes("..") ||
+            decodedPath.includes("//") ||
+            url.pathname.includes("//")
+        ) {
+            return new Response(
+                JSON.stringify({
+                    status: 400,
+                    code: "invalid_path",
+                    detail: "અમાન્ય વિનંતી પાથ.",
+                }),
+                {
+                    status: 400,
+                    headers: {
+                        "Content-Type": "application/json;charset=UTF-8",
+                    },
+                },
+            );
+        }
+
+        const backendOrigin = (env.BACKEND_ORIGIN || "http://localhost:8080").replace(/\/+$/, "");
+        const targetUrl = new URL(url.pathname + url.search, backendOrigin);
+        const parsedOrigin = new URL(backendOrigin);
+
+        // Sanitize and build fresh outbound headers
+        const requestHeaders = new Headers();
+        for (const [key, value] of request.headers.entries()) {
+            const lower = key.toLowerCase();
+            // Strip any client-supplied tenant, routing, or forwarded headers
+            if (
+                lower.startsWith("x-portal-") ||
+                lower.startsWith("x-school-") ||
+                lower.startsWith("x-forwarded-") ||
+                FORBIDDEN_INCOMING_HEADERS.includes(lower)
+            ) {
+                continue;
+            }
+            requestHeaders.append(key, value);
+        }
+
+        // Explicitly set host to target backend
+        requestHeaders.set("Host", targetUrl.host);
+
+        // Inject authenticated gateway secret token
+        if (env.PORTAL_GATEWAY_TOKEN) {
+            requestHeaders.set("X-Portal-Gateway-Token", env.PORTAL_GATEWAY_TOKEN);
+        }
+
+        // Optional non-authoritative diagnostic slug
+        if (env.SCHOOL_SLUG) {
+            requestHeaders.set("X-Portal-School-Slug", env.SCHOOL_SLUG);
+        }
+
+        const hasBody =
+            ["POST", "PUT", "PATCH", "DELETE"].includes(request.method.toUpperCase()) &&
+            request.body !== null;
+
+        const proxyInit: RequestInit = {
+            method: request.method,
+            headers: requestHeaders,
+            redirect: "manual",
+            ...(hasBody ? { body: request.body } : {}),
+        };
+
+        try {
+            const backendResponse = await fetch(targetUrl.toString(), proxyInit);
+
+            // Sanitize upstream response headers
+            const responseHeaders = new Headers();
+            for (const [key, value] of backendResponse.headers.entries()) {
+                const lower = key.toLowerCase();
+                // Ensure internal token/routing headers never leak to client
+                if (lower.startsWith("x-portal-") || lower.startsWith("x-school-")) {
+                    continue;
+                }
+                responseHeaders.append(key, value);
+            }
+
+            // Preserve multiple Set-Cookie headers properly
+            const getSetCookieFn = (
+                backendResponse.headers as unknown as { getSetCookie?: () => string[] }
+            ).getSetCookie;
+            if (typeof getSetCookieFn === "function") {
+                const cookies = getSetCookieFn.call(backendResponse.headers);
+                if (cookies && cookies.length > 0) {
+                    responseHeaders.delete("set-cookie");
+                    for (const cookie of cookies) {
+                        responseHeaders.append("set-cookie", cookie);
+                    }
+                }
+            }
+
+            // Rewrite redirect location if pointing directly to backend origin
+            const location = responseHeaders.get("location");
+            if (location) {
+                try {
+                    const locUrl = new URL(location, targetUrl);
+                    if (locUrl.origin === parsedOrigin.origin) {
+                        responseHeaders.set(
+                            "location",
+                            locUrl.pathname + locUrl.search + locUrl.hash,
+                        );
+                    }
+                } catch {
+                    // Ignore malformed redirect URLs
+                }
+            }
+
+            return new Response(backendResponse.body, {
+                status: backendResponse.status,
+                statusText: backendResponse.statusText,
+                headers: responseHeaders,
+            });
+        } catch {
+            return new Response(
+                JSON.stringify({
+                    status: 503,
+                    code: "backend_unavailable",
+                    detail: "હમણાં માહિતી મળી શકી નથી. ફરી પ્રયત્ન કરો.",
+                }),
+                {
+                    status: 503,
+                    headers: {
+                        "Content-Type": "application/json;charset=UTF-8",
+                    },
+                },
+            );
+        }
     },
 };
