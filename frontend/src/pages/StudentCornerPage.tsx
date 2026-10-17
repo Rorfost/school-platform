@@ -3,9 +3,22 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { LABELS } from "@/utils/gujarati";
+import { useFeatureFlags } from "@/features/featureFlags";
+import type { FeatureKey } from "@/features/featureFlags";
+
+interface StudentSection {
+    to: string;
+    title: string;
+    description: string;
+    icon: typeof BookOpen;
+    badgeText: string;
+    featureKey?: FeatureKey;
+}
 
 export function StudentCornerPage() {
-    const sections = [
+    const { isFeatureEnabled } = useFeatureFlags();
+
+    const sections: StudentSection[] = [
         {
             to: "/student/materials",
             title: LABELS.materials,
@@ -13,6 +26,7 @@ export function StudentCornerPage() {
                 "ધોરણ ૧ થી ૮ માટે વિષયવાર પાઠ્યપુસ્તકો, સ્વાધ્યાય સામગ્રી અને શીખવા માટે ઉપયોગી ફાઈલો.",
             icon: BookOpen,
             badgeText: "અભ્યાસ",
+            featureKey: "MATERIALS",
         },
         {
             to: "/student/results",
@@ -20,6 +34,7 @@ export function StudentCornerPage() {
             description: "ત્રિમાસિક કસોટી અને વાર્ષિક પરીક્ષા પરિણામ અંગેની માહિતી.",
             icon: GraduationCap,
             badgeText: "પરિણામ",
+            featureKey: "EXAM_RESULTS",
         },
         {
             to: "/student/downloads",
@@ -27,6 +42,7 @@ export function StudentCornerPage() {
             description: "શાળાના ફોર્મ્સ, પરિપત્રો અને વિદ્યાર્થીઓ માટે જરૂરી પત્રકો.",
             icon: Download,
             badgeText: "ફાઈલો",
+            featureKey: "DOWNLOADS",
         },
         {
             to: "/tools",
@@ -36,6 +52,10 @@ export function StudentCornerPage() {
             badgeText: "ઉપયોગી",
         },
     ];
+
+    const visibleSections = sections.filter(
+        (sec) => !sec.featureKey || isFeatureEnabled(sec.featureKey),
+    );
 
     return (
         <div className="space-y-8">
@@ -47,7 +67,7 @@ export function StudentCornerPage() {
             />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                {sections.map((section) => {
+                {visibleSections.map((section) => {
                     const Icon = section.icon;
                     return (
                         <Link

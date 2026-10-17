@@ -18,13 +18,15 @@ The frontend is a React 19, TypeScript, and Vite single-page application and Clo
 - Unified codebase deployed to independent named Cloudflare Workers per school (`school-a`, `school-b`, `school-c`).
 - Each Worker holds a unique `PORTAL_GATEWAY_TOKEN` secret and injects it into upstream `/api/*` requests to Render.
 - Dynamic branding: School name, logo, principal information, and footer copyright derived strictly from API data, with generic neutral defaults.
-- Feature Flag Awareness: UI navigation and page elements conditionally rendered based on active school feature flags.
+- Feature Flag Awareness: UI navigation, sidebar, mobile drawers, student shortcuts, and route guards (`FeatureRouteGuard`) conditionally rendered based on active school feature flags fetched from `/api/v1/public/features`.
+- Direct route visits to disabled public features redirect cleanly to 404; admin navigation items hide disabled modules with redirect fallback to `/admin`.
 
 ## Features Implemented
 
 - **Public School Website (Gujarati):** Home, About School, Principal's Desk, Notices, Photo Gallery, Downloads, and Contact.
 - **Student Corner (Gujarati):** Study Materials, Examination Results (with privacy PIN verification, marksheet display, and single-page A4 print), and Downloads.
 - **School Tools (Gujarati):** Client-side educational and administrative calculators (age, attendance, marks percentage).
+- **Feature Flag System:** Client-side integration (`src/features/featureFlags`) reading `/api/v1/public/features` with fail-safe defaults and route guarding (`FeatureRouteGuard`).
 - **Principal Admin Panel (English):**
     - Session authentication, CSRF handling, password change lifecycle.
     - Operational Dashboard with school overview.
@@ -47,7 +49,7 @@ npm run build
 
 ## Directory Structure
 
-- `src/app` — Application routes (`AppRouter.tsx`) and root providers.
+- `src/app` — Application routes (`AppRouter.tsx`) with `FeatureRouteGuard` and root providers.
 - `src/api` — HTTP client (`client.ts`), CSRF handling, and TypeScript DTOs (`types.ts`).
 - `src/components` — Shared UI elements, layout headers/footers, and admin shell.
 - `src/pages` — Public pages and `src/pages/admin/` principal views.
@@ -57,5 +59,5 @@ npm run build
     - `school` — School metadata and settings hooks.
     - `tools` — Gujarati educational calculators.
     - `tenant` — Planned tenant context and multi-school routing awareness (Sprint 01).
-    - `featureFlags` — Planned client-side feature flag gates (Sprint 01).
+    - `featureFlags` — Client-side feature flag gates (`api`, `hooks`, `types`, `defaults`, `FeatureRouteGuard`).
 - `worker/` — Cloudflare Worker script (`index.ts`) proxying same-origin API requests to the backend.

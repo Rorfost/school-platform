@@ -14,23 +14,45 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { LABELS } from "@/utils/gujarati";
+import { useFeatureFlags } from "@/features/featureFlags";
+import type { FeatureKey } from "@/features/featureFlags";
 
 export interface MobileNavProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const NAV_ITEMS = [
+interface MobileNavItem {
+    to: string;
+    label: string;
+    icon: typeof Home;
+    featureKey?: FeatureKey;
+}
+
+const NAV_ITEMS: MobileNavItem[] = [
     { to: "/", label: LABELS.home, icon: Home },
     { to: "/about", label: LABELS.about, icon: Info },
     { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
-    { to: "/notices", label: LABELS.notices, icon: Newspaper },
-    { to: "/gallery", label: LABELS.gallery, icon: Camera },
+    { to: "/notices", label: LABELS.notices, icon: Newspaper, featureKey: "NOTICES" },
+    { to: "/gallery", label: LABELS.gallery, icon: Camera, featureKey: "GALLERY" },
     { to: "/contact", label: LABELS.contact, icon: Mail },
+];
+
+const STUDENT_NAV_ITEMS: MobileNavItem[] = [
+    { to: "/student/downloads", label: LABELS.downloads, icon: Download, featureKey: "DOWNLOADS" },
+    { to: "/student/materials", label: LABELS.materials, icon: BookOpen, featureKey: "MATERIALS" },
+    { to: "/tools", label: LABELS.tools, icon: Calculator },
+    {
+        to: "/student/results",
+        label: LABELS.results,
+        icon: GraduationCap,
+        featureKey: "EXAM_RESULTS",
+    },
 ];
 
 export function MobileNav({ isOpen, onClose }: MobileNavProps) {
     const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const { isFeatureEnabled } = useFeatureFlags();
 
     useEffect(() => {
         if (isOpen) {
@@ -53,6 +75,13 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
     if (!isOpen) {
         return null;
     }
+
+    const visibleNavItems = NAV_ITEMS.filter(
+        (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+    );
+    const visibleStudentItems = STUDENT_NAV_ITEMS.filter(
+        (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+    );
 
     return (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -85,7 +114,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
 
                 <nav className="flex-1 overflow-y-auto p-4" aria-label="મોબાઈલ માર્ગદર્શન">
                     <ul className="space-y-1.5">
-                        {NAV_ITEMS.map((item) => {
+                        {visibleNavItems.map((item) => {
                             const Icon = item.icon;
                             return (
                                 <li key={item.to}>
@@ -112,69 +141,34 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
                         })}
                     </ul>
 
-                    <div className="mt-6 border-t border-slate-200 pt-5">
-                        <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                            {LABELS.studentCorner}
-                        </p>
-                        <ul className="mt-2 space-y-1">
-                            <li>
-                                <NavLink
-                                    to="/student/downloads"
-                                    onClick={onClose}
-                                    className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                    <Download
-                                        size={18}
-                                        className="text-slate-500"
-                                        aria-hidden="true"
-                                    />
-                                    <span>{LABELS.downloads}</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/student/materials"
-                                    onClick={onClose}
-                                    className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                    <BookOpen
-                                        size={18}
-                                        className="text-slate-500"
-                                        aria-hidden="true"
-                                    />
-                                    <span>{LABELS.materials}</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/tools"
-                                    onClick={onClose}
-                                    className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                    <Calculator
-                                        size={18}
-                                        className="text-slate-500"
-                                        aria-hidden="true"
-                                    />
-                                    <span>{LABELS.tools}</span>
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/student/results"
-                                    onClick={onClose}
-                                    className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
-                                >
-                                    <GraduationCap
-                                        size={18}
-                                        className="text-slate-500"
-                                        aria-hidden="true"
-                                    />
-                                    <span>{LABELS.results}</span>
-                                </NavLink>
-                            </li>
-                        </ul>
-                    </div>
+                    {visibleStudentItems.length > 0 && (
+                        <div className="mt-6 border-t border-slate-200 pt-5">
+                            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                {LABELS.studentCorner}
+                            </p>
+                            <ul className="mt-2 space-y-1">
+                                {visibleStudentItems.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <li key={item.to}>
+                                            <NavLink
+                                                to={item.to}
+                                                onClick={onClose}
+                                                className="flex min-h-11 items-center gap-3 rounded-lg px-4 text-sm text-slate-700 hover:bg-slate-50"
+                                            >
+                                                <Icon
+                                                    size={18}
+                                                    className="text-slate-500"
+                                                    aria-hidden="true"
+                                                />
+                                                <span>{item.label}</span>
+                                            </NavLink>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    )}
                 </nav>
             </div>
         </div>

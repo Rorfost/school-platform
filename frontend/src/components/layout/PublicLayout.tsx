@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, NavLink } from "react-router-dom";
 import { Footer } from "@/components/layout/Footer";
-import { Header, NAV_LINKS } from "@/components/layout/Header";
+import { Header } from "@/components/layout/Header";
 import { SkipToContent } from "@/components/common/SkipToContent";
 import {
     BookOpen,
@@ -19,60 +19,55 @@ import {
 } from "lucide-react";
 import { LABELS } from "@/utils/gujarati";
 
-// Icon mapped to each NAV_LINKS entry by index
-const NAV_ICONS = [Home, Info, UserCheck, Newspaper, Camera, Phone];
+import { useFeatureFlags } from "@/features/featureFlags";
+import type { FeatureKey } from "@/features/featureFlags";
 
-const STUDENT_LINKS = [
-    { to: "/student/materials", icon: BookOpen, label: LABELS.materials },
-    { to: "/student/downloads", icon: Download, label: LABELS.downloads },
+interface NavLinkItem {
+    to: string;
+    label: string;
+    icon: typeof Home;
+    featureKey?: FeatureKey;
+}
+
+const PRIMARY_NAV_LINKS: NavLinkItem[] = [
+    { to: "/", label: LABELS.home, icon: Home },
+    { to: "/about", label: LABELS.about, icon: Info },
+    { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
+    { to: "/notices", label: LABELS.notices, icon: Newspaper, featureKey: "NOTICES" },
+    { to: "/gallery", label: LABELS.gallery, icon: Camera, featureKey: "GALLERY" },
+    { to: "/contact", label: LABELS.contact, icon: Phone },
+];
+
+const STUDENT_NAV_LINKS: NavLinkItem[] = [
+    { to: "/student/materials", icon: BookOpen, label: LABELS.materials, featureKey: "MATERIALS" },
+    { to: "/student/downloads", icon: Download, label: LABELS.downloads, featureKey: "DOWNLOADS" },
     { to: "/tools", icon: Calculator, label: LABELS.tools },
-    { to: "/student/results", icon: GraduationCap, label: LABELS.results },
+    {
+        to: "/student/results",
+        icon: GraduationCap,
+        label: LABELS.results,
+        featureKey: "EXAM_RESULTS",
+    },
 ];
 
 // Desktop sidebar
 function PublicSidebar() {
+    const { isFeatureEnabled } = useFeatureFlags();
+
+    const visiblePrimaryLinks = PRIMARY_NAV_LINKS.filter(
+        (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+    );
+    const visibleStudentLinks = STUDENT_NAV_LINKS.filter(
+        (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+    );
+
     return (
         <nav className="flex flex-col gap-0.5 px-2 py-4" aria-label="મુખ્ય નેવ">
-            {NAV_LINKS.map((item, idx) => {
-                const Icon = NAV_ICONS[idx];
-                return (
-                    <NavLink
-                        key={item.to}
-                        to={item.to}
-                        end={item.to === "/"}
-                        className={({ isActive }) =>
-                            `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
-                                isActive
-                                    ? "bg-[#0d2461] text-white shadow-md"
-                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                            }`
-                        }
-                    >
-                        {({ isActive }) => (
-                            <>
-                                <Icon
-                                    size={17}
-                                    strokeWidth={isActive ? 2.5 : 1.75}
-                                    className={`shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"}`}
-                                    aria-hidden="true"
-                                />
-                                <span>{item.label}</span>
-                            </>
-                        )}
-                    </NavLink>
-                );
-            })}
-
-            <div className="mx-3 mt-4 border-t border-slate-200" />
-
-            <p className="px-3.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                {LABELS.studentCorner}
-            </p>
-
-            {STUDENT_LINKS.map(({ to, icon: Icon, label }) => (
+            {visiblePrimaryLinks.map(({ to, label, icon: Icon }) => (
                 <NavLink
                     key={to}
                     to={to}
+                    end={to === "/"}
                     className={({ isActive }) =>
                         `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
                             isActive
@@ -86,7 +81,7 @@ function PublicSidebar() {
                             <Icon
                                 size={17}
                                 strokeWidth={isActive ? 2.5 : 1.75}
-                                className={`shrink-0 transition-colors ${isActive ? "text-yellow-400" : "text-slate-400 group-hover:text-slate-700"}`}
+                                className={`shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-700"}`}
                                 aria-hidden="true"
                             />
                             <span>{label}</span>
@@ -94,25 +89,66 @@ function PublicSidebar() {
                     )}
                 </NavLink>
             ))}
+
+            {visibleStudentLinks.length > 0 && (
+                <>
+                    <div className="mx-3 mt-4 border-t border-slate-200" />
+                    <p className="px-3.5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        {LABELS.studentCorner}
+                    </p>
+                    {visibleStudentLinks.map(({ to, icon: Icon, label }) => (
+                        <NavLink
+                            key={to}
+                            to={to}
+                            className={({ isActive }) =>
+                                `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
+                                    isActive
+                                        ? "bg-[#0d2461] text-white shadow-md"
+                                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                }`
+                            }
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <Icon
+                                        size={17}
+                                        strokeWidth={isActive ? 2.5 : 1.75}
+                                        className={`shrink-0 transition-colors ${isActive ? "text-yellow-400" : "text-slate-400 group-hover:text-slate-700"}`}
+                                        aria-hidden="true"
+                                    />
+                                    <span>{label}</span>
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                </>
+            )}
         </nav>
     );
 }
 
-// Mobile slide-out drawer
-const DRAWER_LINKS = [
+// Mobile slide-out drawer links helper
+const ALL_DRAWER_LINKS: NavLinkItem[] = [
     { to: "/", label: LABELS.home, icon: Home },
     { to: "/about", label: LABELS.about, icon: Info },
     { to: "/principal", label: LABELS.principalDesk, icon: UserCheck },
-    { to: "/notices", label: LABELS.notices, icon: Newspaper },
-    { to: "/gallery", label: LABELS.gallery, icon: Camera },
+    { to: "/notices", label: LABELS.notices, icon: Newspaper, featureKey: "NOTICES" },
+    { to: "/gallery", label: LABELS.gallery, icon: Camera, featureKey: "GALLERY" },
     { to: "/contact", label: LABELS.contact, icon: Mail },
-    { to: "/student/materials", label: LABELS.materials, icon: BookOpen },
-    { to: "/student/downloads", label: LABELS.downloads, icon: Download },
+    { to: "/student/materials", label: LABELS.materials, icon: BookOpen, featureKey: "MATERIALS" },
+    { to: "/student/downloads", label: LABELS.downloads, icon: Download, featureKey: "DOWNLOADS" },
     { to: "/tools", label: LABELS.tools, icon: Calculator },
-    { to: "/student/results", label: LABELS.results, icon: GraduationCap },
+    {
+        to: "/student/results",
+        label: LABELS.results,
+        icon: GraduationCap,
+        featureKey: "EXAM_RESULTS",
+    },
 ];
 
 function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    const { isFeatureEnabled } = useFeatureFlags();
+
     useEffect(() => {
         if (!isOpen) return;
         const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -121,6 +157,10 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
     }, [isOpen, onClose]);
 
     if (!isOpen) return null;
+
+    const visibleDrawerLinks = ALL_DRAWER_LINKS.filter(
+        (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+    );
 
     return (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -149,7 +189,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
                 <nav className="flex-1 overflow-y-auto p-3" aria-label="ડ્રોઅર">
                     <ul className="space-y-0.5">
-                        {DRAWER_LINKS.map(({ to, label, icon: Icon }) => (
+                        {visibleDrawerLinks.map(({ to, label, icon: Icon }) => (
                             <li key={to}>
                                 <NavLink
                                     to={to}
