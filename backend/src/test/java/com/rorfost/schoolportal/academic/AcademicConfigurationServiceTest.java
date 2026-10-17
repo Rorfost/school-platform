@@ -227,7 +227,7 @@ class AcademicConfigurationServiceTest {
                         new com.rorfost.schoolportal.academic.api.StandardClassesUpdateRequest(
                                 List.of(" A ", "B", "A", "")));
 
-        verify(standardClasses).deleteByStandardId(standardId);
+        verify(standardClasses).deleteBySchoolIdAndStandardId(schoolId, standardId);
         ArgumentCaptor<com.rorfost.schoolportal.academic.domain.StandardClass> captor =
                 ArgumentCaptor.forClass(
                         com.rorfost.schoolportal.academic.domain.StandardClass.class);

@@ -12,6 +12,7 @@
 - **Tenant Context Isolation:** The gateway filter resolves the school from the token digest, creating an immutable request-scoped `TenantContext`.
 - **Tenant-Scoped Principal Authentication:** Admin login queries `(school_id, email)` within the resolved tenant context. The same email address can exist at multiple schools without credential collisions.
 - **Session-Tenant Binding:** Every request to `/api/v1/admin/**` enforces that `PrincipalSession.schoolId == TenantContext.schoolId` via `AdminSessionTenantBindingFilter`. Cross-tenant session replay attempts fail closed with `403 cross_tenant_access_denied` without silently reassigning sessions. Administrative mutations (POST, PUT, PATCH, DELETE) re-verify that the principal account remains active in the database (`403 account_inactive_or_revoked`).
+- **Academic & Assessment CRUD Isolation:** All academic setup (years, standards, classes, subjects, teachers, student management) and assessment operations (creation, editing, grading, publishing, marksheet generation) enforce `school_id == TenantContext.schoolId`. Parent and reference foreign keys (academicYearId, standardId, standardSubjectMappingId) must belong to the acting school; cross-tenant references fail closed with `400 BAD_REQUEST`. Repository operations, including bulk removals (`deleteBySchoolIdAndStandardId`), are strictly school-scoped.
 
 ## Principal Authentication & Session Management
 

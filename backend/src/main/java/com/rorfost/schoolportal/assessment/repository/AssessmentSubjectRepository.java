@@ -10,5 +10,8 @@ import java.util.UUID;
 public interface AssessmentSubjectRepository extends JpaRepository<AssessmentSubject, UUID> {
     List<AssessmentSubject> findByAssessmentIdOrderByCreatedAt(UUID assessmentId);
 
+    List<AssessmentSubject> findByAssessmentIdAndSchoolIdOrderByCreatedAt(
+            UUID assessmentId, UUID schoolId);
+
     boolean existsByAssessmentIdAndStandardSubjectId(UUID assessmentId, UUID standardSubjectId);
 }

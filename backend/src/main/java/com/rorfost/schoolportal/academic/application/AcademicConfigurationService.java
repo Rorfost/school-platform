@@ -211,7 +211,7 @@ public class AcademicConfigurationService {
                         .anyMatch(mapping -> standardSubjects.isReferenced(mapping.getId())))
             throw conflict("standard_in_use");
         standardSubjects.deleteAll(mappings);
-        standardClasses.deleteByStandardId(id);
+        standardClasses.deleteBySchoolIdAndStandardId(schoolId, id);
         standards.delete(standard);
         audit(schoolId, actorId, AuditAction.STANDARD_DELETED, "STANDARD", id);
     }
@@ -483,7 +483,7 @@ public class AcademicConfigurationService {
                                 .filter(name -> !name.isBlank())
                                 .distinct()
                                 .toList();
-        standardClasses.deleteByStandardId(standardId);
+        standardClasses.deleteBySchoolIdAndStandardId(schoolId, standardId);
         short order = 1;
         for (String name : classNames) {
             standardClasses.save(new StandardClass(schoolId, standardId, name, order++));

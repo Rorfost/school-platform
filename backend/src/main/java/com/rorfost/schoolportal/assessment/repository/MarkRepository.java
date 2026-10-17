@@ -9,4 +9,7 @@ import java.util.UUID;
 
 public interface MarkRepository extends JpaRepository<Mark, UUID> {
     List<Mark> findByAssessmentIdAndStudentId(UUID assessmentId, UUID studentId);
+
+    List<Mark> findBySchoolIdAndAssessmentIdAndStudentId(
+            UUID schoolId, UUID assessmentId, UUID studentId);
 }
