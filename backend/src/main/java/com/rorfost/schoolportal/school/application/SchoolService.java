@@ -93,7 +93,7 @@ public class SchoolService {
     public SchoolResponse replaceLogo(
             UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
         School school = requireSchool(schoolId);
-        StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug(), file);
+        StoredObject uploaded = storage.uploadSchoolPublicImage(schoolId, "branding", file);
         String previousKey = school.getLogoObjectKey();
         try {
             school.changeLogo(uploaded.objectKey());
@@ -109,7 +109,7 @@ public class SchoolService {
                 "SCHOOL_LOGO",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -126,14 +126,14 @@ public class SchoolService {
                 "SCHOOL_LOGO",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return schoolResponse(school);
     }
 
     public SchoolResponse replaceSeal(
             UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
         School school = requireSchool(schoolId);
-        StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug(), file);
+        StoredObject uploaded = storage.uploadSchoolPublicImage(schoolId, "branding", file);
         String previousKey = school.getSealObjectKey();
         try {
             school.changeSeal(uploaded.objectKey());
@@ -149,7 +149,7 @@ public class SchoolService {
                 "SCHOOL_SEAL",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousSeal(previousKey);
+        deletePreviousSeal(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -166,7 +166,7 @@ public class SchoolService {
                 "SCHOOL_SEAL",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousSeal(previousKey);
+        deletePreviousSeal(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -245,7 +245,7 @@ public class SchoolService {
                                         principalProfileRepository.save(
                                                 new PrincipalProfile(schoolId, "Principal")));
         StoredObject uploaded =
-                storage.uploadPublicImage("signatures/" + schoolId + "/principal", file);
+                storage.uploadSchoolPublicImage(schoolId, "signatures/principal", file);
         String previousKey = profile.getSignatureObjectKey();
         try {
             profile.changeSignature(uploaded.objectKey());
@@ -261,7 +261,7 @@ public class SchoolService {
                 "PRINCIPAL_SIGNATURE",
                 profile.getId(),
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return principalProfileResponse(profile, false);
     }
 
@@ -285,7 +285,7 @@ public class SchoolService {
                 "PRINCIPAL_SIGNATURE_DELETED",
                 profile.getId(),
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return principalProfileResponse(profile, false);
     }
 
@@ -354,9 +354,10 @@ public class SchoolService {
         }
     }
 
-    private void deletePreviousLogo(String previousKey) {
+    private void deletePreviousLogo(UUID schoolId, String previousKey) {
         if (previousKey == null) return;
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error("Could not delete the replaced school logo", cleanupFailure);
@@ -371,9 +372,10 @@ public class SchoolService {
         }
     }
 
-    private void deletePreviousSeal(String previousKey) {
+    private void deletePreviousSeal(UUID schoolId, String previousKey) {
         if (previousKey == null) return;
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error("Could not delete the replaced school seal", cleanupFailure);

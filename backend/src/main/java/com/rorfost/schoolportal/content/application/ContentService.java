@@ -307,7 +307,8 @@ public class ContentService {
             album.setCoverImageId(remaining.isEmpty() ? null : remaining.get(0).getId());
             albums.saveAndFlush(album);
         }
-        deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
+        deleteStoredObject(
+                school, item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
         images.delete(item);
         images.flush();
         normalizeOrder(remaining, remaining.stream().map(GalleryImage::getId).toList());
@@ -320,7 +321,10 @@ public class ContentService {
         List<GalleryImage> albumImages = images.findByGalleryAlbumIdOrderBySortOrder(albumId);
         for (GalleryImage image : albumImages)
             deleteStoredObject(
-                    image.getStorageBucket(), image.getObjectKey(), image.getImagekitFileId());
+                    school,
+                    image.getStorageBucket(),
+                    image.getObjectKey(),
+                    image.getImagekitFileId());
         album.setCoverImageId(null);
         albums.saveAndFlush(album);
         images.deleteAll(albumImages);
@@ -366,7 +370,8 @@ public class ContentService {
                 materials
                         .findByIdAndSchoolId(id, school)
                         .orElseThrow(() -> notFound("material_not_found"));
-        deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
+        deleteStoredObject(
+                school, item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
         materials.delete(item);
         audit(school, actor, AuditAction.MATERIAL_DELETED, "STUDY_MATERIAL", id);
     }
@@ -376,6 +381,7 @@ public class ContentService {
         Notice item = noticeItem(school, id);
         if (item.getAttachmentObjectKey() != null)
             deleteStoredObject(
+                    school,
                     item.getAttachmentBucket(),
                     item.getAttachmentObjectKey(),
                     item.getAttachmentImagekitFileId());
@@ -389,7 +395,8 @@ public class ContentService {
                 downloads
                         .findByIdAndSchoolId(id, school)
                         .orElseThrow(() -> notFound("download_not_found"));
-        deleteStoredObject(item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
+        deleteStoredObject(
+                school, item.getStorageBucket(), item.getObjectKey(), item.getImagekitFileId());
         downloads.delete(item);
         audit(school, actor, AuditAction.DOWNLOAD_DELETED, "DOWNLOAD", id);
     }
@@ -724,7 +731,9 @@ public class ContentService {
         }
     }
 
-    private void deleteStoredObject(String bucket, String objectKey, String imagekitFileId) {
+    private void deleteStoredObject(
+            UUID schoolId, String bucket, String objectKey, String imagekitFileId) {
+        storage.assertKeyBelongsToSchool(objectKey, schoolId);
         storage.delete(bucket, objectKey, imagekitFileId);
     }
 
@@ -741,11 +750,7 @@ public class ContentService {
     }
 
     private String storagePrefix(String category, UUID schoolId) {
-        String schoolSlug =
-                schools.findById(schoolId)
-                        .map(school -> school.getSlug())
-                        .orElseThrow(() -> notFound("school_not_found"));
-        return category + "/" + schoolSlug;
+        return "schools/" + schoolId + "/" + category;
     }
 
     private void validateDownloadScope(UUID schoolId, DownloadMetadataRequest request) {

@@ -50,7 +50,8 @@ class SchoolServiceTest {
                         "checksum",
                         "file-id");
         when(schools.findById(schoolId)).thenReturn(Optional.of(school));
-        when(storage.uploadPublicImage(eq("branding/example-school"), any())).thenReturn(uploaded);
+        when(storage.uploadSchoolPublicImage(eq(schoolId), eq("branding"), any()))
+                .thenReturn(uploaded);
         when(storage.publicUrl(uploaded.objectKey())).thenReturn("https://assets.example/new.jpg");
 
         var response =
@@ -63,6 +64,7 @@ class SchoolServiceTest {
         assertThat(school.getLogoObjectKey()).isEqualTo(uploaded.objectKey());
         assertThat(response.logoUrl()).isEqualTo("https://assets.example/new.jpg");
         verify(schools).saveAndFlush(school);
+        verify(storage).assertKeyBelongsToSchool("branding/example-school/old.jpg", schoolId);
         verify(storage).deletePublicObject("branding/example-school/old.jpg");
     }
 
@@ -77,6 +79,7 @@ class SchoolServiceTest {
 
         assertThat(school.getLogoObjectKey()).isNull();
         verify(schools).saveAndFlush(school);
+        verify(storage).assertKeyBelongsToSchool("branding/example-school/old.jpg", schoolId);
         verify(storage).deletePublicObject("branding/example-school/old.jpg");
     }
 
@@ -95,7 +98,8 @@ class SchoolServiceTest {
                         "checksum",
                         "file-id");
         when(schools.findById(schoolId)).thenReturn(Optional.of(school));
-        when(storage.uploadPublicImage(eq("branding/example-school"), any())).thenReturn(uploaded);
+        when(storage.uploadSchoolPublicImage(eq(schoolId), eq("branding"), any()))
+                .thenReturn(uploaded);
         when(storage.publicUrl(uploaded.objectKey()))
                 .thenReturn("https://assets.example/seal/new.png");
 
@@ -109,6 +113,7 @@ class SchoolServiceTest {
         assertThat(school.getSealObjectKey()).isEqualTo(uploaded.objectKey());
         assertThat(response.sealUrl()).isEqualTo("https://assets.example/seal/new.png");
         verify(schools).saveAndFlush(school);
+        verify(storage).assertKeyBelongsToSchool("branding/example-school/seal/old.png", schoolId);
         verify(storage).deletePublicObject("branding/example-school/seal/old.png");
     }
 
@@ -123,6 +128,7 @@ class SchoolServiceTest {
 
         assertThat(school.getSealObjectKey()).isNull();
         verify(schools).saveAndFlush(school);
+        verify(storage).assertKeyBelongsToSchool("branding/example-school/seal/old.png", schoolId);
         verify(storage).deletePublicObject("branding/example-school/seal/old.png");
     }
 

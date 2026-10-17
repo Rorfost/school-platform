@@ -403,7 +403,7 @@ public class AcademicConfigurationService {
             org.springframework.web.multipart.MultipartFile file) {
         Standard standard = requireStandard(schoolId, standardId);
         StoredObject uploaded =
-                storage.uploadPublicImage("signatures/" + schoolId + "/class-teacher", file);
+                storage.uploadSchoolPublicImage(schoolId, "signatures/class-teacher", file);
         String previousKey = standard.getClassTeacherSignatureObjectKey();
         try {
             standard.changeClassTeacherSignature(uploaded.objectKey());
@@ -418,7 +418,7 @@ public class AcademicConfigurationService {
                 AuditAction.STANDARD_UPDATED,
                 "STANDARD_CLASS_TEACHER_SIGNATURE",
                 standardId);
-        deletePreviousClassTeacherSignature(previousKey);
+        deletePreviousClassTeacherSignature(schoolId, previousKey);
         return toStandardResponse(standard);
     }
 
@@ -436,16 +436,17 @@ public class AcademicConfigurationService {
                 AuditAction.STANDARD_UPDATED,
                 "STANDARD_CLASS_TEACHER_SIGNATURE_DELETED",
                 standardId);
-        deletePreviousClassTeacherSignature(previousKey);
+        deletePreviousClassTeacherSignature(schoolId, previousKey);
         return toStandardResponse(standard);
     }
 
-    private void deletePreviousClassTeacherSignature(String previousKey) {
+    private void deletePreviousClassTeacherSignature(UUID schoolId, String previousKey) {
         if (previousKey == null) {
             return;
         }
 
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error(

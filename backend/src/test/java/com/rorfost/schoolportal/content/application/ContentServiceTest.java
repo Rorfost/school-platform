@@ -222,6 +222,7 @@ class ContentServiceTest {
 
         assertThat(album.getCoverImageId()).isEqualTo(second.getId());
         assertThat(second.getSortOrder()).isEqualTo(1);
+        verify(storage).assertKeyBelongsToSchool(first.getObjectKey(), schoolId);
         verify(storage)
                 .delete(first.getStorageBucket(), first.getObjectKey(), first.getImagekitFileId());
 

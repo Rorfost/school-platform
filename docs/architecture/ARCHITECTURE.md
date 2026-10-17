@@ -45,7 +45,7 @@ flowchart LR
 - **Render Backend Gateway Filter:** Intercepts `/api/*` calls, validates the SHA-256 token hash against the database, and binds an immutable `TenantContext` to the request thread.
 - **Tenant Context Enforcement:** All controllers, services, and repositories filter queries and mutations by `school_id`. No entity is shared across tenants.
 - **Neon PostgreSQL:** Single shared database with strict composite foreign keys, partial indexes, and tenant predicates.
-- **ImageKit Namespace:** Objects stored with prefix `schools/<school-uuid>/...` to guarantee file ownership isolation.
+- **ImageKit Namespace & Deletion Ownership Guard:** All new uploads are stored under canonical tenant-isolated prefix `schools/<school-uuid>/<category>/...` (for branding, signatures, study materials, gallery, downloads). Legacy non-canonical object paths remain functional and resolve without migration. Before any remote deletion or replacement of media, `StorageService.assertKeyBelongsToSchool` validates that canonical keys belong strictly to the authenticated tenant (`schools/<school-id>/`), preventing cross-tenant deletion attacks even if foreign keys or IDs are presented.
 
 ## Components and Boundaries
 
