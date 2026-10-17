@@ -5,7 +5,6 @@ import com.rorfost.schoolportal.audit.service.AuditLogService;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.school.domain.AdminUser;
 import com.rorfost.schoolportal.school.repository.AdminUserRepository;
-import com.rorfost.schoolportal.school.repository.SchoolRepository;
 
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 public class AdminAuthenticationService {
@@ -24,7 +23,6 @@ public class AdminAuthenticationService {
     private static final String AUTH_TARGET = "ADMIN_AUTH";
 
     private final AdminUserRepository adminUserRepository;
-    private final SchoolRepository schoolRepository;
     private final AuditLogService auditLogService;
     private final PasswordEncoder passwordEncoder;
     private final Clock clock;
@@ -32,41 +30,37 @@ public class AdminAuthenticationService {
     @Autowired
     public AdminAuthenticationService(
             AdminUserRepository adminUserRepository,
-            SchoolRepository schoolRepository,
             AuditLogService auditLogService,
             PasswordEncoder passwordEncoder) {
-        this(
-                adminUserRepository,
-                schoolRepository,
-                auditLogService,
-                passwordEncoder,
-                Clock.systemUTC());
+        this(adminUserRepository, auditLogService, passwordEncoder, Clock.systemUTC());
     }
 
     AdminAuthenticationService(
             AdminUserRepository adminUserRepository,
-            SchoolRepository schoolRepository,
             AuditLogService auditLogService,
             PasswordEncoder passwordEncoder,
             Clock clock) {
         this.adminUserRepository = adminUserRepository;
-        this.schoolRepository = schoolRepository;
         this.auditLogService = auditLogService;
         this.passwordEncoder = passwordEncoder;
         this.clock = clock;
     }
 
     @Transactional
-    public PrincipalSession authenticate(String email, String password) {
-        List<AdminUser> matches = adminUserRepository.findAllByEmail(normalizeEmail(email));
-        if (matches.size() != 1) {
-            recordFailedLogin(matches.isEmpty() ? null : matches.getFirst());
+    public PrincipalSession authenticate(UUID schoolId, String email, String password) {
+        if (schoolId == null) {
             throw new AuthenticationFailedException();
         }
 
-        AdminUser user = matches.getFirst();
-        if (!user.isActive() || !passwordEncoder.matches(password, user.getPasswordHash())) {
-            recordFailedLogin(user);
+        AdminUser user =
+                adminUserRepository
+                        .findBySchoolIdAndEmail(schoolId, normalizeEmail(email))
+                        .orElse(null);
+
+        if (user == null
+                || !user.isActive()
+                || !passwordEncoder.matches(password, user.getPasswordHash())) {
+            recordFailedLogin(schoolId, user);
             throw new AuthenticationFailedException();
         }
 
@@ -105,28 +99,16 @@ public class AdminAuthenticationService {
         return toSession(user);
     }
 
-    private void recordFailedLogin(AdminUser user) {
-        if (user != null) {
-            auditLogService.record(
-                    user.getSchoolId(),
-                    user.getId(),
-                    AuditAction.LOGIN_FAILED,
-                    AUTH_TARGET,
-                    user.getId(),
-                    MDC.get("requestId"));
-            return;
-        }
-        schoolRepository
-                .findFirstByOrderByCreatedAtAsc()
-                .ifPresent(
-                        school ->
-                                auditLogService.record(
-                                        school.getId(),
-                                        null,
-                                        AuditAction.LOGIN_FAILED,
-                                        AUTH_TARGET,
-                                        null,
-                                        MDC.get("requestId")));
+    private void recordFailedLogin(UUID schoolId, AdminUser user) {
+        UUID actorUserId = user != null ? user.getId() : null;
+        UUID targetId = user != null ? user.getId() : null;
+        auditLogService.record(
+                schoolId,
+                actorUserId,
+                AuditAction.LOGIN_FAILED,
+                AUTH_TARGET,
+                targetId,
+                MDC.get("requestId"));
     }
 
     private PrincipalSession toSession(AdminUser user) {

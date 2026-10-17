@@ -4,12 +4,16 @@ import com.rorfost.schoolportal.auth.application.AdminAuthenticationService;
 import com.rorfost.schoolportal.auth.application.AuthenticationFailedException;
 import com.rorfost.schoolportal.auth.application.LoginRateLimiter;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +27,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/auth")
@@ -50,11 +56,18 @@ public class AdminAuthenticationController {
     @PostMapping("/login")
     public PrincipalAccountResponse login(
             @Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest) {
-        String clientKey = servletRequest.getRemoteAddr();
+        UUID schoolId = resolveTenantSchoolId(servletRequest);
+        String normalizedEmail =
+                request.email() != null
+                        ? request.email().trim().toLowerCase(java.util.Locale.ROOT)
+                        : "";
+        String clientKey = schoolId + ":" + servletRequest.getRemoteAddr() + ":" + normalizedEmail;
+
         loginRateLimiter.checkAllowed(clientKey);
         try {
             PrincipalSession principal =
-                    authenticationService.authenticate(request.email(), request.password());
+                    authenticationService.authenticate(
+                            schoolId, request.email(), request.password());
             loginRateLimiter.clear(clientKey);
             saveAuthentication(servletRequest, principal);
             return PrincipalAccountResponse.from(principal);
@@ -62,6 +75,14 @@ public class AdminAuthenticationController {
             loginRateLimiter.recordFailure(clientKey);
             throw exception;
         }
+    }
+
+    private UUID resolveTenantSchoolId(HttpServletRequest request) {
+        return TenantContextHolder.getTenantContext(request)
+                .or(TenantContextHolder::getCurrentTenant)
+                .map(TenantContext::schoolId)
+                .orElseThrow(
+                        () -> new DomainException(HttpStatus.FORBIDDEN, "missing_tenant_context"));
     }
 
     @PostMapping("/logout")

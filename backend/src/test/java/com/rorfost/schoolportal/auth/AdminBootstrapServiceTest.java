@@ -32,8 +32,9 @@ class AdminBootstrapServiceTest {
                 new AdminBootstrapProperties(
                         "Principal@Example.Test", "InitialPassword12", "school");
         School school = new School("School", "school");
-        when(adminUserRepository.count()).thenReturn(0L);
         when(schoolRepository.findBySlug("school")).thenReturn(Optional.of(school));
+        when(adminUserRepository.findBySchoolIdAndEmail(school.getId(), "principal@example.test"))
+                .thenReturn(Optional.empty());
         AdminBootstrapService service =
                 new AdminBootstrapService(
                         properties, adminUserRepository, schoolRepository, passwordEncoder);
@@ -43,17 +44,24 @@ class AdminBootstrapServiceTest {
         ArgumentCaptor<AdminUser> user = ArgumentCaptor.forClass(AdminUser.class);
         verify(adminUserRepository).save(user.capture());
         assertThat(user.getValue().getEmail()).isEqualTo("principal@example.test");
+        assertThat(user.getValue().getSchoolId()).isEqualTo(school.getId());
         assertThat(user.getValue().isMustChangePassword()).isTrue();
         assertThat(passwordEncoder.matches("InitialPassword12", user.getValue().getPasswordHash()))
                 .isTrue();
     }
 
     @Test
-    void neverOverwritesAnExistingAdministrator() {
+    void neverOverwritesAnExistingAdministratorForSameSchool() {
         AdminBootstrapProperties properties =
                 new AdminBootstrapProperties(
                         "principal@example.test", "InitialPassword12", "school");
-        when(adminUserRepository.count()).thenReturn(1L);
+        School school = new School("School", "school");
+        AdminUser existing =
+                new AdminUser(school.getId(), "principal@example.test", "existingHash");
+        when(schoolRepository.findBySlug("school")).thenReturn(Optional.of(school));
+        when(adminUserRepository.findBySchoolIdAndEmail(school.getId(), "principal@example.test"))
+                .thenReturn(Optional.of(existing));
+
         AdminBootstrapService service =
                 new AdminBootstrapService(
                         properties, adminUserRepository, schoolRepository, passwordEncoder);
@@ -61,6 +69,5 @@ class AdminBootstrapServiceTest {
         service.initialize();
 
         verify(adminUserRepository, never()).save(any());
-        verify(schoolRepository, never()).findBySlug(any());
     }
 }

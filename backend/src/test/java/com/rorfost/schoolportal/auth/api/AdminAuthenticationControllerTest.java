@@ -74,17 +74,22 @@ class AdminAuthenticationControllerTest {
     void login_shouldAuthenticateAndClearRateLimiter() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("127.0.0.1");
+        com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
+                request,
+                new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
 
-        when(authenticationService.authenticate("principal@example.com", "Password12345!"))
+        when(authenticationService.authenticate(
+                        schoolId, "principal@example.com", "Password12345!"))
                 .thenReturn(principal);
 
         LoginRequest loginRequest = new LoginRequest("principal@example.com", "Password12345!");
 
         PrincipalAccountResponse response = controller.login(loginRequest, request);
 
+        String expectedKey = schoolId + ":127.0.0.1:principal@example.com";
         assertThat(response.email()).isEqualTo("principal@example.com");
-        verify(loginRateLimiter).checkAllowed("127.0.0.1");
-        verify(loginRateLimiter).clear("127.0.0.1");
+        verify(loginRateLimiter).checkAllowed(expectedKey);
+        verify(loginRateLimiter).clear(expectedKey);
         assertThat(request.getSession(false)).isNotNull();
     }
 
@@ -92,8 +97,11 @@ class AdminAuthenticationControllerTest {
     void login_onFailure_shouldRecordFailureInRateLimiter() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("127.0.0.1");
+        com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
+                request,
+                new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
 
-        when(authenticationService.authenticate("wrong@example.com", "badpass"))
+        when(authenticationService.authenticate(schoolId, "wrong@example.com", "badpass"))
                 .thenThrow(new AuthenticationFailedException());
 
         LoginRequest loginRequest = new LoginRequest("wrong@example.com", "badpass");
@@ -101,7 +109,26 @@ class AdminAuthenticationControllerTest {
         assertThatThrownBy(() -> controller.login(loginRequest, request))
                 .isInstanceOf(AuthenticationFailedException.class);
 
-        verify(loginRateLimiter).recordFailure("127.0.0.1");
+        String expectedKey = schoolId + ":127.0.0.1:wrong@example.com";
+        verify(loginRateLimiter).recordFailure(expectedKey);
+    }
+
+    @Test
+    void login_missingTenantContext_throwsForbidden() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("127.0.0.1");
+        LoginRequest loginRequest = new LoginRequest("principal@example.com", "Password12345!");
+
+        assertThatThrownBy(() -> controller.login(loginRequest, request))
+                .isInstanceOf(com.rorfost.schoolportal.common.exception.DomainException.class)
+                .satisfies(
+                        ex ->
+                                assertThat(
+                                                ((com.rorfost.schoolportal.common.exception
+                                                                        .DomainException)
+                                                                ex)
+                                                        .getCode())
+                                        .isEqualTo("missing_tenant_context"));
     }
 
     @Test
