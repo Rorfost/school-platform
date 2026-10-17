@@ -22,6 +22,8 @@ import com.rorfost.schoolportal.assessment.repository.AssessmentSubjectRepositor
 import com.rorfost.schoolportal.assessment.repository.MarkRepository;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.tenant.domain.SchoolGatewayCredential;
+import com.rorfost.schoolportal.tenant.repository.SchoolGatewayCredentialRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @SpringBootTest
@@ -73,6 +76,7 @@ class DatabaseIntegrationTest {
     @Autowired private AssessmentRepository assessmentRepository;
     @Autowired private AssessmentSubjectRepository assessmentSubjectRepository;
     @Autowired private MarkRepository markRepository;
+    @Autowired private SchoolGatewayCredentialRepository schoolGatewayCredentialRepository;
     @Autowired private JdbcTemplate jdbcTemplate;
 
     @Test
@@ -304,6 +308,99 @@ class DatabaseIntegrationTest {
                         school.getId());
 
         assertThat(updatedAt).isAfter(createdAt);
+    }
+
+    @Test
+    void rejectsDuplicateGatewayTokenDigest() {
+        School school1 =
+                schoolRepository.saveAndFlush(new School("Gateway School 1", uniqueSlug()));
+        School school2 =
+                schoolRepository.saveAndFlush(new School("Gateway School 2", uniqueSlug()));
+        byte[] sharedDigest = SchoolGatewayCredential.computeDigest("shared-secret-token");
+
+        schoolGatewayCredentialRepository.saveAndFlush(
+                new SchoolGatewayCredential(school1.getId(), sharedDigest, "Primary Credential"));
+
+        assertThatThrownBy(
+                        () ->
+                                schoolGatewayCredentialRepository.saveAndFlush(
+                                        new SchoolGatewayCredential(
+                                                school2.getId(),
+                                                sharedDigest,
+                                                "Duplicate Credential")))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void rejectsGatewayCredentialForNonExistentSchool() {
+        UUID unknownSchoolId = UUID.randomUUID();
+        byte[] digest = SchoolGatewayCredential.computeDigest("non-existent-school-token");
+
+        assertThatThrownBy(
+                        () ->
+                                schoolGatewayCredentialRepository.saveAndFlush(
+                                        new SchoolGatewayCredential(
+                                                unknownSchoolId, digest, "Orphan Credential")))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void rejectsGatewayCredentialWithInvalidExpiry() {
+        School school = schoolRepository.saveAndFlush(new School("Expiry School", uniqueSlug()));
+        byte[] digest = SchoolGatewayCredential.computeDigest("invalid-expiry-token");
+        Instant now = Instant.now();
+        Instant past = now.minus(5, ChronoUnit.DAYS);
+
+        assertThatThrownBy(
+                        () ->
+                                jdbcTemplate.update(
+                                        """
+                                        INSERT INTO school_gateway_credentials (
+                                            id, school_id, token_digest, label, created_at, expires_at
+                                        ) VALUES (?, ?, ?, ?, ?, ?)
+                                        """,
+                                        UUID.randomUUID(),
+                                        school.getId(),
+                                        digest,
+                                        "Invalid Expiry",
+                                        now,
+                                        past))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void persistsAndFindsActiveGatewayCredential() {
+        School school =
+                schoolRepository.saveAndFlush(new School("Active Gateway School", uniqueSlug()));
+        byte[] digest = SchoolGatewayCredential.computeDigest("active-worker-token-xyz");
+        Instant futureExpiry = Instant.now().plus(60, ChronoUnit.DAYS);
+
+        SchoolGatewayCredential saved =
+                schoolGatewayCredentialRepository.saveAndFlush(
+                        new SchoolGatewayCredential(
+                                school.getId(), digest, "Active Worker", futureExpiry));
+
+        assertThat(schoolGatewayCredentialRepository.findByTokenDigest(digest))
+                .isPresent()
+                .hasValueSatisfying(c -> assertThat(c.getSchoolId()).isEqualTo(school.getId()));
+
+        assertThat(schoolGatewayCredentialRepository.findActiveByTokenDigest(digest, Instant.now()))
+                .isPresent();
+
+        assertThat(
+                        schoolGatewayCredentialRepository.countBySchoolIdAndRevokedAtIsNull(
+                                school.getId()))
+                .isEqualTo(1L);
+
+        saved.revoke(Instant.now());
+        schoolGatewayCredentialRepository.saveAndFlush(saved);
+
+        assertThat(schoolGatewayCredentialRepository.findActiveByTokenDigest(digest, Instant.now()))
+                .isEmpty();
+        assertThat(
+                        schoolGatewayCredentialRepository.countBySchoolIdAndRevokedAtIsNull(
+                                school.getId()))
+                .isZero();
     }
 
     private AcademicScope createScope() {
