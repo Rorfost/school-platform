@@ -11,7 +11,7 @@
 - **Zero Trust in Unauthenticated Ingress:** Direct requests to Render without a verified `X-Portal-Gateway-Token` are rejected (with `/actuator/health` as the only unauthenticated exception).
 - **Tenant Context Isolation:** The gateway filter resolves the school from the token digest, creating an immutable request-scoped `TenantContext`.
 - **Tenant-Scoped Principal Authentication:** Admin login queries `(school_id, email)` within the resolved tenant context. The same email address can exist at multiple schools without credential collisions.
-- **Session-Tenant Binding:** Every administrative mutation validates that `PrincipalSession.schoolId == TenantContext.schoolId`. Session tokens cannot be replayed across different school portals.
+- **Session-Tenant Binding:** Every request to `/api/v1/admin/**` enforces that `PrincipalSession.schoolId == TenantContext.schoolId` via `AdminSessionTenantBindingFilter`. Cross-tenant session replay attempts fail closed with `403 cross_tenant_access_denied` without silently reassigning sessions. Administrative mutations (POST, PUT, PATCH, DELETE) re-verify that the principal account remains active in the database (`403 account_inactive_or_revoked`).
 
 ## Principal Authentication & Session Management
 

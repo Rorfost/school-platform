@@ -17,8 +17,10 @@ public class SensitiveResponseHeadersFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/api/v1/admin/")) {
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/api/v1/admin/") || uri.equals("/api/v1/public/exam-results")) {
             response.setHeader("Cache-Control", "no-store");
+            response.setHeader("Pragma", "no-cache");
         }
         filterChain.doFilter(request, response);
     }

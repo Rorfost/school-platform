@@ -7,7 +7,7 @@ The backend is a Java 21 / Spring Boot 4.x Maven modular monolith providing REST
 ### Current State (As-Is)
 - Single-school deployment (reference: Dhadhana Primary School) transitioning to multi-tenancy.
 - Public school identity, principal profile, public content endpoints (materials, notices, albums, album images, downloads), public academic lookups (standards, subjects, current academic year), exam results / presentation settings (public marks lookup, admin Excel upload, clear results, signatures/grading policies), visit counters / metrics, and principal authentication / bootstrap strictly resolve and verify the school via request-scoped `TenantContext`, `AdminUserRepository.findBySchoolIdAndEmail(schoolId, email)`, and authenticated `PrincipalSession`.
-- Principal login is isolated by verified tenant scope with tenant-partitioned rate limiting; identical emails across distinct schools authenticate strictly against their own school. Initial bootstrap is school-specific and idempotent. Subsequent sprints address admin session binding, authorization, and onboarding.
+- Administrative requests (`/api/v1/admin/**`) enforce session-tenant binding via `AdminSessionTenantBindingFilter` (`PrincipalSession.schoolId == TenantContext.schoolId`), rejecting cross-tenant session replays with 403 Forbidden. Sensitive mutations re-check principal account active status in the database. Cookies remain host-only (Secure, HttpOnly, SameSite=Lax), CSRF protection is enforced for all mutations, and sensitive student/admin endpoints enforce `Cache-Control: no-store`. Subsequent sprints address module-by-module admin CRUD ownership checks and onboarding.
 - Database: PostgreSQL with Flyway migrations V1–V25.
 - Storage: ImageKit single account/bucket.
 

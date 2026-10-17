@@ -109,8 +109,11 @@ describe("Cloudflare Worker Gateway Proxy", () => {
 
         it("preserves Set-Cookie headers from backend response", async () => {
             const headers = new Headers();
-            headers.append("Set-Cookie", "JSESSIONID=session-xyz; Path=/; HttpOnly; Secure");
-            headers.append("Set-Cookie", "XSRF-TOKEN=csrf-xyz; Path=/; Secure");
+            headers.append(
+                "Set-Cookie",
+                "JSESSIONID=session-xyz; Path=/; HttpOnly; Secure; SameSite=Lax",
+            );
+            headers.append("Set-Cookie", "XSRF-TOKEN=csrf-xyz; Path=/; Secure; SameSite=Lax");
 
             mockGlobalFetch.mockResolvedValueOnce(
                 new Response(JSON.stringify({ authenticated: true }), {
@@ -119,7 +122,7 @@ describe("Cloudflare Worker Gateway Proxy", () => {
                 }),
             );
 
-            const request = new Request("https://dhadhana.workers.dev/api/v1/admin/auth/login", {
+            const request = new Request("https://school-a.workers.dev/api/v1/admin/auth/login", {
                 method: "POST",
             });
             const response = await worker.fetch(request, env);
@@ -128,6 +131,35 @@ describe("Cloudflare Worker Gateway Proxy", () => {
                 response.headers.get("set-cookie"),
             ];
             expect(responseCookies.some((c) => c?.includes("JSESSIONID=session-xyz"))).toBe(true);
+            expect(responseCookies.some((c) => c?.includes("XSRF-TOKEN=csrf-xyz"))).toBe(true);
+            // Verify host-only cookie scope: does not specify broad Domain=.workers.dev
+            expect(responseCookies.every((c) => !c?.toLowerCase().includes("domain="))).toBe(true);
+        });
+
+        it("forwards incoming request session and CSRF cookies to upstream backend", async () => {
+            mockGlobalFetch.mockResolvedValueOnce(
+                new Response(JSON.stringify({ email: "principal@school-a.org" }), {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                }),
+            );
+
+            const request = new Request("https://school-a.workers.dev/api/v1/admin/auth/me", {
+                method: "GET",
+                headers: {
+                    Cookie: "JSESSIONID=session-a-secret; XSRF-TOKEN=csrf-token-val",
+                    "X-XSRF-TOKEN": "csrf-token-val",
+                },
+            });
+            await worker.fetch(request, env);
+
+            expect(mockGlobalFetch).toHaveBeenCalledTimes(1);
+            const [, proxyInit] = mockGlobalFetch.mock.calls[0];
+            const forwardedHeaders = proxyInit.headers as Headers;
+            expect(forwardedHeaders.get("Cookie")).toBe(
+                "JSESSIONID=session-a-secret; XSRF-TOKEN=csrf-token-val",
+            );
+            expect(forwardedHeaders.get("X-XSRF-TOKEN")).toBe("csrf-token-val");
         });
     });
 
