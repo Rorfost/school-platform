@@ -1,37 +1,79 @@
 package com.rorfost.schoolportal.assessment.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.rorfost.schoolportal.assessment.application.ExamResultService;
+import com.rorfost.schoolportal.auth.domain.PrincipalSession;
+import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.school.domain.AdminRole;
+import com.rorfost.schoolportal.school.domain.School;
+import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 class ExamResultControllerTest {
 
     private ExamResultService service;
+    private SchoolRepository schools;
     private ExamResultController controller;
+
+    private UUID schoolId;
+    private School school;
+    private PrincipalSession principal;
+    private MockHttpServletRequest request;
 
     @BeforeEach
     void setUp() {
-        service = Mockito.mock(ExamResultService.class);
-        controller = new ExamResultController(service);
+        service = mock(ExamResultService.class);
+        schools = mock(SchoolRepository.class);
+        controller = new ExamResultController(service, schools);
+
+        schoolId = UUID.randomUUID();
+        school = mock(School.class);
+        when(school.getId()).thenReturn(schoolId);
+        when(schools.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
+
+        principal =
+                new PrincipalSession(
+                        UUID.randomUUID(),
+                        schoolId,
+                        "admin@school.org",
+                        AdminRole.PRINCIPAL,
+                        false);
+
+        request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        TenantContextHolder.setTenantContext(request, new TenantContext(schoolId, "school-slug"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test
     void getResult_shouldReturnResultWithNoStoreCacheControl() {
         UUID resultId = UUID.randomUUID();
-        UUID schoolId = UUID.randomUUID();
 
         ExamResultSubjectResponse sub1 =
                 new ExamResultSubjectResponse(
@@ -58,7 +100,8 @@ class ExamResultControllerTest {
                         "D",
                         List.of(sub1, sub2));
 
-        when(service.getResult("5", "A", 1, ExamResultService.ANNUAL)).thenReturn(mockResponse);
+        when(service.getResult(schoolId, "5", "A", 1, ExamResultService.ANNUAL))
+                .thenReturn(mockResponse);
 
         ResponseEntity<ExamResultResponse> response =
                 controller.getResult("5", "A", 1, ExamResultService.ANNUAL);
@@ -72,6 +115,16 @@ class ExamResultControllerTest {
     }
 
     @Test
+    void getResult_shouldThrowWhenTenantContextMissing() {
+        RequestContextHolder.resetRequestAttributes();
+
+        assertThatThrownBy(() -> controller.getResult("5", "A", 1, ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("code", "school_not_found")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void uploadResults_shouldDelegateAnnualUploadToService() {
         MockMultipartFile file =
                 new MockMultipartFile(
@@ -81,11 +134,11 @@ class ExamResultControllerTest {
                         new byte[] {1, 2, 3});
 
         ResponseEntity<Map<String, String>> response =
-                controller.uploadResults(file, "180", ExamResultService.ANNUAL);
+                controller.uploadResults(principal, file, "180", ExamResultService.ANNUAL);
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getBody()).containsEntry("message", "Result uploaded successfully.");
-        verify(service).processExcelUpload(file, "180", ExamResultService.ANNUAL);
+        verify(service).processExcelUpload(schoolId, file, "180", ExamResultService.ANNUAL);
     }
 
     @Test
@@ -98,20 +151,81 @@ class ExamResultControllerTest {
                         new byte[] {4, 5, 6});
 
         ResponseEntity<Map<String, String>> response =
-                controller.uploadResults(file, null, ExamResultService.EKAM_KASOTI);
+                controller.uploadResults(principal, file, null, ExamResultService.EKAM_KASOTI);
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getBody()).containsEntry("message", "Result uploaded successfully.");
-        verify(service).processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        verify(service).processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
+    }
+
+    @Test
+    void uploadResults_shouldRejectCrossTenantAttempt() {
+        UUID otherSchoolId = UUID.randomUUID();
+        PrincipalSession crossTenantPrincipal =
+                new PrincipalSession(
+                        UUID.randomUUID(),
+                        otherSchoolId,
+                        "attacker@other.org",
+                        AdminRole.PRINCIPAL,
+                        false);
+
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "result.xlsx", "application/vnd.ms-excel", new byte[] {1});
+
+        assertThatThrownBy(
+                        () ->
+                                controller.uploadResults(
+                                        crossTenantPrincipal, file, null, ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("code", "cross_tenant_access_denied")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void uploadResults_shouldRejectMissingTenantContext() {
+        RequestContextHolder.resetRequestAttributes();
+
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "result.xlsx", "application/vnd.ms-excel", new byte[] {1});
+
+        assertThatThrownBy(
+                        () ->
+                                controller.uploadResults(
+                                        principal, file, null, ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("code", "missing_tenant_context")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.FORBIDDEN);
     }
 
     @Test
     void clearResults_shouldDelegateToService() {
         ResponseEntity<Map<String, String>> response =
-                controller.clearResults(ExamResultService.ANNUAL);
+                controller.clearResults(principal, ExamResultService.ANNUAL);
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getBody()).containsEntry("message", "Results cleared successfully.");
-        verify(service).clearResults(ExamResultService.ANNUAL);
+        verify(service).clearResults(schoolId, ExamResultService.ANNUAL);
+    }
+
+    @Test
+    void clearResults_shouldRejectCrossTenantAttempt() {
+        UUID otherSchoolId = UUID.randomUUID();
+        PrincipalSession crossTenantPrincipal =
+                new PrincipalSession(
+                        UUID.randomUUID(),
+                        otherSchoolId,
+                        "attacker@other.org",
+                        AdminRole.PRINCIPAL,
+                        false);
+
+        assertThatThrownBy(
+                        () ->
+                                controller.clearResults(
+                                        crossTenantPrincipal, ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("code", "cross_tenant_access_denied")
+                .hasFieldOrPropertyWithValue("status", HttpStatus.FORBIDDEN);
     }
 }

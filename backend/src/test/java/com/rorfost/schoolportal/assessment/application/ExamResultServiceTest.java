@@ -80,7 +80,7 @@ class ExamResultServiceTest {
                         "40", "18",
                         "50", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -99,7 +99,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldTreatZeroAsRealMarks() throws Exception {
         MockMultipartFile file = createTrimasikExcel("0", "18", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -116,7 +116,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldTreatABAsAbsent() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "AB", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -135,7 +135,7 @@ class ExamResultServiceTest {
     void absentSubject_shouldStillCountMaximumMarks() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "AB", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -151,7 +151,7 @@ class ExamResultServiceTest {
         // Blank obtained marks = marks not filled in = show "-" on result (not "AB").
         MockMultipartFile file = createTrimasikExcel("20", "", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -174,7 +174,7 @@ class ExamResultServiceTest {
     void differentAbsentValues_shouldBeAccepted(String absentValue) throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", absentValue, "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -191,7 +191,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -204,7 +206,7 @@ class ExamResultServiceTest {
                         "", "18",
                         "25", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
         assertEquals(2, result.getSubjects().size());
@@ -222,7 +224,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -237,7 +241,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -252,7 +258,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -261,7 +269,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldNotSaveSubjectGrades() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -275,7 +283,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
 
@@ -303,7 +311,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, (String) null, ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, (String) null, ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         assertNull(result.getTotalWorkingDays());
@@ -315,7 +323,7 @@ class ExamResultServiceTest {
                 createAnnualExcelWithAttended(
                         "-", "25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         assertEquals("-", result.getAttendedDays());
@@ -326,7 +334,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "25", "AB", "A", "25", "15", "B");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
 
@@ -347,7 +355,7 @@ class ExamResultServiceTest {
         // User's real trimasik-kasoti.xlsx has no Present Divas column — subjects start at col 6.
         MockMultipartFile file = createTrimasikExcelWithoutAttendedDays("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -369,7 +377,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "X", "50", "40", "Y", "25", "18", "Z");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         // Grades are calculated from policy, NOT copied from Excel.
@@ -382,7 +390,7 @@ class ExamResultServiceTest {
     void uploadingNewTrimasikResult_shouldDeleteOldTrimasikResults() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         verify(resultRepository)
                 .deleteBySchoolIdAndResultType(schoolId, ExamResultService.EKAM_KASOTI);
@@ -399,8 +407,7 @@ class ExamResultServiceTest {
 
         when(school.getId()).thenReturn(schoolId);
 
-        when(schoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc())
-                .thenReturn(Optional.of(school));
+        when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
 
         when(presentationSettings.findById(schoolId)).thenReturn(Optional.empty());
 
@@ -740,5 +747,60 @@ class ExamResultServiceTest {
         assertEquals(expectedMarks, subject.getObtainedMarks());
         assertEquals(expectedMaximumMarks, subject.getMaximumMarks());
         assertEquals(expectedStatus, subject.getStatus());
+    }
+
+    @Test
+    void getResult_shouldReturnResultWhenFound() {
+        AnnualExamResult entity = new AnnualExamResult();
+        entity.setId(UUID.randomUUID());
+        entity.setSchoolId(schoolId);
+        entity.setResultType(ExamResultService.ANNUAL);
+        entity.setStandard("3");
+        entity.setStudentClass("A");
+        entity.setRollNumber(1);
+        entity.setStudentName("Test Student");
+
+        when(resultRepository.findResult(schoolId, ExamResultService.ANNUAL, "3", "A", 1))
+                .thenReturn(Optional.of(entity));
+
+        var response = service.getResult(schoolId, "3", "A", 1, ExamResultService.ANNUAL);
+
+        assertNotNull(response);
+        assertEquals("Test Student", response.studentName());
+        assertEquals(schoolId, response.schoolId());
+    }
+
+    @Test
+    void getResult_shouldThrowWhenNotFound() {
+        when(resultRepository.findResult(schoolId, ExamResultService.ANNUAL, "3", "A", 99))
+                .thenReturn(Optional.empty());
+
+        DomainException ex =
+                assertThrows(
+                        DomainException.class,
+                        () -> service.getResult(schoolId, "3", "A", 99, ExamResultService.ANNUAL));
+        assertEquals("result_not_found", ex.getCode());
+    }
+
+    @Test
+    void getResult_shouldThrowWhenSchoolInactive() {
+        UUID unknownSchoolId = UUID.randomUUID();
+        when(schoolRepository.findByIdAndIsActiveTrue(unknownSchoolId))
+                .thenReturn(Optional.empty());
+
+        DomainException ex =
+                assertThrows(
+                        DomainException.class,
+                        () ->
+                                service.getResult(
+                                        unknownSchoolId, "3", "A", 1, ExamResultService.ANNUAL));
+        assertEquals("school_not_found", ex.getCode());
+    }
+
+    @Test
+    void clearResults_shouldDeleteOnlyForSpecifiedSchool() {
+        service.clearResults(schoolId, ExamResultService.ANNUAL);
+
+        verify(resultRepository).deleteBySchoolIdAndResultType(schoolId, ExamResultService.ANNUAL);
     }
 }

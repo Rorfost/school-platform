@@ -28,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -73,14 +72,19 @@ public class ExamResultService {
     }
 
     @Transactional(readOnly = true)
-    public ExamResultResponse getResult(String standard, Integer rollNumber, String resultType) {
-        return getResult(standard, null, rollNumber, resultType);
+    public ExamResultResponse getResult(
+            UUID schoolId, String standard, Integer rollNumber, String resultType) {
+        return getResult(schoolId, standard, null, rollNumber, resultType);
     }
 
     @Transactional(readOnly = true)
     public ExamResultResponse getResult(
-            String standard, String studentClass, Integer rollNumber, String resultType) {
-        School school = getSchool();
+            UUID schoolId,
+            String standard,
+            String studentClass,
+            Integer rollNumber,
+            String resultType) {
+        School school = requireActiveSchool(schoolId);
         String trimmedClass =
                 (studentClass == null || studentClass.isBlank()) ? null : studentClass.trim();
         return resultRepository
@@ -91,17 +95,15 @@ public class ExamResultService {
                         trimmedClass,
                         rollNumber)
                 .map(this::mapToResponse)
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND, "Result not found"));
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "result_not_found"));
     }
 
     @Transactional
-    public void processExcelUpload(MultipartFile file, String totalWorkingDays, String resultType) {
+    public void processExcelUpload(
+            UUID schoolId, MultipartFile file, String totalWorkingDays, String resultType) {
         String validatedResultType = validateResultType(resultType);
 
-        School school = getSchool();
+        School school = requireActiveSchool(schoolId);
         ResultPresentationSettings settings =
                 presentationSettings
                         .findById(school.getId())
@@ -121,9 +123,9 @@ public class ExamResultService {
     }
 
     @Transactional
-    public void clearResults(String resultType) {
+    public void clearResults(UUID schoolId, String resultType) {
         String validatedResultType = validateResultType(resultType);
-        School school = getSchool();
+        School school = requireActiveSchool(schoolId);
 
         resultRepository.deleteBySchoolIdAndResultType(school.getId(), validatedResultType);
     }
@@ -610,13 +612,13 @@ public class ExamResultService {
         throw new DomainException(HttpStatus.BAD_REQUEST, "invalid_result_type");
     }
 
-    private School getSchool() {
+    private School requireActiveSchool(UUID schoolId) {
+        if (schoolId == null) {
+            throw new DomainException(HttpStatus.NOT_FOUND, "school_not_found");
+        }
         return schoolRepository
-                .findFirstByIsActiveTrueOrderByCreatedAtAsc()
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND, "School not found"));
+                .findByIdAndIsActiveTrue(schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
     }
 
     private String cellText(Cell cell) {
