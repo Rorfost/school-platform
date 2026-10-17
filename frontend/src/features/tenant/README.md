@@ -10,4 +10,4 @@ This directory is reserved for tenant-specific context, hooks, and utilities (Sp
 
 ## Current State (As-Is)
 
-Single school deployment mode. `useSchoolData.ts` and `Footer.tsx` contain Dhadhana-specific default fallbacks. Dynamic branding and multi-tenant worker awareness are scheduled for Sprints 19–20.
+Multi-tenant school branding and generic frontend defaults implemented (Sprint 19). Fallback metadata is generic neutral, document title syncs dynamically with the active school name, and the footer dynamically reflects attributed school data and separate platform software credit. Multi-tenant worker awareness is scheduled for Sprint 20.
