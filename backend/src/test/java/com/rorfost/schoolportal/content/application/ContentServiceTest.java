@@ -93,7 +93,8 @@ class ContentServiceTest {
                                                                 == PublicationStatus.PUBLISHED)
                                         .sorted(Comparator.comparingInt(GalleryImage::getSortOrder))
                                         .toList());
-        when(images.findByIdAndGalleryAlbumId(any(UUID.class), any(UUID.class)))
+        when(images.findByIdAndGalleryAlbumIdAndSchoolId(
+                        any(UUID.class), any(UUID.class), eq(schoolId)))
                 .thenAnswer(
                         invocation ->
                                 albumImages.stream()

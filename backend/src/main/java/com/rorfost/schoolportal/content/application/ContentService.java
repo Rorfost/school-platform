@@ -262,7 +262,7 @@ public class ContentService {
     @Transactional
     public GalleryAlbumResponse setAlbumCover(UUID school, UUID actor, UUID albumId, UUID imageId) {
         GalleryAlbum item = editableAlbumForUpdate(school, albumId);
-        imageInAlbum(albumId, imageId);
+        imageInAlbum(school, albumId, imageId);
         item.setCoverImageId(imageId);
         audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", albumId);
         return albumResponse(item, false);
@@ -276,7 +276,7 @@ public class ContentService {
             UUID imageId,
             GalleryImageMetadataRequest request) {
         editableAlbumForUpdate(school, albumId);
-        GalleryImage item = imageInAlbum(albumId, imageId);
+        GalleryImage item = imageInAlbum(school, albumId, imageId);
         item.updateMetadata(
                 requiredTrim(request.altText(), "gallery_image_alt_text_required"),
                 trim(request.caption()));
@@ -292,13 +292,13 @@ public class ContentService {
         validateReorder(albumImages, imageIds);
         normalizeOrder(albumImages, imageIds);
         audit(school, actor, AuditAction.GALLERY_UPLOADED, "GALLERY_ALBUM", album.getId());
-        return imageIds.stream().map(id -> adminImage(imageInAlbum(albumId, id))).toList();
+        return imageIds.stream().map(id -> adminImage(imageInAlbum(school, albumId, id))).toList();
     }
 
     @Transactional
     public void deleteImage(UUID school, UUID actor, UUID albumId, UUID imageId) {
         GalleryAlbum album = editableAlbumForUpdate(school, albumId);
-        GalleryImage item = imageInAlbum(albumId, imageId);
+        GalleryImage item = imageInAlbum(school, albumId, imageId);
         List<GalleryImage> remaining =
                 images.findByGalleryAlbumIdOrderBySortOrder(albumId).stream()
                         .filter(image -> !image.getId().equals(imageId))
@@ -332,6 +332,8 @@ public class ContentService {
     @Transactional
     public DownloadResponse uploadDownload(
             UUID school, UUID actor, DownloadMetadataRequest request, MultipartFile file) {
+        // Validate that the optional academicYearId belongs to this school before persisting.
+        validateDownloadScope(school, request);
         StoredObject object =
                 storage.uploadPublicDocument(storagePrefix("downloads", school), file);
         try {
@@ -662,8 +664,12 @@ public class ContentService {
         return item;
     }
 
-    private GalleryImage imageInAlbum(UUID albumId, UUID imageId) {
-        return images.findByIdAndGalleryAlbumId(imageId, albumId)
+    /**
+     * Fetches a gallery image scoped to both album and school, providing defence-in-depth so that
+     * an image belonging to another tenant cannot be referenced via a cross-tenant albumId.
+     */
+    private GalleryImage imageInAlbum(UUID school, UUID albumId, UUID imageId) {
+        return images.findByIdAndGalleryAlbumIdAndSchoolId(imageId, albumId, school)
                 .orElseThrow(() -> notFound("gallery_image_not_found"));
     }
 
@@ -740,6 +746,18 @@ public class ContentService {
                         .map(school -> school.getSlug())
                         .orElseThrow(() -> notFound("school_not_found"));
         return category + "/" + schoolSlug;
+    }
+
+    private void validateDownloadScope(UUID schoolId, DownloadMetadataRequest request) {
+        // Multipart field values are user-controlled; validate the optional academicYearId against
+        // the authenticated school so a foreign UUID cannot be stored against this tenant.
+        if (request.academicYearId() != null
+                && academicYears
+                        .findById(request.academicYearId())
+                        .filter(year -> year.getSchoolId().equals(schoolId))
+                        .isEmpty()) {
+            throw badRequest("download_academic_year_invalid");
+        }
     }
 
     private void validateMaterialScope(UUID schoolId, MaterialMetadataRequest request) {
