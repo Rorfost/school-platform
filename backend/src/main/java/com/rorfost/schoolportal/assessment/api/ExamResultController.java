@@ -3,6 +3,8 @@ package com.rorfost.schoolportal.assessment.api;
 import com.rorfost.schoolportal.assessment.application.ExamResultService;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.domain.FeatureKey;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
@@ -29,10 +31,15 @@ public class ExamResultController {
 
     private final ExamResultService service;
     private final SchoolRepository schools;
+    private final FeatureAccessPolicy featureAccessPolicy;
 
-    public ExamResultController(ExamResultService service, SchoolRepository schools) {
+    public ExamResultController(
+            ExamResultService service,
+            SchoolRepository schools,
+            FeatureAccessPolicy featureAccessPolicy) {
         this.service = service;
         this.schools = schools;
+        this.featureAccessPolicy = featureAccessPolicy;
     }
 
     @GetMapping("/public/exam-results")
@@ -43,6 +50,8 @@ public class ExamResultController {
             @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
                     String resultType) {
         UUID schoolId = resolvePublicSchoolId();
+        // Feature disabled → 404 so the endpoint cannot be probed when results are hidden
+        featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.EXAM_RESULTS);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
                 .body(service.getResult(schoolId, standard, studentClass, rollNumber, resultType));
@@ -56,6 +65,7 @@ public class ExamResultController {
             @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
                     String resultType) {
         UUID schoolId = resolveAdminSchoolId(principal);
+        featureAccessPolicy.requireAdminEnabled(schoolId, FeatureKey.EXAM_RESULTS);
         service.processExcelUpload(schoolId, file, totalWorkingDays, resultType);
         return ResponseEntity.ok(Map.of("message", "Result uploaded successfully."));
     }
@@ -66,6 +76,7 @@ public class ExamResultController {
             @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
                     String resultType) {
         UUID schoolId = resolveAdminSchoolId(principal);
+        featureAccessPolicy.requireAdminEnabled(schoolId, FeatureKey.EXAM_RESULTS);
         service.clearResults(schoolId, resultType);
         return ResponseEntity.ok(Map.of("message", "Results cleared successfully."));
     }

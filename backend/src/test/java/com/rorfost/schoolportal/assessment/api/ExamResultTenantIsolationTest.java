@@ -26,6 +26,9 @@ import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.ApiExceptionHandler;
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.common.storage.StorageService;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.application.FeatureFlagService;
+import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.AdminRole;
 import com.rorfost.schoolportal.school.domain.AnnualExamResult;
 import com.rorfost.schoolportal.school.domain.AnnualExamResultRepository;
@@ -360,8 +363,15 @@ class ExamResultTenantIsolationTest {
                         eq(schoolIdA), eq("10"), eq("A"), eq(999), eq(ExamResultService.ANNUAL)))
                 .thenThrow(new DomainException(HttpStatus.NOT_FOUND, "result_not_found"));
 
+        // Default-enabled policy: all core features on, isolation tests pass through
+        SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolId(any())).thenReturn(java.util.Collections.emptyList());
+        FeatureAccessPolicy featureAccessPolicy =
+                new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
+
         // Setup Controllers
-        examResultController = new ExamResultController(examResultService, schoolRepository);
+        examResultController =
+                new ExamResultController(examResultService, schoolRepository, featureAccessPolicy);
         presentationSettingsController =
                 new ResultPresentationSettingsController(
                         presentationSettingsService,

@@ -28,6 +28,9 @@ import com.rorfost.schoolportal.content.repository.GalleryAlbumRepository;
 import com.rorfost.schoolportal.content.repository.GalleryImageRepository;
 import com.rorfost.schoolportal.content.repository.NoticeRepository;
 import com.rorfost.schoolportal.content.repository.StudyMaterialRepository;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.application.FeatureFlagService;
+import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import com.rorfost.schoolportal.tenant.application.TenantResolver;
@@ -118,8 +121,14 @@ class PublicContentTenantIsolationTest {
                         mock(SubjectRepository.class),
                         mock(AuditLogService.class));
 
+        // Default-enabled policy: no overrides stored, all core features enabled by default
+        SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolId(any())).thenReturn(java.util.Collections.emptyList());
+        FeatureAccessPolicy featureAccessPolicy =
+                new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
+
         PublicContentController controller =
-                new PublicContentController(contentService, schoolRepository);
+                new PublicContentController(contentService, schoolRepository, featureAccessPolicy);
 
         GatewayCredentialAuthenticationFilter gatewayFilter =
                 new GatewayCredentialAuthenticationFilter(tenantResolver, objectMapper, true);

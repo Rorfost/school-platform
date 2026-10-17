@@ -9,6 +9,10 @@ import com.rorfost.schoolportal.common.api.PageResponse;
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.content.application.ContentService;
 import com.rorfost.schoolportal.content.domain.Notice;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.application.FeatureFlagService;
+import com.rorfost.schoolportal.featureflag.domain.FeatureKey;
+import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
@@ -35,6 +39,7 @@ class PublicContentControllerTest {
     private ContentService contentService;
     private SchoolRepository schoolRepository;
     private PublicContentController controller;
+    private FeatureAccessPolicy featureAccessPolicy;
 
     private UUID schoolId;
     private School school;
@@ -43,7 +48,12 @@ class PublicContentControllerTest {
     void setUp() {
         contentService = Mockito.mock(ContentService.class);
         schoolRepository = Mockito.mock(SchoolRepository.class);
-        controller = new PublicContentController(contentService, schoolRepository);
+        // Use a real FeatureAccessPolicy backed by a no-override repository so defaults apply
+        SchoolFeatureRepository sfRepo = Mockito.mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolId(Mockito.any())).thenReturn(java.util.Collections.emptyList());
+        featureAccessPolicy = new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
+        controller =
+                new PublicContentController(contentService, schoolRepository, featureAccessPolicy);
 
         schoolId = UUID.randomUUID();
         school = Mockito.mock(School.class);
@@ -135,5 +145,33 @@ class PublicContentControllerTest {
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
                 .hasFieldOrPropertyWithValue("code", "school_not_found");
+    }
+
+    @Test
+    void publicEndpoints_disabledFeature_shouldReturn404() {
+        // Use a FeatureAccessPolicy backed by a repository that returns a disabled override
+        SchoolFeatureRepository sfRepo = Mockito.mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolIdAndIdFeatureKey(schoolId, FeatureKey.NOTICES.name()))
+                .thenReturn(
+                        Optional.of(
+                                new com.rorfost.schoolportal.featureflag.domain.SchoolFeature(
+                                        schoolId, FeatureKey.NOTICES, false)));
+        when(sfRepo.findByIdSchoolId(schoolId))
+                .thenReturn(
+                        java.util.List.of(
+                                new com.rorfost.schoolportal.featureflag.domain.SchoolFeature(
+                                        schoolId, FeatureKey.NOTICES, false)));
+        FeatureAccessPolicy disabledPolicy =
+                new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
+        PublicContentController disabledController =
+                new PublicContentController(contentService, schoolRepository, disabledPolicy);
+
+        bindTenant(schoolId, "dhadhana-school");
+        when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
+
+        assertThatThrownBy(() -> disabledController.notices(0, 20))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
+                .hasFieldOrPropertyWithValue("code", "feature_not_found");
     }
 }

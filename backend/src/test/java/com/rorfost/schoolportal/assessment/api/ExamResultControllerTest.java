@@ -9,6 +9,11 @@ import static org.mockito.Mockito.when;
 import com.rorfost.schoolportal.assessment.application.ExamResultService;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.application.FeatureFlagService;
+import com.rorfost.schoolportal.featureflag.domain.FeatureKey;
+import com.rorfost.schoolportal.featureflag.domain.SchoolFeature;
+import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.AdminRole;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
@@ -36,6 +41,7 @@ class ExamResultControllerTest {
     private ExamResultService service;
     private SchoolRepository schools;
     private ExamResultController controller;
+    private FeatureAccessPolicy defaultEnabledPolicy;
 
     private UUID schoolId;
     private School school;
@@ -46,7 +52,12 @@ class ExamResultControllerTest {
     void setUp() {
         service = mock(ExamResultService.class);
         schools = mock(SchoolRepository.class);
-        controller = new ExamResultController(service, schools);
+        // Build a default-enabled policy (no overrides → all core features on)
+        SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolId(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(java.util.Collections.emptyList());
+        defaultEnabledPolicy = new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
+        controller = new ExamResultController(service, schools, defaultEnabledPolicy);
 
         schoolId = UUID.randomUUID();
         school = mock(School.class);
@@ -227,5 +238,45 @@ class ExamResultControllerTest {
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", "cross_tenant_access_denied")
                 .hasFieldOrPropertyWithValue("status", HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void publicExamResult_disabledFeature_shouldReturn404() {
+        SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolIdAndIdFeatureKey(schoolId, FeatureKey.EXAM_RESULTS.name()))
+                .thenReturn(
+                        Optional.of(new SchoolFeature(schoolId, FeatureKey.EXAM_RESULTS, false)));
+        ExamResultController disabledController =
+                new ExamResultController(
+                        service, schools, new FeatureAccessPolicy(new FeatureFlagService(sfRepo)));
+        TenantContextHolder.setTenantContext(request, new TenantContext(schoolId, "test-school"));
+
+        assertThatThrownBy(
+                        () -> disabledController.getResult("10", "A", 1, ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
+                .hasFieldOrPropertyWithValue("code", "feature_not_found");
+    }
+
+    @Test
+    void adminUpload_disabledFeature_shouldReturn403() {
+        SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
+        when(sfRepo.findByIdSchoolIdAndIdFeatureKey(schoolId, FeatureKey.EXAM_RESULTS.name()))
+                .thenReturn(
+                        Optional.of(new SchoolFeature(schoolId, FeatureKey.EXAM_RESULTS, false)));
+        ExamResultController disabledController =
+                new ExamResultController(
+                        service, schools, new FeatureAccessPolicy(new FeatureFlagService(sfRepo)));
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file", "results.xlsx", "application/vnd.ms-excel", new byte[] {1, 2});
+
+        assertThatThrownBy(
+                        () ->
+                                disabledController.uploadResults(
+                                        principal, file, "180", ExamResultService.ANNUAL))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("status", HttpStatus.FORBIDDEN)
+                .hasFieldOrPropertyWithValue("code", "feature_disabled");
     }
 }
