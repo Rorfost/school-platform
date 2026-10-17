@@ -520,7 +520,12 @@ public class ContentService {
         GalleryAlbum album = album(school, albumId);
         if (album.getStatus() != PublicationStatus.PUBLISHED)
             throw notFound("gallery_album_not_found");
-        return albumImages(albumId);
+        return images
+                .findBySchoolIdAndGalleryAlbumIdAndStatusOrderBySortOrder(
+                        school, albumId, PublicationStatus.PUBLISHED)
+                .stream()
+                .map(this::image)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -613,7 +618,8 @@ public class ContentService {
         String coverImageThumbnailUrl = null;
         if (album.getCoverImageId() != null) {
             GalleryImage cover =
-                    images.findByIdAndGalleryAlbumId(album.getCoverImageId(), album.getId())
+                    images.findByIdAndGalleryAlbumIdAndSchoolId(
+                                    album.getCoverImageId(), album.getId(), album.getSchoolId())
                             .orElse(null);
             if (cover != null
                     && (!publicView || cover.getStatus() == PublicationStatus.PUBLISHED)) {
@@ -627,9 +633,10 @@ public class ContentService {
                 album.getCoverImageId(),
                 coverImageThumbnailUrl,
                 publicView
-                        ? images.countByGalleryAlbumIdAndStatus(
-                                album.getId(), PublicationStatus.PUBLISHED)
-                        : images.countByGalleryAlbumId(album.getId()),
+                        ? images.countBySchoolIdAndGalleryAlbumIdAndStatus(
+                                album.getSchoolId(), album.getId(), PublicationStatus.PUBLISHED)
+                        : images.countBySchoolIdAndGalleryAlbumId(
+                                album.getSchoolId(), album.getId()),
                 album.getStatus().name());
     }
 

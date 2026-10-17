@@ -6,8 +6,8 @@ The backend is a Java 21 / Spring Boot 4.x Maven modular monolith providing REST
 
 ### Current State (As-Is)
 - Single-school deployment (reference: Dhadhana Primary School) transitioning to multi-tenancy.
-- Public school identity and principal profile endpoints resolve the verified school strictly via request-scoped `TenantContext` and `SchoolRepository.findByIdAndIsActiveTrue(schoolId)`.
-- Remaining legacy modules (content, academic, results, visits) will transition incrementally in subsequent sprints.
+- Public school identity, principal profile, and public content endpoints (materials, notices, albums, album images, downloads) resolve the verified school strictly via request-scoped `TenantContext` and `SchoolRepository.findByIdAndIsActiveTrue(schoolId)`.
+- Remaining legacy modules (academic, results, visits) will transition incrementally in subsequent sprints.
 - Database: PostgreSQL with Flyway migrations V1–V25.
 - Storage: ImageKit single account/bucket.
 

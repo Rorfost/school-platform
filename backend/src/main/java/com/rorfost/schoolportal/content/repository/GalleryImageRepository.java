@@ -19,6 +19,17 @@ public interface GalleryImageRepository extends JpaRepository<GalleryImage, UUID
 
     long countByGalleryAlbumIdAndStatus(UUID galleryAlbumId, PublicationStatus status);
 
+    List<GalleryImage> findBySchoolIdAndGalleryAlbumIdAndStatusOrderBySortOrder(
+            UUID schoolId, UUID galleryAlbumId, PublicationStatus status);
+
+    Optional<GalleryImage> findByIdAndGalleryAlbumIdAndSchoolId(
+            UUID id, UUID galleryAlbumId, UUID schoolId);
+
+    long countBySchoolIdAndGalleryAlbumId(UUID schoolId, UUID galleryAlbumId);
+
+    long countBySchoolIdAndGalleryAlbumIdAndStatus(
+            UUID schoolId, UUID galleryAlbumId, PublicationStatus status);
+
     @Query(
             "select coalesce(max(image.sortOrder), 0) from GalleryImage image "
                     + "where image.galleryAlbumId = :galleryAlbumId")
