@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AcademicYearRepository extends JpaRepository<AcademicYear, UUID> {
+    Optional<AcademicYear> findByIdAndSchoolId(UUID id, UUID schoolId);
+
     Optional<AcademicYear> findBySchoolIdAndStatus(UUID schoolId, AcademicYearStatus status);
 
     List<AcademicYear> findBySchoolIdOrderByStartsOnDesc(UUID schoolId);

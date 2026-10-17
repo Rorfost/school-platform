@@ -335,6 +335,7 @@ public class AcademicConfigurationService {
 
     @Transactional(readOnly = true)
     public List<StandardSubjectResponse> mappings(UUID schoolId, UUID standardId) {
+        requireStandard(schoolId, standardId);
         return standardSubjects
                 .findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standardId)
                 .stream()
@@ -348,8 +349,8 @@ public class AcademicConfigurationService {
         if (requireStandard(schoolId, request.standardId()).isArchived()
                 || requireSubject(schoolId, request.subjectId()).isArchived())
             throw conflict("archived_academic_item");
-        if (standardSubjects.existsByStandardIdAndSubjectId(
-                request.standardId(), request.subjectId()))
+        if (standardSubjects.existsBySchoolIdAndStandardIdAndSubjectId(
+                schoolId, request.standardId(), request.subjectId()))
             throw conflict("standard_subject_duplicate");
         StandardSubject mapping =
                 standardSubjects.save(
@@ -560,8 +561,7 @@ public class AcademicConfigurationService {
 
     private AcademicYear requireYear(UUID schoolId, UUID id) {
         return academicYears
-                .findById(id)
-                .filter(value -> value.getSchoolId().equals(schoolId))
+                .findByIdAndSchoolId(id, schoolId)
                 .orElseThrow(() -> notFound("academic_year_not_found"));
     }
 

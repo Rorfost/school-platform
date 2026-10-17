@@ -20,6 +20,9 @@ public interface StandardSubjectRepository extends JpaRepository<StandardSubject
 
     boolean existsByStandardIdAndSubjectId(UUID standardId, UUID subjectId);
 
+    boolean existsBySchoolIdAndStandardIdAndSubjectId(
+            UUID schoolId, UUID standardId, UUID subjectId);
+
     boolean existsBySubjectId(UUID subjectId);
 
     @Query(
