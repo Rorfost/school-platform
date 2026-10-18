@@ -23,6 +23,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -121,23 +122,40 @@ public class TenantProvisioningService {
 
         // Provision principal user if not present
         if (adminUserRepository.findBySchoolIdAndEmail(school.getId(), normalizedEmail).isEmpty()) {
-            String encodedPassword =
-                    passwordEncoder.encode(
-                            initialPassword != null && !initialPassword.isBlank()
-                                    ? initialPassword
-                                    : generateSecureRandomPassword());
+            if (initialPassword == null || initialPassword.isBlank()) {
+                throw new DomainException(
+                        HttpStatus.BAD_REQUEST, "initial_password_required_for_principal");
+            }
+            String encodedPassword = passwordEncoder.encode(initialPassword.strip());
             AdminUser admin = new AdminUser(school.getId(), normalizedEmail, encodedPassword);
             adminUserRepository.save(admin);
         }
 
-        // Generate cryptographic gateway token
-        String rawToken = generateSecureGatewayToken();
-        byte[] digest = SchoolGatewayCredential.computeDigest(rawToken);
-        String label = "gateway-token-" + normalizedSlug + "-" + System.currentTimeMillis();
+        // Idempotent gateway credential handling:
+        // If the school already has an active gateway credential, do not create a new one during repeat provisioning.
+        List<SchoolGatewayCredential> activeCredentials =
+                credentialRepository.findActiveBySchoolId(school.getId(), Instant.now());
 
-        SchoolGatewayCredential credential =
-                credentialRepository.save(
-                        new SchoolGatewayCredential(school.getId(), digest, label));
+        String rawToken;
+        String label;
+        UUID credentialId;
+
+        if (activeCredentials.isEmpty()) {
+            rawToken = generateSecureGatewayToken();
+            byte[] digest = SchoolGatewayCredential.computeDigest(rawToken);
+            label = "gateway-token-" + normalizedSlug + "-" + System.currentTimeMillis();
+
+            SchoolGatewayCredential credential =
+                    credentialRepository.save(
+                            new SchoolGatewayCredential(school.getId(), digest, label));
+            credentialId = credential.getId();
+        } else {
+            // Existing active credential retained; token was already issued and its raw value cannot be retrieved.
+            SchoolGatewayCredential existingCred = activeCredentials.get(0);
+            rawToken = null;
+            label = existingCred.getLabel();
+            credentialId = existingCred.getId();
+        }
 
         auditLogService.record(
                 school.getId(),
@@ -155,7 +173,7 @@ public class TenantProvisioningService {
                 normalizedEmail,
                 rawToken,
                 label,
-                credential.getId(),
+                credentialId,
                 isNewSchool);
     }
 
@@ -295,11 +313,5 @@ public class TenantProvisioningService {
         byte[] randomBytes = new byte[GATEWAY_TOKEN_BYTE_LENGTH];
         SECURE_RANDOM.nextBytes(randomBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-    }
-
-    private String generateSecureRandomPassword() {
-        byte[] randomBytes = new byte[18];
-        SECURE_RANDOM.nextBytes(randomBytes);
-        return "TempPass!" + Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 }

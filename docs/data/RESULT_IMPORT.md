@@ -20,11 +20,13 @@ The result import workflow enables school principals to upload approved spreadsh
 ### 1. Annual Exam Result (વાર્ષિક પરીક્ષા પરિણામ)
 - Sheet contains headers on Row 0 and data starting from Row 1.
 - Column 0: G.R. No. (જી.આર. નં)
-- Column 1: Standard (ધોરણ)
-- Column 2: Student Name (વિદ્યાર્થીનું નામ)
-- Column 3: Birth Date (જન્મ તારીખ)
-- Column 4: Attended Days (હાજર દિવસ)
-- Columns 5+: Subject Mark & Grade pairs (Gujarati, Maths, Science, Hindi, English, Social Science, Sanskrit, Personality Development, Environment).
+- Column 1: Student UID (Optional/Ignored: government/state student UIDs are never read, hashed, persisted, or returned)
+- Column 2: Standard (ધોરણ)
+- Column 3: Class (વર્ગ)
+- Column 4: Student Name (વિદ્યાર્થીનું નામ)
+- Column 5: Birth Date (જન્મ તારીખ)
+- Col 6 / Sub-start - 1: Attended Days (હાજર દિવસ)
+- Columns+: Subject Mark & Grade pairs (Gujarati, Maths, Science, Hindi, English, Social Science, Sanskrit, Personality Development, Environment).
 - Admin supplies `totalWorkingDays` (કુલ કાર્ય દિવસ) during upload.
 
 ### 2. Ekam Kasoti Result (એકમ કસોટી પરિણામ)

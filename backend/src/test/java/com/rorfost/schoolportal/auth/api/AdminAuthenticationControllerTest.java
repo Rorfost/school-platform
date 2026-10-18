@@ -73,7 +73,9 @@ class AdminAuthenticationControllerTest {
     @Test
     void login_shouldAuthenticateAndClearRateLimiter() {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRemoteAddr("127.0.0.1");
+        request.setRemoteAddr("10.0.0.1"); // internal proxy address
+        // Trusted client IP injected by the Cloudflare Worker
+        request.addHeader(AdminAuthenticationController.CLIENT_IP_HEADER, "203.0.113.55");
         com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
                 request,
                 new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
@@ -86,7 +88,8 @@ class AdminAuthenticationControllerTest {
 
         PrincipalAccountResponse response = controller.login(loginRequest, request);
 
-        String expectedKey = schoolId + ":127.0.0.1:principal@example.com";
+        // Rate-limiter key must use the trusted X-Portal-Client-IP, not the proxy's remoteAddr
+        String expectedKey = schoolId + ":203.0.113.55:principal@example.com";
         assertThat(response.email()).isEqualTo("principal@example.com");
         verify(loginRateLimiter).checkAllowed(expectedKey);
         verify(loginRateLimiter).clear(expectedKey);
@@ -94,9 +97,52 @@ class AdminAuthenticationControllerTest {
     }
 
     @Test
-    void login_onFailure_shouldRecordFailureInRateLimiter() {
+    void login_fallsBackToRemoteAddrWhenClientIpHeaderAbsent() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("127.0.0.1");
+        // No X-Portal-Client-IP header — local dev / direct call
+        com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
+                request,
+                new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
+
+        when(authenticationService.authenticate(
+                        schoolId, "principal@example.com", "Password12345!"))
+                .thenReturn(principal);
+
+        LoginRequest loginRequest = new LoginRequest("principal@example.com", "Password12345!");
+        controller.login(loginRequest, request);
+
+        String expectedKey = schoolId + ":127.0.0.1:principal@example.com";
+        verify(loginRateLimiter).checkAllowed(expectedKey);
+    }
+
+    @Test
+    void login_fallsBackToRemoteAddrWhenClientIpHeaderIsInvalidFormat() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("127.0.0.1");
+        // Attacker tries to inject a non-IP string through the header
+        request.addHeader(AdminAuthenticationController.CLIENT_IP_HEADER, "evil-header-value!!!");
+        com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
+                request,
+                new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
+
+        when(authenticationService.authenticate(
+                        schoolId, "principal@example.com", "Password12345!"))
+                .thenReturn(principal);
+
+        LoginRequest loginRequest = new LoginRequest("principal@example.com", "Password12345!");
+        controller.login(loginRequest, request);
+
+        // Falls back to remoteAddr because header format is invalid
+        String expectedKey = schoolId + ":127.0.0.1:principal@example.com";
+        verify(loginRateLimiter).checkAllowed(expectedKey);
+    }
+
+    @Test
+    void login_onFailure_shouldRecordFailureInRateLimiter() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr("10.0.0.1");
+        request.addHeader(AdminAuthenticationController.CLIENT_IP_HEADER, "198.51.100.10");
         com.rorfost.schoolportal.tenant.application.TenantContextHolder.setTenantContext(
                 request,
                 new com.rorfost.schoolportal.tenant.domain.TenantContext(schoolId, "school-slug"));
@@ -109,7 +155,7 @@ class AdminAuthenticationControllerTest {
         assertThatThrownBy(() -> controller.login(loginRequest, request))
                 .isInstanceOf(AuthenticationFailedException.class);
 
-        String expectedKey = schoolId + ":127.0.0.1:wrong@example.com";
+        String expectedKey = schoolId + ":198.51.100.10:wrong@example.com";
         verify(loginRateLimiter).recordFailure(expectedKey);
     }
 

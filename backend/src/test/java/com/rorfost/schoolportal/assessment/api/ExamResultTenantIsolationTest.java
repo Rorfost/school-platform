@@ -307,7 +307,6 @@ class ExamResultTenantIsolationTest {
                         new ExamResultResponse(
                                 UUID.randomUUID(),
                                 schoolIdA,
-                                "UID-A-001",
                                 "આર્યન પટેલ (School A)",
                                 "10",
                                 "A",
@@ -336,7 +335,6 @@ class ExamResultTenantIsolationTest {
                         new ExamResultResponse(
                                 UUID.randomUUID(),
                                 schoolIdB,
-                                "UID-B-001",
                                 "દક્ષ જોશી (School B)",
                                 "10",
                                 "A",

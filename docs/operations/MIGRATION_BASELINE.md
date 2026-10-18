@@ -7,19 +7,20 @@ This document establishes the verified operational baseline and safety freeze in
 | Property | Value / Status |
 |---|---|
 | **Production Source SHA** | `dafd00e7f32ae984f72fa51f8f0ceecf6d966d68` (main) |
-| **Migration Branch** | `feat/multi-tenancy` |
+| **Migration Branch** | `feat/multi-tenancy` (local working branch; NOT pushed / NOT deployed) |
 | **Current Live Reference School** | Dhadhana Primary School (`dhadhana-school`) |
-| **Live Frontend URL** | `https://portal.dhadhana-school.workers.dev` |
+| **Live Frontend URL** | `https://portal.dhadhana-school.workers.dev` (Single-tenant legacy baseline) |
 | **Render Backend Service** | `https://school-platform-gxrt.onrender.com` |
-| **Current Production Database** | Aiven PostgreSQL (single-tenant instance) |
-| **Target Production Database** | Neon PostgreSQL (`school-platform-prod` shared instance) |
-| **Media Storage** | ImageKit (single account, moving to `schools/<uuid>/` prefixes) |
+| **Current Production Database** | Aiven PostgreSQL (single-tenant instance; migration level UNVERIFIED) |
+| **Target Production Database** | Neon PostgreSQL (`school-platform-prod` shared instance; NOT CUTOVER) |
+| **Media Storage** | ImageKit (single account baseline) |
 | **External Health Monitor** | UptimeRobot (configured for periodic health ping) |
 
-## 2. Production Freeze Verification
+## 2. Production Freeze & Deployment Status
 
-- **Render Auto-Deploy:** Verified OFF in Render dashboard settings. Commits pushed to GitHub will not trigger an automatic backend deployment.
-- **Cloudflare Worker Deployments:** Automatic production deployment from git is disabled / restricted to versions upload.
+- **Deployment Status:** **NOT EXECUTED / LOCAL SOURCE ONLY**. All multi-tenancy changes exist strictly on local branch `feat/multi-tenancy` and have NOT been deployed to production or staging.
+- **Render Auto-Deploy:** Unverified in live dashboard; operator must ensure auto-deploy is disabled before any branch pushes.
+- **Cloudflare Worker Deployments:** Not deployed. Only local dry-run validation has been performed.
 - **GitHub Actions Workflows:** Audited `.github/workflows/ci.yml`. Confirmed that GitHub Actions strictly runs automated validation (`npm run format:check`, `lint`, `typecheck`, `test`, `build`, and `mvn -B verify`) with zero automated deployment steps.
 
 ## 3. Environment Variable & Secret Inventory (Non-Secret Ledger)

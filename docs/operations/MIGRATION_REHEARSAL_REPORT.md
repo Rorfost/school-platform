@@ -1,15 +1,19 @@
-# Migration Rehearsal & Parity Validation Report (Sprint 23)
+# Migration Rehearsal & Parity Validation Runbook (Sprint 23)
 
-**Destination:** Nonproduction Neon Staging Branch (`ep-staging-...us-east-2.aws.neon.tech/neondb?sslmode=require`)  
-**Source Baseline:** Dhadhana Primary School (School 1) Aiven PostgreSQL  
-**Executed By:** Automated Rehearsal Tooling & Operator Scripts  
-**Target Cutover Release:** Sprint 28  
+> [!WARNING]
+> **EXECUTION STATUS: NOT EXECUTED AGAINST LIVE CLOUD / REHEARSAL RUNBOOK ONLY**
+> This document specifies the planned migration rehearsal procedure. No live migration or rehearsal against staging Neon clusters has been executed. All row counts and metrics below are planning fixtures/templates.
+
+**Destination:** Nonproduction Neon Staging Branch (Target: `ep-staging-...us-east-2.aws.neon.tech/neondb?sslmode=require`)  
+**Source Baseline:** Dhadhana Primary School (School 1) Aiven PostgreSQL (Status: Untouched)  
+**Execution Status:** **NOT EXECUTED**  
+**Target Cutover Release:** Pending operator authorization  
 
 ---
 
-## 1. Migration Strategy Decision: Full Restore First, Then Forward Migration
+## 1. Migration Strategy: Full Restore First, Then Forward Migration
 
-We explicitly evaluated the two migration approaches for Aiven -> Neon:
+We evaluated the two migration approaches for Aiven -> Neon:
 1. **Approach A (Rejected):** Run Flyway `V1..V27` against an empty Neon database, then attempt a data-only `pg_restore --data-only`.
    *Problem:* Sequences, composite foreign keys, and circular constraints (e.g. `gallery_albums.cover_image_id <-> gallery_images.gallery_album_id`) encounter constraint violation ordering issues during data insertion.
 2. **Approach B (Selected & Validated):** Full dump and restore using `pg_dump -Fc --no-owner --no-acl` and `pg_restore --clean --if-exists --no-owner --no-acl`, preserving the complete snapshot (including historical `flyway_schema_history`), followed by Spring Boot booting to apply any subsequent forward migrations.
@@ -17,20 +21,20 @@ We explicitly evaluated the two migration approaches for Aiven -> Neon:
 
 ---
 
-## 2. Controlled Dry-Run Rehearsal Matrix
+## 2. Dry-Run Rehearsal Matrix (Planned Procedure)
 
-Two independent dry runs were rehearsed against isolated staging instances to ensure repeatable outcomes:
+The following matrix defines the verification checkpoints required when an actual rehearsal is executed against a disposable synthetic staging database:
 
-| Checkpoint | Rehearsal Run 1 | Rehearsal Run 2 | Parity Status |
-|---|---|---|---|
-| **PostgreSQL Version** | PostgreSQL 16.x (Neon) | PostgreSQL 16.x (Neon) | Compatible |
-| **Extensions Required** | `uuid-ossp`, `pgcrypto` | `uuid-ossp`, `pgcrypto` | Installed & Verified |
-| **Database Timezone** | `UTC` (`SHOW timezone`) | `UTC` (`SHOW timezone`) | Verified |
-| **Flyway Schema History** | Applied through `V27` | Applied through `V27` | 100% Match |
-| **Multi-Tenant Gateway Credentials** | Active token digests intact | Active token digests intact | Verified |
-| **School Domains Mappings** | `dhadhana-school` mapped | `dhadhana-school` mapped | Verified |
-| **Orphaned Tenant Records** | 0 orphans across all FKs | 0 orphans across all FKs | 0 Violation |
-| **Hikari Connection Recovery** | Idle sleep -> Wake on query | Idle sleep -> Wake on query | Verified (`min-idle=0`, `max=3`) |
+| Checkpoint | Rehearsal Requirement | Target Parity Status |
+|---|---|---|
+| **PostgreSQL Version** | PostgreSQL 16.x (Neon) | Target Compatible |
+| **Extensions Required** | `uuid-ossp`, `pgcrypto` | Must be installed before restore |
+| **Database Timezone** | `UTC` (`SHOW timezone`) | Required UTC |
+| **Flyway Schema History** | Applied through local target migrations | Must match source |
+| **Multi-Tenant Gateway Credentials** | Active token digests intact | Must verify non-empty |
+| **School Domains Mappings** | `dhadhana-school` mapped | Must verify mapping exists |
+| **Orphaned Tenant Records** | 0 orphans across all FKs | 0 Violation |
+| **Hikari Connection Recovery** | Idle sleep -> Wake on query | Configured (`min-idle=0`, `max=3`) |
 
 ---
 

@@ -1,6 +1,10 @@
-# Render & Neon Multi-Tenant Resource Capacity & Load Validation Report
+# Render & Neon Multi-Tenant Resource Capacity & Load Modeling Report
 
-**Sprint 25 deliverable** — Capacity profiling, Neon compute consumption, memory/CPU ceiling analysis, and bounded optimization guide.
+> [!NOTE]
+> **ANALYSIS SCOPE: ARCHITECTURAL CAPACITY MODELING & PROFILING**
+> Metrics and resource projections below represent local benchmark simulations and architectural capacity modeling under container memory limits. They do not represent live production telemetry from a cutover cluster.
+
+**Analysis Stage:** Resource modeling and bounded optimization guide.
 
 ---
 

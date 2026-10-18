@@ -8,8 +8,9 @@
 #   - pg_dump installed.
 # Security:
 #   - Strips ownership and ACLs (--no-owner --no-acl).
+#   - ATTENTION: pg_dump output is UNENCRYPTED plaintext/custom binary. It is NOT encrypted automatically.
+#   - An encryption step (e.g. gpg / openssl) must actually occur before offsite storage.
 #   - Never outputs credentials or unencrypted data to repo files.
-#   - Encrypt output immediately using gpg / openssl if stored externally.
 # ==============================================================================
 set -euo pipefail
 

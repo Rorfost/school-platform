@@ -29,10 +29,20 @@ if [[ -z "$TARGET_URL" && -z "${PGHOST:-}" ]]; then
     exit 1
 fi
 
-# Guard against accidental restoration to production
+# Guard against destructive overwrite without explicit operator confirmation
+if [[ "${CONFIRM_DESTRUCTIVE_RESTORE:-0}" != "1" ]]; then
+    echo "======================================================================" >&2
+    echo "SAFETY ERROR: Restore is DESTRUCTIVE (--clean drops existing objects)." >&2
+    echo "Target DB: ${TARGET_URL}" >&2
+    echo "To execute, you must set CONFIRM_DESTRUCTIVE_RESTORE=1." >&2
+    echo "======================================================================" >&2
+    exit 1
+fi
+
+# Additional guard if target URL contains "prod"
 if [[ "$TARGET_URL" =~ prod ]] && [[ "${ALLOW_PROD_RESTORE:-0}" != "1" ]]; then
     echo "SAFETY ERROR: Target URL contains 'prod'. Aborting to prevent accidental overwrite." >&2
-    echo "Set ALLOW_PROD_RESTORE=1 to override." >&2
+    echo "Set ALLOW_PROD_RESTORE=1 in addition to CONFIRM_DESTRUCTIVE_RESTORE=1 to override." >&2
     exit 1
 fi
 
@@ -45,28 +55,26 @@ RESTORE_ARGS=(
     --no-acl
 )
 
+set +e
 if [[ -n "$TARGET_URL" ]]; then
-    pg_restore "${RESTORE_ARGS[@]}" --dbname="$TARGET_URL" "$DUMP_FILE" || {
-        STATUS=$?
-        # pg_restore returns exit status 1 if there were non-fatal warnings
-        if [[ $STATUS -eq 1 ]]; then
-            echo "==> Restore completed with non-fatal warnings (exit code 1)."
-        else
-            echo "ERROR: pg_restore failed with exit code $STATUS" >&2
-            exit $STATUS
-        fi
-    }
+    pg_restore "${RESTORE_ARGS[@]}" --dbname="$TARGET_URL" "$DUMP_FILE"
+    STATUS=$?
 else
-    pg_restore "${RESTORE_ARGS[@]}" "$DUMP_FILE" || {
-        STATUS=$?
-        if [[ $STATUS -eq 1 ]]; then
-            echo "==> Restore completed with non-fatal warnings (exit code 1)."
-        else
-            echo "ERROR: pg_restore failed with exit code $STATUS" >&2
-            exit $STATUS
-        fi
-    }
+    pg_restore "${RESTORE_ARGS[@]}" "$DUMP_FILE"
+    STATUS=$?
+fi
+set -e
+
+if [[ $STATUS -eq 0 ]]; then
+    echo "==> Database restore finished cleanly (exit code 0)."
+elif [[ $STATUS -eq 1 && "${ACCEPT_RESTORE_WARNINGS:-0}" == "1" ]]; then
+    echo "==> WARNING: pg_restore exited with code 1 (warnings/errors present)."
+    echo "==> ACCEPT_RESTORE_WARNINGS=1 was supplied by operator. Proceeding."
+else
+    echo "ERROR: pg_restore failed with exit code $STATUS." >&2
+    echo "Nonzero exit codes are treated as failures. If pg_restore produced only acceptable" >&2
+    echo "clean drops on non-existent tables and you have reviewed the log, set ACCEPT_RESTORE_WARNINGS=1." >&2
+    exit $STATUS
 fi
 
-echo "==> Database restore finished successfully."
 echo "==> Run scripts/db/verify_parity.sh to validate table counts and schema integrity."

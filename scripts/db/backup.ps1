@@ -1,8 +1,9 @@
-<#
 .SYNOPSIS
     Exports a PostgreSQL database using pg_dump custom format (-Fc).
 .DESCRIPTION
-    Creates an encrypted-ready custom format dump with ownership and ACLs stripped.
+    Creates a custom format dump with ownership and ACLs stripped.
+    NOTE: The resulting dump file is NOT automatically encrypted. An encryption step
+    (e.g. gpg / openssl) must actually be executed before offsite or external storage.
 .PARAMETER OutputFile
     Path where the dump file should be saved.
 .PARAMETER SourceDbUrl

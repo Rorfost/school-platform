@@ -6,23 +6,28 @@ This document describes the implemented relational schema and future multi-tenan
 backend/src/main/resources/db/migration/
 ```
 
-- Existing Flyway migrations: `V1` through `V24`.
+- Local Flyway migrations: `V1` through `V28`.
 - Migrations are strictly append-only; applied migrations are never edited.
 - All domain identifiers are UUIDs, timestamps are `TIMESTAMPTZ`, and database naming follows `snake_case`.
+
+> [!IMPORTANT]
+> **Production Migration Status:** The production database's actual Flyway migration level is **UNVERIFIED** and has not been inspected directly. The local source tree contains migrations `V1` through `V28`. Before applying any new migrations in production, operators must inspect the live `flyway_schema_history` table.
 
 ## Multi-Tenant Strategy: As-Is vs. Target
 
 ### Current State (As-Is)
-- Hosted on Aiven PostgreSQL.
+- Hosted on Aiven PostgreSQL (legacy baseline).
 - Single-school operational data.
-- While tables carry `school_id` foreign keys, controllers frequently call first-active-school helpers (e.g. `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`).
+- While tables carry `school_id` foreign keys, the legacy deployed backend resolves the first active school.
 
 ### Target State (Planned Multi-Tenant Migration)
 - Hosted on shared Neon PostgreSQL database (`school-platform-prod`).
-- Flyway migrations will add:
-  - `portal_gateway_credentials` (Sprint 03) — stores SHA-256 token digests, school IDs, and active status for Cloudflare Worker gateway authentication.
-  - `school_features` (Sprint 16) — school-specific feature toggle overrides.
-- Every repository query, join, and mutation must enforce `school_id` filtering from `TenantContext`.
+- Local Flyway migrations have implemented:
+  - `V25__create_school_gateway_credentials.sql` — stores SHA-256 token digests, school IDs, and active status for Cloudflare Worker gateway authentication.
+  - `V26__add_school_domains_and_slug_unique.sql` — stores school domain hostnames.
+  - `V27__create_school_features_schema.sql` — school-specific feature toggle overrides.
+  - `V28__drop_student_uid_from_annual_exam_results.sql` — removes legacy student UID column from exam results.
+- Every repository query, join, and mutation enforces `school_id` filtering from `TenantContext`.
 - Global catalogs (such as `assessment_types`) remain shared; tenant-scoped records are strictly separated.
 
 ## Relationship Overview

@@ -89,4 +89,81 @@ class FeatureFlagServiceTest {
         assertThat(captor.getValue().getFeatureKey()).isEqualTo(FeatureKey.EXAM_RESULTS.name());
         assertThat(captor.getValue().isEnabled()).isFalse();
     }
+
+    @Test
+    void changingSchoolAFeatureDoesNotChangeSchoolBFlags() {
+        // Disabling GALLERY for schoolA
+        when(repository.findByIdSchoolIdAndIdFeatureKey(schoolA, FeatureKey.GALLERY.name()))
+                .thenReturn(Optional.of(new SchoolFeature(schoolA, FeatureKey.GALLERY, false)));
+        // schoolB has no override (defaults apply)
+        when(repository.findByIdSchoolIdAndIdFeatureKey(schoolB, FeatureKey.GALLERY.name()))
+                .thenReturn(Optional.empty());
+
+        assertThat(service.isFeatureEnabled(schoolA, FeatureKey.GALLERY)).isFalse();
+        assertThat(service.isFeatureEnabled(schoolB, FeatureKey.GALLERY)).isTrue();
+    }
+
+    @Test
+    void setSchoolFeatureBySlugValidatesInputAndUpdatesFeatureWithAudit() {
+        com.rorfost.schoolportal.school.repository.SchoolRepository schoolRepo =
+                Mockito.mock(com.rorfost.schoolportal.school.repository.SchoolRepository.class);
+        com.rorfost.schoolportal.audit.service.AuditLogService auditService =
+                Mockito.mock(com.rorfost.schoolportal.audit.service.AuditLogService.class);
+
+        FeatureFlagService fullService = new FeatureFlagService(repository, schoolRepo, auditService);
+
+        com.rorfost.schoolportal.school.domain.School school =
+                new com.rorfost.schoolportal.school.domain.School("School A", "school-a");
+        org.springframework.test.util.ReflectionTestUtils.setField(school, "id", schoolA);
+
+        when(schoolRepo.findBySlug("school-a")).thenReturn(Optional.of(school));
+        when(schoolRepo.existsById(schoolA)).thenReturn(true);
+        when(repository.findByIdSchoolIdAndIdFeatureKey(schoolA, "NOTICES"))
+                .thenReturn(Optional.empty());
+
+        fullService.setSchoolFeatureBySlug("school-a", "NOTICES", false);
+
+        ArgumentCaptor<SchoolFeature> captor = ArgumentCaptor.forClass(SchoolFeature.class);
+        verify(repository).save(captor.capture());
+        assertThat(captor.getValue().getSchoolId()).isEqualTo(schoolA);
+        assertThat(captor.getValue().getFeatureKey()).isEqualTo("NOTICES");
+        assertThat(captor.getValue().isEnabled()).isFalse();
+
+        verify(auditService).record(
+                org.mockito.ArgumentMatchers.eq(schoolA),
+                org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.eq(com.rorfost.schoolportal.audit.domain.AuditAction.SCHOOL_FEATURE_UPDATED),
+                org.mockito.ArgumentMatchers.eq("SCHOOL_FEATURE"),
+                org.mockito.ArgumentMatchers.eq(schoolA),
+                org.mockito.ArgumentMatchers.eq("OPERATOR_CLI"));
+    }
+
+    @Test
+    void setSchoolFeatureBySlugRejectsInvalidSlugOrKey() {
+        com.rorfost.schoolportal.school.repository.SchoolRepository schoolRepo =
+                Mockito.mock(com.rorfost.schoolportal.school.repository.SchoolRepository.class);
+        com.rorfost.schoolportal.audit.service.AuditLogService auditService =
+                Mockito.mock(com.rorfost.schoolportal.audit.service.AuditLogService.class);
+
+        FeatureFlagService fullService = new FeatureFlagService(repository, schoolRepo, auditService);
+
+        when(schoolRepo.findBySlug("nonexistent")).thenReturn(Optional.empty());
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> fullService.setSchoolFeatureBySlug("nonexistent", "NOTICES", true))
+                .isInstanceOf(com.rorfost.schoolportal.common.exception.DomainException.class)
+                .satisfies(e -> assertThat(((com.rorfost.schoolportal.common.exception.DomainException) e).getCode())
+                        .isEqualTo("school_not_found"));
+
+        com.rorfost.schoolportal.school.domain.School school =
+                new com.rorfost.schoolportal.school.domain.School("School A", "school-a");
+        org.springframework.test.util.ReflectionTestUtils.setField(school, "id", schoolA);
+        when(schoolRepo.findBySlug("school-a")).thenReturn(Optional.of(school));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> fullService.setSchoolFeatureBySlug("school-a", "UNKNOWN_FEATURE", true))
+                .isInstanceOf(com.rorfost.schoolportal.common.exception.DomainException.class)
+                .satisfies(e -> assertThat(((com.rorfost.schoolportal.common.exception.DomainException) e).getCode())
+                        .isEqualTo("invalid_feature_key"));
+    }
 }

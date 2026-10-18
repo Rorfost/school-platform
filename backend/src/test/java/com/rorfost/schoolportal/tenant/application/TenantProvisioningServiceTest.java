@@ -142,7 +142,28 @@ class TenantProvisioningServiceTest {
     }
 
     @Test
-    void provisionSchoolIsIdempotentForSameSchool() {
+    void provisionSchoolRequiresPasswordWhenCreatingNewPrincipal() {
+        String slug = "school-b";
+        String name = "School B";
+        String hostname = "school-b.workers.dev";
+        String email = "principal@school-b.org";
+
+        when(schoolRepository.findBySlug(slug)).thenReturn(Optional.empty());
+        when(schoolDomainRepository.findByHostname(hostname)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.provisionSchool(slug, name, hostname, email, null))
+                .isInstanceOf(DomainException.class)
+                .satisfies(e -> assertThat(((DomainException) e).getCode())
+                        .isEqualTo("initial_password_required_for_principal"));
+
+        assertThatThrownBy(() -> service.provisionSchool(slug, name, hostname, email, "   "))
+                .isInstanceOf(DomainException.class)
+                .satisfies(e -> assertThat(((DomainException) e).getCode())
+                        .isEqualTo("initial_password_required_for_principal"));
+    }
+
+    @Test
+    void provisionSchoolIsIdempotentForSameSchoolAndDoesNotDuplicateActiveCredentials() {
         String slug = "school-b";
         String name = "School B";
         String hostname = "school-b.workers.dev";
@@ -159,14 +180,25 @@ class TenantProvisioningServiceTest {
         when(adminUserRepository.findBySchoolIdAndEmail(schoolId, email))
                 .thenReturn(Optional.of(new AdminUser(schoolId, email, "existingHash")));
 
+        UUID existingCredId = UUID.randomUUID();
+        SchoolGatewayCredential activeCred =
+                new SchoolGatewayCredential(schoolId, SchoolGatewayCredential.computeDigest("dummy"), "active-token");
+        ReflectionTestUtils.setField(activeCred, "id", existingCredId);
+
+        when(credentialRepository.findActiveBySchoolId(eq(schoolId), any(Instant.class)))
+                .thenReturn(java.util.List.of(activeCred));
+
         ProvisioningResult result = service.provisionSchool(slug, name, hostname, email, null);
 
         assertThat(result.isNewSchool()).isFalse();
         assertThat(result.schoolId()).isEqualTo(schoolId);
+        // Verify raw token is null because existing active credential was preserved
+        assertThat(result.rawGatewayToken()).isNull();
+        assertThat(result.credentialId()).isEqualTo(existingCredId);
         // Verify no duplicate admin user was created
         verify(adminUserRepository, Mockito.never()).save(any());
-        // Verify credential was issued
-        verify(credentialRepository).save(any());
+        // Verify no new credential was saved
+        verify(credentialRepository, Mockito.never()).save(any());
     }
 
     @Test

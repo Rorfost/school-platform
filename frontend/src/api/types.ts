@@ -355,7 +355,6 @@ export interface ResultPresentationSettingsResponse {
 export interface ExamResultResponse {
     id: string;
     schoolId: string;
-    studentUid?: string | null;
     studentName: string;
     standard: string;
     studentClass?: string | null;

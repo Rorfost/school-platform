@@ -302,7 +302,6 @@ class ExamResultServiceTest {
 
         assertEquals("250", result.getTotalWorkingDays());
         assertEquals("233", result.getAttendedDays());
-        assertEquals("UID-1", result.getStudentUid());
         assertEquals("A", result.getStudentClass());
     }
 

@@ -58,11 +58,6 @@ const ToolsPage = lazy(() =>
     import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })),
 );
 
-const AdminAcademicYearsPage = lazy(() =>
-    import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({
-        default: AdminAcademicYearsPage,
-    })),
-);
 const AdminAccountPage = lazy(() =>
     import("@/pages/admin/AdminAccountPage").then(({ AdminAccountPage }) => ({
         default: AdminAccountPage,
@@ -206,7 +201,7 @@ const router = createBrowserRouter([
                     { index: true, element: <AdminDashboardPage /> },
                     { path: "school", element: <AdminSchoolSettingsPage /> },
                     { path: "principal", element: <AdminPrincipalProfilePage /> },
-                    { path: "academic-years", element: <AdminAcademicYearsPage /> },
+                    { path: "academic-years", element: <Navigate to="/admin/academics" replace /> },
                     { path: "academics", element: <AdminAcademicSetupPage /> },
                     { path: "standards", element: <Navigate to="/admin/academics" replace /> },
                     { path: "subjects", element: <Navigate to="/admin/academics" replace /> },

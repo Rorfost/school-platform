@@ -1,22 +1,27 @@
-# Production Tenant Onboarding & Operational Recovery Drill Report (Sprint 29)
+# Production Tenant Onboarding & Operational Recovery Drill Runbook (Sprint 29)
 
-**Execution Phase:** Post-Cutover Multi-Tenant Expansion & Disaster Recovery Exercise  
+> [!WARNING]
+> **EXECUTION STATUS: NOT EXECUTED ON PRODUCTION / DRILL TEMPLATE ONLY**
+> Schools B and C have NOT been onboarded to production. No live recovery drill or tenant deactivation has been executed against live infrastructure. All RTO/RPO metrics below are planning targets, not measured production metrics.
+
+**Execution Phase:** Target Multi-Tenant Expansion & Disaster Recovery Specifications  
 **Target Environment:** Shared Neon Production + Controlled Nonproduction DR Target  
-**Scope:** Onboard School B and School C; execute live operational recovery drill (RPO/RTO validation, gateway rotation, emergency school deactivation, asset recovery).
+**Scope:** Onboarding specifications for School B and School C; disaster recovery test runbook.
+**Status:** **NOT EXECUTED / TARGET SPECIFICATION ONLY**
 
 ---
 
-## 1. Task A — Production Tenant Onboarding (School B & School C)
+## 1. Planned Tenant Onboarding (School B & School C)
 
 Using the operator provisioning tooling (`TenantProvisioningService` / operator runbook):
 
-### Onboarded Tenant Ledger
+### Target Tenant Ledger (Planned)
 
 | School Identity | Tenant Slug | School UUID | Cloudflare Worker Host | Gateway Token Digest Status | Principal Account | Feature Policy |
 |---|---|---|---|---|---|---|
-| **School 1** (Live) | `dhadhana-school` | Verified UUID | `dhadhana-school.workers.dev` | Active (SHA-256 bound) | Configured & Active | Standard Policy (All features) |
-| **School B** (New) | `school-b` | Deterministic UUID | `school-b-portal.workers.dev` | Active (SHA-256 bound) | Created via Admin (`admin@school-b.test`) | Standard Policy |
-| **School C** (New) | `school-c` | Deterministic UUID | `school-c-portal.workers.dev` | Active (SHA-256 bound) | Created via Admin (`admin@school-c.test`) | Standard Policy |
+| **School 1** (Live) | `dhadhana-school` | Existing UUID | `dhadhana-school.workers.dev` | Legacy active | Configured & Active | Standard Policy (All features) |
+| **School B** (Planned) | `school-b` | Generated on provision | `school-b-portal.workers.dev` | Pending provision | To be created on provision | Standard Policy |
+| **School C** (Planned) | `school-c` | Generated on provision | `school-c-portal.workers.dev` | Pending provision | To be created on provision | Standard Policy |
 
 ### Multi-Tenant Verification Checkpoints
 1. **Shared Render Utilization:** All three frontend Workers proxy `/api/*` to the single shared Render backend service (`school-platform-gxrt.onrender.com`).

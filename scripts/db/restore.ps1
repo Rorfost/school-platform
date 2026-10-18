@@ -18,6 +18,8 @@ param(
     [Parameter(Position = 1)]
     [string]$TargetDbUrl = $env:TARGET_DB_URL,
 
+    [switch]$ConfirmDestructiveRestore,
+    [switch]$AcceptRestoreWarnings,
     [switch]$ForceProd
 )
 
@@ -30,6 +32,11 @@ if (-not (Test-Path $DumpFile)) {
 
 if (-not $TargetDbUrl -and -not $env:PGHOST) {
     Write-Error "ERROR: Target database connection string not specified. Set -TargetDbUrl or `$env:TARGET_DB_URL."
+    exit 1
+}
+
+if (-not $ConfirmDestructiveRestore -and $env:CONFIRM_DESTRUCTIVE_RESTORE -ne "1") {
+    Write-Error "SAFETY ERROR: Restore is DESTRUCTIVE (--clean drops existing objects). You must pass -ConfirmDestructiveRestore or set `$env:CONFIRM_DESTRUCTIVE_RESTORE=1."
     exit 1
 }
 
@@ -55,10 +62,15 @@ $PgRestoreArgs += $DumpFile
 
 & pg_restore @PgRestoreArgs
 $Code = $LASTEXITCODE
-if ($Code -eq 0 -or $Code -eq 1) {
-    Write-Host "==> Database restore finished successfully (exit code $Code)."
+
+if ($Code -eq 0) {
+    Write-Host "==> Database restore finished cleanly (exit code 0)."
+    Write-Host "==> Run .\verify_parity.ps1 to validate table counts and schema integrity."
+} elseif ($Code -eq 1 -and ($AcceptRestoreWarnings -or $env:ACCEPT_RESTORE_WARNINGS -eq "1")) {
+    Write-Host "==> WARNING: pg_restore exited with code 1 (warnings/errors present)."
+    Write-Host "==> Accepted by operator (-AcceptRestoreWarnings). Proceeding."
     Write-Host "==> Run .\verify_parity.ps1 to validate table counts and schema integrity."
 } else {
-    Write-Error "ERROR: pg_restore failed with exit code $Code"
+    Write-Error "ERROR: pg_restore failed with exit code $Code. Nonzero exit codes are treated as failures. If acceptable, pass -AcceptRestoreWarnings."
     exit $Code
 }

@@ -67,15 +67,19 @@ export default {
         const targetUrl = new URL(url.pathname + url.search, backendOrigin);
         const parsedOrigin = new URL(backendOrigin);
 
-        // Sanitize and build fresh outbound headers
+        // Sanitize and build fresh outbound headers.
+        // All client-supplied x-portal-* and x-school-* headers are stripped here;
+        // trusted values are injected below AFTER this loop.
         const requestHeaders = new Headers();
         for (const [key, value] of request.headers.entries()) {
             const lower = key.toLowerCase();
-            // Strip any client-supplied tenant, routing, or forwarded headers
+            // Strip any client-supplied tenant, routing, forwarded, or client-IP headers.
+            // X-Portal-Client-IP is stripped here and re-injected from CF-Connecting-IP below.
             if (
                 lower.startsWith("x-portal-") ||
                 lower.startsWith("x-school-") ||
                 lower.startsWith("x-forwarded-") ||
+                lower === "cf-connecting-ip" ||
                 FORBIDDEN_INCOMING_HEADERS.includes(lower)
             ) {
                 continue;
@@ -89,6 +93,16 @@ export default {
         // Inject authenticated gateway secret token
         if (env.PORTAL_GATEWAY_TOKEN) {
             requestHeaders.set("X-Portal-Gateway-Token", env.PORTAL_GATEWAY_TOKEN);
+        }
+
+        // Inject the Cloudflare edge-attested client IP as a trusted header.
+        // CF-Connecting-IP is set by Cloudflare's edge and is NOT controllable by the client.
+        // The backend trusts X-Portal-Client-IP ONLY after successful gateway authentication.
+        // This value is injected here, after the sanitisation loop has already stripped
+        // any client-supplied X-Portal-* headers, so it cannot be forged.
+        const cfConnectingIp = request.headers.get("CF-Connecting-IP");
+        if (cfConnectingIp) {
+            requestHeaders.set("X-Portal-Client-IP", cfConnectingIp);
         }
 
         // Optional non-authoritative diagnostic slug

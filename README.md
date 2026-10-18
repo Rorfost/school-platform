@@ -15,14 +15,14 @@ A reusable, Gujarati-first school platform with a focused principal-admin panel 
 - Media: ImageKit single namespace.
 - Tenant context: Controllers resolve the first active school in the database (`findFirstByIsActiveTrueOrderByCreatedAtAsc`).
 
-### Target State (Planned Multi-Tenant Rollout)
+### Target State (Implemented Locally on `feat/multi-tenancy`; Deployment Pending)
 - Multi-school shared platform serving 3+ schools on unified infrastructure.
 - Frontend: Distinct Cloudflare Workers per school (`school-a`, `school-b`, `school-c`), each injecting a cryptographic `PORTAL_GATEWAY_TOKEN` secret to proxy `/api/*` to the backend.
 - Backend: Single shared Spring Boot instance on Render Free enforcing request-scoped `TenantContext` via a gateway authentication filter.
 - Database: Shared Neon PostgreSQL database with strict `school_id` isolation across all domain queries and mutations.
 - Media: ImageKit with school-specific path namespaces (`schools/<school-uuid>/...`).
 - Feature Flags: School-level feature enablement via database registry and UI gating.
-- Detailed migration plan: [Multi-Tenant Rollout Runbook](docs/operations/TENANT_ROLLOUT.md).
+- Detailed rollout runbook: [Multi-Tenant Rollout Runbook](docs/operations/TENANT_ROLLOUT.md).
 
 ## Features
 

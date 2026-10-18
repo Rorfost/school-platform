@@ -42,9 +42,6 @@ public class AnnualExamResult implements Persistable<UUID> {
     @Column(name = "result_type")
     private String resultType;
 
-    @Column(name = "student_uid")
-    private String studentUid;
-
     @Column(name = "student_name")
     private String studentName;
 
@@ -112,14 +109,6 @@ public class AnnualExamResult implements Persistable<UUID> {
 
     public void setResultType(String resultType) {
         this.resultType = resultType;
-    }
-
-    public String getStudentUid() {
-        return studentUid;
-    }
-
-    public void setStudentUid(String studentUid) {
-        this.studentUid = studentUid;
     }
 
     public String getStudentName() {

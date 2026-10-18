@@ -26,6 +26,16 @@ public interface SchoolGatewayCredentialRepository
     @Query(
             """
         SELECT c FROM SchoolGatewayCredential c
+        WHERE c.schoolId = :schoolId
+          AND c.revokedAt IS NULL
+          AND (c.expiresAt IS NULL OR c.expiresAt > :now)
+    """)
+    List<SchoolGatewayCredential> findActiveBySchoolId(
+            @Param("schoolId") UUID schoolId, @Param("now") Instant now);
+
+    @Query(
+            """
+        SELECT c FROM SchoolGatewayCredential c
         WHERE c.tokenDigest = :tokenDigest
           AND c.revokedAt IS NULL
           AND (c.expiresAt IS NULL OR c.expiresAt > :now)

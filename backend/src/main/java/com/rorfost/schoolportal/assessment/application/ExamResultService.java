@@ -143,9 +143,8 @@ public class ExamResultService {
             List<AnnualExamResult> results = new ArrayList<>();
 
             boolean isEkam = EKAM_KASOTI.equals(resultType);
-            // Fixed columns: GR=0, UID=1, Std=2, Class=3, Name=4, BirthDate=5
+            // Fixed columns: GR=0, UID=1 (ignored for privacy/security), Std=2, Class=3, Name=4, BirthDate=5
             int colGr = 0;
-            int colStudentUid = 1;
             int colStd = 2;
             int colClass = 3;
             int colName = 4;
@@ -189,7 +188,6 @@ public class ExamResultService {
                 result.setStandard(standard);
                 result.setStudentClass(studentClass.isBlank() ? null : studentClass.trim());
                 result.setRollNumber(standardRollCounts.merge(rollKey, 1, Integer::sum));
-                result.setStudentUid(cellText(row.getCell(colStudentUid)));
                 result.setStudentName(name);
                 result.setGeneralRegisterNumber(cellText(row.getCell(colGr)));
                 result.setBirthDate(normalizeBirthDate(row.getCell(colBirth)));
@@ -761,7 +759,6 @@ public class ExamResultService {
         return new ExamResultResponse(
                 entity.getId(),
                 entity.getSchoolId(),
-                entity.getStudentUid(),
                 entity.getStudentName(),
                 entity.getStandard(),
                 entity.getStudentClass(),

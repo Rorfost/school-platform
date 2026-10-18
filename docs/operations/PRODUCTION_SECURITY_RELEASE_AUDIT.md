@@ -1,10 +1,13 @@
-# Production Security Release Audit & Final Launch Verification (Sprint 30)
+# Security Release Audit & Local Codebase Verification (Sprint 30)
 
-**Project:** Rorfost School Platform (Multi-Tenant Production Release)  
-**Release Target:** School 1 (Dhadhana Primary School), School B, and School C  
-**Baseline Live SHA:** `dafd00e7f32ae984f72fa51f8f0ceecf6d966d68`  
-**Target Production SHA:** `5673a12` (Sprint 26 release candidate + final cleanup)  
-**Audit Stage:** Complete — Final Sprint 30 Handoff
+> [!WARNING]
+> **DEPLOYMENT STATUS: NOT DEPLOYED / LOCAL AUDIT ONLY**
+> This audit evaluates the security architecture of the local `feat/multi-tenancy` branch. Production cutover and deployment of multi-tenant code to live infrastructure have NOT been executed.
+
+**Project:** Rorfost School Platform (Multi-Tenant Local Verification)  
+**Reference Live School:** School 1 (Dhadhana Primary School)  
+**Baseline Live SHA:** `dafd00e7f32ae984f72fa51f8f0ceecf6d966d68` (main)  
+**Audit Stage:** Local stabilization complete — Production deployment pending human authorization  
 
 ---
 

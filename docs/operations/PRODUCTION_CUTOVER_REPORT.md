@@ -1,11 +1,15 @@
-# Production Data Freeze, Neon Cutover & Verification Execution Report (Sprint 28)
+# Production Data Freeze, Neon Cutover & Verification Procedure (Sprint 28)
 
-**Execution Date / Window:** Human-Authorized Maintenance Window  
+> [!WARNING]
+> **EXECUTION STATUS: NOT EXECUTED / CUTOVER RUNBOOK ONLY**
+> The multi-tenant code has NOT been cut over or deployed to production. The production database remains the original single-tenant instance (Aiven), and no live cutover window has occurred. The sequence below is the operational plan for future authorized execution.
+
+**Execution Date / Window:** Pending Human Authorization (NOT EXECUTED)  
 **Baseline Live SHA:** `dafd00e7f32ae984f72fa51f8f0ceecf6d966d68`  
-**Cutover Target SHA:** `5673a12` (Sprint 26/27 Release Candidate)  
-**Source Database:** Aiven PostgreSQL (Dhadhana Primary School live baseline)  
-**Target Database:** Neon PostgreSQL (`school-platform-prod` shared multi-tenant cluster)  
-**Status:** **CUTOVER COMPLETE & VERIFIED**
+**Cutover Target:** Branch `feat/multi-tenancy`  
+**Source Database:** Aiven PostgreSQL (Dhadhana Primary School live baseline; untouched)  
+**Target Database:** Neon PostgreSQL (`school-platform-prod` shared multi-tenant cluster; not cutover)  
+**Status:** **NOT EXECUTED / PENDING HUMAN AUTHORIZATION**
 
 ---
 

@@ -96,7 +96,6 @@ class ExamResultControllerTest {
                 new ExamResultResponse(
                         resultId,
                         schoolId,
-                        "UID-001",
                         "વિશાલ કે. પટેલ",
                         "5",
                         "A",

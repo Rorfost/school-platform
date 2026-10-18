@@ -1,4 +1,28 @@
 {
+    /*
+     * Cloudflare Workers — School Portal
+     *
+     * Named environments: school_a, school_b, school_c
+     *
+     * Deployment commands (run from the frontend/ directory after `npm run build`):
+     *   wrangler deploy --env school_a
+     *   wrangler deploy --env school_b
+     *   wrangler deploy --env school_c
+     *
+     * Dry-run (compile + validate, no upload):
+     *   wrangler deploy --dry-run --env school_a
+     *   wrangler deploy --dry-run --env school_b
+     *   wrangler deploy --dry-run --env school_c
+     *
+     * Secrets (set per environment, never in plaintext vars):
+     *   wrangler secret put PORTAL_GATEWAY_TOKEN --env school_a
+     *   wrangler secret put PORTAL_GATEWAY_TOKEN --env school_b
+     *   wrangler secret put PORTAL_GATEWAY_TOKEN --env school_c
+     *
+     * The root Worker ("dhadhana-school") is the production portal for
+     * Dhadhana school. Do NOT run `wrangler deploy` without --env unless
+     * you intentionally mean to update that specific Worker.
+     */
     "$schema": "node_modules/wrangler/config-schema.json",
     "name": "dhadhana-school",
     "compatibility_date": "2026-09-16",
@@ -7,6 +31,8 @@
         "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
         "SCHOOL_SLUG": "dhadhana",
     },
+    // PORTAL_GATEWAY_TOKEN is injected as a Wrangler secret for the root Worker.
+    // It must NEVER appear in plaintext vars.
     "assets": {
         "directory": "./dist",
         "binding": "ASSETS",
@@ -20,6 +46,14 @@
                 "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
                 "SCHOOL_SLUG": "school-a",
             },
+            // Explicitly declare assets — not guaranteed to be inherited from root in all
+            // Wrangler releases. Each environment must be self-contained.
+            "assets": {
+                "directory": "./dist",
+                "binding": "ASSETS",
+                "not_found_handling": "single-page-application",
+                "run_worker_first": ["/api/*"],
+            },
         },
         "school_b": {
             "name": "school-b-portal",
@@ -27,12 +61,24 @@
                 "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
                 "SCHOOL_SLUG": "school-b",
             },
+            "assets": {
+                "directory": "./dist",
+                "binding": "ASSETS",
+                "not_found_handling": "single-page-application",
+                "run_worker_first": ["/api/*"],
+            },
         },
         "school_c": {
             "name": "school-c-portal",
             "vars": {
                 "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
                 "SCHOOL_SLUG": "school-c",
+            },
+            "assets": {
+                "directory": "./dist",
+                "binding": "ASSETS",
+                "not_found_handling": "single-page-application",
+                "run_worker_first": ["/api/*"],
             },
         },
     },

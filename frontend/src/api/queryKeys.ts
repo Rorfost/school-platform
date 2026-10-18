@@ -5,7 +5,6 @@ export const queryKeys = {
     visits: ["visits"] as const,
     standards: ["standards"] as const,
     subjects: ["subjects"] as const,
-    currentAcademicYear: ["academic-years", "current"] as const,
     assessmentTypes: ["assessment-types"] as const,
     notices: (filters?: { page?: number; size?: number }) => ["notices", filters ?? {}] as const,
     materials: (filters?: { page?: number; size?: number }) =>

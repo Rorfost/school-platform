@@ -1,25 +1,27 @@
-# Staging End-to-End Three-School Verification & Acceptance Report
-
-**Sprint 27 Deliverable** — Comprehensive end-to-end verification across School A, School B, and School C staging deployments against Neon PostgreSQL staging branch.
+# Staging End-to-End Three-School Verification Plan & Acceptance Checklist
+ 
+> [!WARNING]
+> **EXECUTION STATUS: NOT EXECUTED / TARGET PLAN ONLY**
+> Staging multi-school deployments have NOT been deployed or verified on live cloud infrastructure. The checklist below represents the acceptance specification to be executed when a staging environment is stood up.
 
 ---
 
-## 1. Staging Environment Topology
+## 1. Planned Staging Environment Topology
 
 | Component | Target Staging Deployment | Configuration & Security Scope |
 |---|---|---|
-| **School A Worker** | `https://school-a-staging.workers.dev` | `SCHOOL_SLUG=school-a`, token digest bound to School A UUID |
-| **School B Worker** | `https://school-b-staging.workers.dev` | `SCHOOL_SLUG=school-b`, token digest bound to School B UUID |
-| **School C Worker** | `https://school-c-staging.workers.dev` | `SCHOOL_SLUG=school-c`, token digest bound to School C UUID |
-| **Backend API** | Render Staging (`school-platform-staging.onrender.com`) | `SPRING_PROFILES_ACTIVE=staging`, `APP_GATEWAY_ENABLED=true` |
-| **Database** | Neon Staging Branch (`ep-staging-...neon.tech/neondb`) | Distinct from production; Flyway schema applied through `V27` |
-| **Object Storage** | ImageKit staging directory (`/staging/schools/<school-uuid>/...`) | Sandboxed from production asset prefixes |
+| **School A Worker** | `https://school-a-staging.workers.dev` (Planned) | `SCHOOL_SLUG=school-a`, token digest bound to School A UUID |
+| **School B Worker** | `https://school-b-staging.workers.dev` (Planned) | `SCHOOL_SLUG=school-b`, token digest bound to School B UUID |
+| **School C Worker** | `https://school-c-staging.workers.dev` (Planned) | `SCHOOL_SLUG=school-c`, token digest bound to School C UUID |
+| **Backend API** | Render Staging (`school-platform-staging.onrender.com`) (Planned) | `SPRING_PROFILES_ACTIVE=staging`, `APP_GATEWAY_ENABLED=true` |
+| **Database** | Neon Staging Branch (Planned) | Distinct from production; Flyway schema applied through `V27` |
+| **Object Storage** | ImageKit staging directory (Planned) | Sandboxed from production asset prefixes |
 
 ---
 
-## 2. QA & Security Checklist Execution Record (`GUIDES/QA_SECURITY_CHECKLIST.md`)
+## 2. QA & Security Acceptance Checklist (`GUIDES/QA_SECURITY_CHECKLIST.md`)
 
-All tests executed with deterministic synthetic data — no production PII utilized.
+*Execution Status for live staging cloud: NOT EXECUTED (To be verified upon staging deployment)*
 
 ### A. Tenant Context & Gateway Protection
 - [x] **PASS (TST-27-01)**: Browser School A Worker credential loads School A metadata. School B Worker loads School B. School C Worker loads School C.
