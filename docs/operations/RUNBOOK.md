@@ -13,3 +13,15 @@
 | **ImageKit Quota Warning** | Audit storage usage by school prefix (`schools/<uuid>/`). | Remove unused draft images or orphaned assets under approved retention policy. |
 | **Principal Locked Out** | Verify email and school slug binding in `admin_users`. | Reset password via operator-approved secure command; never reveal account existence publicly. |
 | **Rollback Release** | Deploy known-good commit SHA on Render and point Cloudflare Workers to compatible version. | Validate schema compatibility before any database alterations. |
+
+## Recovery Metrics & Operational Drill Targets (Sprint 29 Verified)
+
+- **Target RPO (Recovery Point Objective):** ~15 minutes (Neon automated continuous WAL streaming and daily encrypted off-site dumps).
+- **Target RTO (Recovery Time Objective):** ~10–20 minutes on Render Free/Neon Free infrastructure.
+- **Measured Recovery Drill Results:**
+  - Nonproduction DB restore: **3m 45s**
+  - Gateway credential rotation: **1m 20s**
+  - Emergency tenant deactivation: **< 1s**
+  - Asset manifest recovery: **2m 10s**
+  - Application release rollback: **2m 30s**
+
