@@ -66,4 +66,4 @@ This document establishes the verified operational baseline and safety freeze in
 3. **Sprint 14 Gate:** Principal isolation complete; Principal A cannot view or alter School B on any endpoint.
 4. **Sprint 23 Gate (VERIFIED):** Dry run database restore to Neon staging branch rehearsed and verified with sanitized parity check, session truncation plan, zero orphan records, and documented runbook report in `MIGRATION_REHEARSAL_REPORT.md`.
 5. **Sprint 27 Gate (VERIFIED):** Full staging acceptance checklist executed across School A, School B, and School C with zero cross-tenant defects; detailed acceptance report recorded in `STAGING_VERIFICATION_REPORT.md`.
-6. **Sprint 28 Gate:** Formal human authorization for production maintenance window, data freeze, and Neon cutover.
+6. **Sprint 28 Gate (VERIFIED):** Human-authorized production maintenance window, data freeze, encrypted backup, restore to Neon PostgreSQL, session truncation, row count parity ledger verified, and shared multi-tenant backend cutover completed; documented in `PRODUCTION_CUTOVER_REPORT.md`.
