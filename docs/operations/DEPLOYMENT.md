@@ -36,3 +36,21 @@ Prior to applying any multi-tenant code changes or schema migrations:
 - **Neon Free:** Subject to compute hour and storage bounds; verify connection pooling parameters (`DB_POOL_MAX_SIZE=3`).
 - **Cloudflare Workers Free:** 100,000 requests/day per account.
 - **No Card / Zero Overages:** The platform is configured to stay within free tier thresholds without triggering paid overages.
+
+## Manual Release Workflows & CI/CD Safety Controls (Sprint 26)
+
+To guarantee that branch pushes or merged PRs never trigger unexpected live changes to School 1 production:
+
+1. **Auto-Deploy Disablement Enforced:**
+   - **Render:** Auto-deploy is permanently set to **Off**. Production backend updates require explicit manual triggering via `.github/workflows/deploy-backend.yml` (`workflow_dispatch`) with confirmation string `DEPLOY`.
+   - **Cloudflare Workers:** Git integration / automatic build triggers are set to **Off**. Worker deployments require manual triggering via `.github/workflows/deploy-frontend.yml` with explicit `target_school` selection (`school_a`, `school_b`, `school_c`, or `dhadhana_prod`).
+
+2. **Secret Hygiene & Least-Privilege Architecture:**
+   - **No Plaintext Secrets in Tracking:** Neither raw `PORTAL_GATEWAY_TOKEN` secrets nor Neon database connection URIs are committed to version control. Automated CI job `secret-hygiene` scans every push and PR to reject sensitive keys.
+   - **Runtime Database Privilege:** Render backend connects to Neon using a restricted application user (`neondb_app`), never the root `neondb_owner` superuser.
+   - **Cloudflare API Scoping:** Deployment credentials (`CLOUDFLARE_API_TOKEN`) are scoped strictly to Worker script editing permissions on the specific account.
+   - **Wrangler Secret Management:** `wrangler secret put` must never be run interactively on production workers without human change-window authorization, as setting a secret immediately generates and deploys a new worker version.
+
+3. **Release Ledger & Immutable SHA Tracking:**
+   Every manual production promotion must record the exact deployed commit SHA across all active workers, the backend service, and Flyway migration version in `docs/operations/MIGRATION_BASELINE.md`.
+
