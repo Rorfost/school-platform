@@ -1,70 +1,72 @@
 package com.rorfost.schoolportal.assessment.api;
 
+import com.rorfost.schoolportal.assessment.domain.GradeBand;
 import com.rorfost.schoolportal.assessment.domain.ResultPresentationSettings;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public record ResultPresentationSettingsResponse(
-        LocalDate resultDate,
-        String resultPlace,
-        String resultSheetTitle,
-        String footerLineOne,
-        String footerLineTwo,
-        String ekamFooterLineOne,
-        String ekamFooterLineTwo,
-        BigDecimal gradeAMin,
-        BigDecimal gradeBMin,
-        BigDecimal gradeCMin,
-        BigDecimal gradeDMin,
-        LocalDate ekamResultDate,
-        String ekamResultPlace,
-        String ekamResultSheetTitle,
-        String principalSignatureUrl,
-        String classTeacherName,
-        String classTeacherSignatureUrl) {
-    public static ResultPresentationSettingsResponse from(ResultPresentationSettings value) {
-        return new ResultPresentationSettingsResponse(
-                value.getResultDate(),
-                value.getResultPlace(),
-                value.getResultSheetTitle(),
-                value.getFooterLineOne(),
-                value.getFooterLineTwo(),
-                value.getEkamFooterLineOne(),
-                value.getEkamFooterLineTwo(),
-                value.getGradeAMin(),
-                value.getGradeBMin(),
-                value.getGradeCMin(),
-                value.getGradeDMin(),
-                value.getEkamResultDate(),
-                value.getEkamResultPlace(),
-                value.getEkamResultSheetTitle(),
-                null,
-                null,
-                null);
-    }
+    LocalDate resultDate,
+    String resultPlace,
+    String resultSheetTitle,
+    String footerLineOne,
+    String footerLineTwo,
+    String ekamFooterLineOne,
+    String ekamFooterLineTwo,
+    BigDecimal gradeAMin,
+    BigDecimal gradeBMin,
+    BigDecimal gradeCMin,
+    BigDecimal gradeDMin,
+    List<GradeBand> gradeBands,
+    LocalDate ekamResultDate,
+    String ekamResultPlace,
+    String ekamResultSheetTitle,
+    String principalSignatureUrl,
+    String classTeacherName,
+    String classTeacherSignatureUrl) {
+  public static ResultPresentationSettingsResponse from(ResultPresentationSettings value) {
+    return new ResultPresentationSettingsResponse(
+        value.getResultDate(),
+        value.getResultPlace(),
+        value.getResultSheetTitle(),
+        value.getFooterLineOne(),
+        value.getFooterLineTwo(),
+        value.getEkamFooterLineOne(),
+        value.getEkamFooterLineTwo(),
+        value.getGradeAMin(),
+        value.getGradeBMin(),
+        value.getGradeCMin(),
+        value.getGradeDMin(),
+        value.getGradeBands(),
+        value.getEkamResultDate(),
+        value.getEkamResultPlace(),
+        value.getEkamResultSheetTitle(),
+        null,
+        null,
+        null);
+  }
 
-    public ResultPresentationSettingsResponse withSignatures(
-            String principalSignatureUrl,
-            String classTeacherName,
-            String classTeacherSignatureUrl) {
-        return new ResultPresentationSettingsResponse(
-                resultDate,
-                resultPlace,
-                resultSheetTitle,
-                footerLineOne,
-                footerLineTwo,
-                ekamFooterLineOne,
-                ekamFooterLineTwo,
-                gradeAMin,
-                gradeBMin,
-                gradeCMin,
-                gradeDMin,
-                ekamResultDate,
-                ekamResultPlace,
-                ekamResultSheetTitle,
-                principalSignatureUrl,
-                classTeacherName,
-                classTeacherSignatureUrl);
-    }
+  public ResultPresentationSettingsResponse withSignatures(
+      String principalSignatureUrl, String classTeacherName, String classTeacherSignatureUrl) {
+    return new ResultPresentationSettingsResponse(
+        resultDate,
+        resultPlace,
+        resultSheetTitle,
+        footerLineOne,
+        footerLineTwo,
+        ekamFooterLineOne,
+        ekamFooterLineTwo,
+        gradeAMin,
+        gradeBMin,
+        gradeCMin,
+        gradeDMin,
+        gradeBands,
+        ekamResultDate,
+        ekamResultPlace,
+        ekamResultSheetTitle,
+        principalSignatureUrl,
+        classTeacherName,
+        classTeacherSignatureUrl);
+  }
 }

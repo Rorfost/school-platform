@@ -1,25 +1,27 @@
 package com.rorfost.schoolportal.assessment.api;
 
+import com.rorfost.schoolportal.assessment.domain.GradeBand;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public record ResultPresentationSettingsRequest(
-        LocalDate resultDate,
-        @Size(max = 255) String resultPlace,
-        @Size(max = 200) String resultSheetTitle,
-        @Size(max = 1000) String footerLineOne,
-        @Size(max = 1000) String footerLineTwo,
-        @Size(max = 1000) String ekamFooterLineOne,
-        @Size(max = 1000) String ekamFooterLineTwo,
-        @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeAMin,
-        @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeBMin,
-        @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeCMin,
-        @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeDMin,
-        LocalDate ekamResultDate,
-        @Size(max = 255) String ekamResultPlace,
-        @Size(max = 200) String ekamResultSheetTitle) {}
+    LocalDate resultDate,
+    @Size(max = 255) String resultPlace,
+    @Size(max = 200) String resultSheetTitle,
+    @Size(max = 1000) String footerLineOne,
+    @Size(max = 1000) String footerLineTwo,
+    @Size(max = 1000) String ekamFooterLineOne,
+    @Size(max = 1000) String ekamFooterLineTwo,
+    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeAMin,
+    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeBMin,
+    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeCMin,
+    @NotNull @DecimalMin("0") @DecimalMax("100") BigDecimal gradeDMin,
+    List<GradeBand> gradeBands,
+    LocalDate ekamResultDate,
+    @Size(max = 255) String ekamResultPlace,
+    @Size(max = 200) String ekamResultSheetTitle) {}
