@@ -2,6 +2,7 @@ package com.rorfost.schoolportal;
 
 import com.rorfost.schoolportal.common.config.AdminBootstrapProperties;
 import com.rorfost.schoolportal.common.config.CorsProperties;
+import com.rorfost.schoolportal.common.config.MetricsProperties;
 import com.rorfost.schoolportal.common.config.PortalProperties;
 import com.rorfost.schoolportal.common.config.SecurityProperties;
 import com.rorfost.schoolportal.common.config.StorageProperties;
@@ -16,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
         basePackageClasses = {
             AdminBootstrapProperties.class,
             CorsProperties.class,
+            MetricsProperties.class,
             PortalProperties.class,
             SecurityProperties.class,
             StorageProperties.class,

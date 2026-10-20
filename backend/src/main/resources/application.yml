@@ -73,3 +73,12 @@ app:
         max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:12MB}
     storage:
         url-endpoint: ${IMAGEKIT_URL_ENDPOINT:}
+    # Request timing and slow-request diagnostics.
+    # All instrumentation is OFF by default to avoid overhead on Render Free.
+    # Enable slow-request-logging in staging to collect before/after samples; keep timers-enabled
+    # false unless a Micrometer scraper is attached (none is present on free tier).
+    metrics:
+        timers-enabled: ${APP_METRICS_TIMERS_ENABLED:false}
+        slow-request-logging-enabled: ${APP_METRICS_SLOW_REQUEST_LOGGING_ENABLED:false}
+        slow-request-threshold: ${APP_METRICS_SLOW_REQUEST_THRESHOLD:2000ms}
+        slow-request-sample-rate: ${APP_METRICS_SLOW_REQUEST_SAMPLE_RATE:0.1}
