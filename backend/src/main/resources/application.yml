@@ -26,6 +26,8 @@ spring:
     session:
         jdbc:
             initialize-schema: never
+            flush-mode: on_save
+            save-mode: on_set_attribute
         timeout: ${SESSION_TIMEOUT:8h}
     servlet:
         multipart:

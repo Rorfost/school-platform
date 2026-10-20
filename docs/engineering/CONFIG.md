@@ -10,6 +10,8 @@ Use environment-based configuration strictly. Keep local, test, and production p
 
 ### Target State (Multi-Tenant Plan)
 - **Shared Backend (Render):** Connects to Neon PostgreSQL with SSL (`sslmode=require`). Free Render instances use modest pool sizing (`DB_POOL_MAX_SIZE=3`, `DB_POOL_MIN_IDLE=0` or `1`).
+- **Neon Connection Mode:** Connect using Neon's direct connection string for the backend service (Flyway migrations require transactional DDL locks that can conflict with external PgBouncer session mode, and HikariCP handles application-level pooling with max 3 connections).
+- **Spring Session JDBC Sizing:** Configured with `flush-mode: on_save` and `save-mode: on_set_attribute` to eliminate redundant database writes on read-only authenticated HTTP requests.
 - **Cloudflare Workers:** Each school has a separate Worker environment with an offline-generated `PORTAL_GATEWAY_TOKEN` secret stored in Cloudflare. Render verifies token SHA-256 digests against the database, so Render never requires plaintext token lists in its environment.
 - **ImageKit:** Public URL endpoint configured via `IMAGEKIT_URL_ENDPOINT`; private key restricted to Render secrets via `IMAGEKIT_PRIVATE_KEY`.
 
