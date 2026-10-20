@@ -1,3 +1,12 @@
+import {
+    buildCacheKey,
+    buildCacheableResponse,
+    isCacheEligibleRequest,
+    isCacheEligibleResponse,
+    matchesCacheableRoute,
+    tagCacheHit,
+} from "./cache";
+
 export interface Env {
     ASSETS: Fetcher;
     BACKEND_ORIGIN?: string;
@@ -66,6 +75,31 @@ export default {
         const backendOrigin = (env.BACKEND_ORIGIN || "http://localhost:8080").replace(/\/+$/, "");
         const targetUrl = new URL(url.pathname + url.search, backendOrigin);
         const parsedOrigin = new URL(backendOrigin);
+
+        // ── Edge cache check (Task A — Sprint 39) ─────────────────────────────
+        // Only public GET endpoints on the Sprint 37 allowlist are eligible.
+        // The school slug forms part of the cache key to guarantee per-tenant
+        // namespace isolation even though caches.default is shared across all
+        // Worker instances that happen to land on the same edge node.
+        const schoolSlug = env.SCHOOL_SLUG ?? "unknown";
+        const cacheEligible = isCacheEligibleRequest(request);
+        const cacheEntry = cacheEligible ? matchesCacheableRoute(url.pathname) : null;
+
+        if (cacheEntry !== null) {
+            try {
+                const edgeCache = caches.default;
+                const cacheKey = buildCacheKey(schoolSlug, request.url);
+                const cachedResponse = await edgeCache.match(cacheKey);
+                if (cachedResponse !== undefined) {
+                    // Cache HIT — return immediately without hitting the backend.
+                    return tagCacheHit(cachedResponse);
+                }
+            } catch {
+                // Cache API unavailable (e.g. local wrangler dev without flag) — continue
+                // with normal proxy. Never fail the request due to cache issues.
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
 
         // Sanitize and build fresh outbound headers.
         // All client-supplied x-portal-* and x-school-* headers are stripped here;
@@ -165,11 +199,38 @@ export default {
                 }
             }
 
-            return new Response(backendResponse.body, {
+            const proxiedResponse = new Response(backendResponse.body, {
                 status: backendResponse.status,
                 statusText: backendResponse.statusText,
                 headers: responseHeaders,
             });
+
+            // ── Edge cache store (Task A — Sprint 39) ────────────────────────
+            // Store the response in the edge cache if:
+            // 1. The route is on the allowlist (cacheEntry !== null)
+            // 2. The backend response is eligible (200, no Set-Cookie, no no-store)
+            // Uses waitUntil-like background store: we clone the response body
+            // (consumed by the client) and put a fresh clone in the cache.
+            if (cacheEntry !== null && isCacheEligibleResponse(proxiedResponse)) {
+                try {
+                    const edgeCache = caches.default;
+                    const cacheKey = buildCacheKey(schoolSlug, request.url);
+                    // buildCacheableResponse clones the response and sets a stable
+                    // Cache-Control with the effective TTL (min of backend s-maxage and
+                    // route's edgeTtlSeconds). It also tags the response X-Cache: MISS.
+                    const responseToCache = buildCacheableResponse(
+                        proxiedResponse.clone(),
+                        cacheEntry,
+                    );
+                    // cache.put is fire-and-forget; errors must not block the response.
+                    void edgeCache.put(cacheKey, responseToCache);
+                } catch {
+                    // Cache API unavailable or quota exceeded — continue normally.
+                }
+            }
+            // ─────────────────────────────────────────────────────────────────
+
+            return proxiedResponse;
         } catch {
             return new Response(
                 JSON.stringify({
