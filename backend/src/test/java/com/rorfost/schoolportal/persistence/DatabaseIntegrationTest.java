@@ -403,6 +403,21 @@ class DatabaseIntegrationTest {
                 .isZero();
     }
 
+    @Test
+    void targetedContentAndBatchIndexesExistInCatalog() {
+        Integer imageIndexCount =
+                jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM pg_indexes WHERE indexname = 'gallery_images_school_album_status_idx'",
+                        Integer.class);
+        assertThat(imageIndexCount).isEqualTo(1);
+
+        Integer albumIndexCount =
+                jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM pg_indexes WHERE indexname = 'gallery_albums_school_updated_at_idx'",
+                        Integer.class);
+        assertThat(albumIndexCount).isEqualTo(1);
+    }
+
     private AcademicScope createScope() {
         School school = schoolRepository.saveAndFlush(new School("Test School", uniqueSlug()));
         AcademicYear academicYear =

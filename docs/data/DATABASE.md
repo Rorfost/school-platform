@@ -6,12 +6,12 @@ This document describes the implemented relational schema and future multi-tenan
 backend/src/main/resources/db/migration/
 ```
 
-- Local Flyway migrations: `V1` through `V28`.
+- Local Flyway migrations: `V1` through `V30`.
 - Migrations are strictly append-only; applied migrations are never edited.
 - All domain identifiers are UUIDs, timestamps are `TIMESTAMPTZ`, and database naming follows `snake_case`.
 
 > [!IMPORTANT]
-> **Production Migration Status:** The production database's actual Flyway migration level is **UNVERIFIED** and has not been inspected directly. The local source tree contains migrations `V1` through `V28`. Before applying any new migrations in production, operators must inspect the live `flyway_schema_history` table.
+> **Production Migration Status:** The production database's actual Flyway migration level is **UNVERIFIED** and has not been inspected directly. The local source tree contains migrations `V1` through `V30`. Before applying any new migrations in production, operators must inspect the live `flyway_schema_history` table.
 
 ## Multi-Tenant Strategy: As-Is vs. Target
 
@@ -27,6 +27,8 @@ backend/src/main/resources/db/migration/
   - `V26__add_school_domains_and_slug_unique.sql` — stores school domain hostnames.
   - `V27__create_school_features_schema.sql` — school-specific feature toggle overrides.
   - `V28__drop_student_uid_from_annual_exam_results.sql` — removes legacy student UID column from exam results.
+  - `V29__add_grade_bands_to_result_presentation_settings.sql` — adds flexible grade bands JSONB column to result settings.
+  - `V30__add_targeted_content_and_batch_indexes.sql` — adds `gallery_images_school_album_status_idx` (tenant-scoped batch image counting and cover resolution) and `gallery_albums_school_updated_at_idx` (administrative album listing ordered by `updated_at DESC`).
 - Every repository query, join, and mutation enforces `school_id` filtering from `TenantContext`.
 - Global catalogs (such as `assessment_types`) remain shared; tenant-scoped records are strictly separated.
 
