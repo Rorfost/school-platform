@@ -8,7 +8,9 @@ import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,26 +19,53 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @RestController
-class SchoolController {
+public class SchoolController {
+    private static final CacheControl PUBLIC_SEMI_STATIC_CACHE =
+            CacheControl.maxAge(Duration.ofSeconds(300))
+                    .cachePublic()
+                    .sMaxAge(Duration.ofSeconds(300));
+
     private final SchoolService schoolService;
 
-    SchoolController(SchoolService schoolService) {
+    public SchoolController(SchoolService schoolService) {
         this.schoolService = schoolService;
     }
 
     @GetMapping("/api/v1/public/school")
+    ResponseEntity<SchoolResponse> publicSchool(WebRequest webRequest) {
+        UUID schoolId = resolveTenantSchoolId();
+        SchoolResponse response = schoolService.getPublic(schoolId);
+        String etag = "\"" + schoolId + ":" + response.hashCode() + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return ResponseEntity.ok().cacheControl(PUBLIC_SEMI_STATIC_CACHE).eTag(etag).body(response);
+    }
+
     SchoolResponse publicSchool() {
-        return schoolService.getPublic(resolveTenantSchoolId());
+        return publicSchool(null).getBody();
     }
 
     @GetMapping("/api/v1/public/principal-profile")
+    ResponseEntity<PrincipalProfileResponse> publicProfile(WebRequest webRequest) {
+        UUID schoolId = resolveTenantSchoolId();
+        PrincipalProfileResponse response = schoolService.getPublicProfile(schoolId);
+        String etag = "\"" + schoolId + ":" + response.hashCode() + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return ResponseEntity.ok().cacheControl(PUBLIC_SEMI_STATIC_CACHE).eTag(etag).body(response);
+    }
+
     PrincipalProfileResponse publicProfile() {
-        return schoolService.getPublicProfile(resolveTenantSchoolId());
+        return publicProfile(null).getBody();
     }
 
     private UUID resolveTenantSchoolId() {

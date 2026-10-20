@@ -22,12 +22,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/public")
-class PublicContentController {
+public class PublicContentController {
     private final ContentService contentService;
     private final SchoolRepository schoolRepository;
     private final FeatureAccessPolicy featureAccessPolicy;
 
-    PublicContentController(
+    public PublicContentController(
             ContentService contentService,
             SchoolRepository schoolRepository,
             FeatureAccessPolicy featureAccessPolicy) {
@@ -36,61 +36,160 @@ class PublicContentController {
         this.featureAccessPolicy = featureAccessPolicy;
     }
 
+    private static final org.springframework.http.CacheControl PUBLIC_CONTENT_CACHE =
+            org.springframework.http.CacheControl.maxAge(java.time.Duration.ofSeconds(60))
+                    .cachePublic()
+                    .sMaxAge(java.time.Duration.ofSeconds(60));
+
     @GetMapping("/materials")
-    PageResponse<MaterialResponse> materials(
+    org.springframework.http.ResponseEntity<PageResponse<MaterialResponse>> materials(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.MATERIALS);
-        return PageResponse.from(contentService.publicMaterialPage(schoolId, page, size));
+        PageResponse<MaterialResponse> response =
+                PageResponse.from(contentService.publicMaterialPage(schoolId, page, size));
+        String etag =
+                "\""
+                        + schoolId
+                        + ":materials:"
+                        + page
+                        + ":"
+                        + size
+                        + ":"
+                        + response.hashCode()
+                        + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(response);
     }
 
     @GetMapping("/notices")
-    PageResponse<NoticeResponse> notices(
+    org.springframework.http.ResponseEntity<PageResponse<NoticeResponse>> notices(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.NOTICES);
-        return PageResponse.from(
-                contentService.publicNotices(schoolId, page, size).map(contentService::notice));
+        PageResponse<NoticeResponse> response =
+                PageResponse.from(
+                        contentService
+                                .publicNotices(schoolId, page, size)
+                                .map(contentService::notice));
+        String etag =
+                "\""
+                        + schoolId
+                        + ":notices:"
+                        + page
+                        + ":"
+                        + size
+                        + ":"
+                        + response.hashCode()
+                        + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(response);
     }
 
     @GetMapping("/gallery/albums")
-    PageResponse<GalleryAlbumResponse> galleryAlbums(
+    org.springframework.http.ResponseEntity<PageResponse<GalleryAlbumResponse>> galleryAlbums(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.GALLERY);
-        return PageResponse.from(contentService.publicAlbumPage(schoolId, page, size));
+        PageResponse<GalleryAlbumResponse> response =
+                PageResponse.from(contentService.publicAlbumPage(schoolId, page, size));
+        String etag =
+                "\"" + schoolId + ":albums:" + page + ":" + size + ":" + response.hashCode() + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(response);
     }
 
     @GetMapping("/gallery/albums/{albumId}/images")
-    Object galleryImages(
+    org.springframework.http.ResponseEntity<?> galleryImages(
             @PathVariable UUID albumId,
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @RequestParam(required = false) Integer size,
+            org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.GALLERY);
+        Object body;
         if (page != null || size != null) {
             int p = page != null ? page : 0;
             int s = size != null ? size : 20;
-            return PageResponse.from(contentService.publicAlbumImagesPage(schoolId, albumId, p, s));
+            body = PageResponse.from(contentService.publicAlbumImagesPage(schoolId, albumId, p, s));
+        } else {
+            body = contentService.publicAlbumImages(schoolId, albumId);
         }
-        return contentService.publicAlbumImages(schoolId, albumId);
+        String etag =
+                "\""
+                        + schoolId
+                        + ":album-images:"
+                        + albumId
+                        + ":"
+                        + page
+                        + ":"
+                        + size
+                        + ":"
+                        + body.hashCode()
+                        + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(body);
     }
 
     List<GalleryImageResponse> galleryImages(UUID albumId) {
-        return (List<GalleryImageResponse>) galleryImages(albumId, null, null);
+        return contentService.publicAlbumImages(resolveTenantSchoolId(), albumId);
     }
 
     @GetMapping("/downloads")
-    PageResponse<DownloadResponse> downloads(
+    org.springframework.http.ResponseEntity<PageResponse<DownloadResponse>> downloads(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.DOWNLOADS);
-        return PageResponse.from(
-                contentService.publicDownloads(schoolId, page, size).map(contentService::download));
+        PageResponse<DownloadResponse> response =
+                PageResponse.from(
+                        contentService
+                                .publicDownloads(schoolId, page, size)
+                                .map(contentService::download));
+        String etag =
+                "\""
+                        + schoolId
+                        + ":downloads:"
+                        + page
+                        + ":"
+                        + size
+                        + ":"
+                        + response.hashCode()
+                        + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(response);
     }
 
     private UUID resolveTenantSchoolId() {

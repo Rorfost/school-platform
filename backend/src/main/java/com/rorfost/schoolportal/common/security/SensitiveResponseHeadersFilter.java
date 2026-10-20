@@ -18,7 +18,13 @@ public class SensitiveResponseHeadersFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String uri = request.getRequestURI();
-        if (uri.startsWith("/api/v1/admin/") || uri.equals("/api/v1/public/exam-results")) {
+        String method = request.getMethod();
+        boolean isMutation = !"GET".equalsIgnoreCase(method) && !"HEAD".equalsIgnoreCase(method);
+
+        if (uri.startsWith("/api/v1/admin/")
+                || uri.equals("/api/v1/public/exam-results")
+                || uri.startsWith("/api/v1/public/visits")
+                || isMutation) {
             response.setHeader("Cache-Control", "no-store");
             response.setHeader("Pragma", "no-cache");
         }

@@ -50,9 +50,16 @@ public class ResultPresentationSettingsController {
         this.storage = storage;
     }
 
+    private static final org.springframework.http.CacheControl RESULT_SETTINGS_CACHE =
+            org.springframework.http.CacheControl.maxAge(java.time.Duration.ofSeconds(300))
+                    .cachePublic()
+                    .sMaxAge(java.time.Duration.ofSeconds(300));
+
     @GetMapping("/public/result-settings")
-    ResultPresentationSettingsResponse publicSettings(
-            @RequestParam(required = false) String standard) {
+    public org.springframework.http.ResponseEntity<ResultPresentationSettingsResponse>
+            publicSettings(
+                    @RequestParam(required = false) String standard,
+                    org.springframework.web.context.request.WebRequest webRequest) {
         UUID schoolId = resolvePublicSchoolId();
         String principalSignatureUrl =
                 principalProfiles
@@ -69,15 +76,31 @@ public class ResultPresentationSettingsController {
                                 .stream()
                                 .filter(value -> matchesStandard(value, standard.trim()))
                                 .findFirst();
-        return service.get(schoolId)
-                .withSignatures(
-                        principalSignatureUrl,
-                        matchingStandard.map(Standard::getClassTeacherName).orElse(null),
-                        matchingStandard
-                                .map(Standard::getClassTeacherSignatureObjectKey)
-                                .filter(Objects::nonNull)
-                                .map(storage::publicUrl)
-                                .orElse(null));
+        ResultPresentationSettingsResponse response =
+                service.get(schoolId)
+                        .withSignatures(
+                                principalSignatureUrl,
+                                matchingStandard.map(Standard::getClassTeacherName).orElse(null),
+                                matchingStandard
+                                        .map(Standard::getClassTeacherSignatureObjectKey)
+                                        .filter(Objects::nonNull)
+                                        .map(storage::publicUrl)
+                                        .orElse(null));
+        String etag =
+                "\""
+                        + schoolId
+                        + ":"
+                        + (standard == null ? "" : standard)
+                        + ":"
+                        + response.hashCode()
+                        + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(RESULT_SETTINGS_CACHE)
+                .eTag(etag)
+                .body(response);
     }
 
     @GetMapping("/admin/result-settings")

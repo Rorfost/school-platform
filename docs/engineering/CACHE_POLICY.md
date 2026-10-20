@@ -1,11 +1,11 @@
 # Multi-Tenant Cache Eligibility & Safety Policy Matrix (Sprint 37)
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Repository:** https://github.com/Rorfost/school-platform  
 **Scope:** Architectural prerequisite establishing route-by-route cache classification, strict multi-tenant keying rules, invalidation boundaries, and `no-store` mandates for student records, credentials, and mutations.
 
-> [!IMPORTANT]
-> **Sprint 37 Gate:** This document establishes the strict classification and safety contract. **No actual caching is enabled in this sprint**; subsequent sprints (Sprint 38 for Backend HTTP headers, Sprint 39 for Cloudflare edge caching, and Sprint 40 for in-process bounded cache) must strictly conform to this matrix.
+> [!NOTE]
+> **Sprint 38 Implementation Status:** Safe backend HTTP response headers (`Cache-Control`) and tenant-scoped `ETag` conditional validation (`304 Not Modified`) have been implemented across all eligible non-sensitive public GET endpoints (`SchoolController`, `PublicContentController`, `PublicFeatureFlagController`, `PublicAcademicController`, `ResultPresentationSettingsController`). Strict `no-store` is enforced on student results, mutations, visits counters, and all admin endpoints via `SensitiveResponseHeadersFilter`. Cloudflare edge caching (Sprint 39) and in-process bounded cache (Sprint 40) build upon this foundation.
 
 ---
 

@@ -94,8 +94,9 @@ class PublicContentControllerTest {
                 .thenReturn(new PageImpl<>(List.of(notice), PageRequest.of(0, 20), 1));
         when(contentService.notice(notice)).thenReturn(responseDto);
 
-        PageResponse<NoticeResponse> result = controller.notices(0, 20);
+        PageResponse<NoticeResponse> result = controller.notices(0, 20, null).getBody();
 
+        assertThat(result).isNotNull();
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().get(0).title()).isEqualTo("નવું પરિપત્ર");
         verify(contentService).publicNotices(schoolId, 0, 20);
@@ -130,7 +131,7 @@ class PublicContentControllerTest {
     void publicEndpoints_shouldThrowWhenTenantMissing() {
         RequestContextHolder.resetRequestAttributes();
 
-        assertThatThrownBy(() -> controller.notices(0, 20))
+        assertThatThrownBy(() -> controller.notices(0, 20, null))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
                 .hasFieldOrPropertyWithValue("code", "school_not_found");
@@ -141,7 +142,7 @@ class PublicContentControllerTest {
         bindTenant(schoolId, "dhadhana-school");
         when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> controller.notices(0, 20))
+        assertThatThrownBy(() -> controller.notices(0, 20, null))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
                 .hasFieldOrPropertyWithValue("code", "school_not_found");
@@ -169,7 +170,7 @@ class PublicContentControllerTest {
         bindTenant(schoolId, "dhadhana-school");
         when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
 
-        assertThatThrownBy(() -> disabledController.notices(0, 20))
+        assertThatThrownBy(() -> disabledController.notices(0, 20, null))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
                 .hasFieldOrPropertyWithValue("code", "feature_not_found");
