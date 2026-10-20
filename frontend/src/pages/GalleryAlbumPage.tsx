@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Camera, Image as ImageIcon, X, ZoomIn } from "lucide-react";
+import { Camera, Image as ImageIcon, Loader2, X, ZoomIn } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { usePublicGalleryImages } from "@/features/public/usePublicContent";
+import { usePublicGalleryImagesPaginated } from "@/features/public/usePublicContent";
 import type { GalleryImageResponse } from "@/api/types";
 import {
     CardGridSkeleton,
@@ -15,12 +15,41 @@ import { LABELS } from "@/utils/gujarati";
 
 export function GalleryAlbumPage() {
     const { albumId } = useParams<{ albumId: string }>();
-    const { data: images, isLoading, error, refetch } = usePublicGalleryImages(albumId);
+    const [page, setPage] = useState(0);
+    const pageSize = 24;
+    const { data: pageData, isLoading, isFetching, error, refetch } = usePublicGalleryImagesPaginated(albumId, page, pageSize);
+
+    // Accumulated images across pages with deduplication by ID
+    const [accumulatedImages, setAccumulatedImages] = useState<GalleryImageResponse[]>([]);
     const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
     const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
 
+    useEffect(() => {
+        // Reset when albumId changes
+        setPage(0);
+        setAccumulatedImages([]);
+    }, [albumId]);
+
+    useEffect(() => {
+        if (!pageData?.items) return;
+        setAccumulatedImages((prev) => {
+            if (page === 0) return pageData.items;
+            const existingIds = new Set(prev.map((img) => img.id));
+            const newItems = pageData.items.filter((img) => !existingIds.has(img.id));
+            return [...prev, ...newItems];
+        });
+    }, [pageData, page]);
+
     const markImageFailed = (imageId: string) => {
         setFailedImageIds((current) => new Set(current).add(imageId));
+    };
+
+    const hasMore = pageData ? page < pageData.totalPages - 1 : false;
+
+    const handleLoadMore = () => {
+        if (hasMore && !isFetching) {
+            setPage((prev) => prev + 1);
+        }
     };
 
     useEffect(() => {
@@ -46,7 +75,7 @@ export function GalleryAlbumPage() {
                 backLabel={LABELS.gallery}
             />
 
-            {isLoading ? (
+            {isLoading && page === 0 ? (
                 <>
                     <LoadingState
                         message="તસવીરો લોડ થઈ રહી છે..."
@@ -54,59 +83,83 @@ export function GalleryAlbumPage() {
                     />
                     <CardGridSkeleton cards={9} />
                 </>
-            ) : error ? (
+            ) : error && accumulatedImages.length === 0 ? (
                 <ErrorState onRetry={() => refetch()} />
-            ) : !images || images.length === 0 ? (
+            ) : accumulatedImages.length === 0 ? (
                 <EmptyState
                     icon={Camera}
                     title="આ આલ્બમમાં તસવીરો ઉપલબ્ધ નથી."
                     description="ટૂંક સમયમાં નવી તસવીરો અહીં ઉમેરવામાં આવશે."
                 />
             ) : (
-                <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-                    {images.map((img) => (
-                        <Card
-                            key={img.id}
-                            variant="interactive"
-                            className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
-                            role="button"
-                            aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
-                            onClick={() => setSelectedImage(img)}
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    setSelectedImage(img);
-                                }
-                            }}
-                        >
-                            <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
-                                {img.url && !failedImageIds.has(img.id) ? (
-                                    <img
-                                        src={img.thumbnailUrl || img.url}
-                                        alt={img.altText || "ગેલેરી તસવીર"}
-                                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                        loading="lazy"
-                                        decoding="async"
-                                        onError={() => markImageFailed(img.id)}
-                                    />
-                                ) : (
-                                    <div className="size-full flex items-center justify-center text-slate-400">
-                                        <ImageIcon size={32} aria-hidden="true" />
+                <>
+                    <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+                        {accumulatedImages.map((img) => (
+                            <Card
+                                key={img.id}
+                                variant="interactive"
+                                className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
+                                role="button"
+                                aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
+                                onClick={() => setSelectedImage(img)}
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        setSelectedImage(img);
+                                    }
+                                }}
+                            >
+                                <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
+                                    {img.url && !failedImageIds.has(img.id) ? (
+                                        <img
+                                            src={img.thumbnailUrl || img.url}
+                                            alt={img.altText || "ગેલેરી તસવીર"}
+                                            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            loading="lazy"
+                                            decoding="async"
+                                            onError={() => markImageFailed(img.id)}
+                                        />
+                                    ) : (
+                                        <div className="size-full flex items-center justify-center text-slate-400">
+                                            <ImageIcon size={32} aria-hidden="true" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                        <ZoomIn size={24} aria-hidden="true" />
+                                    </div>
+                                </div>
+                                {(img.altText || img.caption) && (
+                                    <div className="p-3 text-xs text-slate-700 font-medium truncate">
+                                        {img.caption || img.altText}
                                     </div>
                                 )}
-                                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                                    <ZoomIn size={24} aria-hidden="true" />
-                                </div>
-                            </div>
-                            {(img.altText || img.caption) && (
-                                <div className="p-3 text-xs text-slate-700 font-medium truncate">
-                                    {img.caption || img.altText}
-                                </div>
-                            )}
-                        </Card>
-                    ))}
-                </div>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {/* Pagination / Load More Controls */}
+                    {hasMore && (
+                        <div className="flex justify-center pt-4">
+                            <button
+                                type="button"
+                                onClick={handleLoadMore}
+                                disabled={isFetching}
+                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-900 text-white font-medium hover:bg-blue-800 disabled:opacity-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2"
+                                aria-label="વધુ તસવીરો લોડ કરો"
+                            >
+                                {isFetching ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                                        <span>લોડ થઈ રહ્યું છે...</span>
+                                    </>
+                                ) : (
+                                    <span>વધુ તસવીરો જુઓ</span>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Image Lightbox Modal */}

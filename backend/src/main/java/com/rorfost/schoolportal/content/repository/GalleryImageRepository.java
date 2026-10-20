@@ -15,6 +15,9 @@ import java.util.UUID;
 public interface GalleryImageRepository extends JpaRepository<GalleryImage, UUID> {
     List<GalleryImage> findByGalleryAlbumIdOrderBySortOrder(UUID galleryAlbumId);
 
+    org.springframework.data.domain.Page<GalleryImage> findByGalleryAlbumId(
+            UUID galleryAlbumId, org.springframework.data.domain.Pageable pageable);
+
     Optional<GalleryImage> findByIdAndGalleryAlbumId(UUID id, UUID galleryAlbumId);
 
     long countByGalleryAlbumId(UUID galleryAlbumId);
@@ -23,6 +26,12 @@ public interface GalleryImageRepository extends JpaRepository<GalleryImage, UUID
 
     List<GalleryImage> findBySchoolIdAndGalleryAlbumIdAndStatusOrderBySortOrder(
             UUID schoolId, UUID galleryAlbumId, PublicationStatus status);
+
+    org.springframework.data.domain.Page<GalleryImage> findBySchoolIdAndGalleryAlbumIdAndStatus(
+            UUID schoolId,
+            UUID galleryAlbumId,
+            PublicationStatus status,
+            org.springframework.data.domain.Pageable pageable);
 
     Optional<GalleryImage> findByIdAndGalleryAlbumIdAndSchoolId(
             UUID id, UUID galleryAlbumId, UUID schoolId);

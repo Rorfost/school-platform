@@ -63,9 +63,18 @@ class ContentController {
     }
 
     @GetMapping("/gallery/albums/{id}/images")
-    java.util.List<GalleryImageResponse> images(
-            @AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+    Object images(
+            @AuthenticationPrincipal PrincipalSession p,
+            @PathVariable UUID id,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
         featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
+        if (page != null || size != null) {
+            int pageNum = page != null ? page : 0;
+            int pageSize = size != null ? size : 20;
+            return PageResponse.from(
+                    service.adminAlbumImagesPage(p.schoolId(), id, pageNum, pageSize));
+        }
         return service.adminAlbumImages(p.schoolId(), id);
     }
 

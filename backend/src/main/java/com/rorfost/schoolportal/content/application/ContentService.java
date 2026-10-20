@@ -656,6 +656,23 @@ public class ContentService {
     }
 
     @Transactional(readOnly = true)
+    public Page<GalleryImageResponse> publicAlbumImagesPage(
+            UUID school, UUID albumId, int page, int size) {
+        GalleryAlbum album = album(school, albumId);
+        if (album.getStatus() != PublicationStatus.PUBLISHED)
+            throw notFound("gallery_album_not_found");
+        return images.findBySchoolIdAndGalleryAlbumIdAndStatus(
+                        school,
+                        albumId,
+                        PublicationStatus.PUBLISHED,
+                        page(
+                                page,
+                                size,
+                                Sort.by(Sort.Order.asc("sortOrder"), Sort.Order.asc("id"))))
+                .map(this::image);
+    }
+
+    @Transactional(readOnly = true)
     public List<GalleryImageResponse> adminAlbumImages(UUID school, UUID albumId) {
         album(school, albumId);
         return images.findByGalleryAlbumIdOrderBySortOrder(albumId).stream()
@@ -663,10 +680,27 @@ public class ContentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Page<GalleryImageResponse> adminAlbumImagesPage(
+            UUID school, UUID albumId, int page, int size) {
+        album(school, albumId);
+        return images.findByGalleryAlbumId(
+                        albumId,
+                        page(
+                                page,
+                                size,
+                                Sort.by(Sort.Order.asc("sortOrder"), Sort.Order.asc("id"))))
+                .map(this::adminImage);
+    }
+
     private PageRequest page(int page, int size, Sort sort) {
         if (page < 0 || size < 1 || size > 50)
             throw new DomainException(HttpStatus.BAD_REQUEST, "page_invalid");
-        return PageRequest.of(page, size, sort);
+        // Ensure deterministic pagination tie-breaking on id if not already present in the sort
+        boolean hasIdOrder =
+                sort.stream().anyMatch(order -> "id".equalsIgnoreCase(order.getProperty()));
+        Sort stableSort = hasIdOrder ? sort : sort.and(Sort.by(Sort.Order.asc("id")));
+        return PageRequest.of(page, size, stableSort);
     }
 
     public MaterialResponse material(StudyMaterial item) {

@@ -65,10 +65,22 @@ class PublicContentController {
     }
 
     @GetMapping("/gallery/albums/{albumId}/images")
-    List<GalleryImageResponse> galleryImages(@PathVariable UUID albumId) {
+    Object galleryImages(
+            @PathVariable UUID albumId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.GALLERY);
+        if (page != null || size != null) {
+            int p = page != null ? page : 0;
+            int s = size != null ? size : 20;
+            return PageResponse.from(contentService.publicAlbumImagesPage(schoolId, albumId, p, s));
+        }
         return contentService.publicAlbumImages(schoolId, albumId);
+    }
+
+    List<GalleryImageResponse> galleryImages(UUID albumId) {
+        return (List<GalleryImageResponse>) galleryImages(albumId, null, null);
     }
 
     @GetMapping("/downloads")
