@@ -40,8 +40,7 @@ class ContentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.MATERIALS);
-        return PageResponse.from(
-                service.adminMaterials(p.schoolId(), page, size).map(service::material));
+        return PageResponse.from(service.adminMaterialPage(p.schoolId(), page, size));
     }
 
     @GetMapping("/notices")
@@ -60,8 +59,7 @@ class ContentController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
-        return PageResponse.from(
-                service.adminAlbums(p.schoolId(), page, size).map(service::adminAlbum));
+        return PageResponse.from(service.adminAlbumPage(p.schoolId(), page, size));
     }
 
     @GetMapping("/gallery/albums/{id}/images")

@@ -42,8 +42,7 @@ class PublicContentController {
             @RequestParam(defaultValue = "20") int size) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.MATERIALS);
-        return PageResponse.from(
-                contentService.publicMaterials(schoolId, page, size).map(contentService::material));
+        return PageResponse.from(contentService.publicMaterialPage(schoolId, page, size));
     }
 
     @GetMapping("/notices")
@@ -62,8 +61,7 @@ class PublicContentController {
             @RequestParam(defaultValue = "20") int size) {
         UUID schoolId = resolveTenantSchoolId();
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.GALLERY);
-        return PageResponse.from(
-                contentService.publicAlbums(schoolId, page, size).map(contentService::publicAlbum));
+        return PageResponse.from(contentService.publicAlbumPage(schoolId, page, size));
     }
 
     @GetMapping("/gallery/albums/{albumId}/images")

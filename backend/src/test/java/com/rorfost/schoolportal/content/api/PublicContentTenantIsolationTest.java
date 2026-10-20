@@ -261,13 +261,23 @@ class PublicContentTenantIsolationTest {
                         eq(schoolIdB), eq(albumIdA), eq(PublicationStatus.PUBLISHED)))
                 .thenReturn(Collections.emptyList());
 
-        // Image counts
+        // Image counts and batch summaries
         when(galleryImageRepository.countBySchoolIdAndGalleryAlbumIdAndStatus(
                         eq(schoolIdA), eq(albumIdA), eq(PublicationStatus.PUBLISHED)))
                 .thenReturn(2L);
         when(galleryImageRepository.countBySchoolIdAndGalleryAlbumIdAndStatus(
                         eq(schoolIdB), eq(albumIdB), eq(PublicationStatus.PUBLISHED)))
                 .thenReturn(1L);
+        when(galleryImageRepository.findSummariesBySchoolIdAndAlbumIds(eq(schoolIdA), any()))
+                .thenReturn(
+                        List.of(
+                                new com.rorfost.schoolportal.content.repository
+                                        .GalleryAlbumSummaryRow(albumIdA, null, 2L)));
+        when(galleryImageRepository.findSummariesBySchoolIdAndAlbumIds(eq(schoolIdB), any()))
+                .thenReturn(
+                        List.of(
+                                new com.rorfost.schoolportal.content.repository
+                                        .GalleryAlbumSummaryRow(albumIdB, null, 1L)));
 
         // Notices: duplicate title across A and B
         noticeA = new Notice(schoolIdA, "શાળા સમયમાં ફેરફાર", "School A: 8am to 1pm");
