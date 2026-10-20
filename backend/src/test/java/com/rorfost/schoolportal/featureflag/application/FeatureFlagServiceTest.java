@@ -110,7 +110,8 @@ class FeatureFlagServiceTest {
         com.rorfost.schoolportal.audit.service.AuditLogService auditService =
                 Mockito.mock(com.rorfost.schoolportal.audit.service.AuditLogService.class);
 
-        FeatureFlagService fullService = new FeatureFlagService(repository, schoolRepo, auditService);
+        FeatureFlagService fullService =
+                new FeatureFlagService(repository, schoolRepo, auditService);
 
         com.rorfost.schoolportal.school.domain.School school =
                 new com.rorfost.schoolportal.school.domain.School("School A", "school-a");
@@ -129,13 +130,16 @@ class FeatureFlagServiceTest {
         assertThat(captor.getValue().getFeatureKey()).isEqualTo("NOTICES");
         assertThat(captor.getValue().isEnabled()).isFalse();
 
-        verify(auditService).record(
-                org.mockito.ArgumentMatchers.eq(schoolA),
-                org.mockito.ArgumentMatchers.isNull(),
-                org.mockito.ArgumentMatchers.eq(com.rorfost.schoolportal.audit.domain.AuditAction.SCHOOL_FEATURE_UPDATED),
-                org.mockito.ArgumentMatchers.eq("SCHOOL_FEATURE"),
-                org.mockito.ArgumentMatchers.eq(schoolA),
-                org.mockito.ArgumentMatchers.eq("OPERATOR_CLI"));
+        verify(auditService)
+                .record(
+                        org.mockito.ArgumentMatchers.eq(schoolA),
+                        org.mockito.ArgumentMatchers.isNull(),
+                        org.mockito.ArgumentMatchers.eq(
+                                com.rorfost.schoolportal.audit.domain.AuditAction
+                                        .SCHOOL_FEATURE_UPDATED),
+                        org.mockito.ArgumentMatchers.eq("SCHOOL_FEATURE"),
+                        org.mockito.ArgumentMatchers.eq(schoolA),
+                        org.mockito.ArgumentMatchers.eq("OPERATOR_CLI"));
     }
 
     @Test
@@ -145,15 +149,22 @@ class FeatureFlagServiceTest {
         com.rorfost.schoolportal.audit.service.AuditLogService auditService =
                 Mockito.mock(com.rorfost.schoolportal.audit.service.AuditLogService.class);
 
-        FeatureFlagService fullService = new FeatureFlagService(repository, schoolRepo, auditService);
+        FeatureFlagService fullService =
+                new FeatureFlagService(repository, schoolRepo, auditService);
 
         when(schoolRepo.findBySlug("nonexistent")).thenReturn(Optional.empty());
 
         org.assertj.core.api.Assertions.assertThatThrownBy(
                         () -> fullService.setSchoolFeatureBySlug("nonexistent", "NOTICES", true))
                 .isInstanceOf(com.rorfost.schoolportal.common.exception.DomainException.class)
-                .satisfies(e -> assertThat(((com.rorfost.schoolportal.common.exception.DomainException) e).getCode())
-                        .isEqualTo("school_not_found"));
+                .satisfies(
+                        e ->
+                                assertThat(
+                                                ((com.rorfost.schoolportal.common.exception
+                                                                        .DomainException)
+                                                                e)
+                                                        .getCode())
+                                        .isEqualTo("school_not_found"));
 
         com.rorfost.schoolportal.school.domain.School school =
                 new com.rorfost.schoolportal.school.domain.School("School A", "school-a");
@@ -161,9 +172,17 @@ class FeatureFlagServiceTest {
         when(schoolRepo.findBySlug("school-a")).thenReturn(Optional.of(school));
 
         org.assertj.core.api.Assertions.assertThatThrownBy(
-                        () -> fullService.setSchoolFeatureBySlug("school-a", "UNKNOWN_FEATURE", true))
+                        () ->
+                                fullService.setSchoolFeatureBySlug(
+                                        "school-a", "UNKNOWN_FEATURE", true))
                 .isInstanceOf(com.rorfost.schoolportal.common.exception.DomainException.class)
-                .satisfies(e -> assertThat(((com.rorfost.schoolportal.common.exception.DomainException) e).getCode())
-                        .isEqualTo("invalid_feature_key"));
+                .satisfies(
+                        e ->
+                                assertThat(
+                                                ((com.rorfost.schoolportal.common.exception
+                                                                        .DomainException)
+                                                                e)
+                                                        .getCode())
+                                        .isEqualTo("invalid_feature_key"));
     }
 }

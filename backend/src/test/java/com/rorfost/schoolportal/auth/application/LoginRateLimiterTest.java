@@ -1,6 +1,10 @@
 package com.rorfost.schoolportal.auth.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.rorfost.schoolportal.common.config.SecurityProperties;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,9 +13,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LoginRateLimiterTest {
 
@@ -48,7 +49,8 @@ class LoginRateLimiterTest {
         }
 
         @Test
-        @DisplayName("checkAllowed throws LoginRateLimitExceededException when failure count reaches max attempts")
+        @DisplayName(
+                "checkAllowed throws LoginRateLimitExceededException when failure count reaches max attempts")
         void checkAllowed_atLimit_throwsException() {
             SecurityProperties props = createProperties(3, Duration.ofMinutes(10));
             LoginRateLimiter limiter = new LoginRateLimiter(props);
@@ -120,7 +122,8 @@ class LoginRateLimiterTest {
     class IpIsolationTests {
 
         @Test
-        @DisplayName("Different client IPs are tracked independently, preventing IP spoof denial-of-service")
+        @DisplayName(
+                "Different client IPs are tracked independently, preventing IP spoof denial-of-service")
         void ipSeparation_independentBuckets() {
             SecurityProperties props = createProperties(3, Duration.ofMinutes(10));
             LoginRateLimiter limiter = new LoginRateLimiter(props);

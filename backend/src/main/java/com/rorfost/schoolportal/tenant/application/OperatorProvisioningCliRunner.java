@@ -40,8 +40,7 @@ public class OperatorProvisioningCliRunner implements ApplicationRunner {
     private final FeatureFlagService featureFlagService;
 
     public OperatorProvisioningCliRunner(
-            TenantProvisioningService provisioningService,
-            FeatureFlagService featureFlagService) {
+            TenantProvisioningService provisioningService, FeatureFlagService featureFlagService) {
         this.provisioningService = provisioningService;
         this.featureFlagService = featureFlagService;
     }
@@ -116,8 +115,7 @@ public class OperatorProvisioningCliRunner implements ApplicationRunner {
 
     private String getRequiredOption(ApplicationArguments args, String name) {
         if (!args.containsOption(name) || args.getOptionValues(name).isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Missing required parameter: --" + name);
+            throw new IllegalArgumentException("Missing required parameter: --" + name);
         }
         return args.getOptionValues(name).get(0);
     }

@@ -132,7 +132,8 @@ public class TenantProvisioningService {
         }
 
         // Idempotent gateway credential handling:
-        // If the school already has an active gateway credential, do not create a new one during repeat provisioning.
+        // If the school already has an active gateway credential, do not create a new one during
+        // repeat provisioning.
         List<SchoolGatewayCredential> activeCredentials =
                 credentialRepository.findActiveBySchoolId(school.getId(), Instant.now());
 
@@ -150,7 +151,8 @@ public class TenantProvisioningService {
                             new SchoolGatewayCredential(school.getId(), digest, label));
             credentialId = credential.getId();
         } else {
-            // Existing active credential retained; token was already issued and its raw value cannot be retrieved.
+            // Existing active credential retained; token was already issued and its raw value
+            // cannot be retrieved.
             SchoolGatewayCredential existingCred = activeCredentials.get(0);
             rawToken = null;
             label = existingCred.getLabel();

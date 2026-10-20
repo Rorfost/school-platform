@@ -88,8 +88,8 @@ public class LoginRateLimiter {
     }
 
     /**
-     * Removes all keys whose deque is empty after expiring old entries. Called when the map
-     * reaches {@code maxKeys} capacity to reclaim memory for new clients.
+     * Removes all keys whose deque is empty after expiring old entries. Called when the map reaches
+     * {@code maxKeys} capacity to reclaim memory for new clients.
      */
     void purgeExpiredKeys() {
         List<String> toRemove = new ArrayList<>();

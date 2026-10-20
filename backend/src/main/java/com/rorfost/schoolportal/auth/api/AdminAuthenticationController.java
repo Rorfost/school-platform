@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 public class AdminAuthenticationController {
 
     /**
-     * Trusted client-IP header injected by the Cloudflare Worker after header sanitisation.
-     * The Worker strips any client-supplied {@code X-Portal-*} headers and re-injects this from
+     * Trusted client-IP header injected by the Cloudflare Worker after header sanitisation. The
+     * Worker strips any client-supplied {@code X-Portal-*} headers and re-injects this from
      * Cloudflare's edge-attested {@code CF-Connecting-IP}, so it cannot be forged by a caller.
      * Trusted only after gateway authentication has already succeeded.
      */
@@ -108,9 +108,9 @@ public class AdminAuthenticationController {
      *
      * <p>Prefers {@code X-Portal-Client-IP}, which is injected by the Cloudflare Worker after
      * stripping all client-supplied {@code X-Portal-*} headers and copying from CF's edge-attested
-     * {@code CF-Connecting-IP}. Falls back to the servlet remote address (used in local dev when
-     * no Worker is present). The header value is validated against an IPv4/IPv6 pattern; an
-     * invalid value is rejected in favour of the fallback rather than being logged or used raw.
+     * {@code CF-Connecting-IP}. Falls back to the servlet remote address (used in local dev when no
+     * Worker is present). The header value is validated against an IPv4/IPv6 pattern; an invalid
+     * value is rejected in favour of the fallback rather than being logged or used raw.
      */
     private String resolveClientIp(HttpServletRequest request) {
         String header = request.getHeader(CLIENT_IP_HEADER);

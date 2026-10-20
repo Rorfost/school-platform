@@ -153,13 +153,17 @@ class TenantProvisioningServiceTest {
 
         assertThatThrownBy(() -> service.provisionSchool(slug, name, hostname, email, null))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> assertThat(((DomainException) e).getCode())
-                        .isEqualTo("initial_password_required_for_principal"));
+                .satisfies(
+                        e ->
+                                assertThat(((DomainException) e).getCode())
+                                        .isEqualTo("initial_password_required_for_principal"));
 
         assertThatThrownBy(() -> service.provisionSchool(slug, name, hostname, email, "   "))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> assertThat(((DomainException) e).getCode())
-                        .isEqualTo("initial_password_required_for_principal"));
+                .satisfies(
+                        e ->
+                                assertThat(((DomainException) e).getCode())
+                                        .isEqualTo("initial_password_required_for_principal"));
     }
 
     @Test
@@ -182,7 +186,8 @@ class TenantProvisioningServiceTest {
 
         UUID existingCredId = UUID.randomUUID();
         SchoolGatewayCredential activeCred =
-                new SchoolGatewayCredential(schoolId, SchoolGatewayCredential.computeDigest("dummy"), "active-token");
+                new SchoolGatewayCredential(
+                        schoolId, SchoolGatewayCredential.computeDigest("dummy"), "active-token");
         ReflectionTestUtils.setField(activeCred, "id", existingCredId);
 
         when(credentialRepository.findActiveBySchoolId(eq(schoolId), any(Instant.class)))

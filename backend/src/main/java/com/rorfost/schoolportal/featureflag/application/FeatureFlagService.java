@@ -122,8 +122,9 @@ public class FeatureFlagService {
     }
 
     /**
-     * Safe operator-only method to set an explicit feature toggle for a school by school slug and feature key string.
-     * Validates both school slug and feature key, and records an audit log entry.
+     * Safe operator-only method to set an explicit feature toggle for a school by school slug and
+     * feature key string. Validates both school slug and feature key, and records an audit log
+     * entry.
      */
     @Transactional
     public void setSchoolFeatureBySlug(String schoolSlug, String featureKeyStr, boolean enabled) {
@@ -138,12 +139,17 @@ public class FeatureFlagService {
         School school =
                 schoolRepository
                         .findBySlug(normalizedSlug)
-                        .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
+                        .orElseThrow(
+                                () ->
+                                        new DomainException(
+                                                HttpStatus.NOT_FOUND, "school_not_found"));
 
         FeatureKey featureKey =
                 FeatureKey.fromString(featureKeyStr)
                         .orElseThrow(
-                                () -> new DomainException(HttpStatus.BAD_REQUEST, "invalid_feature_key"));
+                                () ->
+                                        new DomainException(
+                                                HttpStatus.BAD_REQUEST, "invalid_feature_key"));
 
         setSchoolFeature(school.getId(), featureKey, enabled);
     }

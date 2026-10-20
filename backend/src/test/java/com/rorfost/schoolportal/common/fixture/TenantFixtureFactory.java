@@ -142,6 +142,12 @@ public class TenantFixtureFactory {
         schoolInactive = new School("Inactive School", "school-inactive");
         schoolInactive.deactivate();
 
+        org.springframework.test.util.ReflectionTestUtils.setField(schoolA, "id", schoolIdA);
+        org.springframework.test.util.ReflectionTestUtils.setField(schoolB, "id", schoolIdB);
+        org.springframework.test.util.ReflectionTestUtils.setField(schoolC, "id", schoolIdC);
+        org.springframework.test.util.ReflectionTestUtils.setField(
+                schoolInactive, "id", schoolIdInactive);
+
         // Principal profiles
         profileA = new PrincipalProfile(schoolIdA, "Principal A Name");
         profileA.update(
