@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -7,9 +7,15 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { apiRequest, ApiError } from "@/api/client";
 import type { ExamResultResponse } from "@/api/types";
-import { ExamResultViewer } from "@/features/public/ExamResultViewer";
+import { ContentSkeleton } from "@/components/common/StatusPanel";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { usePublicStandards } from "@/features/public/usePublicAcademic";
+
+const ExamResultViewer = lazy(() =>
+    import("@/features/public/ExamResultViewer").then(({ ExamResultViewer }) => ({
+        default: ExamResultViewer,
+    })),
+);
 
 export function ResultsInfoPage() {
     const [resultType, setResultType] = useState<"ANNUAL" | "EKAM_KASOTI">("ANNUAL");
@@ -195,13 +201,15 @@ export function ResultsInfoPage() {
                         </Button>
                     </div>
 
-                    <ExamResultViewer
-                        result={result}
-                        schoolName={school.name}
-                        logoUrl={school.logoUrl}
-                        sealUrl={school.sealUrl}
-                        resultType={resultType}
-                    />
+                    <Suspense fallback={<ContentSkeleton rows={2} className="mx-auto max-w-4xl" />}>
+                        <ExamResultViewer
+                            result={result}
+                            schoolName={school.name}
+                            logoUrl={school.logoUrl}
+                            sealUrl={school.sealUrl}
+                            resultType={resultType}
+                        />
+                    </Suspense>
                 </div>
             )}
         </div>

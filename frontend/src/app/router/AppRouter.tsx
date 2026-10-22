@@ -2,13 +2,18 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { AdminLoginPage } from "@/features/auth/AdminLoginPage";
 import { RequireAdmin } from "@/features/auth/RequireAdmin";
 
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { RouteErrorPage } from "@/pages/RouteErrorPage";
 import { LoadingState } from "@/components/common/StatusPanel";
 import { FeatureRouteGuard } from "@/features/featureFlags/FeatureRouteGuard";
+
+const AdminLoginPage = lazy(() =>
+    import("@/features/auth/AdminLoginPage").then(({ AdminLoginPage }) => ({
+        default: AdminLoginPage,
+    })),
+);
 
 const AboutPage = lazy(() =>
     import("@/pages/AboutPage").then(({ AboutPage }) => ({ default: AboutPage })),
