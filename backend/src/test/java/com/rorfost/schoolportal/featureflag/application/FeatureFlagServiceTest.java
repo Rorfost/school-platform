@@ -1,6 +1,7 @@
 package com.rorfost.schoolportal.featureflag.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +103,69 @@ class FeatureFlagServiceTest {
 
         assertThat(service.isFeatureEnabled(schoolA, FeatureKey.GALLERY)).isFalse();
         assertThat(service.isFeatureEnabled(schoolB, FeatureKey.GALLERY)).isTrue();
+    }
+
+    @Test
+    void publicSnapshotsAreCachedPerSchoolButAuthorizationChecksRemainLive() {
+        FeatureFlagSnapshotCache cache =
+                new FeatureFlagSnapshotCache(true, Duration.ofSeconds(1), 4);
+        FeatureFlagService cachedService = new FeatureFlagService(repository, null, null, cache);
+        when(repository.findByIdSchoolId(schoolA)).thenReturn(Collections.emptyList());
+        when(repository.findByIdSchoolId(schoolB)).thenReturn(Collections.emptyList());
+        when(repository.findByIdSchoolIdAndIdFeatureKey(schoolA, FeatureKey.GALLERY.name()))
+                .thenReturn(Optional.empty());
+
+        cachedService.getFeaturesForSchool(schoolA);
+        cachedService.getFeaturesForSchool(schoolA);
+        cachedService.getFeaturesForSchool(schoolB);
+        cachedService.isFeatureEnabled(schoolA, FeatureKey.GALLERY);
+        cachedService.isFeatureEnabled(schoolA, FeatureKey.GALLERY);
+
+        verify(repository, times(1)).findByIdSchoolId(schoolA);
+        verify(repository, times(1)).findByIdSchoolId(schoolB);
+        verify(repository, times(2))
+                .findByIdSchoolIdAndIdFeatureKey(schoolA, FeatureKey.GALLERY.name());
+    }
+
+    @Test
+    void invalidatesTheChangedTenantSnapshotOnlyAfterCommit() {
+        FeatureFlagSnapshotCache cache =
+                new FeatureFlagSnapshotCache(true, Duration.ofSeconds(1), 4);
+        FeatureFlagService cachedService = new FeatureFlagService(repository, null, null, cache);
+        SchoolFeature disabledGallery = new SchoolFeature(schoolA, FeatureKey.GALLERY, false);
+        when(repository.findByIdSchoolId(schoolA))
+                .thenReturn(Collections.emptyList(), List.of(disabledGallery));
+        when(repository.findByIdSchoolId(schoolB)).thenReturn(Collections.emptyList());
+        when(repository.findByIdSchoolIdAndIdFeatureKey(schoolA, FeatureKey.GALLERY.name()))
+                .thenReturn(Optional.empty());
+
+        assertThat(cachedService.getFeaturesForSchool(schoolA).get(FeatureKey.GALLERY.name()))
+                .isTrue();
+        cachedService.getFeaturesForSchool(schoolB);
+
+        org.springframework.transaction.support.TransactionSynchronizationManager
+                .initSynchronization();
+        try {
+            cachedService.setSchoolFeature(schoolA, FeatureKey.GALLERY, false);
+            assertThat(cachedService.getFeaturesForSchool(schoolA).get(FeatureKey.GALLERY.name()))
+                    .isTrue();
+
+            org.springframework.transaction.support.TransactionSynchronizationManager
+                    .getSynchronizations()
+                    .forEach(
+                            org.springframework.transaction.support.TransactionSynchronization
+                                    ::afterCommit);
+        } finally {
+            org.springframework.transaction.support.TransactionSynchronizationManager
+                    .clearSynchronization();
+        }
+
+        assertThat(cachedService.getFeaturesForSchool(schoolA).get(FeatureKey.GALLERY.name()))
+                .isFalse();
+        assertThat(cachedService.getFeaturesForSchool(schoolB).get(FeatureKey.GALLERY.name()))
+                .isTrue();
+        verify(repository, times(2)).findByIdSchoolId(schoolA);
+        verify(repository, times(1)).findByIdSchoolId(schoolB);
     }
 
     @Test

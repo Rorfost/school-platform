@@ -58,6 +58,9 @@ logging:
         com.rorfost.schoolportal: ${APP_LOG_LEVEL:INFO}
 
 app:
+    cache:
+        public-features:
+            enabled: ${APP_PUBLIC_FEATURE_CACHE_ENABLED:true}
     gateway:
         enabled: ${APP_GATEWAY_ENABLED:true}
     frontend-url: ${FRONTEND_URL:}

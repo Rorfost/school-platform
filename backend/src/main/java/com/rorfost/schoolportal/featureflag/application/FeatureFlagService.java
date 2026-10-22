@@ -9,9 +9,12 @@ import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -36,18 +39,29 @@ public class FeatureFlagService {
     private final SchoolFeatureRepository schoolFeatureRepository;
     private final SchoolRepository schoolRepository;
     private final AuditLogService auditLogService;
+    private final FeatureFlagSnapshotCache snapshotCache;
 
     public FeatureFlagService(SchoolFeatureRepository schoolFeatureRepository) {
-        this(schoolFeatureRepository, null, null);
+        this(schoolFeatureRepository, null, null, null);
     }
 
     public FeatureFlagService(
             SchoolFeatureRepository schoolFeatureRepository,
             SchoolRepository schoolRepository,
             AuditLogService auditLogService) {
+        this(schoolFeatureRepository, schoolRepository, auditLogService, null);
+    }
+
+    @Autowired
+    public FeatureFlagService(
+            SchoolFeatureRepository schoolFeatureRepository,
+            SchoolRepository schoolRepository,
+            AuditLogService auditLogService,
+            FeatureFlagSnapshotCache snapshotCache) {
         this.schoolFeatureRepository = schoolFeatureRepository;
         this.schoolRepository = schoolRepository;
         this.auditLogService = auditLogService;
+        this.snapshotCache = snapshotCache;
     }
 
     /** Checks if a specific feature is enabled for the specified school. */
@@ -67,7 +81,13 @@ public class FeatureFlagService {
      */
     public Map<String, Boolean> getFeaturesForSchool(UUID schoolId) {
         Objects.requireNonNull(schoolId, "schoolId must not be null");
+        if (snapshotCache != null) {
+            return snapshotCache.get(schoolId, () -> loadFeaturesForSchool(schoolId));
+        }
+        return loadFeaturesForSchool(schoolId);
+    }
 
+    private Map<String, Boolean> loadFeaturesForSchool(UUID schoolId) {
         // Load all explicit overrides for this school
         List<SchoolFeature> overrides = schoolFeatureRepository.findByIdSchoolId(schoolId);
         Map<String, Boolean> overrideMap =
@@ -119,6 +139,27 @@ public class FeatureFlagService {
                     schoolId,
                     "OPERATOR_CLI");
         }
+
+        invalidateSnapshotAfterCommit(schoolId);
+    }
+
+    private void invalidateSnapshotAfterCommit(UUID schoolId) {
+        if (snapshotCache == null) {
+            return;
+        }
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            snapshotCache.invalidate(schoolId);
+            return;
+        }
+
+        // Keep the old snapshot visible until the database change commits successfully.
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        snapshotCache.invalidate(schoolId);
+                    }
+                });
     }
 
     /**

@@ -7,6 +7,8 @@
 > [!NOTE]
 > **Sprint 38 Implementation Status:** Safe backend HTTP response headers (`Cache-Control`) and tenant-scoped `ETag` conditional validation (`304 Not Modified`) have been implemented across all eligible non-sensitive public GET endpoints (`SchoolController`, `PublicContentController`, `PublicFeatureFlagController`, `PublicAcademicController`, `ResultPresentationSettingsController`). Strict `no-store` is enforced on student results, mutations, visits counters, and all admin endpoints via `SensitiveResponseHeadersFilter`. Cloudflare edge caching (Sprint 39) and in-process bounded cache (Sprint 40) build upon this foundation.
 
+> **Sprint 40 Implementation Status:** The public feature snapshot is cached in process for up to 30 seconds with a 128-school LRU cap. Keys use the immutable, gateway-verified school UUID; feature writes evict that school's entry only after commit. Backend feature authorization checks, admin data, sessions, CSRF, results, and mutations are never served from this cache. Set `APP_PUBLIC_FEATURE_CACHE_ENABLED=false` to disable it.
+
 ---
 
 ## 1. Classification Categories
