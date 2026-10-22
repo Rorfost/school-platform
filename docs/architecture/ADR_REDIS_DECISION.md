@@ -1,6 +1,6 @@
 # ADR: Defer Redis for the current deployment
 
-**Status:** DEFER
+**Status:** REJECT for the current single-JVM deployment
 **Decision date:** 2026-10-22
 **Scope:** One Render Free JVM, one shared Neon PostgreSQL database, Cloudflare Workers, and ImageKit. No Redis service is provisioned by this decision.
 
@@ -14,9 +14,9 @@ Those deployment measurements are currently **not available**. The feature route
 
 ## Decision
 
-**Defer Redis.** Continue using the existing bounded in-process feature snapshot cache and the existing Cloudflare public-response edge cache. Keep PostgreSQL as the source of truth. Do not add a Redis dependency, service, credentials, or runtime configuration in this sprint.
+**Reject adding Redis to the current deployment.** Continue using the existing bounded in-process feature snapshot cache and Cloudflare public-response edge cache. Keep PostgreSQL as the source of truth. Do not add a Redis dependency, service, credentials, or runtime configuration.
 
-A remote cache would add a network hop, another credential and failure domain, tenant-aware invalidation requirements, and provider quotas. With one JVM, the local cache avoids remote round trips and already bounds memory. Redis cannot repair unindexed or inefficient SQL, unbounded upload work, or Render cold starts. A free external cache is not itself a production reliability or scaling plan.
+A remote cache would add a network hop, another credential and failure domain, tenant-aware invalidation requirements, and provider quotas. With one JVM, the local cache avoids remote round trips and already bounds memory. No measurements show that a shared cache would improve the current product. Redis cannot repair unindexed or inefficient SQL, unbounded upload work, or Render cold starts. A free external cache is not itself a production reliability or scaling plan.
 
 ## Alternatives considered
 
@@ -26,7 +26,7 @@ A remote cache would add a network hop, another credential and failure domain, t
 | Bounded in-process cache | Sprint 40 provides a 128-school LRU and 30-second TTL for one small public feature snapshot. No network hop, and the value disappears safely on process restart. It does not share entries across JVMs. | Keep; already implemented. |
 | PostgreSQL | Authoritative store; a tenant-scoped query is needed on a local cache miss. Query count and p95 should be measured before introducing another store. | Keep as source of truth. Tune SQL based on measured plans. |
 | Render Key Value | Redis-compatible service (new instances use Valkey). A Free instance is in-memory only and may restart, losing all data. It would still be remote to the application and introduces a service dependency. | Reject for the current single-instance free deployment. |
-| Hosted Redis such as Upstash | Free plan currently advertises 256 MB, 500,000 monthly commands, and 10 GB monthly bandwidth. Its Free allowance has no charge, but quotas and terms can change; the documented PAYG budget guard applies only after upgrading. | Do not provision. Re-evaluate only with measured demand and an explicit owner decision. |
+| Hosted Redis such as Upstash | Free plan currently advertises 256 MB, 500,000 monthly commands, and 10 GB monthly bandwidth. This is enough quota for a small non-critical experiment, but Free has no uptime SLA or multi-zone HA; those features require a paid Prod Pack. | Reject for the current product. Re-evaluate if measured production scale demonstrates a shared-cache need and the service's reliability/cost requirements are approved. |
 
 Provider limits were checked on 2026-10-22. See [Provider limits](../operations/PROVIDER_LIMITS.md) and the linked provider documentation there.
 
@@ -42,7 +42,7 @@ The following proposed gates are deliberately conservative decision thresholds, 
 4. Forecast cache footprint is at most 128 MiB of a 256 MiB allowance and transfer at most 5 GiB of a 10 GiB allowance, leaving at least 50% headroom.
 5. Forecast usage is at most 250,000 billable commands/month, half the currently listed Free allowance, and peak command rate is at most 5,000/s, half the currently listed 10,000/s limit. Keep the free, no-payment-method path; never enable paid upgrade or billing as an automatic fallback.
 
-If these gates are not all evidenced, retain the DEFER decision. The thresholds are revalidated against provider terms before any future provisioning.
+The current decision remains REJECT unless these gates are evidenced and a new ADR is approved. The thresholds are revalidated against provider terms before any future provisioning.
 
 ## Command and resource model
 
@@ -60,11 +60,11 @@ At the proposed go/no-go ceiling of 250,000 commands/month, use of the presently
 
 No student results, sessions, CSRF values, authentication state, admin/private data, unpublished content, or credentials may enter any shared cache. Any future cache key must include the immutable school UUID obtained from verified server tenant context, plus an explicit namespace/version and every value dimension affecting the result. Never derive a cache identity from client-supplied `schoolId`, slug, `Host`, or arbitrary headers.
 
-Any future cache outage, timeout, malformed value, or open circuit must fall back to the bounded local cache where applicable and then to the tenant-scoped PostgreSQL source of truth. Cache availability must never determine authorization or fail an otherwise valid public read. Any write invalidation must happen only after the database transaction commits. A future implementation requires contract tests for cross-tenant key separation, TTL/size bounds, invalidation, timeout/circuit behavior, and free-plan billing gates. No adapter or contract tests are warranted while this ADR is DEFER.
+Any future cache outage, timeout, malformed value, or open circuit must fall back to the bounded local cache where applicable and then to the tenant-scoped PostgreSQL source of truth. Cache availability must never determine authorization or fail an otherwise valid public read. Any write invalidation must happen only after the database transaction commits. A future implementation requires contract tests for cross-tenant key separation, TTL/size bounds, invalidation, timeout/circuit behavior, and free-plan billing gates. No adapter or contract tests are warranted while this ADR is REJECT.
 
 ## Reconsideration trigger
 
-Reopen this ADR only after the measurement set above demonstrates every numeric gate, the provider quota review is current, and the owner explicitly approves the optional experiment. Sprint 42 remains skipped unless a later accepted ADR and owner approval authorize it.
+Reconsider this ADR only after the measurement set above demonstrates the numeric gates and the provider quota/reliability review is current. A new decision and explicit owner approval are required before any experiment or provisioning. Until then, use the existing local and edge caches; revisit Redis if production scale or a multi-instance topology creates a measured need.
 
-**Recorded decision:** DEFER Redis; retain the existing edge and bounded local caches.
+**Recorded decision:** REJECT Redis for the current topology; retain the existing edge and bounded local caches.
 **Deployment:** None.
