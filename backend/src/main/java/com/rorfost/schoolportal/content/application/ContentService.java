@@ -528,6 +528,13 @@ public class ContentService {
     }
 
     @Transactional(readOnly = true)
+    public Notice publicNotice(UUID school, UUID noticeId) {
+        return notices.findVisibleByIdAndSchoolIdAndStatus(
+                        noticeId, school, PublicationStatus.PUBLISHED)
+                .orElseThrow(() -> notFound("notice_not_found"));
+    }
+
+    @Transactional(readOnly = true)
     public org.springframework.data.domain.Page<Notice> adminNotices(
             UUID school, int page, int size) {
         return notices.findBySchoolId(

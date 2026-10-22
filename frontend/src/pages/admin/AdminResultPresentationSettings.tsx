@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import type { GradeBand, ResultPresentationSettingsResponse } from "@/api/types";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,7 +16,7 @@ export function AdminResultPresentationSettings({
 }) {
     const queryClient = useQueryClient();
     const settings = useQuery<ResultPresentationSettingsResponse>({
-        queryKey: ["admin", "result-settings"],
+        queryKey: queryKeys.adminResultSettings(settingsTab),
         queryFn: () =>
             apiRequest<ResultPresentationSettingsResponse>("/api/v1/admin/result-settings"),
     });
@@ -29,7 +30,11 @@ export function AdminResultPresentationSettings({
                 method: "PUT",
                 body: payload,
             }),
-        onSuccess: (value) => queryClient.setQueryData(["admin", "result-settings"], value),
+        onSuccess: (value) => {
+            queryClient.setQueryData(queryKeys.adminResultSettings(settingsTab), value);
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminResultSettingsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.resultSettingsRoot });
+        },
     });
 
     if (!settings.data) return null;

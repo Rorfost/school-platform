@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import { AdminResultPresentationSettings } from "./AdminResultPresentationSettings";
 
 vi.mock("@/api/client", () => ({
@@ -42,7 +43,7 @@ describe("AdminResultPresentationSettings - Flexible Grade Policy", () => {
 
     function renderComponent(tab: "ANNUAL" | "EKAM_KASOTI" = "ANNUAL") {
         vi.mocked(apiRequest).mockResolvedValue(mockSettings);
-        queryClient.setQueryData(["admin", "result-settings"], mockSettings);
+        queryClient.setQueryData(queryKeys.adminResultSettings("ANNUAL"), mockSettings);
         return render(
             <QueryClientProvider client={queryClient}>
                 <AdminResultPresentationSettings settingsTab={tab} />

@@ -100,6 +100,24 @@ public class PublicContentController {
                 .body(response);
     }
 
+    @GetMapping("/notices/{noticeId}")
+    org.springframework.http.ResponseEntity<NoticeResponse> notice(
+            @PathVariable UUID noticeId,
+            org.springframework.web.context.request.WebRequest webRequest) {
+        UUID schoolId = resolveTenantSchoolId();
+        featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.NOTICES);
+        NoticeResponse response =
+                contentService.notice(contentService.publicNotice(schoolId, noticeId));
+        String etag = "\"" + schoolId + ":notice:" + noticeId + ":" + response.hashCode() + "\"";
+        if (webRequest != null && webRequest.checkNotModified(etag)) {
+            return null;
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(PUBLIC_CONTENT_CACHE)
+                .eTag(etag)
+                .body(response);
+    }
+
     @GetMapping("/gallery/albums")
     org.springframework.http.ResponseEntity<PageResponse<GalleryAlbumResponse>> galleryAlbums(
             @RequestParam(defaultValue = "0") int page,

@@ -82,10 +82,12 @@ export function AdminGalleryAlbumPage() {
     );
 
     const refreshGallery = () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
-        queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
-        if (albumId)
+        queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbumsRoot });
+        queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbumsRoot });
+        if (albumId) {
             queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbumImages(albumId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbumImages(albumId) });
+        }
     };
 
     const uploadMutation = useMutation({

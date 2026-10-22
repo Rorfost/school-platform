@@ -87,6 +87,8 @@ class PublicContentTenantIsolationTest {
 
     private Notice noticeA;
     private Notice noticeB;
+    private UUID noticeIdA;
+    private UUID noticeIdB;
 
     private Download downloadA;
     private Download downloadB;
@@ -282,9 +284,13 @@ class PublicContentTenantIsolationTest {
         // Notices: duplicate title across A and B
         noticeA = new Notice(schoolIdA, "શાળા સમયમાં ફેરફાર", "School A: 8am to 1pm");
         noticeA.publish(Instant.now().minus(1, ChronoUnit.DAYS));
+        noticeIdA = UUID.randomUUID();
+        ReflectionTestUtils.setField(noticeA, "id", noticeIdA);
 
         noticeB = new Notice(schoolIdB, "શાળા સમયમાં ફેરફાર", "School B: 9am to 2pm");
         noticeB.publish(Instant.now().minus(1, ChronoUnit.DAYS));
+        noticeIdB = UUID.randomUUID();
+        ReflectionTestUtils.setField(noticeB, "id", noticeIdB);
 
         when(noticeRepository.findVisibleBySchoolIdAndStatus(
                         eq(schoolIdA), eq(PublicationStatus.PUBLISHED), any(Pageable.class)))
@@ -292,6 +298,15 @@ class PublicContentTenantIsolationTest {
         when(noticeRepository.findVisibleBySchoolIdAndStatus(
                         eq(schoolIdB), eq(PublicationStatus.PUBLISHED), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(noticeB)));
+        when(noticeRepository.findVisibleByIdAndSchoolIdAndStatus(
+                        noticeIdA, schoolIdA, PublicationStatus.PUBLISHED))
+                .thenReturn(Optional.of(noticeA));
+        when(noticeRepository.findVisibleByIdAndSchoolIdAndStatus(
+                        noticeIdA, schoolIdB, PublicationStatus.PUBLISHED))
+                .thenReturn(Optional.empty());
+        when(noticeRepository.findVisibleByIdAndSchoolIdAndStatus(
+                        noticeIdB, schoolIdB, PublicationStatus.PUBLISHED))
+                .thenReturn(Optional.of(noticeB));
 
         // Downloads: duplicate title across A and B
         downloadA =
@@ -483,6 +498,34 @@ class PublicContentTenantIsolationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].body").value("School B: 9am to 2pm"));
+    }
+
+    @Test
+    @DisplayName("GET /notices/{id} returns only visible notices owned by the requesting tenant")
+    void publicNotice_isTenantScopedAndHidesForeignNotice() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/public/notices/" + noticeIdA)
+                                .header(
+                                        GatewayCredentialAuthenticationFilter.GATEWAY_TOKEN_HEADER,
+                                        TOKEN_A))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.body").value("School A: 8am to 1pm"));
+
+        mockMvc.perform(
+                        get("/api/v1/public/notices/" + noticeIdA)
+                                .header(
+                                        GatewayCredentialAuthenticationFilter.GATEWAY_TOKEN_HEADER,
+                                        TOKEN_B))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("notice_not_found"));
+
+        mockMvc.perform(
+                        get("/api/v1/public/notices/" + noticeIdB)
+                                .header(
+                                        GatewayCredentialAuthenticationFilter.GATEWAY_TOKEN_HEADER,
+                                        TOKEN_B))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.body").value("School B: 9am to 2pm"));
     }
 
     @Test

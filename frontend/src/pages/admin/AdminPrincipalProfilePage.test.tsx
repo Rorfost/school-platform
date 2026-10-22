@@ -22,7 +22,7 @@ function renderWithData(ui: React.ReactElement) {
     const queryClient = new QueryClient({
         defaultOptions: { queries: { retry: false } },
     });
-    queryClient.setQueryData(queryKeys.principalProfile, mockProfile);
+    queryClient.setQueryData(queryKeys.adminPrincipalProfile, mockProfile);
     return render(
         <QueryClientProvider client={queryClient}>
             <MemoryRouter>{ui}</MemoryRouter>

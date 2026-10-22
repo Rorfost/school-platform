@@ -35,8 +35,8 @@ export function AdminGalleryPage() {
     const albums = data?.items ?? [];
 
     const refreshGallery = () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbums() });
-        queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbums() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.adminGalleryAlbumsRoot });
+        queryClient.invalidateQueries({ queryKey: queryKeys.galleryAlbumsRoot });
     };
 
     const createMutation = useMutation({

@@ -62,7 +62,8 @@ export function AdminNoticesPage() {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminNoticesRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.noticesRoot });
             setIsCreateOpen(false);
             setErrorMessage(null);
         },
@@ -78,7 +79,8 @@ export function AdminNoticesPage() {
                 body: formData,
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminNoticesRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.noticesRoot });
             setAttachTargetId(null);
         },
     });
@@ -89,7 +91,8 @@ export function AdminNoticesPage() {
                 method: "POST",
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminNoticesRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.noticesRoot });
         },
     });
 
@@ -110,7 +113,8 @@ export function AdminNoticesPage() {
                           }
                         : current,
             );
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminNotices() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminNoticesRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.noticesRoot });
             setDeleteTargetId(null);
         },
         onError: (error) =>

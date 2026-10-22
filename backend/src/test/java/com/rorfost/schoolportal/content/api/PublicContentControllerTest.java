@@ -103,6 +103,32 @@ class PublicContentControllerTest {
     }
 
     @Test
+    void notice_shouldReturnOnlyTheRequestedTenantVisibleNotice() {
+        bindTenant(schoolId, "dhadhana-school");
+        when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
+
+        UUID noticeId = UUID.randomUUID();
+        Notice notice = new Notice(schoolId, "શાળા સમય", "School A notice body");
+        NoticeResponse responseDto =
+                new NoticeResponse(
+                        noticeId,
+                        "શાળા સમય",
+                        "School A notice body",
+                        false,
+                        null,
+                        null,
+                        null,
+                        "PUBLISHED");
+        when(contentService.publicNotice(schoolId, noticeId)).thenReturn(notice);
+        when(contentService.notice(notice)).thenReturn(responseDto);
+
+        NoticeResponse response = controller.notice(noticeId, null).getBody();
+
+        assertThat(response).isEqualTo(responseDto);
+        verify(contentService).publicNotice(schoolId, noticeId);
+    }
+
+    @Test
     void galleryImages_shouldReturnImagesForAlbumForVerifiedTenant() {
         bindTenant(schoolId, "dhadhana-school");
         when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));

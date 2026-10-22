@@ -14,6 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import { ErrorState } from "@/components/common/StatusPanel";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -34,7 +35,7 @@ export function AdminDashboardPage() {
     } = useAdminDashboardSummary();
     const { data: auditLogs } = useAdminAuditLogs();
     const visitsQuery = useQuery({
-        queryKey: ["public", "visits"],
+        queryKey: queryKeys.visits,
         queryFn: () => apiRequest<VisitResponse>("/api/v1/public/visits"),
     });
     const resetVisitsMutation = useMutation({

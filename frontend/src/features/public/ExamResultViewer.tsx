@@ -1,6 +1,7 @@
 import { Printer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { formatDate } from "@/utils/date";
@@ -20,7 +21,7 @@ export function ExamResultViewer({
     resultType?: "ANNUAL" | "EKAM_KASOTI";
 }) {
     const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
-        queryKey: ["result-settings", result.standard],
+        queryKey: queryKeys.resultSettings(result.standard, resultType),
         queryFn: () =>
             apiRequest<ResultPresentationSettingsResponse>(
                 `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,

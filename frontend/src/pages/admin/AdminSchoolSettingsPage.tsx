@@ -28,7 +28,7 @@ export function AdminSchoolSettingsPage() {
         isError,
         refetch,
     } = useQuery<SchoolResponse>({
-        queryKey: queryKeys.school,
+        queryKey: queryKeys.adminSchool,
         queryFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school"),
     });
 
@@ -39,7 +39,7 @@ export function AdminSchoolSettingsPage() {
                 body: payload,
             }),
         onSuccess: (updated) => {
-            queryClient.setQueryData(queryKeys.school, updated);
+            queryClient.setQueryData(queryKeys.adminSchool, updated);
             queryClient.invalidateQueries({ queryKey: queryKeys.school });
             setSuccessMessage("School identity settings updated successfully.");
             setTimeout(() => setSuccessMessage(null), 4000);
@@ -47,7 +47,7 @@ export function AdminSchoolSettingsPage() {
     });
 
     const updateBranding = (updated: SchoolResponse, message: string) => {
-        queryClient.setQueryData(queryKeys.school, updated);
+        queryClient.setQueryData(queryKeys.adminSchool, updated);
         queryClient.invalidateQueries({ queryKey: queryKeys.school });
         setLogoFile(null);
         setLogoPreview(null);
@@ -56,7 +56,7 @@ export function AdminSchoolSettingsPage() {
     };
 
     const updateSeal = (updated: SchoolResponse, message: string) => {
-        queryClient.setQueryData(queryKeys.school, updated);
+        queryClient.setQueryData(queryKeys.adminSchool, updated);
         queryClient.invalidateQueries({ queryKey: queryKeys.school });
         setSealFile(null);
         setSealPreview(null);
