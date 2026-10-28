@@ -106,7 +106,7 @@ export function HomePage() {
                     </div>
                     <Link
                         to="/student"
-                        className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
+                        className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-brand-900 hover:text-brand-950"
                     >
                         <span>બધું જુઓ</span>
                         <ArrowRight size={15} aria-hidden="true" />
@@ -124,25 +124,25 @@ export function HomePage() {
                                 onPointerEnter={(event) => {
                                     if (event.pointerType === "mouse") prefetchRoute(item.to);
                                 }}
-                                className="group flex w-full min-w-0 min-h-44 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 sm:p-5"
+                                className="group flex w-full min-w-0 min-h-44 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-brand-900/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 sm:p-5"
                             >
                                 <div>
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="flex size-11 items-center justify-center rounded-lg bg-blue-50 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors">
+                                        <div className="flex size-11 items-center justify-center rounded-lg bg-blue-50 text-brand-900 group-hover:bg-brand-900 group-hover:text-white transition-colors">
                                             <Icon size={22} aria-hidden="true" />
                                         </div>
                                         <Badge variant={item.badgeVariant} size="sm">
                                             {item.badgeText}
                                         </Badge>
                                     </div>
-                                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-900 transition-colors">
+                                    <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-900 transition-colors">
                                         {item.title}
                                     </h3>
                                     <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
                                         {item.description}
                                     </p>
                                 </div>
-                                <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-blue-900">
+                                <div className="mt-5 flex items-center gap-1 text-xs font-semibold text-brand-900">
                                     <span>પ્રવેશ કરો</span>
                                     <ArrowRight
                                         size={13}
@@ -173,7 +173,7 @@ export function HomePage() {
                         </div>
                         <Link
                             to="/notices"
-                            className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-blue-900 hover:text-blue-950"
+                            className="inline-flex shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-brand-900 hover:text-brand-950"
                         >
                             <span>તમામ સૂચનાઓ</span>
                             <ArrowRight size={15} aria-hidden="true" />

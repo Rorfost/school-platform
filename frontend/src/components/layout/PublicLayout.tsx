@@ -71,7 +71,7 @@ function PublicSidebar() {
                     className={({ isActive }) =>
                         `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
                             isActive
-                                ? "bg-[#0d2461] text-white shadow-md"
+                                ? "bg-brand-900 text-white shadow-md"
                                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                         }`
                     }
@@ -103,7 +103,7 @@ function PublicSidebar() {
                             className={({ isActive }) =>
                                 `group flex min-h-[42px] items-center gap-3 rounded-xl px-3.5 text-sm font-medium transition-all duration-150 ${
                                     isActive
-                                        ? "bg-[#0d2461] text-white shadow-md"
+                                        ? "bg-brand-900 text-white shadow-md"
                                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                 }`
                             }
@@ -176,11 +176,11 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                 aria-label="મુખ્ય મેનૂ"
             >
                 {/* Drawer header */}
-                <div className="flex items-center justify-between bg-[#0d2461] px-4 py-4">
+                <div className="flex items-center justify-between bg-brand-900 px-4 py-4">
                     <span className="text-base font-bold text-white">મેનૂ</span>
                     <button
                         onClick={onClose}
-                        className="flex size-9 items-center justify-center rounded-lg text-white/70 hover:bg-white/10"
+                        className="flex size-9 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                         aria-label="મેનૂ બંધ કરો"
                     >
                         <X size={20} />
@@ -198,7 +198,7 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                                     className={({ isActive }) =>
                                         `flex min-h-[48px] items-center gap-3.5 rounded-xl px-4 text-sm font-medium transition-colors ${
                                             isActive
-                                                ? "bg-[#0d2461] text-white"
+                                                ? "bg-brand-900 text-white"
                                                 : "text-slate-700 hover:bg-slate-100"
                                         }`
                                     }

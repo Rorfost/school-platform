@@ -37,14 +37,14 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
                         type="button"
                         onClick={onMenuClick}
                         aria-label="મુખ્ય મેનૂ ખોલો"
-                        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
+                        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 lg:hidden"
                     >
                         <Menu size={22} aria-hidden="true" />
                     </button>
 
                     <Link
                         to="/"
-                        className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+                        className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                     >
                         {school.logoUrl ? (
                             <img
