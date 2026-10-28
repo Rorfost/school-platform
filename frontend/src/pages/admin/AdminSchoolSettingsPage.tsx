@@ -232,14 +232,22 @@ export function AdminSchoolSettingsPage() {
             </div>
 
             {successMessage && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-semibold flex items-center gap-2">
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-semibold flex items-center gap-2"
+                >
                     <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
                     <span>{successMessage}</span>
                 </div>
             )}
 
             {errorMessage && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
+                <div
+                    role="alert"
+                    aria-live="assertive"
+                    className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium"
+                >
                     {errorMessage}
                 </div>
             )}
