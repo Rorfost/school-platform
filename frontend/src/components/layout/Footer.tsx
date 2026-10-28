@@ -44,10 +44,12 @@ export function Footer() {
             className="size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
           /> */}
                     <div>
-                        <h3 className="text-sm text-slate-600 xs:text-base">{school.name}</h3>
-                        {/* <p className="text-xs text-slate-500 font-medium">
-              પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન
-            </p> */}
+                        <h3
+                            title={school.name}
+                            className="text-sm text-slate-600 xs:text-base truncate max-w-xs sm:max-w-md"
+                        >
+                            {school.name}
+                        </h3>
                     </div>
                     {/* <p className="text-xs font-semibold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p> */}
                 </div>

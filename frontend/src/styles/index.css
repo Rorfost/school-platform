@@ -43,6 +43,12 @@
     body {
         @apply bg-slate-50 font-sans text-slate-900 antialiased;
         letter-spacing: 0.01em;
+        line-height: 1.6;
+    }
+
+    /* Gujarati typography enhancement: accommodate matras and conjunct glyphs without clipping in tabular layouts */
+    table {
+        line-height: 1.5;
     }
 
     :focus-visible {

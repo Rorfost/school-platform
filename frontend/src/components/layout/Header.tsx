@@ -60,12 +60,18 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
 
                         <div className="flex min-w-0 flex-1 flex-col leading-tight overflow-hidden">
                             {/* Line 1: School Name */}
-                            <span className="truncate text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug">
+                            <span
+                                title={school.name}
+                                className="truncate text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug"
+                            >
                                 {school.name}
                             </span>
 
                             {/* Line 2: Location */}
-                            <span className="truncate text-xs sm:text-xs font-semibold text-slate-600">
+                            <span
+                                title={school.address}
+                                className="truncate text-xs sm:text-xs font-semibold text-slate-600"
+                            >
                                 {school.address}
                             </span>
 
