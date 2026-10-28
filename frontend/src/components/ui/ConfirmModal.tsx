@@ -29,12 +29,18 @@ export function ConfirmModal({
 
     useEffect(() => {
         if (!isOpen) return;
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
         closeButtonRef.current?.focus();
+
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape" && !isLoading) onClose();
         };
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", handleKeyDown);
+        };
     }, [isLoading, isOpen, onClose]);
 
     if (!isOpen) return null;
