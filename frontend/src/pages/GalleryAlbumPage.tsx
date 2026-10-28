@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Camera, Image as ImageIcon, Loader2, X, ZoomIn } from "lucide-react";
+import {
+    Camera,
+    ChevronLeft,
+    ChevronRight,
+    Image as ImageIcon,
+    Loader2,
+    X,
+    ZoomIn,
+} from "lucide-react";
 import { useParams } from "react-router-dom";
 import { usePublicGalleryImagesPaginated } from "@/features/public/usePublicContent";
 import type { GalleryImageResponse } from "@/api/types";
@@ -28,12 +36,27 @@ export function GalleryAlbumPage() {
 
     // Accumulated images across pages with deduplication by ID
     const [accumulatedImages, setAccumulatedImages] = useState<GalleryImageResponse[]>([]);
-    const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const selectedImage =
+        selectedIndex !== null ? (accumulatedImages[selectedIndex] ?? null) : null;
+
+    const handlePrevImage = () => {
+        if (selectedIndex !== null && selectedIndex > 0) {
+            setSelectedIndex(selectedIndex - 1);
+        }
+    };
+
+    const handleNextImage = () => {
+        if (selectedIndex !== null && selectedIndex < accumulatedImages.length - 1) {
+            setSelectedIndex(selectedIndex + 1);
+        }
+    };
 
     useEffect(() => {
         // Reset when albumId changes
         setPage(0);
         setAccumulatedImages([]);
+        setSelectedIndex(null);
     }, [albumId]);
 
     useEffect(() => {
@@ -55,18 +78,28 @@ export function GalleryAlbumPage() {
     };
 
     useEffect(() => {
-        if (!selectedImage) return;
+        if (selectedIndex === null) return;
         const originalOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
+
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") setSelectedImage(null);
+            if (event.key === "Escape") {
+                setSelectedIndex(null);
+            } else if (event.key === "ArrowLeft") {
+                setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev));
+            } else if (event.key === "ArrowRight") {
+                setSelectedIndex((prev) =>
+                    prev !== null && prev < accumulatedImages.length - 1 ? prev + 1 : prev,
+                );
+            }
         };
+
         window.addEventListener("keydown", handleKeyDown);
         return () => {
             document.body.style.overflow = originalOverflow;
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [selectedImage]);
+    }, [selectedIndex, accumulatedImages.length]);
 
     return (
         <div className="space-y-6">
@@ -96,19 +129,19 @@ export function GalleryAlbumPage() {
             ) : (
                 <>
                     <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-                        {accumulatedImages.map((img) => (
+                        {accumulatedImages.map((img, index) => (
                             <Card
                                 key={img.id}
                                 variant="interactive"
-                                className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-900"
+                                className="group overflow-hidden p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-900"
                                 role="button"
                                 aria-label={`${img.caption || img.altText || "ગેલેરી તસવીર"} મોટી જુઓ`}
-                                onClick={() => setSelectedImage(img)}
+                                onClick={() => setSelectedIndex(index)}
                                 tabIndex={0}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
                                         e.preventDefault();
-                                        setSelectedImage(img);
+                                        setSelectedIndex(index);
                                     }
                                 }}
                             >
@@ -178,7 +211,7 @@ export function GalleryAlbumPage() {
             {selectedImage && (
                 <div
                     className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setSelectedImage(null)}
+                    onClick={() => setSelectedIndex(null)}
                     role="dialog"
                     aria-modal="true"
                     aria-label="તસવીર મોટી જુઓ"
@@ -188,19 +221,36 @@ export function GalleryAlbumPage() {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3">
-                            <span className="text-sm font-semibold text-slate-900">
+                            <span className="text-sm font-semibold text-slate-900 truncate pr-2">
                                 {selectedImage.caption || selectedImage.altText || "તસવીર"}
                             </span>
-                            <button
-                                type="button"
-                                onClick={() => setSelectedImage(null)}
-                                aria-label="બંધ કરો"
-                                className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
-                            >
-                                <X size={20} aria-hidden="true" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                                <span className="text-xs text-slate-500 font-medium px-2">
+                                    {(selectedIndex ?? 0) + 1} / {accumulatedImages.length}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedIndex(null)}
+                                    aria-label="બંધ કરો"
+                                    className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
+                                >
+                                    <X size={20} aria-hidden="true" />
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
+                        <div className="relative flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
+                            {/* Prev Button */}
+                            {selectedIndex !== null && selectedIndex > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={handlePrevImage}
+                                    aria-label="પાછલી તસવીર"
+                                    className="absolute left-3 z-10 flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
+                                >
+                                    <ChevronLeft size={24} aria-hidden="true" />
+                                </button>
+                            )}
+
                             <ResponsiveMedia
                                 src={selectedImage.url}
                                 alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
@@ -221,6 +271,19 @@ export function GalleryAlbumPage() {
                                     </div>
                                 }
                             />
+
+                            {/* Next Button */}
+                            {selectedIndex !== null &&
+                                selectedIndex < accumulatedImages.length - 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={handleNextImage}
+                                        aria-label="આગળની તસવીર"
+                                        className="absolute right-3 z-10 flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white transition-colors"
+                                    >
+                                        <ChevronRight size={24} aria-hidden="true" />
+                                    </button>
+                                )}
                         </div>
                         {selectedImage.caption && (
                             <div className="p-4 border-t border-slate-100 text-sm text-slate-700 text-center">
