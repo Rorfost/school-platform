@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { LABELS } from "@/utils/gujarati";
 import { useFeatureFlags } from "@/features/featureFlags";
+import { usePublicRoutePrefetch } from "@/features/public/usePublicContent";
 import type { FeatureKey } from "@/features/featureFlags";
 
 interface StudentSection {
@@ -17,6 +18,7 @@ interface StudentSection {
 
 export function StudentCornerPage() {
     const { isFeatureEnabled } = useFeatureFlags();
+    const prefetchRoute = usePublicRoutePrefetch();
 
     const sections: StudentSection[] = [
         {
@@ -73,6 +75,10 @@ export function StudentCornerPage() {
                         <Link
                             key={section.to}
                             to={section.to}
+                            onFocus={() => prefetchRoute(section.to)}
+                            onPointerEnter={(event) => {
+                                if (event.pointerType === "mouse") prefetchRoute(section.to);
+                            }}
                             className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all hover:border-[#0d2461] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2461]"
                         >
                             <div>

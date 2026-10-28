@@ -10,7 +10,7 @@ import {
     Newspaper,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { usePublicNotices } from "@/features/public/usePublicContent";
+import { usePublicNotices, usePublicRoutePrefetch } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ContentSkeleton, ErrorState, LoadingState } from "@/components/common/StatusPanel";
@@ -34,6 +34,7 @@ interface HomeShortcut {
 
 export function HomePage() {
     const { isFeatureEnabled } = useFeatureFlags();
+    const prefetchRoute = usePublicRoutePrefetch();
     const isNoticesEnabled = isFeatureEnabled("NOTICES");
 
     const {
@@ -119,6 +120,10 @@ export function HomePage() {
                             <Link
                                 key={item.to}
                                 to={item.to}
+                                onFocus={() => prefetchRoute(item.to)}
+                                onPointerEnter={(event) => {
+                                    if (event.pointerType === "mouse") prefetchRoute(item.to);
+                                }}
                                 className="group flex w-full min-w-0 min-h-44 flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-xs transition-all hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 sm:p-5"
                             >
                                 <div>

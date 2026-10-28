@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { BookOpen, Download, FileText, Search } from "lucide-react";
-import { apiRequest } from "@/api/client";
-import { queryKeys } from "@/api/queryKeys";
-import type { MaterialResponse, PageResponse } from "@/api/types";
+import { usePublicMaterials } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import {
     ContentSkeleton,
@@ -20,11 +17,7 @@ export function MaterialsPage() {
     //   const [selectedType, setSelectedType] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState("");
 
-    const { data, isLoading, error, refetch } = useQuery({
-        queryKey: queryKeys.materials({ page: 0, size: 50 }),
-        queryFn: () =>
-            apiRequest<PageResponse<MaterialResponse>>("/api/v1/public/materials?page=0&size=50"),
-    });
+    const { data, isLoading, error, refetch } = usePublicMaterials(0, 50);
 
     const materials = data?.items ?? [];
 
