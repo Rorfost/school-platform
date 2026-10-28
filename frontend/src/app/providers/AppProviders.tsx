@@ -12,15 +12,23 @@ export function AppProviders({ children }: PropsWithChildren) {
                 queries: {
                     retry: (failureCount, error) => {
                         if (error instanceof ApiError) {
+                            // Never retry client errors, auth failures, 404s, or rate limits
                             if ([400, 401, 403, 404, 422, 429].includes(error.status)) {
                                 return false;
                             }
                         }
+                        // Bound read retries to maximum 1 attempt for cold starts/timeouts
                         return failureCount < 1;
                     },
                     refetchOnWindowFocus: false,
                     staleTime: 1000 * 60 * 5,
                     gcTime: 1000 * 60 * 30,
+                },
+                mutations: {
+                    // Do NOT replay mutating writes (POST/PUT/PATCH/DELETE) automatically.
+                    // Accidental retry during cold starts or transient timeouts could result
+                    // in duplicated resources or inconsistent database state.
+                    retry: false,
                 },
             },
         });

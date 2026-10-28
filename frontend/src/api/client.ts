@@ -92,10 +92,23 @@ export async function refreshCsrfToken(): Promise<string | null> {
 export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
     body?: unknown;
     skipCsrf?: boolean;
+    timeoutMs?: number;
 }
 
+// Timeout budget defaults:
+// 45s for standard queries / mutations to tolerate Render Free spin-up (~40-50s cold start).
+const DEFAULT_TIMEOUT_MS = 45000;
+
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-    const { body, headers = {}, method = "GET", skipCsrf = false, ...rest } = options;
+    const {
+        body,
+        headers = {},
+        method = "GET",
+        skipCsrf = false,
+        timeoutMs = DEFAULT_TIMEOUT_MS,
+        signal: customSignal,
+        ...rest
+    } = options;
     const upperMethod = method.toUpperCase();
     const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(upperMethod);
 
@@ -121,6 +134,25 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         }
     }
 
+    // Set up timeout controller combined with any caller-provided abort signal
+    const timeoutController = new AbortController();
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    if (timeoutMs > 0 && typeof setTimeout !== "undefined") {
+        timeoutId = setTimeout(() => {
+            timeoutController.abort(new DOMException("Request timed out", "TimeoutError"));
+        }, timeoutMs);
+    }
+
+    const abortHandler = () => timeoutController.abort();
+    if (customSignal) {
+        if (customSignal.aborted) {
+            timeoutController.abort();
+        } else {
+            customSignal.addEventListener("abort", abortHandler, { once: true });
+        }
+    }
+
     let response: Response;
     try {
         response = await fetch(`${apiBaseUrl}${path}`, {
@@ -129,9 +161,27 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
             headers: requestHeaders,
             credentials: "include",
             body: finalBody,
+            signal: timeoutController.signal,
         });
-    } catch {
+    } catch (err: unknown) {
+        if (
+            (err instanceof DOMException &&
+                (err.name === "TimeoutError" || err.name === "AbortError")) ||
+            timeoutController.signal.aborted
+        ) {
+            if (customSignal?.aborted) {
+                throw new ApiError(getGujaratiErrorMessage("network_error"), 0, "request_aborted");
+            }
+            throw new ApiError(getGujaratiErrorMessage("request_timeout"), 408, "request_timeout");
+        }
         throw new ApiError(getGujaratiErrorMessage("network_error"), 0, "network_error");
+    } finally {
+        if (timeoutId !== undefined) {
+            clearTimeout(timeoutId);
+        }
+        if (customSignal) {
+            customSignal.removeEventListener("abort", abortHandler);
+        }
     }
 
     if (!response.ok) {
@@ -147,6 +197,16 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         }
 
         const requestId = response.headers.get("X-Request-Id") ?? undefined;
+
+        // Specialized status mapping for 429 and 503 if code is not provided by upstream
+        if (!code) {
+            if (response.status === 429) {
+                code = "rate_limited";
+            } else if (response.status === 503) {
+                code = "backend_unavailable";
+            }
+        }
+
         const message = detail || getGujaratiErrorMessage(code);
 
         throw new ApiError(message, response.status, code, requestId);
