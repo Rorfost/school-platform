@@ -12,17 +12,23 @@ import {
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
+import { ResponsiveMedia } from "@/components/common/ResponsiveMedia";
 
 export function GalleryAlbumPage() {
     const { albumId } = useParams<{ albumId: string }>();
     const [page, setPage] = useState(0);
     const pageSize = 24;
-    const { data: pageData, isLoading, isFetching, error, refetch } = usePublicGalleryImagesPaginated(albumId, page, pageSize);
+    const {
+        data: pageData,
+        isLoading,
+        isFetching,
+        error,
+        refetch,
+    } = usePublicGalleryImagesPaginated(albumId, page, pageSize);
 
     // Accumulated images across pages with deduplication by ID
     const [accumulatedImages, setAccumulatedImages] = useState<GalleryImageResponse[]>([]);
     const [selectedImage, setSelectedImage] = useState<GalleryImageResponse | null>(null);
-    const [failedImageIds, setFailedImageIds] = useState<Set<string>>(() => new Set());
 
     useEffect(() => {
         // Reset when albumId changes
@@ -39,10 +45,6 @@ export function GalleryAlbumPage() {
             return [...prev, ...newItems];
         });
     }, [pageData, page]);
-
-    const markImageFailed = (imageId: string) => {
-        setFailedImageIds((current) => new Set(current).add(imageId));
-    };
 
     const hasMore = pageData ? page < pageData.totalPages - 1 : false;
 
@@ -111,21 +113,27 @@ export function GalleryAlbumPage() {
                                 }}
                             >
                                 <div className="relative aspect-4/3 bg-slate-100 overflow-hidden">
-                                    {img.url && !failedImageIds.has(img.id) ? (
-                                        <img
-                                            src={img.thumbnailUrl || img.url}
-                                            alt={img.altText || "ગેલેરી તસવીર"}
-                                            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                            loading="lazy"
-                                            decoding="async"
-                                            onError={() => markImageFailed(img.id)}
-                                        />
-                                    ) : (
-                                        <div className="size-full flex items-center justify-center text-slate-400">
-                                            <ImageIcon size={32} aria-hidden="true" />
-                                        </div>
-                                    )}
-                                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                    <ResponsiveMedia
+                                        src={img.thumbnailUrl || img.url}
+                                        alt={img.altText || "ગેલેરી તસવીર"}
+                                        transformOptions={{
+                                            widths: [320, 480, 640],
+                                            defaultWidth: 480,
+                                            quality: 80,
+                                            cropMode: "c-at_max",
+                                            aspectRatio: "4-3",
+                                        }}
+                                        sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                        className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                        fallback={
+                                            <div className="size-full flex items-center justify-center text-slate-400">
+                                                <ImageIcon size={32} aria-hidden="true" />
+                                            </div>
+                                        }
+                                    />
+                                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none">
                                         <ZoomIn size={24} aria-hidden="true" />
                                     </div>
                                 </div>
@@ -150,7 +158,11 @@ export function GalleryAlbumPage() {
                             >
                                 {isFetching ? (
                                     <>
-                                        <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+                                        <Loader2
+                                            size={18}
+                                            className="animate-spin"
+                                            aria-hidden="true"
+                                        />
                                         <span>લોડ થઈ રહ્યું છે...</span>
                                     </>
                                 ) : (
@@ -189,18 +201,26 @@ export function GalleryAlbumPage() {
                             </button>
                         </div>
                         <div className="flex max-h-[calc(100dvh-7rem)] items-center justify-center bg-slate-950 p-3 sm:p-4">
-                            {selectedImage.url ? (
-                                <img
-                                    src={selectedImage.url}
-                                    alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
-                                    className="max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-lg"
-                                />
-                            ) : (
-                                <div className="p-12 text-slate-400 text-center">
-                                    <ImageIcon size={48} className="mx-auto mb-2" />
-                                    <p>તસવીર ઉપલબ્ધ નથી</p>
-                                </div>
-                            )}
+                            <ResponsiveMedia
+                                src={selectedImage.url}
+                                alt={selectedImage.altText || "મોટી ગેલેરી તસવીર"}
+                                transformOptions={{
+                                    widths: [640, 960, 1280, 1600],
+                                    defaultWidth: 1280,
+                                    quality: 85,
+                                    cropMode: "c-at_max",
+                                }}
+                                sizes="(max-width: 1024px) 100vw, 1280px"
+                                className="max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-lg"
+                                loading="eager"
+                                decoding="async"
+                                fallback={
+                                    <div className="p-12 text-slate-400 text-center">
+                                        <ImageIcon size={48} className="mx-auto mb-2" />
+                                        <p>તસવીર ઉપલબ્ધ નથી</p>
+                                    </div>
+                                }
+                            />
                         </div>
                         {selectedImage.caption && (
                             <div className="p-4 border-t border-slate-100 text-sm text-slate-700 text-center">
