@@ -37,7 +37,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
                         type="button"
                         onClick={onMenuClick}
                         aria-label="મુખ્ય મેનૂ ખોલો"
-                        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 lg:hidden"
+                        className="flex min-h-[44px] min-w-[44px] size-11 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 lg:hidden"
                     >
                         <Menu size={22} aria-hidden="true" />
                     </button>

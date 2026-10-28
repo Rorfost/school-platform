@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, NavLink } from "react-router-dom";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -148,12 +148,20 @@ const ALL_DRAWER_LINKS: NavLinkItem[] = [
 
 function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { isFeatureEnabled } = useFeatureFlags();
+    const closeBtnRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         if (!isOpen) return;
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        closeBtnRef.current?.focus();
+
         const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
         window.addEventListener("keydown", handler);
-        return () => window.removeEventListener("keydown", handler);
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", handler);
+        };
     }, [isOpen, onClose]);
 
     if (!isOpen) return null;
@@ -179,11 +187,12 @@ function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
                 <div className="flex items-center justify-between bg-brand-900 px-4 py-4">
                     <span className="text-base font-bold text-white">મેનૂ</span>
                     <button
+                        ref={closeBtnRef}
                         onClick={onClose}
-                        className="flex size-9 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                        className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                         aria-label="મેનૂ બંધ કરો"
                     >
-                        <X size={20} />
+                        <X size={22} />
                     </button>
                 </div>
 

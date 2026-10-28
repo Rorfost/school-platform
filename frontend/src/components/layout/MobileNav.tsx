@@ -106,7 +106,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
                         ref={closeButtonRef}
                         onClick={onClose}
                         aria-label="મેનૂ બંધ કરો"
-                        className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+                        className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                     >
                         <X size={22} aria-hidden="true" />
                     </button>
@@ -122,16 +122,16 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
                                         to={item.to}
                                         onClick={onClose}
                                         className={({ isActive }) =>
-                                            `flex min-h-12 items-center gap-3.5 rounded-xl px-4 text-base font-medium transition-colors ${
+                                            `flex min-h-[48px] items-center gap-3.5 rounded-xl px-4 text-base font-medium transition-colors ${
                                                 isActive
-                                                    ? "bg-blue-50 text-blue-900 font-semibold"
+                                                    ? "bg-brand-50 text-brand-900 font-semibold"
                                                     : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
                                             }`
                                         }
                                     >
                                         <Icon
                                             size={20}
-                                            className="shrink-0 text-blue-900"
+                                            className="shrink-0 text-brand-900"
                                             aria-hidden="true"
                                         />
                                         <span>{item.label}</span>

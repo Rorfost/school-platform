@@ -155,9 +155,9 @@ export function AdminLayout() {
                                         end={item.end}
                                         onClick={onItemClick}
                                         className={({ isActive }) =>
-                                            `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                                            `flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                                                 isActive
-                                                    ? "bg-[#0d2461] text-white font-semibold shadow-xs"
+                                                    ? "bg-brand-900 text-white font-semibold shadow-xs"
                                                     : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                                             }`
                                         }
@@ -201,7 +201,7 @@ export function AdminLayout() {
                         <button
                             type="button"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                            className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 md:hidden"
                             aria-label="Toggle Navigation Menu"
                         >
                             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -304,7 +304,7 @@ export function AdminLayout() {
                                     type="button"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     ref={drawerCloseButtonRef}
-                                    className="flex size-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                                    className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                                     aria-label="Close Navigation Menu"
                                 >
                                     <X size={20} />
