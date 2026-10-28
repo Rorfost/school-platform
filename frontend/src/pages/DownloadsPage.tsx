@@ -84,7 +84,7 @@ export function DownloadsPage() {
                     <ContentSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : filteredDownloads.length === 0 ? (
                 <EmptyState
                     icon={FolderOpen}

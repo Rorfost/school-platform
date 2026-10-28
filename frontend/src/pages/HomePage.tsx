@@ -189,7 +189,7 @@ export function HomePage() {
                             <ContentSkeleton rows={2} />
                         </>
                     ) : noticesError ? (
-                        <ErrorState onRetry={() => refetchNotices()} />
+                        <ErrorState error={noticesError} onRetry={() => refetchNotices()} />
                     ) : recentNotices.length > 0 ? (
                         <div className="space-y-3">
                             {recentNotices.map((notice) => (

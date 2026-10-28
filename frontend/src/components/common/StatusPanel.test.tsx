@@ -40,6 +40,13 @@ describe("StatusPanel components", () => {
         expect(handleRetry).toHaveBeenCalledTimes(1);
     });
 
+    it("displays error message from an Error instance in ErrorState", () => {
+        render(<ErrorState error={new Error("સર્વર સાથે સંપર્ક થઈ શક્યો નથી.")} />);
+
+        expect(screen.getByRole("alert")).toBeVisible();
+        expect(screen.getByText("સર્વર સાથે સંપર્ક થઈ શક્યો નથી.")).toBeVisible();
+    });
+
     it("renders EmptyState with title and description", () => {
         render(
             <EmptyState title="કોઈ ફાઈલ મળી નથી." description="થોડા સમય પછી ફરી પ્રયત્ન કરો." />,

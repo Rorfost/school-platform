@@ -35,7 +35,7 @@ export function GalleryPage() {
                     <CardGridSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : albums.length === 0 ? (
                 <EmptyState
                     icon={Camera}

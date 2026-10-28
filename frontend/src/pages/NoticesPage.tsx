@@ -54,7 +54,7 @@ export function NoticesPage() {
                     <ContentSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : filteredNotices.length === 0 ? (
                 <EmptyState
                     icon={Newspaper}

@@ -82,7 +82,7 @@ export function MaterialsPage() {
                     <ContentSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : filteredMaterials.length === 0 ? (
                 <EmptyState
                     icon={BookOpen}
