@@ -49,7 +49,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
                         {school.logoUrl ? (
                             <img
                                 src={school.logoUrl}
-                                alt="શાળા લોગો"
+                                alt={school.name ? `${school.name} લોગો` : "શાળા લોગો"}
                                 className="size-9 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
                             />
                         ) : (
