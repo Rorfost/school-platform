@@ -29,6 +29,8 @@ jobs:
             - run: npm run typecheck
             - run: npm run test
             - run: npm run build
+            - name: Verify build asset performance budget
+              run: node ../scripts/perf/verify_build_budget.js
 
     backend:
         name: Backend-CI
