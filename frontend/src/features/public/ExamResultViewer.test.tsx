@@ -108,4 +108,46 @@ describe("ExamResultViewer", () => {
         expect(screen.getByText("વિશાલ કે. પટેલ")).toBeInTheDocument();
         expect(screen.getByText("ગુજરાતી")).toBeInTheDocument();
     });
+
+    it("renders long student name and multiple subjects cleanly without crashing", () => {
+        const longNameResult: ExamResultResponse = {
+            ...syntheticAnnualResult,
+            studentName: "ચૌધરી હિતેન્દ્રકુમાર પરબતભાઈ ઉર્ફે મોહનભાઈ રણછોડભાઈ",
+            subjects: [
+                ...syntheticAnnualResult.subjects,
+                {
+                    id: "sub-3",
+                    subjectName: "વિજ્ઞાન અને ટેકનોલોજી",
+                    maximumMarks: 200,
+                    obtainedMarks: 175,
+                    grade: "A+",
+                    status: "PRESENT",
+                    sortOrder: 3,
+                },
+                {
+                    id: "sub-4",
+                    subjectName: "સામાજિક વિજ્ઞાન",
+                    maximumMarks: 200,
+                    obtainedMarks: 155,
+                    grade: "B",
+                    status: "PRESENT",
+                    sortOrder: 4,
+                },
+            ],
+        };
+
+        renderViewer({
+            result: longNameResult,
+            schoolName: "શ્રી મોડેલ પ્રાથમિક શાળા, પાટણ",
+            logoUrl: null,
+            sealUrl: null,
+            resultType: "ANNUAL",
+        });
+
+        expect(
+            screen.getByText("ચૌધરી હિતેન્દ્રકુમાર પરબતભાઈ ઉર્ફે મોહનભાઈ રણછોડભાઈ"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("વિજ્ઞાન અને ટેકનોલોજી")).toBeInTheDocument();
+        expect(screen.getByText("સામાજિક વિજ્ઞાન")).toBeInTheDocument();
+    });
 });
