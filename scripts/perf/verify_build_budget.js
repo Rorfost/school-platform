@@ -10,7 +10,9 @@
 import fs from "fs";
 import path from "path";
 
-const DIST_DIR = path.resolve(process.cwd(), "frontend/dist/assets");
+const DIST_DIR = fs.existsSync(path.resolve(process.cwd(), "dist/assets"))
+    ? path.resolve(process.cwd(), "dist/assets")
+    : path.resolve(process.cwd(), "frontend/dist/assets");
 
 const BUDGETS = {
     maxEntryJsKb: 450,

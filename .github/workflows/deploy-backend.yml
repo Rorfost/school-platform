@@ -10,7 +10,7 @@ on:
                 options:
                     - staging
                     - production
-            confirm_production:
+            confirm_deployment:
                 description: "Type 'DEPLOY' to confirm deployment"
                 required: true
                 default: "DRY_RUN"
@@ -22,15 +22,20 @@ jobs:
     deploy-backend:
         name: Trigger Backend Deploy
         runs-on: ubuntu-latest
-        environment: production
+        environment: ${{ github.event.inputs.target_environment }}
         steps:
-            - name: Validate authorization
+            - name: Validate authorization and target environment
               run: |
-                  if [ "${{ github.event.inputs.confirm_production }}" != "DEPLOY" ]; then
+                  if [ "${{ github.event.inputs.confirm_deployment }}" != "DEPLOY" ]; then
                       echo "ERROR: Manual confirmation string 'DEPLOY' required. Aborting."
                       exit 1
                   fi
-                  echo "Target environment selected: ${{ github.event.inputs.target_environment }}"
+                  TARGET="${{ github.event.inputs.target_environment }}"
+                  echo "Target environment selected: $TARGET"
+                  if [ "$TARGET" != "staging" ] && [ "$TARGET" != "production" ]; then
+                      echo "ERROR: Unknown or unsupported target environment '$TARGET'. Aborting fail-closed."
+                      exit 1
+                  fi
 
             - uses: actions/checkout@v4
 
@@ -49,7 +54,7 @@ jobs:
                   RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
               run: |
                   if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-                      echo "ERROR: RENDER_DEPLOY_HOOK_URL secret is not configured."
+                      echo "ERROR: RENDER_DEPLOY_HOOK_URL secret is not configured for environment '${{ github.event.inputs.target_environment }}'."
                       exit 1
                   fi
                   echo "Triggering Render deployment for commit ${GITHUB_SHA::7}..."

@@ -34,9 +34,31 @@ export function GalleryAlbumPage() {
         refetch,
     } = usePublicGalleryImagesPaginated(albumId, page, pageSize);
 
-    // Accumulated images across pages with deduplication by ID
+    // Track current album and accumulated items during render to avoid cascading effect renders
+    const [prevAlbumId, setPrevAlbumId] = useState(albumId);
     const [accumulatedImages, setAccumulatedImages] = useState<GalleryImageResponse[]>([]);
+    const [prevPageData, setPrevPageData] = useState<typeof pageData>(undefined);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+    if (prevAlbumId !== albumId) {
+        setPrevAlbumId(albumId);
+        setPage(0);
+        setAccumulatedImages([]);
+        setPrevPageData(undefined);
+        setSelectedIndex(null);
+    } else if (pageData && pageData !== prevPageData) {
+        setPrevPageData(pageData);
+        if (page === 0) {
+            setAccumulatedImages(pageData.items);
+        } else {
+            setAccumulatedImages((prev) => {
+                const existingIds = new Set(prev.map((img) => img.id));
+                const newItems = pageData.items.filter((img) => !existingIds.has(img.id));
+                return [...prev, ...newItems];
+            });
+        }
+    }
+
     const selectedImage =
         selectedIndex !== null ? (accumulatedImages[selectedIndex] ?? null) : null;
 
@@ -51,23 +73,6 @@ export function GalleryAlbumPage() {
             setSelectedIndex(selectedIndex + 1);
         }
     };
-
-    useEffect(() => {
-        // Reset when albumId changes
-        setPage(0);
-        setAccumulatedImages([]);
-        setSelectedIndex(null);
-    }, [albumId]);
-
-    useEffect(() => {
-        if (!pageData?.items) return;
-        setAccumulatedImages((prev) => {
-            if (page === 0) return pageData.items;
-            const existingIds = new Set(prev.map((img) => img.id));
-            const newItems = pageData.items.filter((img) => !existingIds.has(img.id));
-            return [...prev, ...newItems];
-        });
-    }, [pageData, page]);
 
     const hasMore = pageData ? page < pageData.totalPages - 1 : false;
 
