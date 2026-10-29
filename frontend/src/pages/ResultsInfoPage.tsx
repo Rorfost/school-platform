@@ -10,6 +10,7 @@ import type { ExamResultResponse } from "@/api/types";
 import { ContentSkeleton } from "@/components/common/StatusPanel";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 import { usePublicStandards } from "@/features/public/usePublicAcademic";
+import { TurnstileWidget } from "@/components/common/TurnstileWidget";
 
 const ExamResultViewer = lazy(() =>
     import("@/features/public/ExamResultViewer").then(({ ExamResultViewer }) => ({
@@ -23,6 +24,7 @@ export function ResultsInfoPage() {
     const [standard, setStandard] = useState("");
     const [studentClass, setStudentClass] = useState("");
     const [rollNumber, setRollNumber] = useState("");
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
     const [result, setResult] = useState<ExamResultResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -67,12 +69,17 @@ export function ResultsInfoPage() {
         setResult(null);
 
         try {
+            const headers: Record<string, string> = {};
+            if (turnstileToken) {
+                headers["X-Turnstile-Token"] = turnstileToken;
+            }
             const data = await apiRequest<ExamResultResponse>(
                 `/api/v1/public/exam-results?standard=${encodeURIComponent(
                     standard,
                 )}&class=${encodeURIComponent(studentClass.trim())}&rollNumber=${encodeURIComponent(
                     rollNumber,
                 )}&resultType=${resultType}`,
+                { headers },
             );
             setResult(data);
         } catch (err) {
@@ -174,6 +181,14 @@ export function ResultsInfoPage() {
                                 {error}
                             </p>
                         )}
+
+                        <TurnstileWidget
+                            action="exam_result_lookup"
+                            onTokenChange={setTurnstileToken}
+                            onError={() =>
+                                setError("સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.")
+                            }
+                        />
 
                         <Button
                             type="submit"

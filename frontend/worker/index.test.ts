@@ -414,4 +414,67 @@ describe("Cloudflare Worker Gateway Proxy", () => {
             expect(body.detail).toBe("હમણાં માહિતી મળી શકી નથી. ફરી પ્રયત્ન કરો.");
         });
     });
+
+    describe("Edge Rate Limiting", () => {
+        it("returns 429 when rate limiter returns success: false", async () => {
+            const mockRateLimiter = {
+                limit: vi.fn().mockResolvedValue({ success: false }),
+            };
+            const envWithLimiter: Env = {
+                ...env,
+                API_RATE_LIMITER: mockRateLimiter as unknown as RateLimit,
+            };
+
+            const request = new Request("https://dhadhana.workers.dev/api/v1/public/notices", {
+                headers: { "CF-Connecting-IP": "203.0.113.1" },
+            });
+            const response = await worker.fetch(request, envWithLimiter);
+
+            expect(response.status).toBe(429);
+            expect(response.headers.get("Retry-After")).toBe("60");
+            const body = (await response.json()) as { code: string };
+            expect(body.code).toBe("rate_limit_exceeded");
+            expect(mockRateLimiter.limit).toHaveBeenCalledWith({ key: "dhadhana:203.0.113.1" });
+            expect(mockGlobalFetch).not.toHaveBeenCalled();
+        });
+
+        it("routes login requests to LOGIN_RATE_LIMITER", async () => {
+            const mockLoginLimiter = {
+                limit: vi.fn().mockResolvedValue({ success: true }),
+            };
+            const envWithLimiter: Env = {
+                ...env,
+                LOGIN_RATE_LIMITER: mockLoginLimiter as unknown as RateLimit,
+            };
+
+            mockGlobalFetch.mockResolvedValueOnce(
+                new Response(JSON.stringify({ ok: true }), { status: 200 }),
+            );
+
+            const request = new Request("https://dhadhana.workers.dev/api/v1/admin/auth/login", {
+                method: "POST",
+                headers: { "CF-Connecting-IP": "203.0.113.2" },
+            });
+            await worker.fetch(request, envWithLimiter);
+
+            expect(mockLoginLimiter.limit).toHaveBeenCalledWith({ key: "dhadhana:203.0.113.2" });
+        });
+
+        it("does not rate limit static asset requests", async () => {
+            const mockRateLimiter = {
+                limit: vi.fn().mockResolvedValue({ success: false }),
+            };
+            const envWithLimiter: Env = {
+                ...env,
+                API_RATE_LIMITER: mockRateLimiter as unknown as RateLimit,
+            };
+
+            const request = new Request("https://dhadhana.workers.dev/assets/index.js");
+            const response = await worker.fetch(request, envWithLimiter);
+
+            expect(response.status).toBe(200);
+            expect(mockRateLimiter.limit).not.toHaveBeenCalled();
+            expect(mockAssetsFetch).toHaveBeenCalledTimes(1);
+        });
+    });
 });

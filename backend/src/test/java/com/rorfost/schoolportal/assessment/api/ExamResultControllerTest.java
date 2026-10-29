@@ -17,6 +17,7 @@ import com.rorfost.schoolportal.featureflag.repository.SchoolFeatureRepository;
 import com.rorfost.schoolportal.school.domain.AdminRole;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
 import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
@@ -42,6 +43,7 @@ class ExamResultControllerTest {
     private SchoolRepository schools;
     private ExamResultController controller;
     private FeatureAccessPolicy defaultEnabledPolicy;
+    private TurnstileVerificationService turnstileVerificationService;
 
     private UUID schoolId;
     private School school;
@@ -52,12 +54,15 @@ class ExamResultControllerTest {
     void setUp() {
         service = mock(ExamResultService.class);
         schools = mock(SchoolRepository.class);
+        turnstileVerificationService = mock(TurnstileVerificationService.class);
         // Build a default-enabled policy (no overrides → all core features on)
         SchoolFeatureRepository sfRepo = mock(SchoolFeatureRepository.class);
         when(sfRepo.findByIdSchoolId(org.mockito.ArgumentMatchers.any()))
                 .thenReturn(java.util.Collections.emptyList());
         defaultEnabledPolicy = new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
-        controller = new ExamResultController(service, schools, defaultEnabledPolicy);
+        controller =
+                new ExamResultController(
+                        service, schools, defaultEnabledPolicy, turnstileVerificationService);
 
         schoolId = UUID.randomUUID();
         school = mock(School.class);
@@ -114,7 +119,7 @@ class ExamResultControllerTest {
                 .thenReturn(mockResponse);
 
         ResponseEntity<ExamResultResponse> response =
-                controller.getResult("5", "A", 1, ExamResultService.ANNUAL);
+                controller.getResult("5", "A", 1, ExamResultService.ANNUAL, request);
 
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
         assertThat(response.getHeaders().getCacheControl()).contains("no-store");
@@ -128,7 +133,7 @@ class ExamResultControllerTest {
     void getResult_shouldThrowWhenTenantContextMissing() {
         RequestContextHolder.resetRequestAttributes();
 
-        assertThatThrownBy(() -> controller.getResult("5", "A", 1, ExamResultService.ANNUAL))
+        assertThatThrownBy(() -> controller.getResult("5", "A", 1, ExamResultService.ANNUAL, request))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", "school_not_found")
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);

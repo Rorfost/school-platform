@@ -9,7 +9,11 @@ export interface AuthContextValue {
     isAuthenticated: boolean;
     isLoading: boolean;
     sessionError?: boolean;
-    login: (email: string, password: string) => Promise<PrincipalAccountResponse>;
+    login: (
+        email: string,
+        password: string,
+        turnstileToken?: string | null,
+    ) => Promise<PrincipalAccountResponse>;
     logout: () => Promise<void>;
     refetchSession: () => Promise<void>;
 }
@@ -58,14 +62,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }, [isError, isLoading, principal, queryClient]);
 
     const login = useCallback(
-        async (email: string, password: string) => {
+        async (email: string, password: string, turnstileToken?: string | null) => {
             // A different principal may sign in on this browser without a full page reload.
             removeAdminDataQueries(queryClient);
             queryClient.setQueryData(queryKeys.authMe, null);
+            const headers: Record<string, string> = {};
+            if (turnstileToken) {
+                headers["X-Turnstile-Token"] = turnstileToken;
+            }
             const response = await apiRequest<PrincipalAccountResponse>(
                 "/api/v1/admin/auth/login",
                 {
                     method: "POST",
+                    headers,
                     body: { email, password },
                 },
             );

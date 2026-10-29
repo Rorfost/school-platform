@@ -5,6 +5,7 @@ import com.rorfost.schoolportal.auth.application.AuthenticationFailedException;
 import com.rorfost.schoolportal.auth.application.LoginRateLimiter;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.DomainException;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
 import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
@@ -55,14 +56,17 @@ public class AdminAuthenticationController {
     private final AdminAuthenticationService authenticationService;
     private final LoginRateLimiter loginRateLimiter;
     private final CsrfTokenRepository csrfTokenRepository;
+    private final TurnstileVerificationService turnstileVerificationService;
 
     public AdminAuthenticationController(
             AdminAuthenticationService authenticationService,
             LoginRateLimiter loginRateLimiter,
-            CsrfTokenRepository csrfTokenRepository) {
+            CsrfTokenRepository csrfTokenRepository,
+            TurnstileVerificationService turnstileVerificationService) {
         this.authenticationService = authenticationService;
         this.loginRateLimiter = loginRateLimiter;
         this.csrfTokenRepository = csrfTokenRepository;
+        this.turnstileVerificationService = turnstileVerificationService;
     }
 
     @GetMapping("/csrf")
@@ -74,12 +78,17 @@ public class AdminAuthenticationController {
     @PostMapping("/login")
     public PrincipalAccountResponse login(
             @Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest) {
+        String clientIp = resolveClientIp(servletRequest);
+        String turnstileToken = servletRequest.getHeader(TurnstileVerificationService.TURNSTILE_HEADER);
+        turnstileVerificationService.verify(
+                turnstileToken, clientIp, TurnstileVerificationService.ACTION_ADMIN_LOGIN);
+
         UUID schoolId = resolveTenantSchoolId(servletRequest);
         String normalizedEmail =
                 request.email() != null
                         ? request.email().trim().toLowerCase(java.util.Locale.ROOT)
                         : "";
-        String clientKey = schoolId + ":" + resolveClientIp(servletRequest) + ":" + normalizedEmail;
+        String clientKey = schoolId + ":" + clientIp + ":" + normalizedEmail;
 
         loginRateLimiter.checkAllowed(clientKey);
         try {

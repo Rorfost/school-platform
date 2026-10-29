@@ -12,6 +12,10 @@ export interface Env {
     BACKEND_ORIGIN?: string;
     PORTAL_GATEWAY_TOKEN?: string;
     SCHOOL_SLUG?: string;
+    API_RATE_LIMITER?: RateLimit;
+    LOGIN_RATE_LIMITER?: RateLimit;
+    RESULT_RATE_LIMITER?: RateLimit;
+    UPLOAD_RATE_LIMITER?: RateLimit;
 }
 
 const FORBIDDEN_INCOMING_HEADERS = [
@@ -82,6 +86,57 @@ export default {
         // namespace isolation even though caches.default is shared across all
         // Worker instances that happen to land on the same edge node.
         const schoolSlug = env.SCHOOL_SLUG ?? "unknown";
+
+        // ── Edge Rate Limiting (Cloudflare Workers Rate Limiting API) ────────
+        // Select policy bucket based on route path and method:
+        // - Admin Login: /api/v1/admin/auth/login
+        // - Public Exam Results: /api/v1/public/exam-results
+        // - Uploads: /api/v1/admin/**/upload or /api/v1/admin/exam-results/upload
+        // - General API: all other /api/* requests
+        const cfConnectingIp = request.headers.get("CF-Connecting-IP") || "direct";
+        const rateLimitKey = `${schoolSlug}:${cfConnectingIp}`;
+
+        let limiter: RateLimit | undefined;
+        const normalizedPath = url.pathname;
+
+        if (normalizedPath === "/api/v1/admin/auth/login") {
+            limiter = env.LOGIN_RATE_LIMITER ?? env.API_RATE_LIMITER;
+        } else if (normalizedPath.startsWith("/api/v1/public/exam-results")) {
+            limiter = env.RESULT_RATE_LIMITER ?? env.API_RATE_LIMITER;
+        } else if (
+            normalizedPath.includes("/upload") ||
+            (normalizedPath.includes("/admin/gallery/albums/") && request.method === "POST")
+        ) {
+            limiter = env.UPLOAD_RATE_LIMITER ?? env.API_RATE_LIMITER;
+        } else {
+            limiter = env.API_RATE_LIMITER;
+        }
+
+        if (limiter) {
+            try {
+                const outcome = await limiter.limit({ key: rateLimitKey });
+                if (!outcome.success) {
+                    return new Response(
+                        JSON.stringify({
+                            status: 429,
+                            code: "rate_limit_exceeded",
+                            detail: "વિનંતી મર્યાદા વટાવી ગઈ છે. કૃપા કરીને થોડી વાર પછી ફરી પ્રયાસ કરો.",
+                        }),
+                        {
+                            status: 429,
+                            headers: {
+                                "Content-Type": "application/json;charset=UTF-8",
+                                "Retry-After": "60",
+                            },
+                        },
+                    );
+                }
+            } catch {
+                // Fail-open for edge rate limiter runtime error; backend rate limiter remains active
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         const cacheEligible = isCacheEligibleRequest(request);
         const cacheEntry = cacheEligible ? matchesCacheableRoute(url.pathname) : null;
 
@@ -134,8 +189,7 @@ export default {
         // The backend trusts X-Portal-Client-IP ONLY after successful gateway authentication.
         // This value is injected here, after the sanitisation loop has already stripped
         // any client-supplied X-Portal-* headers, so it cannot be forged.
-        const cfConnectingIp = request.headers.get("CF-Connecting-IP");
-        if (cfConnectingIp) {
+        if (cfConnectingIp && cfConnectingIp !== "direct") {
             requestHeaders.set("X-Portal-Client-IP", cfConnectingIp);
         }
 

@@ -31,6 +31,45 @@
         "BACKEND_ORIGIN": "https://school-platform-gxrt.onrender.com",
         "SCHOOL_SLUG": "dhadhana",
     },
+    // Cloudflare Workers Rate Limiting Bindings (Sprint: Fresh Deployment Abuse Protection)
+    // - API_RATE_LIMITER: 120 req / 60 sec general API budget per client IP + tenant
+    // - LOGIN_RATE_LIMITER: 10 req / 60 sec admin login protection
+    // - RESULT_RATE_LIMITER: 10 req / 60 sec student exam result lookup protection
+    // - UPLOAD_RATE_LIMITER: 10 req / 60 sec media/document upload protection
+    "ratelimits": [
+        {
+            "binding": "API_RATE_LIMITER",
+            "namespace_id": "1001",
+            "simple": {
+                "limit": 120,
+                "period": 60,
+            },
+        },
+        {
+            "binding": "LOGIN_RATE_LIMITER",
+            "namespace_id": "1002",
+            "simple": {
+                "limit": 10,
+                "period": 60,
+            },
+        },
+        {
+            "binding": "RESULT_RATE_LIMITER",
+            "namespace_id": "1003",
+            "simple": {
+                "limit": 10,
+                "period": 60,
+            },
+        },
+        {
+            "binding": "UPLOAD_RATE_LIMITER",
+            "namespace_id": "1004",
+            "simple": {
+                "limit": 10,
+                "period": 60,
+            },
+        },
+    ],
     // PORTAL_GATEWAY_TOKEN is injected as a Wrangler secret for the root Worker.
     // It must NEVER appear in plaintext vars.
     "assets": {

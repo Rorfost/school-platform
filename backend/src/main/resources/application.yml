@@ -65,7 +65,13 @@ app:
         enabled: ${APP_GATEWAY_ENABLED:true}
     frontend-url: ${FRONTEND_URL:}
     cors:
-        allowed-origins: ${CORS_ALLOWED_ORIGINS}
+        allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    turnstile:
+        enabled: ${TURNSTILE_ENABLED:false}
+        secret-key: ${TURNSTILE_SECRET_KEY:}
+        expected-hostnames: ${TURNSTILE_EXPECTED_HOSTNAMES:}
+        connect-timeout-ms: ${TURNSTILE_CONNECT_TIMEOUT_MS:3000}
+        read-timeout-ms: ${TURNSTILE_READ_TIMEOUT_MS:5000}
     admin-bootstrap:
         initial-email: ${ADMIN_INITIAL_EMAIL:}
         initial-password: ${ADMIN_INITIAL_PASSWORD:}

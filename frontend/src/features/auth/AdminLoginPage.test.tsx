@@ -81,7 +81,11 @@ describe("AdminLoginPage", () => {
         fireEvent.submit(submitButton.closest("form")!);
 
         await waitFor(() => {
-            expect(mockLogin).toHaveBeenCalledWith("principal@school.edu", "SecurePassword123");
+            expect(mockLogin).toHaveBeenCalledWith(
+                "principal@school.edu",
+                "SecurePassword123",
+                null,
+            );
         });
     });
 });

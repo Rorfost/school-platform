@@ -10,6 +10,7 @@ import com.rorfost.schoolportal.auth.application.AuthenticationFailedException;
 import com.rorfost.schoolportal.auth.application.LoginRateLimiter;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.school.domain.AdminRole;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ class AdminAuthenticationControllerTest {
     private AdminAuthenticationService authenticationService;
     private LoginRateLimiter loginRateLimiter;
     private CsrfTokenRepository csrfTokenRepository;
+    private TurnstileVerificationService turnstileVerificationService;
     private AdminAuthenticationController controller;
 
     private PrincipalSession principal;
@@ -41,10 +43,14 @@ class AdminAuthenticationControllerTest {
         authenticationService = Mockito.mock(AdminAuthenticationService.class);
         loginRateLimiter = Mockito.mock(LoginRateLimiter.class);
         csrfTokenRepository = Mockito.mock(CsrfTokenRepository.class);
+        turnstileVerificationService = Mockito.mock(TurnstileVerificationService.class);
 
         controller =
                 new AdminAuthenticationController(
-                        authenticationService, loginRateLimiter, csrfTokenRepository);
+                        authenticationService,
+                        loginRateLimiter,
+                        csrfTokenRepository,
+                        turnstileVerificationService);
 
         adminUserId = UUID.randomUUID();
         schoolId = UUID.randomUUID();

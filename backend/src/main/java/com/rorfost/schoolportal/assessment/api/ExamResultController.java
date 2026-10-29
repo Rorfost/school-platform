@@ -7,8 +7,11 @@ import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
 import com.rorfost.schoolportal.featureflag.domain.FeatureKey;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
 import com.rorfost.schoolportal.tenant.domain.TenantContext;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -24,22 +27,34 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/v1")
 public class ExamResultController {
 
+    private static final Pattern IP_PATTERN =
+            Pattern.compile(
+                    "^(?:"
+                            + "(?:\\d{1,3}\\.){3}\\d{1,3}" // IPv4
+                            + "|"
+                            + "[0-9a-fA-F:]{2,39}" // IPv6 (colon-hex)
+                            + ")$");
+
     private final ExamResultService service;
     private final SchoolRepository schools;
     private final FeatureAccessPolicy featureAccessPolicy;
+    private final TurnstileVerificationService turnstileVerificationService;
 
     public ExamResultController(
             ExamResultService service,
             SchoolRepository schools,
-            FeatureAccessPolicy featureAccessPolicy) {
+            FeatureAccessPolicy featureAccessPolicy,
+            TurnstileVerificationService turnstileVerificationService) {
         this.service = service;
         this.schools = schools;
         this.featureAccessPolicy = featureAccessPolicy;
+        this.turnstileVerificationService = turnstileVerificationService;
     }
 
     @GetMapping("/public/exam-results")
@@ -48,7 +63,13 @@ public class ExamResultController {
             @RequestParam(value = "class", required = false) String studentClass,
             @RequestParam("rollNumber") Integer rollNumber,
             @RequestParam(value = "resultType", defaultValue = ExamResultService.ANNUAL)
-                    String resultType) {
+                    String resultType,
+            HttpServletRequest request) {
+        String clientIp = resolveClientIp(request);
+        String turnstileToken = request.getHeader(TurnstileVerificationService.TURNSTILE_HEADER);
+        turnstileVerificationService.verify(
+                turnstileToken, clientIp, TurnstileVerificationService.ACTION_EXAM_RESULT_LOOKUP);
+
         UUID schoolId = resolvePublicSchoolId();
         // Feature disabled → 404 so the endpoint cannot be probed when results are hidden
         featureAccessPolicy.requirePublicEnabled(schoolId, FeatureKey.EXAM_RESULTS);
@@ -110,5 +131,13 @@ public class ExamResultController {
         return schools.findByIdAndIsActiveTrue(tenant.schoolId())
                 .map(School::getId)
                 .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
+    }
+
+    private String resolveClientIp(HttpServletRequest request) {
+        String header = request.getHeader("X-Portal-Client-IP");
+        if (header != null && !header.isBlank() && IP_PATTERN.matcher(header.strip()).matches()) {
+            return header.strip();
+        }
+        return request.getRemoteAddr();
     }
 }
