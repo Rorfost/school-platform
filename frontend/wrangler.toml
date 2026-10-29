@@ -1,0 +1,35 @@
+# Cloudflare Pages project configuration.
+# This file configures the Pages project (not the legacy Worker — see wrangler.jsonc for that).
+# Secrets (PORTAL_GATEWAY_TOKEN) must be added via `wrangler pages secret put`.
+name = "dhadhana-school-pages"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-16"
+
+# Gateway token is a secret — add via: wrangler pages secret put PORTAL_GATEWAY_TOKEN
+# Runtime variables (non-secret)
+[vars]
+SCHOOL_SLUG = "dhadhana"
+BACKEND_ORIGIN = "https://school-platform-gxrt.onrender.com"
+
+# ── Rate Limiting Bindings ────────────────────────────────────────────────────
+# Requires Cloudflare paid plan. Create namespaces in Cloudflare dashboard
+# (Workers & Pages → Rate Limiting → Create Namespace) then update namespace_id below.
+[[ratelimits]]
+binding = "API_RATE_LIMITER"
+namespace_id = "REPLACE_WITH_API_RATE_LIMITER_NAMESPACE_ID"
+simple = { limit = 120, period = 60 }
+
+[[ratelimits]]
+binding = "LOGIN_RATE_LIMITER"
+namespace_id = "REPLACE_WITH_LOGIN_RATE_LIMITER_NAMESPACE_ID"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+binding = "RESULT_RATE_LIMITER"
+namespace_id = "REPLACE_WITH_RESULT_RATE_LIMITER_NAMESPACE_ID"
+simple = { limit = 10, period = 60 }
+
+[[ratelimits]]
+binding = "UPLOAD_RATE_LIMITER"
+namespace_id = "REPLACE_WITH_UPLOAD_RATE_LIMITER_NAMESPACE_ID"
+simple = { limit = 10, period = 60 }
