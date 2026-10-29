@@ -16,13 +16,6 @@
         "test:watch": "vitest",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
-        "deploy:school_a": "npm run build && wrangler deploy --env school_a",
-        "deploy:school_b": "npm run build && wrangler deploy --env school_b",
-        "deploy:school_c": "npm run build && wrangler deploy --env school_c",
-        "dry-run:school_a": "npm run build && wrangler deploy --dry-run --env school_a",
-        "dry-run:school_b": "npm run build && wrangler deploy --dry-run --env school_b",
-        "dry-run:school_c": "npm run build && wrangler deploy --dry-run --env school_c",
-        "preview:worker": "npm run build && wrangler dev",
         "deploy:pages": "npm run build && wrangler pages deploy dist",
         "preview:pages": "npm run build && wrangler pages dev dist"
     },

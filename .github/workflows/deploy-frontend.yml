@@ -10,9 +10,15 @@
 #      pre-built `dist/` directory. This workflow is kept as a manual fallback
 #      for cases where the Git integration is unavailable or for emergency deploys.
 #
-# REQUIRED SECRETS (set in GitHub repository settings → Secrets → Actions):
-#   CLOUDFLARE_API_TOKEN   – Pages deploy token with 'Cloudflare Pages:Edit' permission
-#   CLOUDFLARE_ACCOUNT_ID  – Cloudflare account ID
+# REQUIRED GITHUB ACTIONS SECRETS (Repository Settings → Secrets and variables → Actions → Secrets):
+#   - CLOUDFLARE_API_TOKEN     – Cloudflare API token with 'Cloudflare Pages:Edit' permission.
+#   - CLOUDFLARE_ACCOUNT_ID    – Cloudflare account ID.
+#   - VITE_TURNSTILE_SITE_KEY  – Public Cloudflare Turnstile site key matching the Pages hostname.
+#
+# REQUIRED GITHUB ACTIONS VARIABLES (Repository Settings → Secrets and variables → Actions → Variables):
+#   - VITE_SCHOOL_NAME         – School display name (e.g., 'શ્રી ઢાંઢણા પ્રાથમિક શાળા').
+#   - VITE_SCHOOL_LOGO         – School logo asset URL (e.g., '/school-logo.jpeg').
+#   - VITE_ASSET_BASE_URL      – Public CDN or media endpoint for assets (e.g., 'https://ik.imagekit.io/dhadhana').
 
 name: Deploy Frontend (Cloudflare Pages)
 

@@ -22,6 +22,30 @@ describe("Cloudflare Pages Functions API Gateway Proxy", () => {
         vi.restoreAllMocks();
     });
 
+    it("fails closed with 500 when PORTAL_GATEWAY_TOKEN is missing or empty", async () => {
+        const envMissingToken: PagesEnv = {
+            BACKEND_ORIGIN: "https://school-backend.internal",
+            SCHOOL_SLUG: "dhadhana",
+        };
+
+        const request = new Request("https://dhadhana.pages.dev/api/v1/public/school");
+        const context: EventContext<PagesEnv, string, Record<string, unknown>> = {
+            request,
+            env: envMissingToken,
+            params: {},
+            data: {},
+            waitUntil: vi.fn(),
+            next: vi.fn(),
+            functionPath: "/api",
+        };
+
+        const response = await onRequest(context);
+        expect(response.status).toBe(500);
+        const body = (await response.json()) as { code: string };
+        expect(body.code).toBe("gateway_configuration_error");
+        expect(mockGlobalFetch).not.toHaveBeenCalled();
+    });
+
     it("injects gateway token and trusted client IP from CF-Connecting-IP", async () => {
         mockGlobalFetch.mockResolvedValueOnce(
             new Response(JSON.stringify({ ok: true }), { status: 200 }),

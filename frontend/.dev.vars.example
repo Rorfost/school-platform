@@ -1,4 +1,4 @@
-# Local Cloudflare Worker development secrets (ignored by Git)
-# Used only when running: npm run preview:worker (wrangler dev)
+# Local Cloudflare Pages Functions development secrets (ignored by Git)
+# Used when testing Pages Functions locally via: npm run preview:pages (wrangler pages dev dist)
 # Generate a local token with: openssl rand -hex 32
 PORTAL_GATEWAY_TOKEN=local-development-gateway-token-secret-replace-me

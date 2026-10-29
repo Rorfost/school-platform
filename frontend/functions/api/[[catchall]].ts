@@ -6,7 +6,7 @@ import {
     isCacheEligibleResponse,
     matchesCacheableRoute,
     tagCacheHit,
-} from "../../worker/cache";
+} from "../cache/cache";
 
 export interface PagesEnv {
     BACKEND_ORIGIN?: string;
@@ -62,6 +62,23 @@ export async function onRequest(
             }),
             {
                 status: 400,
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8",
+                },
+            },
+        );
+    }
+
+    // Fail closed if trusted gateway token is missing in runtime environment
+    if (!env.PORTAL_GATEWAY_TOKEN || env.PORTAL_GATEWAY_TOKEN.trim() === "") {
+        return new Response(
+            JSON.stringify({
+                status: 500,
+                code: "gateway_configuration_error",
+                detail: "સર્વર રૂપરેખાંકન ભૂલ: ગેટવે ટોકન ખૂટે છે.",
+            }),
+            {
+                status: 500,
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                 },
@@ -153,10 +170,7 @@ export async function onRequest(
     }
 
     requestHeaders.set("Host", targetUrl.host);
-
-    if (env.PORTAL_GATEWAY_TOKEN) {
-        requestHeaders.set("X-Portal-Gateway-Token", env.PORTAL_GATEWAY_TOKEN);
-    }
+    requestHeaders.set("X-Portal-Gateway-Token", env.PORTAL_GATEWAY_TOKEN);
 
     if (cfConnectingIp && cfConnectingIp !== "direct") {
         requestHeaders.set("X-Portal-Client-IP", cfConnectingIp);

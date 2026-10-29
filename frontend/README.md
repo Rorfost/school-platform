@@ -1,39 +1,19 @@
 # Frontend — Rorfost School Platform
 
-The frontend is a React 19, TypeScript, and Vite single-page application and Cloudflare Worker proxy providing a Gujarati-first public portal and an administrative panel for school principals.
+The frontend is a React 19, TypeScript, and Vite single-page application and Cloudflare Pages Functions proxy providing a Gujarati-first public portal and an administrative panel for school principals.
 
 - **Platform Product:** Rorfost School Platform
-- **Reference Deployment (As-Is):** Dhadhana Primary School Portal
+- **Production Deployment:** Dhadhana Primary School Portal (`dhadhana-school-pages.pages.dev`)
 
-## As-Is vs. Target Architecture
+## Architecture Overview
 
-### Current State (As-Is)
-
-- Single Cloudflare Worker deployment (`dhadhana-school`).
-- Hardcoded fallback school metadata (`DEFAULT_SCHOOL_INFO`) and Dhadhana footer credits in local fallback utilities.
-- Cloudflare Worker proxies `/api/*` directly without cryptographic gateway authentication.
-
-### Target State (Multi-Tenant Plan)
-
-- Unified codebase deployed to independent named Cloudflare Workers per school (`school-a`, `school-b`, `school-c`).
-- Each Worker holds a unique `PORTAL_GATEWAY_TOKEN` secret and injects it into upstream `/api/*` requests to Render.
-- Dynamic branding: School name, logo, principal information, and footer copyright derived strictly from API data, with generic neutral defaults.
-- Feature Flag Awareness: UI navigation, sidebar, mobile drawers, student shortcuts, and route guards (`FeatureRouteGuard`) conditionally rendered based on active school feature flags fetched from `/api/v1/public/features`.
-- Direct route visits to disabled public features redirect cleanly to 404; admin navigation items hide disabled modules with redirect fallback to `/admin`.
-
-## Features Implemented
-
-- **Public School Website (Gujarati):** Home, About School, Principal's Desk, Notices, Photo Gallery, Downloads, and Contact.
-- **Student Corner (Gujarati):** Study Materials, Examination Results (with privacy PIN verification, marksheet display, and single-page A4 print), and Downloads.
-- **School Tools (Gujarati):** Client-side educational and administrative calculators (age, attendance, marks percentage).
-- **Feature Flag System:** Client-side integration (`src/features/featureFlags`) reading `/api/v1/public/features` with fail-safe defaults and route guarding (`FeatureRouteGuard`).
-- **Principal Admin Panel (English):**
-    - Session authentication, CSRF handling, password change lifecycle.
-    - Operational Dashboard with school overview.
-    - School Settings & Principal Profile with ImageKit-backed logo management.
-    - Academic setup: Academic years, standards, subjects, and standard-subject mapping.
-    - Results & Marks: Assessment setup, Excel import (Annual & Ekam Kasoti), and publish controls.
-    - Content management: Notices, study materials, photo gallery albums, and downloads.
+- **Hosting & Serving:** Hosted on Cloudflare Pages (`dhadhana-school-pages`) with static assets served from Cloudflare's global edge network.
+- **Client-Side Routing:** Managed by React Router with `_redirects` (`/* /index.html 200`) providing seamless direct page refreshes.
+- **API Proxy (Pages Functions):** Handled via `functions/api/[[catchall]].ts`. Proxies `/api/*` to the Spring Boot backend on Render.
+- **Gateway Security:** Injects `X-Portal-Gateway-Token` (from encrypted Pages runtime secret) and `X-Portal-Client-IP` (from `CF-Connecting-IP`), stripping any client-supplied spoofed headers. Fails closed with HTTP 500 if the gateway token is unset.
+- **Dynamic Branding:** School name and logo derived at build-time (`VITE_SCHOOL_NAME`, `VITE_SCHOOL_LOGO`) or fetched dynamically via API.
+- **Anti-Bot Protection:** Cloudflare Turnstile integration on public result lookups and principal login (`VITE_TURNSTILE_SITE_KEY`).
+- **Feature Flag Awareness:** UI navigation, sidebar, mobile drawers, student shortcuts, and route guards (`FeatureRouteGuard`) conditionally rendered based on active school feature flags fetched from `/api/v1/public/features`.
 
 ## Commands
 
@@ -47,45 +27,35 @@ npm run test
 npm run build
 ```
 
-## Cloudflare Worker Environments & Deployments
+## Cloudflare Pages Configuration & Deployment
 
-The frontend uses a single codebase deployed to independent Cloudflare Workers using named `env` blocks in `wrangler.jsonc`.
+The frontend uses Cloudflare Pages with project name `dhadhana-school-pages` configured in `wrangler.toml`.
 
-### Named Environments
+### Build Settings
 
-- `school_a` — Worker `school-a-portal`
-- `school_b` — Worker `school-b-portal`
-- `school_c` — Worker `school-c-portal`
+- **Framework preset:** None (or Vite)
+- **Root directory:** `frontend`
+- **Build command:** `npm run build`
+- **Build output directory:** `dist`
 
 ### Secret Provisioning
 
-Each school Worker requires a unique `PORTAL_GATEWAY_TOKEN` secret provisioned outside Git:
+The Pages Function requires `PORTAL_GATEWAY_TOKEN` provisioned as a runtime secret:
 
 ```bash
-npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_a
-npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_b
-npx wrangler secret put PORTAL_GATEWAY_TOKEN --env school_c
+npx wrangler pages secret put PORTAL_GATEWAY_TOKEN --project-name=dhadhana-school-pages
 ```
 
-### Targeted Deployments
+### Manual Deployment via GitHub Actions or CLI
 
-To deploy an individual school frontend without affecting other tenants:
+To deploy production assets:
 
 ```bash
-# Build production assets
 npm run build
-
-# Deploy specific environment
-npx wrangler deploy --env school_a
-npx wrangler deploy --env school_b
-npx wrangler deploy --env school_c
+npx wrangler pages deploy dist --project-name=dhadhana-school-pages
 ```
 
-### Same-Origin & Upload Proxying
-
-- In production, client API requests and file uploads use same-origin relative paths (`/api/*`).
-- `VITE_API_BASE_URL` and `VITE_UPLOAD_BASE_URL` remain empty strings, avoiding direct browser backend bypass.
-- The Cloudflare Worker streams multipart upload bodies (e.g., student assessment Excel files up to Spring Boot's 10MB/12MB thresholds) directly upstream while preserving session cookies and CSRF headers.
+Alternatively, use the GitHub Actions workflow `.github/workflows/deploy-frontend.yml` via `workflow_dispatch`.
 
 ## Directory Structure
 
@@ -98,6 +68,7 @@ npx wrangler deploy --env school_c
     - `public` — Result marksheet viewer and public content components.
     - `school` — School metadata and settings hooks.
     - `tools` — Gujarati educational calculators.
-    - `tenant` — Planned tenant context and multi-school routing awareness (Sprint 01).
     - `featureFlags` — Client-side feature flag gates (`api`, `hooks`, `types`, `defaults`, `FeatureRouteGuard`).
-- `worker/` — Cloudflare Worker script (`index.ts`) proxying same-origin API requests to the backend.
+- `functions/` — Cloudflare Pages Functions:
+    - `functions/api/[[catchall]].ts` — API gateway proxy with path validation, header sanitization, token injection, and edge caching.
+    - `functions/cache/` — Shared edge cache evaluation and key generation utilities.
