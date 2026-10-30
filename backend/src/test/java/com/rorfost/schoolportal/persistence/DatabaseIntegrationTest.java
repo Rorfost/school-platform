@@ -363,8 +363,8 @@ class DatabaseIntegrationTest {
                                         school.getId(),
                                         digest,
                                         "Invalid Expiry",
-                                        now,
-                                        past))
+                                        java.sql.Timestamp.from(now),
+                                        java.sql.Timestamp.from(past)))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 

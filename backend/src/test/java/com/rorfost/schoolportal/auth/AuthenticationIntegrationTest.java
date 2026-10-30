@@ -2,6 +2,7 @@ package com.rorfost.schoolportal.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,6 +17,8 @@ import com.rorfost.schoolportal.school.domain.AdminUser;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.AdminUserRepository;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.tenant.domain.SchoolGatewayCredential;
+import com.rorfost.schoolportal.tenant.repository.SchoolGatewayCredentialRepository;
 
 import jakarta.servlet.http.Cookie;
 
@@ -32,6 +35,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -46,6 +51,7 @@ class AuthenticationIntegrationTest {
 
     private static final String EMAIL = "principal@example.test";
     private static final String PASSWORD = "InitialPassword12";
+    private static final String GATEWAY_TOKEN = "auth-integration-test-gateway-token-123456789";
 
     @Container
     static final PostgreSQLContainer<?> postgres =
@@ -61,20 +67,40 @@ class AuthenticationIntegrationTest {
         registry.add("spring.datasource.password", postgres::getPassword);
     }
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private SchoolRepository schoolRepository;
     @Autowired private AdminUserRepository adminUserRepository;
+    @Autowired private SchoolGatewayCredentialRepository schoolGatewayCredentialRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private LoginRateLimiter loginRateLimiter;
     @Autowired private JdbcTemplate jdbcTemplate;
+
+    private MockMvc mockMvc;
+    private School activeSchool;
 
     @BeforeEach
     void setUp() {
         jdbcTemplate.update("DELETE FROM audit_logs");
         jdbcTemplate.update("DELETE FROM admin_users");
+        jdbcTemplate.update("DELETE FROM school_gateway_credentials");
         jdbcTemplate.update("DELETE FROM schools");
         loginRateLimiter.clear("127.0.0.1");
+
+        activeSchool =
+                schoolRepository.saveAndFlush(
+                        new School("Authentication School", "auth-" + UUID.randomUUID()));
+        schoolGatewayCredentialRepository.saveAndFlush(
+                new SchoolGatewayCredential(
+                        activeSchool.getId(),
+                        SchoolGatewayCredential.computeDigest(GATEWAY_TOKEN),
+                        "Auth Test Gateway"));
+
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                        .defaultRequest(get("/").header("X-Portal-Gateway-Token", GATEWAY_TOKEN))
+                        .apply(springSecurity())
+                        .build();
     }
 
     @Test
@@ -285,12 +311,9 @@ class AuthenticationIntegrationTest {
     }
 
     private AdminUser createPrincipal(boolean mustChangePassword) {
-        School school =
-                schoolRepository.saveAndFlush(
-                        new School("Authentication School", "auth-" + UUID.randomUUID()));
         AdminUser user =
                 adminUserRepository.saveAndFlush(
-                        new AdminUser(school.getId(), EMAIL, passwordEncoder.encode(PASSWORD)));
+                        new AdminUser(activeSchool.getId(), EMAIL, passwordEncoder.encode(PASSWORD)));
         if (!mustChangePassword) {
             jdbcTemplate.update(
                     "UPDATE admin_users SET must_change_password = FALSE WHERE id = ?",

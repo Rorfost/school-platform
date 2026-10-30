@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
@@ -307,6 +308,7 @@ class CacheControlContractTest {
      * Dynamic, Public Counter, and Personal Result.
      */
     @RestController
+    @Profile("cache-contract-test")
     static class FakePublicController {
 
         @GetMapping("/api/v1/public/school")
@@ -351,6 +353,7 @@ class CacheControlContractTest {
      * {@link SensitiveResponseHeadersFilter}.
      */
     @RestController
+    @Profile("cache-contract-test")
     static class FakeAdminController {
 
         @GetMapping("/api/v1/admin/school")
@@ -385,6 +388,7 @@ class CacheControlContractTest {
      * {@code Cache-Control: no-store}.
      */
     @RestController
+    @Profile("cache-contract-test")
     static class FakeLoginController {
 
         @PostMapping("/api/v1/admin/auth/login")

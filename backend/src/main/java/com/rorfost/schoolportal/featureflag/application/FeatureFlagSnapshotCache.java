@@ -1,5 +1,6 @@
 package com.rorfost.schoolportal.featureflag.application;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,11 @@ public class FeatureFlagSnapshotCache {
     private final Object[] schoolLocks = new Object[64];
     private final Map<UUID, Entry> entries = new LinkedHashMap<>(16, 0.75f, true);
 
+    public FeatureFlagSnapshotCache() {
+        this(true, TTL, MAX_ENTRIES);
+    }
+
+    @Autowired
     public FeatureFlagSnapshotCache(
             @Value("${app.cache.public-features.enabled:true}") boolean enabled) {
         this(enabled, TTL, MAX_ENTRIES);
