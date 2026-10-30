@@ -79,7 +79,8 @@ public class AdminAuthenticationController {
     public PrincipalAccountResponse login(
             @Valid @RequestBody LoginRequest request, HttpServletRequest servletRequest) {
         String clientIp = resolveClientIp(servletRequest);
-        String turnstileToken = servletRequest.getHeader(TurnstileVerificationService.TURNSTILE_HEADER);
+        String turnstileToken =
+                servletRequest.getHeader(TurnstileVerificationService.TURNSTILE_HEADER);
         turnstileVerificationService.verify(
                 turnstileToken, clientIp, TurnstileVerificationService.ACTION_ADMIN_LOGIN);
 

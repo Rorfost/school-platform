@@ -18,4 +18,3 @@ public record TurnstileVerificationResponse(
         @JsonProperty("error-codes") List<String> errorCodes,
         String action,
         String cdata) {}
-

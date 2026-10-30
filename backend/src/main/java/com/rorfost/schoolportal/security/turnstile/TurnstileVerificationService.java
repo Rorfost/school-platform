@@ -24,7 +24,8 @@ import java.util.Locale;
  * Server-side verification service for Cloudflare Turnstile tokens.
  *
  * <p>Protects abuse-prone endpoints (admin login and public result queries). Validates response
- * token, expected action, and expected browser hostname against the Cloudflare verification endpoint.
+ * token, expected action, and expected browser hostname against the Cloudflare verification
+ * endpoint.
  *
  * <p>Fails closed if Turnstile is enabled but the secret key is missing, if the token is missing or
  * invalid, or if the upstream Cloudflare verification service is unavailable.
@@ -38,7 +39,8 @@ public class TurnstileVerificationService {
     public static final String TURNSTILE_HEADER = "X-Turnstile-Token";
 
     private static final Logger log = LoggerFactory.getLogger(TurnstileVerificationService.class);
-    private static final String VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+    private static final String VERIFY_URL =
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
     private final TurnstileProperties properties;
     private final HttpClient httpClient;
@@ -72,7 +74,8 @@ public class TurnstileVerificationService {
      * @param token Client challenge response token from {@code X-Turnstile-Token}
      * @param remoteIp Client remote IP address (trusted edge IP)
      * @param expectedAction Expected action identifier (e.g. {@code "admin_login"})
-     * @throws DomainException if verification fails, token is missing/invalid, or verification service fails
+     * @throws DomainException if verification fails, token is missing/invalid, or verification
+     *     service fails
      */
     public void verify(String token, String remoteIp, String expectedAction) {
         if (!properties.enabled()) {
@@ -91,10 +94,13 @@ public class TurnstileVerificationService {
         }
 
         StringBuilder formBody = new StringBuilder();
-        formBody.append("secret=").append(URLEncoder.encode(secretKey.trim(), StandardCharsets.UTF_8));
-        formBody.append("&response=").append(URLEncoder.encode(token.trim(), StandardCharsets.UTF_8));
+        formBody.append("secret=")
+                .append(URLEncoder.encode(secretKey.trim(), StandardCharsets.UTF_8));
+        formBody.append("&response=")
+                .append(URLEncoder.encode(token.trim(), StandardCharsets.UTF_8));
         if (remoteIp != null && !remoteIp.isBlank()) {
-            formBody.append("&remoteip=").append(URLEncoder.encode(remoteIp.trim(), StandardCharsets.UTF_8));
+            formBody.append("&remoteip=")
+                    .append(URLEncoder.encode(remoteIp.trim(), StandardCharsets.UTF_8));
         }
 
         HttpRequest request =
@@ -108,14 +114,20 @@ public class TurnstileVerificationService {
         TurnstileVerificationResponse response;
         try {
             HttpResponse<String> httpResponse =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                    httpClient.send(
+                            request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
             if (httpResponse.statusCode() != 200) {
-                log.warn("Turnstile upstream service returned HTTP status {}", httpResponse.statusCode());
-                throw new DomainException(HttpStatus.SERVICE_UNAVAILABLE, "turnstile_verification_failed");
+                log.warn(
+                        "Turnstile upstream service returned HTTP status {}",
+                        httpResponse.statusCode());
+                throw new DomainException(
+                        HttpStatus.SERVICE_UNAVAILABLE, "turnstile_verification_failed");
             }
 
-            response = objectMapper.readValue(httpResponse.body(), TurnstileVerificationResponse.class);
+            response =
+                    objectMapper.readValue(
+                            httpResponse.body(), TurnstileVerificationResponse.class);
         } catch (DomainException de) {
             throw de;
         } catch (IOException | InterruptedException e) {
@@ -123,18 +135,25 @@ public class TurnstileVerificationService {
                 Thread.currentThread().interrupt();
             }
             log.warn("Turnstile verification call failed due to network/timeout error");
-            throw new DomainException(HttpStatus.SERVICE_UNAVAILABLE, "turnstile_verification_unavailable");
+            throw new DomainException(
+                    HttpStatus.SERVICE_UNAVAILABLE, "turnstile_verification_unavailable");
         }
 
         if (response == null || !response.success()) {
-            log.info("Turnstile challenge verification rejected (error codes: {})", response != null ? response.errorCodes() : "null");
+            log.info(
+                    "Turnstile challenge verification rejected (error codes: {})",
+                    response != null ? response.errorCodes() : "null");
             throw new DomainException(HttpStatus.BAD_REQUEST, "turnstile_verification_failed");
         }
 
         // Validate action match
         if (expectedAction != null && !expectedAction.isBlank()) {
-            if (response.action() == null || !expectedAction.equalsIgnoreCase(response.action().trim())) {
-                log.warn("Turnstile action mismatch: expected='{}', received='{}'", expectedAction, response.action());
+            if (response.action() == null
+                    || !expectedAction.equalsIgnoreCase(response.action().trim())) {
+                log.warn(
+                        "Turnstile action mismatch: expected='{}', received='{}'",
+                        expectedAction,
+                        response.action());
                 throw new DomainException(HttpStatus.BAD_REQUEST, "turnstile_action_mismatch");
             }
         }
@@ -142,16 +161,21 @@ public class TurnstileVerificationService {
         // Validate hostname against expected hostnames if configured
         List<String> expectedHostnames = properties.expectedHostnames();
         if (expectedHostnames != null && !expectedHostnames.isEmpty()) {
-            String receivedHostname = response.hostname() != null ? response.hostname().trim().toLowerCase(Locale.ROOT) : "";
+            String receivedHostname =
+                    response.hostname() != null
+                            ? response.hostname().trim().toLowerCase(Locale.ROOT)
+                            : "";
             boolean matched =
                     expectedHostnames.stream()
                             .map(h -> h.trim().toLowerCase(Locale.ROOT))
                             .anyMatch(h -> h.equals(receivedHostname));
             if (!matched) {
-                log.warn("Turnstile hostname mismatch: received='{}', expected in={}", receivedHostname, expectedHostnames);
+                log.warn(
+                        "Turnstile hostname mismatch: received='{}', expected in={}",
+                        receivedHostname,
+                        expectedHostnames);
                 throw new DomainException(HttpStatus.BAD_REQUEST, "turnstile_hostname_mismatch");
             }
         }
     }
 }
-

@@ -133,7 +133,8 @@ class ExamResultControllerTest {
     void getResult_shouldThrowWhenTenantContextMissing() {
         RequestContextHolder.resetRequestAttributes();
 
-        assertThatThrownBy(() -> controller.getResult("5", "A", 1, ExamResultService.ANNUAL, request))
+        assertThatThrownBy(
+                        () -> controller.getResult("5", "A", 1, ExamResultService.ANNUAL, request))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", "school_not_found")
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND);

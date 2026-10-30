@@ -37,12 +37,17 @@ class TurnstileVerificationServiceTest {
 
     @Test
     void verify_whenDisabled_shouldPassWithoutInvokingHttpClient() {
-        TurnstileProperties properties = new TurnstileProperties(false, null, List.of(), 1000, 1000);
+        TurnstileProperties properties =
+                new TurnstileProperties(false, null, List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
-        assertThatCode(() -> service.verify(null, "127.0.0.1", "admin_login")).doesNotThrowAnyException();
+        assertThatCode(() -> service.verify(null, "127.0.0.1", "admin_login"))
+                .doesNotThrowAnyException();
         verifyNoInteractions(httpClient);
     }
 
@@ -51,15 +56,21 @@ class TurnstileVerificationServiceTest {
         TurnstileProperties properties = new TurnstileProperties(true, "", List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         assertThatThrownBy(() -> service.verify("test-token", "127.0.0.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_misconfigured");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_misconfigured");
+                        });
     }
 
     @Test
@@ -68,25 +79,38 @@ class TurnstileVerificationServiceTest {
                 new TurnstileProperties(true, "0x4AAAAAAtestSecret", List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         assertThatThrownBy(() -> service.verify("", "127.0.0.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_token_required");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.BAD_REQUEST);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_token_required");
+                        });
     }
 
     @Test
     void verify_whenValidTokenAndMatchingActionAndHostname_shouldSucceed() throws Exception {
         TurnstileProperties properties =
                 new TurnstileProperties(
-                        true, "0x4AAAAAAtestSecret", List.of("dhadhana.workers.dev", "school.org"), 1000, 1000);
+                        true,
+                        "0x4AAAAAAtestSecret",
+                        List.of("dhadhana.workers.dev", "school.org"),
+                        1000,
+                        1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         String json =
                 """
@@ -112,7 +136,10 @@ class TurnstileVerificationServiceTest {
                 new TurnstileProperties(true, "0x4AAAAAAtestSecret", List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         String json =
                 """
@@ -130,11 +157,14 @@ class TurnstileVerificationServiceTest {
 
         assertThatThrownBy(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_action_mismatch");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.BAD_REQUEST);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_action_mismatch");
+                        });
     }
 
     @Test
@@ -144,7 +174,10 @@ class TurnstileVerificationServiceTest {
                         true, "0x4AAAAAAtestSecret", List.of("dhadhana.workers.dev"), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         String json =
                 """
@@ -162,11 +195,14 @@ class TurnstileVerificationServiceTest {
 
         assertThatThrownBy(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_hostname_mismatch");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.BAD_REQUEST);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_hostname_mismatch");
+                        });
     }
 
     @Test
@@ -175,17 +211,24 @@ class TurnstileVerificationServiceTest {
                 new TurnstileProperties(true, "0x4AAAAAAtestSecret", List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
-        when(httpClient.send(any(HttpRequest.class), any())).thenThrow(new IOException("Connection timed out"));
+        when(httpClient.send(any(HttpRequest.class), any()))
+                .thenThrow(new IOException("Connection timed out"));
 
         assertThatThrownBy(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_verification_unavailable");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_verification_unavailable");
+                        });
     }
 
     @Test
@@ -194,7 +237,10 @@ class TurnstileVerificationServiceTest {
                 new TurnstileProperties(true, "0x4AAAAAAtestSecret", List.of(), 1000, 1000);
         TurnstileVerificationService service =
                 new TurnstileVerificationService(
-                        properties, objectMapper, httpClient, "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+                        properties,
+                        objectMapper,
+                        httpClient,
+                        "https://challenges.cloudflare.com/turnstile/v0/siteverify");
 
         String json =
                 """
@@ -208,13 +254,16 @@ class TurnstileVerificationServiceTest {
         when(httpResponse.body()).thenReturn(json);
         doReturn(httpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
-        assertThatThrownBy(() -> service.verify("expired-or-bad-token", "198.51.100.1", "admin_login"))
+        assertThatThrownBy(
+                        () -> service.verify("expired-or-bad-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
-                .satisfies(e -> {
-                    DomainException de = (DomainException) e;
-                    org.assertj.core.api.Assertions.assertThat(de.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    org.assertj.core.api.Assertions.assertThat(de.getCode()).isEqualTo("turnstile_verification_failed");
-                });
+                .satisfies(
+                        e -> {
+                            DomainException de = (DomainException) e;
+                            org.assertj.core.api.Assertions.assertThat(de.getStatus())
+                                    .isEqualTo(HttpStatus.BAD_REQUEST);
+                            org.assertj.core.api.Assertions.assertThat(de.getCode())
+                                    .isEqualTo("turnstile_verification_failed");
+                        });
     }
 }
-
