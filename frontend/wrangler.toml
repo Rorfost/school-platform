@@ -5,35 +5,20 @@ name = "dhadhana-school-pages"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-09-16"
 
-# Gateway token is a secret — add via: wrangler pages secret put PORTAL_GATEWAY_TOKEN
+# Gateway token is an encrypted runtime secret — set via:
+# wrangler pages secret put PORTAL_GATEWAY_TOKEN --project-name=dhadhana-school-pages
+
 # Runtime variables (non-secret)
 [vars]
 SCHOOL_SLUG = "dhadhana"
 BACKEND_ORIGIN = "https://school-platform-gxrt.onrender.com"
 
-# ── Optional Rate Limiting Bindings ───────────────────────────────────────────
-# Requires a Cloudflare paid plan. If active, create rate limiting namespaces in
-# the Cloudflare Dashboard (Workers & Pages → Rate Limiting → Create Namespace),
-# then uncomment the bindings below and replace the namespace_id values with
-# your distinct positive integer namespace IDs (e.g., 1001, 1002, 1003, 1004).
-# When omitted, the Pages Function safely falls open to Spring Boot backend rate limiting.
+# ── Cloudflare Edge Rate Limiting ─────────────────────────────────────────────
+# Cloudflare edge rate limiting is currently disabled.
+# When rate-limit bindings are absent, the Pages Function operates normally and
+# forwards requests to the Render backend, where endpoint-specific protections
+# (such as backend login rate limiting) remain active.
 #
-# [[ratelimits]]
-# binding = "API_RATE_LIMITER"
-# namespace_id = 1001
-# simple = { limit = 120, period = 60 }
-#
-# [[ratelimits]]
-# binding = "LOGIN_RATE_LIMITER"
-# namespace_id = 1002
-# simple = { limit = 10, period = 60 }
-#
-# [[ratelimits]]
-# binding = "RESULT_RATE_LIMITER"
-# namespace_id = 1003
-# simple = { limit = 10, period = 60 }
-#
-# [[ratelimits]]
-# binding = "UPLOAD_RATE_LIMITER"
-# namespace_id = 1004
-# simple = { limit = 10, period = 60 }
+# Note: Backend rate limiting only protects specific routes (e.g. admin login)
+# and does not provide edge rate limiting across all API routes or public result lookups.
+# Cloudflare Turnstile provides anti-bot protection on public result lookups.
