@@ -26,6 +26,7 @@ interface TurnstileWidgetProps {
     onTokenChange: (token: string | null) => void;
     onError?: () => void;
     siteKey?: string;
+    resetKey?: number;
 }
 
 export function TurnstileWidget({
@@ -33,6 +34,7 @@ export function TurnstileWidget({
     onTokenChange,
     onError,
     siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY,
+    resetKey = 0,
 }: TurnstileWidgetProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
@@ -41,6 +43,13 @@ export function TurnstileWidget({
 
     // Keep the latest callbacks without forcing the Turnstile widget to
     // unmount and render again whenever the parent creates a new callback.
+
+    useEffect(() => {
+        if (widgetIdRef.current && window.turnstile) {
+            window.turnstile.reset(widgetIdRef.current);
+            callbacksRef.current.onTokenChange(null);
+        }
+    }, [resetKey]);
 
     useEffect(() => {
         callbacksRef.current = { onTokenChange, onError };

@@ -25,6 +25,7 @@ export function ResultsInfoPage() {
     const [studentClass, setStudentClass] = useState("");
     const [rollNumber, setRollNumber] = useState("");
     const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+    const [turnstileResetKey, setTurnstileResetKey] = useState(0);
     const [result, setResult] = useState<ExamResultResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -96,6 +97,8 @@ export function ResultsInfoPage() {
             }
         } finally {
             setLoading(false);
+            setTurnstileToken(null);
+            setTurnstileResetKey((key) => key + 1);
         }
     };
 
@@ -190,6 +193,7 @@ export function ResultsInfoPage() {
                             action="exam_result_lookup"
                             onTokenChange={setTurnstileToken}
                             onError={handleTurnstileError}
+                            resetKey={turnstileResetKey}
                         />
 
                         <Button

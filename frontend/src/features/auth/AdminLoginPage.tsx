@@ -37,6 +37,7 @@ export function AdminLoginPage() {
         isExpired ? "Your session has expired. Please sign in again." : null,
     );
     const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+    const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
     const {
         register,
@@ -65,6 +66,9 @@ export function AdminLoginPage() {
             } else {
                 setServerError("Invalid credentials or server unavailable.");
             }
+        } finally {
+            setTurnstileToken(null);
+            setTurnstileResetKey((key) => key + 1);
         }
     };
 
@@ -128,6 +132,7 @@ export function AdminLoginPage() {
                             action="admin_login"
                             onTokenChange={setTurnstileToken}
                             onError={handleTurnstileError}
+                            resetKey={turnstileResetKey}
                         />
 
                         <div className="pt-2">
