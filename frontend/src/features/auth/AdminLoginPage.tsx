@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Lock, School, ShieldAlert } from "lucide-react";
@@ -49,6 +49,10 @@ export function AdminLoginPage() {
             password: "",
         },
     });
+
+    const handleTurnstileError = useCallback(() => {
+        setServerError("સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.");
+    }, []);
 
     const onSubmit = async (values: LoginFormValues) => {
         try {
@@ -123,11 +127,7 @@ export function AdminLoginPage() {
                         <TurnstileWidget
                             action="admin_login"
                             onTokenChange={setTurnstileToken}
-                            onError={() =>
-                                setServerError(
-                                    "સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.",
-                                )
-                            }
+                            onError={handleTurnstileError}
                         />
 
                         <div className="pt-2">

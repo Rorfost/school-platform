@@ -37,6 +37,15 @@ export function TurnstileWidget({
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
 
+    const callbacksRef = useRef({ onTokenChange, onError });
+
+    // Keep the latest callbacks without forcing the Turnstile widget to
+    // unmount and render again whenever the parent creates a new callback.
+
+    useEffect(() => {
+        callbacksRef.current = { onTokenChange, onError };
+    }, [onTokenChange, onError]);
+
     useEffect(() => {
         if (!siteKey) {
             // In local/test development without a configured Turnstile site key,
@@ -55,18 +64,18 @@ export function TurnstileWidget({
                 action,
                 callback: (token: string) => {
                     if (isMounted) {
-                        onTokenChange(token);
+                        callbacksRef.current.onTokenChange(token);
                     }
                 },
                 "error-callback": () => {
                     if (isMounted) {
-                        onTokenChange(null);
-                        onError?.();
+                        callbacksRef.current.onTokenChange(null);
+                        callbacksRef.current.onError?.();
                     }
                 },
                 "expired-callback": () => {
                     if (isMounted) {
-                        onTokenChange(null);
+                        callbacksRef.current.onTokenChange(null);
                     }
                 },
                 theme: "light",
@@ -107,7 +116,7 @@ export function TurnstileWidget({
                 widgetIdRef.current = null;
             }
         };
-    }, [action, siteKey, onTokenChange, onError]);
+    }, [action, siteKey]);
 
     if (!siteKey) {
         return null;

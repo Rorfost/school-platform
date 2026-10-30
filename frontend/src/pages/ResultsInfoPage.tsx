@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
@@ -30,6 +30,10 @@ export function ResultsInfoPage() {
     const [error, setError] = useState<string | null>(null);
     const school = useEffectiveSchoolInfo();
     const { data: standards } = usePublicStandards();
+
+    const handleTurnstileError = useCallback(() => {
+        setError("સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.");
+    }, []);
 
     const matchedStandard = standards?.find((s) => {
         if (!standard) return false;
@@ -185,9 +189,7 @@ export function ResultsInfoPage() {
                         <TurnstileWidget
                             action="exam_result_lookup"
                             onTokenChange={setTurnstileToken}
-                            onError={() =>
-                                setError("સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.")
-                            }
+                            onError={handleTurnstileError}
                         />
 
                         <Button
