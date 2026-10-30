@@ -16,6 +16,7 @@ import com.rorfost.schoolportal.auth.application.LoginRateLimiter;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.exception.ApiExceptionHandler;
 import com.rorfost.schoolportal.school.domain.AdminRole;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
 import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
@@ -50,9 +51,15 @@ class AdminAuthenticationTenantIsolationTest {
         csrfTokenRepository = Mockito.mock(CsrfTokenRepository.class);
         objectMapper = new ObjectMapper();
 
+        TurnstileVerificationService turnstileVerificationService =
+                Mockito.mock(TurnstileVerificationService.class);
+
         AdminAuthenticationController controller =
                 new AdminAuthenticationController(
-                        authenticationService, loginRateLimiter, csrfTokenRepository);
+                        authenticationService,
+                        loginRateLimiter,
+                        csrfTokenRepository,
+                        turnstileVerificationService);
 
         mockMvc =
                 MockMvcBuilders.standaloneSetup(controller)

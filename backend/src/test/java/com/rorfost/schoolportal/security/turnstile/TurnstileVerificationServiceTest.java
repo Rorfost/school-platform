@@ -3,6 +3,7 @@ package com.rorfost.schoolportal.security.turnstile;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -99,7 +100,7 @@ class TurnstileVerificationServiceTest {
 
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn(json);
-        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(httpResponse);
+        doReturn(httpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         assertThatCode(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .doesNotThrowAnyException();
@@ -125,7 +126,7 @@ class TurnstileVerificationServiceTest {
 
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn(json);
-        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(httpResponse);
+        doReturn(httpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         assertThatThrownBy(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
@@ -157,7 +158,7 @@ class TurnstileVerificationServiceTest {
 
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn(json);
-        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(httpResponse);
+        doReturn(httpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         assertThatThrownBy(() -> service.verify("valid-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)
@@ -205,7 +206,7 @@ class TurnstileVerificationServiceTest {
 
         when(httpResponse.statusCode()).thenReturn(200);
         when(httpResponse.body()).thenReturn(json);
-        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(httpResponse);
+        doReturn(httpResponse).when(httpClient).send(any(HttpRequest.class), any());
 
         assertThatThrownBy(() -> service.verify("expired-or-bad-token", "198.51.100.1", "admin_login"))
                 .isInstanceOf(DomainException.class)

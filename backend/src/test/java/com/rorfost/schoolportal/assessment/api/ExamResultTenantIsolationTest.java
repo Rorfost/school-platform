@@ -36,6 +36,7 @@ import com.rorfost.schoolportal.school.domain.PrincipalProfile;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.PrincipalProfileRepository;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.security.turnstile.TurnstileVerificationService;
 import com.rorfost.schoolportal.tenant.application.TenantResolver;
 import com.rorfost.schoolportal.tenant.domain.TenantContext;
 import com.rorfost.schoolportal.tenant.security.GatewayCredentialAuthenticationFilter;
@@ -368,8 +369,14 @@ class ExamResultTenantIsolationTest {
                 new FeatureAccessPolicy(new FeatureFlagService(sfRepo));
 
         // Setup Controllers
+        TurnstileVerificationService turnstileVerificationService =
+                mock(TurnstileVerificationService.class);
         examResultController =
-                new ExamResultController(examResultService, schoolRepository, featureAccessPolicy);
+                new ExamResultController(
+                        examResultService,
+                        schoolRepository,
+                        featureAccessPolicy,
+                        turnstileVerificationService);
         presentationSettingsController =
                 new ResultPresentationSettingsController(
                         presentationSettingsService,

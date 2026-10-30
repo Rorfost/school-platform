@@ -252,11 +252,16 @@ class ExamResultControllerTest {
                         Optional.of(new SchoolFeature(schoolId, FeatureKey.EXAM_RESULTS, false)));
         ExamResultController disabledController =
                 new ExamResultController(
-                        service, schools, new FeatureAccessPolicy(new FeatureFlagService(sfRepo)));
+                        service,
+                        schools,
+                        new FeatureAccessPolicy(new FeatureFlagService(sfRepo)),
+                        turnstileVerificationService);
         TenantContextHolder.setTenantContext(request, new TenantContext(schoolId, "test-school"));
 
         assertThatThrownBy(
-                        () -> disabledController.getResult("10", "A", 1, ExamResultService.ANNUAL))
+                        () ->
+                                disabledController.getResult(
+                                        "10", "A", 1, ExamResultService.ANNUAL, request))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("status", HttpStatus.NOT_FOUND)
                 .hasFieldOrPropertyWithValue("code", "feature_not_found");
@@ -270,7 +275,10 @@ class ExamResultControllerTest {
                         Optional.of(new SchoolFeature(schoolId, FeatureKey.EXAM_RESULTS, false)));
         ExamResultController disabledController =
                 new ExamResultController(
-                        service, schools, new FeatureAccessPolicy(new FeatureFlagService(sfRepo)));
+                        service,
+                        schools,
+                        new FeatureAccessPolicy(new FeatureFlagService(sfRepo)),
+                        turnstileVerificationService);
         MockMultipartFile file =
                 new MockMultipartFile(
                         "file", "results.xlsx", "application/vnd.ms-excel", new byte[] {1, 2});
