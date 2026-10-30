@@ -11,7 +11,7 @@ compatibility_date = "2026-09-16"
 # Runtime variables (non-secret)
 [vars]
 SCHOOL_SLUG = "dhadhana"
-BACKEND_ORIGIN = ""
+BACKEND_ORIGIN = "https://school-platform-qxwv.onrender.com"
 
 # ── Cloudflare Edge Rate Limiting ─────────────────────────────────────────────
 # Cloudflare edge rate limiting is currently disabled.
