@@ -1,9 +1,11 @@
 package com.rorfost.schoolportal.assessment.api;
 
+import com.rorfost.schoolportal.assessment.domain.GradeBand;
 import com.rorfost.schoolportal.assessment.domain.ResultPresentationSettings;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public record ResultPresentationSettingsResponse(
         LocalDate resultDate,
@@ -17,6 +19,7 @@ public record ResultPresentationSettingsResponse(
         BigDecimal gradeBMin,
         BigDecimal gradeCMin,
         BigDecimal gradeDMin,
+        List<GradeBand> gradeBands,
         LocalDate ekamResultDate,
         String ekamResultPlace,
         String ekamResultSheetTitle,
@@ -36,6 +39,7 @@ public record ResultPresentationSettingsResponse(
                 value.getGradeBMin(),
                 value.getGradeCMin(),
                 value.getGradeDMin(),
+                value.getGradeBands(),
                 value.getEkamResultDate(),
                 value.getEkamResultPlace(),
                 value.getEkamResultSheetTitle(),
@@ -60,6 +64,7 @@ public record ResultPresentationSettingsResponse(
                 gradeBMin,
                 gradeCMin,
                 gradeDMin,
+                gradeBands,
                 ekamResultDate,
                 ekamResultPlace,
                 ekamResultSheetTitle,

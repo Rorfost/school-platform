@@ -1,11 +1,13 @@
-# Contributing
+# Contributing to Rorfost School Platform
 
-1. Read [AGENT.md](AGENT.md) and [CODE_RULES.md](docs/engineering/CODE_RULES.md).
-2. Fork the repository or create a focused branch from the current default branch.
-3. Keep each change scoped, documented when architecture or configuration changes, and covered by relevant checks.
-4. Run the applicable frontend and backend tests before opening a pull request.
-5. Use clear, professional commit messages.
+1. Read [AGENT.md](AGENT.md), [CODE_RULES.md](docs/engineering/CODE_RULES.md), and [SECURITY.md](SECURITY.md).
+2. Create a focused feature branch from the current default branch (e.g. `feat/multi-tenancy`).
+3. Keep changes tightly scoped, documented, and covered by automated tests.
+4. Run frontend verification (`npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build`) and backend tests (`mvn verify` or `mvn test`) before opening a pull request.
+5. Use clear, conventional commit messages.
 
-Never submit credentials, production configuration, real student records, result PINs, private result workbooks, database dumps, or confidential school content. Use synthetic fixtures only.
+## Data Safety & Privacy
+Never submit live credentials, production configurations, real student records, examination PINs, raw database dumps, or private school workbooks. Use synthetic fixtures and sanitized test data exclusively.
 
-This repository is publicly viewable but is not open-source licensed. Public pull requests may be reviewed, but repository visibility and contribution do not grant permission to reuse, redistribute, deploy, sublicense, or commercially use this software outside the terms in [LICENSE](LICENSE).
+## Licensing Notice
+This repository is publicly accessible for inspection and reference but is **not** licensed as open source. Contributions or pull requests do not grant rights to redistribute, deploy, sublicense, or commercially exploit this software outside the terms specified in [LICENSE](LICENSE) and [NOTICE](NOTICE). Contributor rights assignments and ownership terms remain subject to human review.

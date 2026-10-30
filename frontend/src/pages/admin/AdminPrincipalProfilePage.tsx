@@ -19,7 +19,7 @@ export function AdminPrincipalProfilePage() {
         isError,
         refetch,
     } = useQuery<PrincipalProfileResponse>({
-        queryKey: queryKeys.principalProfile,
+        queryKey: queryKeys.adminPrincipalProfile,
         queryFn: () => apiRequest<PrincipalProfileResponse>("/api/v1/admin/principal-profile"),
     });
 
@@ -30,7 +30,7 @@ export function AdminPrincipalProfilePage() {
                 body: payload,
             }),
         onSuccess: (updated) => {
-            queryClient.setQueryData(queryKeys.principalProfile, updated);
+            queryClient.setQueryData(queryKeys.adminPrincipalProfile, updated);
             // Invalidate public principal profile so Principal's Desk page reflects changes
             queryClient.invalidateQueries({ queryKey: queryKeys.principalProfile });
             setSuccessMsg("Principal profile updated successfully.");
@@ -51,7 +51,8 @@ export function AdminPrincipalProfilePage() {
             );
         },
         onSuccess: (updated) => {
-            queryClient.setQueryData(queryKeys.principalProfile, updated);
+            queryClient.setQueryData(queryKeys.adminPrincipalProfile, updated);
+            queryClient.invalidateQueries({ queryKey: queryKeys.principalProfile });
             setSuccessMsg("Principal signature uploaded successfully.");
         },
     });
@@ -62,7 +63,8 @@ export function AdminPrincipalProfilePage() {
                 method: "DELETE",
             }),
         onSuccess: (updated) => {
-            queryClient.setQueryData(queryKeys.principalProfile, updated);
+            queryClient.setQueryData(queryKeys.adminPrincipalProfile, updated);
+            queryClient.invalidateQueries({ queryKey: queryKeys.principalProfile });
             setSuccessMsg("Principal signature removed.");
             setTimeout(() => setSuccessMsg(null), 3000);
         },

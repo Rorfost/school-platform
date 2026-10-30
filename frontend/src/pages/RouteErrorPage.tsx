@@ -15,6 +15,7 @@ export function RouteErrorPage() {
                         ? "આ પાનું મળી શક્યું નથી."
                         : "હમણાં સિસ્ટમમાં તકનીકી ખામી આવી છે. કૃપા કરીને થોડા સમય પછી પ્રયત્ન કરો."
                 }
+                onRetry={isNotFound ? undefined : () => window.location.reload()}
             />
             <div className="mt-6 text-center">
                 <Link

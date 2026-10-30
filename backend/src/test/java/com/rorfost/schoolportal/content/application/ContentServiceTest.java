@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -81,7 +82,19 @@ class ContentServiceTest {
                                 albumImages.stream()
                                         .sorted(Comparator.comparingInt(GalleryImage::getSortOrder))
                                         .toList());
-        when(images.findByIdAndGalleryAlbumId(any(UUID.class), any(UUID.class)))
+        when(images.findBySchoolIdAndGalleryAlbumIdAndStatusOrderBySortOrder(
+                        eq(schoolId), eq(albumId), eq(PublicationStatus.PUBLISHED)))
+                .thenAnswer(
+                        invocation ->
+                                albumImages.stream()
+                                        .filter(
+                                                image ->
+                                                        image.getStatus()
+                                                                == PublicationStatus.PUBLISHED)
+                                        .sorted(Comparator.comparingInt(GalleryImage::getSortOrder))
+                                        .toList());
+        when(images.findByIdAndGalleryAlbumIdAndSchoolId(
+                        any(UUID.class), any(UUID.class), eq(schoolId)))
                 .thenAnswer(
                         invocation ->
                                 albumImages.stream()
@@ -209,6 +222,7 @@ class ContentServiceTest {
 
         assertThat(album.getCoverImageId()).isEqualTo(second.getId());
         assertThat(second.getSortOrder()).isEqualTo(1);
+        verify(storage).assertKeyBelongsToSchool(first.getObjectKey(), schoolId);
         verify(storage)
                 .delete(first.getStorageBucket(), first.getObjectKey(), first.getImagekitFileId());
 

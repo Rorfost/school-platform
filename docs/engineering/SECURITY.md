@@ -1,33 +1,47 @@
-# Security and Privacy
+# Security and Privacy — Rorfost School Platform
 
-## Principal authentication
+## Multi-Tenant Security Architecture: As-Is vs. Target
 
-The V1 admin surface uses Spring Security with server-side Spring Session JDBC sessions in PostgreSQL. There is one role: `PRINCIPAL`. No JWT, Redis, or role hierarchy is used.
+### Current State (As-Is)
+- Single school administrative domain.
+- Admin login queries by email across the entire database (`findAllByEmail`).
+- Public requests query the first active school in PostgreSQL without authentication tokens.
 
-`POST /api/v1/admin/auth/login` accepts validated email and password over HTTPS. It returns the safe principal account view and creates a server-side session only after an active account and BCrypt password hash both match. Unknown email, inactive account, and incorrect password all return the same `401 authentication_failed` response. Passwords, hashes, cookies, session IDs, result PINs, and environment secrets are never logged or returned.
+### Target State (Multi-Tenant Plan)
+- **Zero Trust in Unauthenticated Ingress:** Direct requests to Render without a verified `X-Portal-Gateway-Token` are rejected (with `/actuator/health` as the only unauthenticated exception).
+- **Tenant Context Isolation:** The gateway filter resolves the school from the token digest, creating an immutable request-scoped `TenantContext`.
+- **Tenant-Scoped Principal Authentication:** Admin login queries `(school_id, email)` within the resolved tenant context. The same email address can exist at multiple schools without credential collisions.
+- **Session-Tenant Binding:** Every request to `/api/v1/admin/**` enforces that `PrincipalSession.schoolId == TenantContext.schoolId` via `AdminSessionTenantBindingFilter`. Cross-tenant session replay attempts fail closed with `403 cross_tenant_access_denied` without silently reassigning sessions. Administrative mutations (POST, PUT, PATCH, DELETE) re-verify that the principal account remains active in the database (`403 account_inactive_or_revoked`).
+- **Academic & Assessment CRUD Isolation:** All academic setup (years, standards, classes, subjects, teachers, student management) and assessment operations (creation, editing, grading, publishing, marksheet generation) enforce `school_id == TenantContext.schoolId`. Parent and reference foreign keys (academicYearId, standardId, standardSubjectMappingId) must belong to the acting school; cross-tenant references fail closed with `400 BAD_REQUEST`. Repository operations, including bulk removals (`deleteBySchoolIdAndStandardId`), are strictly school-scoped.
+- **Admin Content, Dashboard & Audit Isolation:** Admin content operations (materials, notices, albums, album cover, images, image reorder, downloads) verify tenant ownership before reading, updating, or deleting stored objects and entities. Images in albums are fetched via composite `(id, galleryAlbumId, schoolId)` checks so foreign UUIDs cannot be manipulated. Optional foreign references like `academicYearId` on downloads are strictly validated against `schoolId`. Dashboard metrics run solely on indexed tenant-scoped counts (`countBySchoolId...`), audit logs are queried via `(school_id, created_at DESC)` with bounded pagination (`MAX_LIST_SIZE = 200`), and no public audit endpoints exist.
+- **Operator-Side Tenant Provisioning & Credential Lifecycle:** Tenant provisioning, domain binding (`school_domains`), gateway credential rotation, revocation, and school deactivation are strictly operator-side workflows (`TenantProvisioningService` and `OperatorProvisioningCliRunner` gated under the `provisioning` profile). There are zero public or principal-accessible HTTP endpoints for provisioning or token management. 256-bit cryptographic gateway tokens are displayed once in-memory to the operator and never stored in plaintext or logs (storing only 32-byte SHA-256 digests in `school_gateway_credentials`). Rotation supports a configurable grace period for zero-downtime cutovers across Cloudflare Workers.
+- **Feature Flag Registry & Tenant Scoping:** Features are strictly registered in `FeatureKey` with legacy School 1 capabilities (`GALLERY`, `MATERIALS`, `NOTICES`, `DOWNLOADS`, `EXAM_RESULTS`) enabled by default, and unreleased capabilities disabled. Overrides are persisted in `school_features(school_id, feature_key, enabled)` via operator service. The public endpoint `GET /api/v1/public/features` resolves solely via the verified request tenant (`TenantContext`), leaking zero foreign tenant data and exposing zero operator secret configurations.
+- **Server-Side Feature Enforcement Gates:** Feature flags operate as strict authorization gates rather than cosmetic UI hints via `FeatureAccessPolicy`. Public requests targeting disabled features receive `404 feature_not_found` to prevent enumeration and endpoint probing. Admin operations targeting disabled features receive `403 feature_disabled`. Disabling features preserves all underlying tenant data while preventing access or mutation. Critical administrative and identity endpoints (authentication, credentials, profile, settings) remain unguarded to prevent lockout.
+- **ImageKit Tenant Namespace & Deletion Ownership Guard:** New file uploads for all media categories (branding logos, seals, principal signatures, class teacher signatures, study materials, gallery photos, downloadable documents) are strictly namespaced under canonical prefix `schools/<schoolUUID>/<category>/<uuid>.<ext>`. Prior legacy object keys (e.g. from School 1 Dhadhana) remain intact in PostgreSQL without migration and resolve transparently. Before any remote deletion or replacement of an object, `StorageService.assertKeyBelongsToSchool` validates that canonical keys start with `schools/<authenticatedSchoolId>/`, preventing cross-tenant deletion attacks even if an actor guesses or manipulates foreign keys. Non-canonical legacy keys from School 1 pass safely for backward compatibility without breaking existing assets.
 
-The application rotates a session ID during login and password change. `POST /api/v1/admin/auth/logout` invalidates any existing session and is safe to repeat. `GET /api/v1/admin/auth/me` and `PUT /api/v1/admin/auth/password` require a `PRINCIPAL` session. Password change verifies the current password, requires 12 to 72 characters, rejects reuse of the current password, clears `must_change_password`, rotates the session, and records an audit event.
+## Principal Authentication & Session Management
 
-## Initial principal bootstrap
+The admin panel uses Spring Security with server-side Spring Session JDBC records stored in PostgreSQL. There is one role: `PRINCIPAL`.
+- `POST /api/v1/admin/auth/login` accepts validated credentials over HTTPS and authenticates via BCrypt. Failed logins return generic `401 authentication_failed`.
+- The session ID is rotated at login and password change.
+- `POST /api/v1/admin/auth/logout` invalidates the JDBC session.
+- Passwords must be 12–72 characters and cannot match the existing password.
 
-Set `ADMIN_INITIAL_EMAIL`, `ADMIN_INITIAL_PASSWORD`, and `ADMIN_INITIAL_SCHOOL_SLUG` only for the first startup after the target school exists. If no `admin_users` record exists, the application creates one active `PRINCIPAL` account with a BCrypt hash and `must_change_password = true`. If any administrator already exists, it does nothing and never overwrites credentials. If configuration is incomplete or the named school is absent, it does nothing; no secret is written to logs.
+## Cookie and CSRF Rules
 
-Remove the initial password from the deployment environment after the first account has been created.
+- **Cookie Boundaries:** Session cookies (`JSESSIONID`) are host-only, HttpOnly, Secure, and SameSite `Lax`. Setting `Domain=.workers.dev` is strictly prohibited to prevent cross-origin cookie sharing among Cloudflare Workers.
+- **CSRF Protection:** CSRF is enforced on all administrative mutations. The frontend obtains a token via `GET /api/v1/admin/auth/csrf` and sends it in the `X-XSRF-TOKEN` header. Requests lacking a valid token fail with `403 csrf_invalid`.
+- **CORS:** Permits credentials only for explicit Cloudflare Worker origins in `CORS_ALLOWED_ORIGINS`. Wildcards (`*`) with credentials are never allowed.
 
-## CSRF, CORS, and cookies
+## Headers, Error Sanitization, and Rate Limiting
 
-Cookie authentication keeps CSRF enabled. The SPA first calls `GET /api/v1/admin/auth/csrf`, reads the returned token, and sends it in the named header (normally `X-XSRF-TOKEN`) for every state-changing API request. Spring also supplies the readable `XSRF-TOKEN` cookie needed by browser clients. Requests without a valid token receive `403 csrf_invalid`.
+- **Security Headers:** The API enforces HSTS, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, a restrictive Content-Security-Policy, and a restrictive Permissions-Policy.
+- **Sensitive Responses:** Admin responses and individual result lookups enforce `Cache-Control: no-store`.
+- **Error Sanitization:** All errors return Problem Detail-style JSON (`application/problem+json`) with stable `code` and `requestId`. Stack traces, SQL errors, and internal tenant IDs are never leaked.
+- **Rate Limiting:** Login attempts are rate-limited via a rolling-window limiter keyed by client IP and tenant scope (`429 login_rate_limited`).
 
-CORS permits credentials only for `CORS_ALLOWED_ORIGINS`; wildcard origins are not allowed. The local profile is the only profile that supplies a localhost origin and allows a non-Secure session cookie. Cookies are HttpOnly, SameSite `Lax`, and Secure by default. Production must run behind HTTPS with `SESSION_COOKIE_SECURE=true`.
+## Student Data Privacy & Exam Results
 
-## Headers, errors, logging, and rate limiting
-
-The API applies HSTS on secure requests, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, an API-safe restrictive Content-Security-Policy, and a restrictive Permissions-Policy. Actuator exposes only health without details.
-
-Errors use Problem Detail-style JSON with stable `code` and `requestId` fields. They never include stack traces, database details, class names, or submitted secrets. The frontend maps codes to Gujarati user text.
-
-Every request logs request ID, method, route, status, and duration without recording request bodies. Authentication records only `LOGIN_SUCCESS`, `LOGIN_FAILED`, and `PASSWORD_CHANGED` in `audit_logs`. The local in-memory limiter permits a configurable number of failed login attempts per direct client address in a rolling window; it returns `429 login_rate_limited`. It is deliberately single-instance scope and will be revisited if deployment topology changes.
-
-## Deferred controls
-
-Email password reset, MFA, student accounts, result lookup, upload policy, and result-specific rate limiting are not implemented. Future work must extend the existing session, audit, privacy, and CSRF boundaries rather than bypassing them.
+- **No Government Identifiers:** The platform strictly prohibits reading, logging, hashing, or persisting government identifiers (such as Aadhaar UID). Student identity begins with school-issued G.R. numbers and roll numbers.
+- **Individual Lookup Resistance:** Public result lookups return only individual student marksheets and resist automated enumeration. Class-wide result lists are never exposed publicly.
+- **PIN Security:** Where student PINs are utilized, they are stored strictly as 60-character BCrypt hashes. Plaintext PINs and reversible encryption are prohibited.

@@ -20,7 +20,7 @@ export function Button({
     ...rest
 }: ButtonProps) {
     const variantStyles = {
-        primary: "bg-[#0d2461] text-white hover:bg-[#081a49] shadow-sm active:bg-[#081a49]",
+        primary: "bg-brand-900 text-white hover:bg-brand-950 shadow-sm active:bg-brand-950",
         secondary: "bg-amber-600 text-white hover:bg-amber-700 shadow-sm active:bg-amber-800",
         outline:
             "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 active:bg-slate-100",
@@ -36,8 +36,9 @@ export function Button({
 
     return (
         <button
-            className={`inline-flex items-center justify-center gap-2 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles} ${sizeStyles} ${className}`}
+            className={`inline-flex items-center justify-center gap-2 font-medium transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles} ${sizeStyles} ${className}`}
             disabled={disabled || loading}
+            aria-busy={loading || undefined}
             {...rest}
         >
             {loading ? (

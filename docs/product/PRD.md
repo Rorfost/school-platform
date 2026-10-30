@@ -1,41 +1,34 @@
-# Product Requirements Document
+# Product Requirements Document — Rorfost School Platform
 
-## Purpose and problem
+## Purpose & Problem
 
-Rorfost School Portal gives a small school a clear public presence and a focused way for its principal to publish school information and student resources. It replaces ad hoc sharing of notices, files, galleries, and results with a simple, privacy-conscious website. It must be portable: branding, school information, and future school-specific configuration must be changeable by an administrator rather than by editing source code.
+Rorfost School Platform provides primary and secondary schools with a professional, mobile-friendly Gujarati public website and a focused principal administration panel. It replaces manual or fragmented sharing of notices, photos, circulars, and marks with a secure, unified platform.
 
-## Users and primary use cases
+- **Platform Product:** Rorfost School Platform (shared multi-tenant architecture)
+- **Reference School Deployment:** Dhadhana Primary School Portal
 
-- **Principal/admin:** configures the school, maintains public content and academic settings, uploads files, imports results, and explicitly publishes results.
-- **Students (Standard 1–8):** use a phone-first Gujarati interface to find study materials, timetables, downloads, notices, and their individual results.
-- **Parents, teachers, and visitors:** view public school information, notices, gallery, contact details, and relevant resources.
+## Users & Primary Personas
 
-## Main modules
+1. **School Principal / Administrator:** Manages school profile, branding, academic setup (standards, subjects), notices, study materials, photo gallery, and examination results.
+2. **Students (Standard 1–8):** Use a phone-first Gujarati interface to access study materials, circulars, downloads, and their individual exam marksheets.
+3. **Parents & Community Members:** View school achievements, staff details, notices, photo albums, and official contact information.
+4. **Platform Operator:** Provisions new schools, rotates gateway tokens, configures feature flags, and monitors system health without writing custom code per school.
 
-Public home, About School, Principal's Desk, notices, Student Corner (study materials, results, Ekam Kasoti, timetables, downloads), gallery, and contact. The future principal area manages school configuration, branding, principal profile, academic years, standards, subjects, assessments, results, study material, notices, gallery, downloads, and timetables.
+## Modules & Core Capabilities
 
-Assessments are one generic domain with types such as `EKAM_KASOTI`, `UNIT_TEST`, `PERIODIC_TEST`, `SEMESTER`, `ANNUAL`, and `OTHER`. Imported results begin as draft and require explicit publication.
+- **Public School Portal (Gujarati-first):** Home, About School, Principal's Desk, Notice Board, Photo Gallery, Student Corner, School Calculators, and Contact.
+- **Principal Admin Panel (English):** Secure session login, operational dashboard, school settings, academic configuration, Results & Marks management, content publishing, and security audit logs.
+- **Multi-Tenant Routing (Target Architecture):** Independent Cloudflare Worker origins per school connecting to a unified backend and shared database, protected by cryptographic gateway tokens.
+- **Feature Flags:** Per-school enablement of platform features (e.g., annual vs. ekam kasoti results, gallery, materials).
 
-## V1 scope
+## Scope Boundaries
 
-V1 is a small, single-principal portal with public content and individual public result lookup. It uses a React frontend, Spring Boot modular monolith, PostgreSQL, and ImageKit file storage. Students do not authenticate. Public result lookup will eventually use academic year, standard, assessment, roll number, and a result PIN; details remain subject to the supplied result workflow.
+- **Included:** School information, academic configuration, Excel result import, printable marksheets, notices, gallery albums, downloads, and multi-tenant isolation.
+- **Excluded:** Complex ERP features (payroll, fee payment gateways, bus tracking, student biometric attendance), external chat systems, and student account creation.
 
-## Excluded from V1
+## Privacy Principles
 
-Unless requirements change, V1 excludes student, parent, and teacher accounts; attendance ERP; fee payments; online exams; chat or messaging; payroll; transport tracking; biometrics; and full ERP features. It also excludes Redis, queues, microservices, GraphQL, and other infrastructure without a demonstrated need.
-
-## Experience requirements
-
-All user-facing UI—including admin, errors, labels, validation, empty states, and dialogs—must be Gujarati-first, using clear natural language appropriate for children, parents, and a principal. Public experiences are mobile-first, accessible, calm, professional, high-contrast, and touch-friendly. Do not make the portal flashy, heavily animated, overly colorful, or SaaS-like.
-
-## Success criteria
-
-- A principal can change school-owned configuration without source edits.
-- Visitors can find public information and resources easily on a phone.
-- Result data remains private, individually accessed, non-cacheable, and unpublished until the principal acts.
-- The system remains understandable and inexpensive for roughly 100–500 users.
-- Another developer can safely extend it by following repository documentation.
-
-## Privacy principles
-
-Collect only data required for the portal. Do not add government IDs, home addresses, dates of birth, parent private information, or phone numbers without a real approved requirement. Store files outside the database; store result PINs only as secure hashes. Never expose a whole class's results publicly.
+The platform collects strictly the minimum necessary data:
+- No government identifiers (such as Aadhaar UID) are ever requested, processed, or stored.
+- Results are accessible only individually by standard and roll number with `Cache-Control: no-store`.
+- Class-wide marks are never exposed to public viewers.

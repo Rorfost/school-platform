@@ -38,7 +38,8 @@ export function AdminMaterialsPage() {
                 body: formData,
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterialsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.materialsRoot });
             setIsUploadOpen(false);
             setErrorMessage(null);
         },
@@ -55,7 +56,8 @@ export function AdminMaterialsPage() {
                 method: "POST",
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterialsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.materialsRoot });
         },
     });
 
@@ -76,7 +78,8 @@ export function AdminMaterialsPage() {
                           }
                         : current,
             );
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterials() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminMaterialsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.materialsRoot });
             setDeleteTargetId(null);
         },
         onError: (error) =>
@@ -245,7 +248,11 @@ export function AdminMaterialsPage() {
                         <h2 className="text-lg font-bold text-slate-900">Upload Study Material</h2>
                         <form onSubmit={handleUploadSubmit} className="space-y-4">
                             {errorMessage && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+                                <div
+                                    role="alert"
+                                    aria-live="assertive"
+                                    className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium"
+                                >
                                     {errorMessage}
                                 </div>
                             )}

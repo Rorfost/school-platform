@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
 
+import { useFeatureFlags } from "@/features/featureFlags";
+import type { FeatureKey } from "@/features/featureFlags";
+
 interface NavGroup {
     title: string;
     items: {
@@ -30,6 +33,7 @@ interface NavGroup {
         label: string;
         icon: React.ElementType;
         end?: boolean;
+        featureKey?: FeatureKey;
     }[];
 }
 
@@ -41,11 +45,31 @@ const NAV_GROUPS: NavGroup[] = [
     {
         title: "Management",
         items: [
-            { to: "/admin/assessments", label: "Results & Marks", icon: Award },
-            { to: "/admin/materials", label: "Study Materials", icon: GraduationCap },
-            { to: "/admin/notices", label: "Notices & Circulars", icon: FileText },
-            { to: "/admin/gallery", label: "Photo Gallery", icon: Camera },
-            { to: "/admin/downloads", label: "Downloads", icon: FolderDown },
+            {
+                to: "/admin/assessments",
+                label: "Results & Marks",
+                icon: Award,
+                featureKey: "EXAM_RESULTS",
+            },
+            {
+                to: "/admin/materials",
+                label: "Study Materials",
+                icon: GraduationCap,
+                featureKey: "MATERIALS",
+            },
+            {
+                to: "/admin/notices",
+                label: "Notices & Circulars",
+                icon: FileText,
+                featureKey: "NOTICES",
+            },
+            { to: "/admin/gallery", label: "Photo Gallery", icon: Camera, featureKey: "GALLERY" },
+            {
+                to: "/admin/downloads",
+                label: "Downloads",
+                icon: FolderDown,
+                featureKey: "DOWNLOADS",
+            },
         ],
     },
     {
@@ -106,38 +130,47 @@ export function AdminLayout() {
         navigate("/admin/login");
     };
 
+    const { isFeatureEnabled } = useFeatureFlags();
+
     const renderNavLinks = (onItemClick?: () => void) => (
         <div className="space-y-6">
-            {NAV_GROUPS.map((group) => (
-                <div key={group.title}>
-                    <div className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        {group.title}
+            {NAV_GROUPS.map((group) => {
+                const visibleItems = group.items.filter(
+                    (item) => !item.featureKey || isFeatureEnabled(item.featureKey),
+                );
+                if (visibleItems.length === 0) return null;
+
+                return (
+                    <div key={group.title}>
+                        <div className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                            {group.title}
+                        </div>
+                        <div className="space-y-1">
+                            {visibleItems.map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <NavLink
+                                        key={item.to}
+                                        to={item.to}
+                                        end={item.end}
+                                        onClick={onItemClick}
+                                        className={({ isActive }) =>
+                                            `flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                                                isActive
+                                                    ? "bg-brand-900 text-white font-semibold shadow-xs"
+                                                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                                            }`
+                                        }
+                                    >
+                                        <Icon size={18} aria-hidden="true" className="shrink-0" />
+                                        <span>{item.label}</span>
+                                    </NavLink>
+                                );
+                            })}
+                        </div>
                     </div>
-                    <div className="space-y-1">
-                        {group.items.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <NavLink
-                                    key={item.to}
-                                    to={item.to}
-                                    end={item.end}
-                                    onClick={onItemClick}
-                                    className={({ isActive }) =>
-                                        `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                                            isActive
-                                                ? "bg-[#0d2461] text-white font-semibold shadow-xs"
-                                                : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-                                        }`
-                                    }
-                                >
-                                    <Icon size={18} aria-hidden="true" className="shrink-0" />
-                                    <span>{item.label}</span>
-                                </NavLink>
-                            );
-                        })}
-                    </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 
@@ -168,7 +201,7 @@ export function AdminLayout() {
                         <button
                             type="button"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="flex size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                            className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 md:hidden"
                             aria-label="Toggle Navigation Menu"
                         >
                             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -271,7 +304,7 @@ export function AdminLayout() {
                                     type="button"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     ref={drawerCloseButtonRef}
-                                    className="flex size-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                                    className="flex min-h-[44px] min-w-[44px] size-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                                     aria-label="Close Navigation Menu"
                                 >
                                     <X size={20} />

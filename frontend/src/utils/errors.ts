@@ -10,6 +10,11 @@ const ERROR_MESSAGES_GU: Record<string, string> = {
     password_matches_current: "નવો પાસવર્ડ જૂના પાસવર્ડ જેવો જ ન હોવો જોઈએ.",
     unauthorized: "આ વિભાગ માટે અધિકાર નથી.",
     network_error: "નેટવર્ક કનેક્શન તપાસો અને ફરી પ્રયત્ન કરો.",
+    request_timeout:
+        "સર્વર પ્રતિસાદમાં વધુ સમય લાગી રહ્યો છે (સર્વર શરૂ થઈ રહ્યું હોઈ શકે છે). કૃપા કરીને ફરી પ્રયાસ કરો.",
+    rate_limited: "વિનંતી મર્યાદા ઓળંગી ગઈ છે. કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો.",
+    backend_unavailable: "સર્વર હાલ અનુપલબ્ધ છે. કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો.",
+    service_unavailable: "સેવા હાલ અનુપલબ્ધ છે. કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો.",
 };
 
 export function getGujaratiErrorMessage(

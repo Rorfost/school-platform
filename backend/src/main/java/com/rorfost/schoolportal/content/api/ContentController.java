@@ -3,6 +3,8 @@ package com.rorfost.schoolportal.content.api;
 import com.rorfost.schoolportal.auth.domain.PrincipalSession;
 import com.rorfost.schoolportal.common.api.PageResponse;
 import com.rorfost.schoolportal.content.application.ContentService;
+import com.rorfost.schoolportal.featureflag.application.FeatureAccessPolicy;
+import com.rorfost.schoolportal.featureflag.domain.FeatureKey;
 
 import jakarta.validation.Valid;
 
@@ -25,9 +27,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin")
 class ContentController {
     private final ContentService service;
+    private final FeatureAccessPolicy featureAccessPolicy;
 
-    ContentController(ContentService service) {
+    ContentController(ContentService service, FeatureAccessPolicy featureAccessPolicy) {
         this.service = service;
+        this.featureAccessPolicy = featureAccessPolicy;
     }
 
     @GetMapping("/materials")
@@ -35,8 +39,8 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return PageResponse.from(
-                service.adminMaterials(p.schoolId(), page, size).map(service::material));
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.MATERIALS);
+        return PageResponse.from(service.adminMaterialPage(p.schoolId(), page, size));
     }
 
     @GetMapping("/notices")
@@ -44,6 +48,7 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.NOTICES);
         return PageResponse.from(
                 service.adminNotices(p.schoolId(), page, size).map(service::notice));
     }
@@ -53,13 +58,23 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return PageResponse.from(
-                service.adminAlbums(p.schoolId(), page, size).map(service::adminAlbum));
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
+        return PageResponse.from(service.adminAlbumPage(p.schoolId(), page, size));
     }
 
     @GetMapping("/gallery/albums/{id}/images")
-    java.util.List<GalleryImageResponse> images(
-            @AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+    Object images(
+            @AuthenticationPrincipal PrincipalSession p,
+            @PathVariable UUID id,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
+        if (page != null || size != null) {
+            int pageNum = page != null ? page : 0;
+            int pageSize = size != null ? size : 20;
+            return PageResponse.from(
+                    service.adminAlbumImagesPage(p.schoolId(), id, pageNum, pageSize));
+        }
         return service.adminAlbumImages(p.schoolId(), id);
     }
 
@@ -68,6 +83,7 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.DOWNLOADS);
         return PageResponse.from(
                 service.adminDownloads(p.schoolId(), page, size).map(service::download));
     }
@@ -81,6 +97,7 @@ class ContentController {
             @RequestParam(required = false) UUID academicYearId,
             @RequestParam(required = false) UUID standardSubjectId,
             @RequestParam(required = false) String description) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.MATERIALS);
         return service.uploadMaterial(
                 p.schoolId(),
                 p.adminUserId(),
@@ -91,11 +108,13 @@ class ContentController {
 
     @PostMapping("/materials/{id}/publish")
     void publishMaterial(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.MATERIALS);
         service.publishMaterial(p.schoolId(), p.adminUserId(), id);
     }
 
     @DeleteMapping("/materials/{id}")
     void deleteMaterial(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.MATERIALS);
         service.deleteMaterial(p.schoolId(), p.adminUserId(), id);
     }
 
@@ -103,6 +122,7 @@ class ContentController {
     NoticeResponse notice(
             @AuthenticationPrincipal PrincipalSession p,
             @Valid @org.springframework.web.bind.annotation.RequestBody NoticeRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.NOTICES);
         return service.createNotice(p.schoolId(), p.adminUserId(), r);
     }
 
@@ -111,16 +131,19 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @PathVariable UUID id,
             @RequestParam MultipartFile file) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.NOTICES);
         return service.attachNotice(p.schoolId(), p.adminUserId(), id, file);
     }
 
     @PostMapping("/notices/{id}/publish")
     void publishNotice(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.NOTICES);
         service.publishNotice(p.schoolId(), p.adminUserId(), id);
     }
 
     @DeleteMapping("/notices/{id}")
     void deleteNotice(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.NOTICES);
         service.deleteNotice(p.schoolId(), p.adminUserId(), id);
     }
 
@@ -128,6 +151,7 @@ class ContentController {
     GalleryAlbumResponse album(
             @AuthenticationPrincipal PrincipalSession p,
             @Valid @org.springframework.web.bind.annotation.RequestBody GalleryAlbumRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.createAlbum(p.schoolId(), p.adminUserId(), r);
     }
 
@@ -138,6 +162,7 @@ class ContentController {
             @RequestParam String altText,
             @RequestParam MultipartFile file,
             @RequestParam(required = false) String caption) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.uploadImage(p.schoolId(), p.adminUserId(), id, altText, caption, file);
     }
 
@@ -148,6 +173,7 @@ class ContentController {
             @RequestParam List<String> altTexts,
             @RequestParam List<MultipartFile> files,
             @RequestParam(required = false) List<String> captions) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.uploadImages(p.schoolId(), p.adminUserId(), id, altTexts, captions, files);
     }
 
@@ -157,16 +183,19 @@ class ContentController {
             @PathVariable UUID id,
             @Valid @org.springframework.web.bind.annotation.RequestBody
                     GalleryAlbumUpdateRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.updateAlbum(p.schoolId(), p.adminUserId(), id, r);
     }
 
     @PostMapping("/gallery/albums/{id}/unpublish")
     void unpublishAlbum(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         service.unpublishAlbum(p.schoolId(), p.adminUserId(), id);
     }
 
     @DeleteMapping("/gallery/albums/{id}")
     void deleteAlbum(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         service.deleteAlbum(p.schoolId(), p.adminUserId(), id);
     }
 
@@ -175,6 +204,7 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @PathVariable UUID id,
             @Valid @org.springframework.web.bind.annotation.RequestBody GalleryCoverRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.setAlbumCover(p.schoolId(), p.adminUserId(), id, r.imageId());
     }
 
@@ -185,6 +215,7 @@ class ContentController {
             @PathVariable UUID imageId,
             @Valid @org.springframework.web.bind.annotation.RequestBody
                     GalleryImageMetadataRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.updateImageMetadata(p.schoolId(), p.adminUserId(), albumId, imageId, r);
     }
 
@@ -194,6 +225,7 @@ class ContentController {
             @PathVariable UUID id,
             @Valid @org.springframework.web.bind.annotation.RequestBody
                     GalleryImageReorderRequest r) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         return service.reorderImages(p.schoolId(), p.adminUserId(), id, r.imageIds());
     }
 
@@ -202,11 +234,13 @@ class ContentController {
             @AuthenticationPrincipal PrincipalSession p,
             @PathVariable UUID albumId,
             @PathVariable UUID imageId) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         service.deleteImage(p.schoolId(), p.adminUserId(), albumId, imageId);
     }
 
     @PostMapping("/gallery/albums/{id}/publish")
     void publishAlbum(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.GALLERY);
         service.publishAlbum(p.schoolId(), p.adminUserId(), id);
     }
 
@@ -218,6 +252,7 @@ class ContentController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) UUID academicYearId) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.DOWNLOADS);
         return service.uploadDownload(
                 p.schoolId(),
                 p.adminUserId(),
@@ -227,11 +262,13 @@ class ContentController {
 
     @PostMapping("/downloads/{id}/publish")
     void publishDownload(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.DOWNLOADS);
         service.publishDownload(p.schoolId(), p.adminUserId(), id);
     }
 
     @DeleteMapping("/downloads/{id}")
     void deleteDownload(@AuthenticationPrincipal PrincipalSession p, @PathVariable UUID id) {
+        featureAccessPolicy.requireAdminEnabled(p.schoolId(), FeatureKey.DOWNLOADS);
         service.deleteDownload(p.schoolId(), p.adminUserId(), id);
     }
 }

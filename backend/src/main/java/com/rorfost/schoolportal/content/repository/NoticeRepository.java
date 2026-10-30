@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface NoticeRepository extends JpaRepository<Notice, UUID> {
@@ -23,6 +24,19 @@ public interface NoticeRepository extends JpaRepository<Notice, UUID> {
             @Param("schoolId") UUID schoolId,
             @Param("status") PublicationStatus status,
             Pageable pageable);
+
+    @Query(
+            """
+      select notice from Notice notice
+      where notice.id = :noticeId
+        and notice.schoolId = :schoolId
+        and notice.status = :status
+        and (notice.expiresAt is null or notice.expiresAt > CURRENT_TIMESTAMP)
+      """)
+    Optional<Notice> findVisibleByIdAndSchoolIdAndStatus(
+            @Param("noticeId") UUID noticeId,
+            @Param("schoolId") UUID schoolId,
+            @Param("status") PublicationStatus status);
 
     Page<Notice> findBySchoolId(UUID schoolId, Pageable pageable);
 

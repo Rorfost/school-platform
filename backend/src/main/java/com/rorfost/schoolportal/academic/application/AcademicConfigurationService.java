@@ -211,7 +211,7 @@ public class AcademicConfigurationService {
                         .anyMatch(mapping -> standardSubjects.isReferenced(mapping.getId())))
             throw conflict("standard_in_use");
         standardSubjects.deleteAll(mappings);
-        standardClasses.deleteByStandardId(id);
+        standardClasses.deleteBySchoolIdAndStandardId(schoolId, id);
         standards.delete(standard);
         audit(schoolId, actorId, AuditAction.STANDARD_DELETED, "STANDARD", id);
     }
@@ -335,6 +335,7 @@ public class AcademicConfigurationService {
 
     @Transactional(readOnly = true)
     public List<StandardSubjectResponse> mappings(UUID schoolId, UUID standardId) {
+        requireStandard(schoolId, standardId);
         return standardSubjects
                 .findBySchoolIdAndStandardIdOrderBySortOrder(schoolId, standardId)
                 .stream()
@@ -348,8 +349,8 @@ public class AcademicConfigurationService {
         if (requireStandard(schoolId, request.standardId()).isArchived()
                 || requireSubject(schoolId, request.subjectId()).isArchived())
             throw conflict("archived_academic_item");
-        if (standardSubjects.existsByStandardIdAndSubjectId(
-                request.standardId(), request.subjectId()))
+        if (standardSubjects.existsBySchoolIdAndStandardIdAndSubjectId(
+                schoolId, request.standardId(), request.subjectId()))
             throw conflict("standard_subject_duplicate");
         StandardSubject mapping =
                 standardSubjects.save(
@@ -402,7 +403,7 @@ public class AcademicConfigurationService {
             org.springframework.web.multipart.MultipartFile file) {
         Standard standard = requireStandard(schoolId, standardId);
         StoredObject uploaded =
-                storage.uploadPublicImage("signatures/" + schoolId + "/class-teacher", file);
+                storage.uploadSchoolPublicImage(schoolId, "signatures/class-teacher", file);
         String previousKey = standard.getClassTeacherSignatureObjectKey();
         try {
             standard.changeClassTeacherSignature(uploaded.objectKey());
@@ -417,7 +418,7 @@ public class AcademicConfigurationService {
                 AuditAction.STANDARD_UPDATED,
                 "STANDARD_CLASS_TEACHER_SIGNATURE",
                 standardId);
-        deletePreviousClassTeacherSignature(previousKey);
+        deletePreviousClassTeacherSignature(schoolId, previousKey);
         return toStandardResponse(standard);
     }
 
@@ -435,16 +436,17 @@ public class AcademicConfigurationService {
                 AuditAction.STANDARD_UPDATED,
                 "STANDARD_CLASS_TEACHER_SIGNATURE_DELETED",
                 standardId);
-        deletePreviousClassTeacherSignature(previousKey);
+        deletePreviousClassTeacherSignature(schoolId, previousKey);
         return toStandardResponse(standard);
     }
 
-    private void deletePreviousClassTeacherSignature(String previousKey) {
+    private void deletePreviousClassTeacherSignature(UUID schoolId, String previousKey) {
         if (previousKey == null) {
             return;
         }
 
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error(
@@ -482,7 +484,7 @@ public class AcademicConfigurationService {
                                 .filter(name -> !name.isBlank())
                                 .distinct()
                                 .toList();
-        standardClasses.deleteByStandardId(standardId);
+        standardClasses.deleteBySchoolIdAndStandardId(schoolId, standardId);
         short order = 1;
         for (String name : classNames) {
             standardClasses.save(new StandardClass(schoolId, standardId, name, order++));
@@ -560,8 +562,7 @@ public class AcademicConfigurationService {
 
     private AcademicYear requireYear(UUID schoolId, UUID id) {
         return academicYears
-                .findById(id)
-                .filter(value -> value.getSchoolId().equals(schoolId))
+                .findByIdAndSchoolId(id, schoolId)
                 .orElseThrow(() -> notFound("academic_year_not_found"));
     }
 

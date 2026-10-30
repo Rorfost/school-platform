@@ -15,7 +15,7 @@ public interface StandardClassRepository extends JpaRepository<StandardClass, UU
 
     List<StandardClass> findBySchoolIdOrderBySortOrder(UUID schoolId);
 
-    void deleteByStandardId(UUID standardId);
+    void deleteBySchoolIdAndStandardId(UUID schoolId, UUID standardId);
 
     boolean existsByStandardIdAndNameIgnoreCase(UUID standardId, String name);
 }

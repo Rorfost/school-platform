@@ -44,7 +44,7 @@ public class AdminBootstrapService implements ApplicationRunner {
 
     @Transactional
     public void initialize() {
-        if (adminUserRepository.count() > 0 || !properties.isConfigured()) {
+        if (!properties.isConfigured()) {
             return;
         }
 
@@ -55,12 +55,20 @@ public class AdminBootstrapService implements ApplicationRunner {
             return;
         }
 
+        String normalizedEmail = normalizeEmail(properties.initialEmail());
+        if (adminUserRepository
+                .findBySchoolIdAndEmail(school.getId(), normalizedEmail)
+                .isPresent()) {
+            return;
+        }
+
         adminUserRepository.save(
                 new AdminUser(
                         school.getId(),
-                        normalizeEmail(properties.initialEmail()),
+                        normalizedEmail,
                         passwordEncoder.encode(properties.initialPassword())));
-        logger.info("Initial principal account created");
+        logger.info(
+                "Initial principal account created for school slug={}", properties.schoolSlug());
     }
 
     private String normalizeEmail(String email) {

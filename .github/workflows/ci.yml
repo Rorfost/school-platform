@@ -29,6 +29,8 @@ jobs:
             - run: npm run typecheck
             - run: npm run test
             - run: npm run build
+            - name: Verify build asset performance budget
+              run: node ../scripts/perf/verify_build_budget.js
 
     backend:
         name: Backend-CI
@@ -51,3 +53,18 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - run: docker compose config --quiet
+
+    secret-hygiene:
+        name: Secret-Hygiene-Check
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify no committed raw secrets or token strings
+              run: |
+                  echo "Checking for accidental secret leaks in tracked files..."
+                  # Fail if sensitive keys or token strings are found in repository tracking
+                  if grep -rnEi "(BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|PORTAL_GATEWAY_TOKEN\s*=\s*['\"][a-zA-Z0-9_-]{10,}['\"]|postgres://.*:.*@.*neon\.tech)" --exclude-dir={.git,node_modules,target,dist} .; then
+                      echo "ERROR: Potential secret detected in repository!"
+                      exit 1
+                  fi
+                  echo "Secret hygiene check passed cleanly."

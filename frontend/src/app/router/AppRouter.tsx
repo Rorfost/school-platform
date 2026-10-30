@@ -2,12 +2,18 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { AdminLoginPage } from "@/features/auth/AdminLoginPage";
 import { RequireAdmin } from "@/features/auth/RequireAdmin";
 
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { RouteErrorPage } from "@/pages/RouteErrorPage";
 import { LoadingState } from "@/components/common/StatusPanel";
+import { FeatureRouteGuard } from "@/features/featureFlags/FeatureRouteGuard";
+
+const AdminLoginPage = lazy(() =>
+    import("@/features/auth/AdminLoginPage").then(({ AdminLoginPage }) => ({
+        default: AdminLoginPage,
+    })),
+);
 
 const AboutPage = lazy(() =>
     import("@/pages/AboutPage").then(({ AboutPage }) => ({ default: AboutPage })),
@@ -57,11 +63,6 @@ const ToolsPage = lazy(() =>
     import("@/pages/ToolsPage").then(({ ToolsPage }) => ({ default: ToolsPage })),
 );
 
-const AdminAcademicYearsPage = lazy(() =>
-    import("@/pages/admin/AdminAcademicYearsPage").then(({ AdminAcademicYearsPage }) => ({
-        default: AdminAcademicYearsPage,
-    })),
-);
 const AdminAccountPage = lazy(() =>
     import("@/pages/admin/AdminAccountPage").then(({ AdminAccountPage }) => ({
         default: AdminAccountPage,
@@ -128,14 +129,63 @@ const router = createBrowserRouter([
             { path: "about", element: <AboutPage /> },
             { path: "principal", element: <PrincipalDeskPage /> },
             { path: "student", element: <StudentCornerPage /> },
-            { path: "student/materials", element: <MaterialsPage /> },
-            { path: "student/results", element: <ResultsInfoPage /> },
-            { path: "student/downloads", element: <DownloadsPage /> },
+            {
+                path: "student/materials",
+                element: (
+                    <FeatureRouteGuard featureKey="MATERIALS">
+                        <MaterialsPage />
+                    </FeatureRouteGuard>
+                ),
+            },
+            {
+                path: "student/results",
+                element: (
+                    <FeatureRouteGuard featureKey="EXAM_RESULTS">
+                        <ResultsInfoPage />
+                    </FeatureRouteGuard>
+                ),
+            },
+            {
+                path: "student/downloads",
+                element: (
+                    <FeatureRouteGuard featureKey="DOWNLOADS">
+                        <DownloadsPage />
+                    </FeatureRouteGuard>
+                ),
+            },
             { path: "tools", element: <ToolsPage /> },
-            { path: "notices", element: <NoticesPage /> },
-            { path: "notices/:id", element: <NoticeDetailPage /> },
-            { path: "gallery", element: <GalleryPage /> },
-            { path: "gallery/:albumId", element: <GalleryAlbumPage /> },
+            {
+                path: "notices",
+                element: (
+                    <FeatureRouteGuard featureKey="NOTICES">
+                        <NoticesPage />
+                    </FeatureRouteGuard>
+                ),
+            },
+            {
+                path: "notices/:id",
+                element: (
+                    <FeatureRouteGuard featureKey="NOTICES">
+                        <NoticeDetailPage />
+                    </FeatureRouteGuard>
+                ),
+            },
+            {
+                path: "gallery",
+                element: (
+                    <FeatureRouteGuard featureKey="GALLERY">
+                        <GalleryPage />
+                    </FeatureRouteGuard>
+                ),
+            },
+            {
+                path: "gallery/:albumId",
+                element: (
+                    <FeatureRouteGuard featureKey="GALLERY">
+                        <GalleryAlbumPage />
+                    </FeatureRouteGuard>
+                ),
+            },
             { path: "contact", element: <ContactPage /> },
             { path: "*", element: <NotFoundPage /> },
         ],
@@ -156,7 +206,7 @@ const router = createBrowserRouter([
                     { index: true, element: <AdminDashboardPage /> },
                     { path: "school", element: <AdminSchoolSettingsPage /> },
                     { path: "principal", element: <AdminPrincipalProfilePage /> },
-                    { path: "academic-years", element: <AdminAcademicYearsPage /> },
+                    { path: "academic-years", element: <Navigate to="/admin/academics" replace /> },
                     { path: "academics", element: <AdminAcademicSetupPage /> },
                     { path: "standards", element: <Navigate to="/admin/academics" replace /> },
                     { path: "subjects", element: <Navigate to="/admin/academics" replace /> },
@@ -164,12 +214,54 @@ const router = createBrowserRouter([
                         path: "subject-mappings",
                         element: <Navigate to="/admin/academics" replace />,
                     },
-                    { path: "assessments", element: <AdminAssessmentsPage /> },
-                    { path: "materials", element: <AdminMaterialsPage /> },
-                    { path: "notices", element: <AdminNoticesPage /> },
-                    { path: "gallery", element: <AdminGalleryPage /> },
-                    { path: "gallery/:albumId", element: <AdminGalleryAlbumPage /> },
-                    { path: "downloads", element: <AdminDownloadsPage /> },
+                    {
+                        path: "assessments",
+                        element: (
+                            <FeatureRouteGuard featureKey="EXAM_RESULTS" fallbackTo="/admin">
+                                <AdminAssessmentsPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
+                    {
+                        path: "materials",
+                        element: (
+                            <FeatureRouteGuard featureKey="MATERIALS" fallbackTo="/admin">
+                                <AdminMaterialsPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
+                    {
+                        path: "notices",
+                        element: (
+                            <FeatureRouteGuard featureKey="NOTICES" fallbackTo="/admin">
+                                <AdminNoticesPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
+                    {
+                        path: "gallery",
+                        element: (
+                            <FeatureRouteGuard featureKey="GALLERY" fallbackTo="/admin">
+                                <AdminGalleryPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
+                    {
+                        path: "gallery/:albumId",
+                        element: (
+                            <FeatureRouteGuard featureKey="GALLERY" fallbackTo="/admin">
+                                <AdminGalleryAlbumPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
+                    {
+                        path: "downloads",
+                        element: (
+                            <FeatureRouteGuard featureKey="DOWNLOADS" fallbackTo="/admin">
+                                <AdminDownloadsPage />
+                            </FeatureRouteGuard>
+                        ),
+                    },
                     { path: "account", element: <AdminAccountPage /> },
                 ],
             },

@@ -37,19 +37,19 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
                         type="button"
                         onClick={onMenuClick}
                         aria-label="મુખ્ય મેનૂ ખોલો"
-                        className="flex size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 lg:hidden"
+                        className="flex min-h-[44px] min-w-[44px] size-11 sm:size-10 shrink-0 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 lg:hidden"
                     >
                         <Menu size={22} aria-hidden="true" />
                     </button>
 
                     <Link
                         to="/"
-                        className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700"
+                        className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 rounded-lg overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                     >
                         {school.logoUrl ? (
                             <img
                                 src={school.logoUrl}
-                                alt="શાળા લોગો"
+                                alt={school.name ? `${school.name} લોગો` : "શાળા લોગો"}
                                 className="size-9 sm:size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
                             />
                         ) : (
@@ -60,12 +60,18 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
 
                         <div className="flex min-w-0 flex-1 flex-col leading-tight overflow-hidden">
                             {/* Line 1: School Name */}
-                            <span className="truncate text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug">
+                            <span
+                                title={school.name}
+                                className="truncate text-sm sm:text-base lg:text-lg font-bold text-slate-900 leading-snug"
+                            >
                                 {school.name}
                             </span>
 
                             {/* Line 2: Location */}
-                            <span className="truncate text-xs sm:text-xs font-semibold text-slate-600">
+                            <span
+                                title={school.address}
+                                className="truncate text-xs sm:text-xs font-semibold text-slate-600"
+                            >
                                 {school.address}
                             </span>
 

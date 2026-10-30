@@ -1,0 +1,88 @@
+# Deploys the frontend to Cloudflare Pages.
+#
+# Cloudflare Pages supports two deployment modes:
+#   1. Git integration (recommended): Connect the repository in the Cloudflare
+#      dashboard under Workers & Pages → Create application → Pages → Connect to Git.
+#      Pages will automatically build and deploy on every push to the production
+#      branch and create preview deployments for pull requests.
+#
+#   2. Direct upload (this workflow): Use `wrangler pages deploy` to push a
+#      pre-built `dist/` directory. This workflow is kept as a manual fallback
+#      for cases where the Git integration is unavailable or for emergency deploys.
+#
+# REQUIRED GITHUB ACTIONS SECRETS (Repository Settings → Secrets and variables → Actions → Secrets):
+#   - CLOUDFLARE_API_TOKEN     – Cloudflare API token with 'Cloudflare Pages:Edit' permission.
+#   - CLOUDFLARE_ACCOUNT_ID    – Cloudflare account ID.
+#   - VITE_TURNSTILE_SITE_KEY  – Public Cloudflare Turnstile site key matching the Pages hostname.
+#
+# REQUIRED GITHUB ACTIONS VARIABLES (Repository Settings → Secrets and variables → Actions → Variables):
+#   - VITE_SCHOOL_NAME         – School display name (e.g., 'શ્રી ઢાંઢણા પ્રાથમિક શાળા').
+#   - VITE_SCHOOL_LOGO         – School logo asset URL (e.g., '/school-logo.jpeg').
+#   - VITE_ASSET_BASE_URL      – Public CDN or media endpoint for assets (e.g., 'https://ik.imagekit.io/dhadhana').
+
+name: Deploy Frontend (Cloudflare Pages)
+
+on:
+    workflow_dispatch:
+        inputs:
+            confirm_deployment:
+                description: "Type 'DEPLOY' to confirm deployment"
+                required: true
+                default: "DRY_RUN"
+
+permissions:
+    contents: read
+
+jobs:
+    deploy-pages:
+        name: Build and Deploy to Cloudflare Pages
+        runs-on: ubuntu-latest
+        environment: production
+        defaults:
+            run:
+                working-directory: frontend
+        steps:
+            - name: Validate explicit authorisation
+              run: |
+                  if [ "${{ github.event.inputs.confirm_deployment }}" != "DEPLOY" ]; then
+                      echo "ERROR: Manual confirmation string 'DEPLOY' required. Aborting."
+                      exit 1
+                  fi
+
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: frontend/.nvmrc
+                  cache: npm
+                  cache-dependency-path: frontend/package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run verification suite
+              run: |
+                  npm run format:check
+                  npm run lint
+                  npm run typecheck
+                  npm run test
+
+            - name: Build frontend distribution
+              env:
+                  VITE_SCHOOL_NAME: ${{ vars.VITE_SCHOOL_NAME }}
+                  VITE_SCHOOL_LOGO: ${{ vars.VITE_SCHOOL_LOGO }}
+                  VITE_ASSET_BASE_URL: ${{ vars.VITE_ASSET_BASE_URL }}
+                  VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY }}
+              run: npm run build
+
+            - name: Verify build budget
+              working-directory: .
+              run: node scripts/perf/verify_build_budget.js
+
+            - name: Deploy to Cloudflare Pages
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+              run: |
+                  echo "Deploying dist/ to Cloudflare Pages project: dhadhana-school-pages"
+                  npx wrangler pages deploy dist --project-name=dhadhana-school-pages --commit-hash="${GITHUB_SHA}"

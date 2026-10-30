@@ -1,19 +1,29 @@
 package com.rorfost.schoolportal.audit.service;
 
+import com.rorfost.schoolportal.audit.api.AuditLogResponse;
 import com.rorfost.schoolportal.audit.domain.AuditAction;
 import com.rorfost.schoolportal.audit.domain.AuditLog;
 import com.rorfost.schoolportal.audit.repository.AuditLogRepository;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class AuditLogService {
 
     private static final String EMPTY_METADATA = "{}";
+
+    /**
+     * Maximum entries returned for a single school. Protects Render Free heap from full-table scans
+     * on busy tenants while remaining well above any realistic admin dashboard viewport.
+     */
+    private static final int MAX_LIST_SIZE = 200;
 
     private final AuditLogRepository auditLogRepository;
 
@@ -41,9 +51,15 @@ public class AuditLogService {
     }
 
     @Transactional(readOnly = true)
-    public java.util.List<com.rorfost.schoolportal.audit.api.AuditLogResponse> list(UUID schoolId) {
-        return auditLogRepository.findBySchoolIdOrderByCreatedAtDesc(schoolId).stream()
-                .map(com.rorfost.schoolportal.audit.api.AuditLogResponse::from)
+    public List<AuditLogResponse> list(UUID schoolId) {
+        // Use the indexed (school_id, created_at) predicate and cap the result to avoid
+        // unbounded memory consumption on tenants with large audit tables.
+        return auditLogRepository
+                .findBySchoolId(
+                        schoolId,
+                        PageRequest.of(0, MAX_LIST_SIZE, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .stream()
+                .map(AuditLogResponse::from)
                 .toList();
     }
 }

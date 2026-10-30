@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
@@ -20,6 +21,12 @@ export function usePublicPrincipalProfile() {
 
 export function useEffectiveSchoolInfo() {
     const { data: school, isLoading, error } = usePublicSchool();
+
+    useEffect(() => {
+        if (school?.name && typeof document !== "undefined") {
+            document.title = school.name;
+        }
+    }, [school?.name]);
 
     return {
         isLoading,

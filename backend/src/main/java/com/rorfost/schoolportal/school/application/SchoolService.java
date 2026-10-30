@@ -13,6 +13,8 @@ import com.rorfost.schoolportal.school.domain.PrincipalProfile;
 import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.PrincipalProfileRepository;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
+import com.rorfost.schoolportal.tenant.application.TenantContextHolder;
+import com.rorfost.schoolportal.tenant.domain.TenantContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +50,13 @@ public class SchoolService {
     }
 
     @Transactional(readOnly = true)
+    public SchoolResponse getPublic(UUID schoolId) {
+        return schoolResponse(requirePublicSchool(schoolId));
+    }
+
+    @Transactional(readOnly = true)
     public SchoolResponse getPublic() {
-        return schoolResponse(requirePublicSchool());
+        return getPublic(resolveCurrentTenantSchoolId());
     }
 
     @Transactional
@@ -86,7 +93,7 @@ public class SchoolService {
     public SchoolResponse replaceLogo(
             UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
         School school = requireSchool(schoolId);
-        StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug(), file);
+        StoredObject uploaded = storage.uploadSchoolPublicImage(schoolId, "branding", file);
         String previousKey = school.getLogoObjectKey();
         try {
             school.changeLogo(uploaded.objectKey());
@@ -102,7 +109,7 @@ public class SchoolService {
                 "SCHOOL_LOGO",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -119,14 +126,14 @@ public class SchoolService {
                 "SCHOOL_LOGO",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return schoolResponse(school);
     }
 
     public SchoolResponse replaceSeal(
             UUID schoolId, UUID actorId, org.springframework.web.multipart.MultipartFile file) {
         School school = requireSchool(schoolId);
-        StoredObject uploaded = storage.uploadPublicImage("branding/" + school.getSlug(), file);
+        StoredObject uploaded = storage.uploadSchoolPublicImage(schoolId, "branding", file);
         String previousKey = school.getSealObjectKey();
         try {
             school.changeSeal(uploaded.objectKey());
@@ -142,7 +149,7 @@ public class SchoolService {
                 "SCHOOL_SEAL",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousSeal(previousKey);
+        deletePreviousSeal(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -159,7 +166,7 @@ public class SchoolService {
                 "SCHOOL_SEAL",
                 schoolId,
                 MDC.get("requestId"));
-        deletePreviousSeal(previousKey);
+        deletePreviousSeal(schoolId, previousKey);
         return schoolResponse(school);
     }
 
@@ -176,10 +183,11 @@ public class SchoolService {
     }
 
     @Transactional(readOnly = true)
-    public PrincipalProfileResponse getPublicProfile() {
+    public PrincipalProfileResponse getPublicProfile(UUID schoolId) {
+        requirePublicSchool(schoolId);
         PrincipalProfile profile =
                 principalProfileRepository
-                        .findBySchoolId(requirePublicSchool().getId())
+                        .findBySchoolId(schoolId)
                         .filter(PrincipalProfile::isPublic)
                         .orElseThrow(
                                 () ->
@@ -187,6 +195,11 @@ public class SchoolService {
                                                 HttpStatus.NOT_FOUND,
                                                 "principal_profile_not_found"));
         return principalProfileResponse(profile, true);
+    }
+
+    @Transactional(readOnly = true)
+    public PrincipalProfileResponse getPublicProfile() {
+        return getPublicProfile(resolveCurrentTenantSchoolId());
     }
 
     @Transactional
@@ -232,7 +245,7 @@ public class SchoolService {
                                         principalProfileRepository.save(
                                                 new PrincipalProfile(schoolId, "Principal")));
         StoredObject uploaded =
-                storage.uploadPublicImage("signatures/" + schoolId + "/principal", file);
+                storage.uploadSchoolPublicImage(schoolId, "signatures/principal", file);
         String previousKey = profile.getSignatureObjectKey();
         try {
             profile.changeSignature(uploaded.objectKey());
@@ -248,7 +261,7 @@ public class SchoolService {
                 "PRINCIPAL_SIGNATURE",
                 profile.getId(),
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return principalProfileResponse(profile, false);
     }
 
@@ -272,7 +285,7 @@ public class SchoolService {
                 "PRINCIPAL_SIGNATURE_DELETED",
                 profile.getId(),
                 MDC.get("requestId"));
-        deletePreviousLogo(previousKey);
+        deletePreviousLogo(schoolId, previousKey);
         return principalProfileResponse(profile, false);
     }
 
@@ -302,11 +315,19 @@ public class SchoolService {
                 : PrincipalProfileResponse.admin(profile, signatureUrl);
     }
 
-    private School requirePublicSchool() {
+    private School requirePublicSchool(UUID schoolId) {
+        if (schoolId == null) {
+            throw new DomainException(HttpStatus.NOT_FOUND, "school_not_found");
+        }
         return schoolRepository
-                .findFirstByIsActiveTrueOrderByCreatedAtAsc()
-                .orElseThrow(
-                        () -> new DomainException(HttpStatus.NOT_FOUND, "school_not_configured"));
+                .findByIdAndIsActiveTrue(schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
+    }
+
+    private UUID resolveCurrentTenantSchoolId() {
+        return TenantContextHolder.getCurrentTenant()
+                .map(TenantContext::schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
     }
 
     private String trim(String value) {
@@ -333,9 +354,10 @@ public class SchoolService {
         }
     }
 
-    private void deletePreviousLogo(String previousKey) {
+    private void deletePreviousLogo(UUID schoolId, String previousKey) {
         if (previousKey == null) return;
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error("Could not delete the replaced school logo", cleanupFailure);
@@ -350,9 +372,10 @@ public class SchoolService {
         }
     }
 
-    private void deletePreviousSeal(String previousKey) {
+    private void deletePreviousSeal(UUID schoolId, String previousKey) {
         if (previousKey == null) return;
         try {
+            storage.assertKeyBelongsToSchool(previousKey, schoolId);
             storage.deletePublicObject(previousKey);
         } catch (RuntimeException cleanupFailure) {
             log.error("Could not delete the replaced school seal", cleanupFailure);

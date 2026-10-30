@@ -16,8 +16,8 @@
         "test:watch": "vitest",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
-        "deploy": "npm run build && wrangler deploy",
-        "preview:worker": "npm run build && wrangler dev"
+        "deploy:pages": "npm run build && wrangler pages deploy dist",
+        "preview:pages": "npm run build && wrangler pages dev dist"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.2.2",

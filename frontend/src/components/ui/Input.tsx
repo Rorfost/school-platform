@@ -44,7 +44,7 @@ export function Input({
                     id={inputId}
                     aria-invalid={!!error}
                     aria-describedby={error ? errorId : helperText ? helperId : undefined}
-                    className={`w-full min-h-11 rounded-lg border py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:border-transparent transition-colors ${
+                    className={`w-full min-h-11 rounded-lg border py-2 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900 focus-visible:border-transparent transition-colors motion-reduce:transition-none ${
                         leftIcon ? "pl-10" : "pl-3.5"
                     } ${rightElement ? "pr-11" : "pr-3.5"} ${
                         error

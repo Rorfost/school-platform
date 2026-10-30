@@ -32,7 +32,8 @@ export function AdminDownloadsPage() {
                 body: formData,
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloadsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.downloadsRoot });
             setIsUploadOpen(false);
             setErrorMessage(null);
         },
@@ -47,7 +48,8 @@ export function AdminDownloadsPage() {
                 method: "POST",
             }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloadsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.downloadsRoot });
         },
     });
 
@@ -68,7 +70,8 @@ export function AdminDownloadsPage() {
                           }
                         : current,
             );
-            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloads() });
+            queryClient.invalidateQueries({ queryKey: queryKeys.adminDownloadsRoot });
+            queryClient.invalidateQueries({ queryKey: queryKeys.downloadsRoot });
             setDeleteTargetId(null);
         },
         onError: (error) =>

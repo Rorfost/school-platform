@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuth } from "@/features/auth/useAuth";
 import { useEffectiveSchoolInfo } from "@/features/school/useSchoolData";
+import { TurnstileWidget } from "@/components/common/TurnstileWidget";
 
 const loginSchema = z.object({
     email: z
@@ -35,6 +36,7 @@ export function AdminLoginPage() {
     const [serverError, setServerError] = useState<string | null>(
         isExpired ? "Your session has expired. Please sign in again." : null,
     );
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
     const {
         register,
@@ -51,7 +53,7 @@ export function AdminLoginPage() {
     const onSubmit = async (values: LoginFormValues) => {
         try {
             setServerError(null);
-            await login(values.email, values.password);
+            await login(values.email, values.password, turnstileToken);
             navigate(from, { replace: true });
         } catch (error) {
             if (error instanceof Error) {
@@ -116,6 +118,16 @@ export function AdminLoginPage() {
                             placeholder="••••••••••••"
                             error={errors.password?.message}
                             {...register("password")}
+                        />
+
+                        <TurnstileWidget
+                            action="admin_login"
+                            onTokenChange={setTurnstileToken}
+                            onError={() =>
+                                setServerError(
+                                    "સુરક્ષા ચકાસણી નિષ્ફળ રહી છે. કૃપા કરીને ફરી પ્રયાસ કરો.",
+                                )
+                            }
                         />
 
                         <div className="pt-2">

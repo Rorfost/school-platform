@@ -9,7 +9,11 @@ export interface AuthContextValue {
     isAuthenticated: boolean;
     isLoading: boolean;
     sessionError?: boolean;
-    login: (email: string, password: string) => Promise<PrincipalAccountResponse>;
+    login: (
+        email: string,
+        password: string,
+        turnstileToken?: string | null,
+    ) => Promise<PrincipalAccountResponse>;
     logout: () => Promise<void>;
     refetchSession: () => Promise<void>;
 }
@@ -19,7 +23,11 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 
 function removeAdminDataQueries(queryClient: ReturnType<typeof useQueryClient>) {
     queryClient.removeQueries({
-        predicate: (query) => query.queryKey[0] === "admin" && query.queryKey[1] !== "auth",
+        predicate: (query) =>
+            query.queryKey[0] === queryKeys.adminRoot[0] &&
+            query.queryKey[1] === queryKeys.adminRoot[1] &&
+            query.queryKey[2] === "admin" &&
+            query.queryKey[3] !== "auth",
     });
 }
 
@@ -43,7 +51,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 throw error;
             }
         },
-        staleTime: 1000 * 60 * 10,
+        staleTime: 0,
         retry: false,
     });
 
@@ -54,11 +62,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }, [isError, isLoading, principal, queryClient]);
 
     const login = useCallback(
-        async (email: string, password: string) => {
+        async (email: string, password: string, turnstileToken?: string | null) => {
+            // A different principal may sign in on this browser without a full page reload.
+            removeAdminDataQueries(queryClient);
+            queryClient.setQueryData(queryKeys.authMe, null);
+            const headers: Record<string, string> = {};
+            if (turnstileToken) {
+                headers["X-Turnstile-Token"] = turnstileToken;
+            }
             const response = await apiRequest<PrincipalAccountResponse>(
                 "/api/v1/admin/auth/login",
                 {
                     method: "POST",
+                    headers,
                     body: { email, password },
                 },
             );

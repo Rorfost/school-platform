@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Camera, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePublicGalleryAlbums } from "@/features/public/usePublicContent";
@@ -11,10 +10,10 @@ import {
 import { PageHeader } from "@/components/common/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { LABELS } from "@/utils/gujarati";
+import { ResponsiveMedia } from "@/components/common/ResponsiveMedia";
 
 export function GalleryPage() {
     const { data, isLoading, error, refetch } = usePublicGalleryAlbums(0, 50);
-    const [failedCoverIds, setFailedCoverIds] = useState<Set<string>>(() => new Set());
 
     const albums = data?.items ?? [];
 
@@ -36,7 +35,7 @@ export function GalleryPage() {
                     <CardGridSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : albums.length === 0 ? (
                 <EmptyState
                     icon={Camera}
@@ -57,23 +56,22 @@ export function GalleryPage() {
                             >
                                 <div>
                                     <div className="aspect-video bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center overflow-hidden text-blue-900/60 group-hover:text-blue-900 transition-colors">
-                                        {album.coverImageThumbnailUrl &&
-                                        !failedCoverIds.has(album.id) ? (
-                                            <img
-                                                src={album.coverImageThumbnailUrl}
-                                                alt={album.title}
-                                                className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                                loading="lazy"
-                                                decoding="async"
-                                                onError={() =>
-                                                    setFailedCoverIds((current) =>
-                                                        new Set(current).add(album.id),
-                                                    )
-                                                }
-                                            />
-                                        ) : (
-                                            <ImageIcon size={40} aria-hidden="true" />
-                                        )}
+                                        <ResponsiveMedia
+                                            src={album.coverImageThumbnailUrl}
+                                            alt={album.title}
+                                            transformOptions={{
+                                                widths: [360, 480, 720],
+                                                defaultWidth: 480,
+                                                quality: 80,
+                                                cropMode: "c-at_max",
+                                                aspectRatio: "16-9",
+                                            }}
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            fallback={<ImageIcon size={40} aria-hidden="true" />}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
                                     </div>
                                     <div className="p-4 sm:p-5">
                                         <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-900 transition-colors">

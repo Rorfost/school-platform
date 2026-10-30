@@ -80,7 +80,7 @@ class ExamResultServiceTest {
                         "40", "18",
                         "50", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -99,7 +99,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldTreatZeroAsRealMarks() throws Exception {
         MockMultipartFile file = createTrimasikExcel("0", "18", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -116,7 +116,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldTreatABAsAbsent() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "AB", "22");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -135,7 +135,7 @@ class ExamResultServiceTest {
     void absentSubject_shouldStillCountMaximumMarks() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "AB", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -151,7 +151,7 @@ class ExamResultServiceTest {
         // Blank obtained marks = marks not filled in = show "-" on result (not "AB").
         MockMultipartFile file = createTrimasikExcel("20", "", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -174,7 +174,7 @@ class ExamResultServiceTest {
     void differentAbsentValues_shouldBeAccepted(String absentValue) throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", absentValue, "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -191,7 +191,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -204,7 +206,7 @@ class ExamResultServiceTest {
                         "", "18",
                         "25", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
         assertEquals(2, result.getSubjects().size());
@@ -222,7 +224,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -237,7 +241,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -252,7 +258,9 @@ class ExamResultServiceTest {
 
         assertThrows(
                 DomainException.class,
-                () -> service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI));
+                () ->
+                        service.processExcelUpload(
+                                schoolId, file, null, ExamResultService.EKAM_KASOTI));
 
         verify(resultRepository, never()).saveAll(any());
     }
@@ -261,7 +269,7 @@ class ExamResultServiceTest {
     void trimasikUpload_shouldNotSaveSubjectGrades() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -275,7 +283,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
 
@@ -294,7 +302,6 @@ class ExamResultServiceTest {
 
         assertEquals("250", result.getTotalWorkingDays());
         assertEquals("233", result.getAttendedDays());
-        assertEquals("UID-1", result.getStudentUid());
         assertEquals("A", result.getStudentClass());
     }
 
@@ -303,7 +310,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, (String) null, ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, (String) null, ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         assertNull(result.getTotalWorkingDays());
@@ -315,7 +322,7 @@ class ExamResultServiceTest {
                 createAnnualExcelWithAttended(
                         "-", "25", "20", "A", "50", "40", "B", "25", "18", "C");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         assertEquals("-", result.getAttendedDays());
@@ -326,7 +333,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "A", "25", "AB", "A", "25", "15", "B");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
 
@@ -347,7 +354,7 @@ class ExamResultServiceTest {
         // User's real trimasik-kasoti.xlsx has no Present Divas column — subjects start at col 6.
         MockMultipartFile file = createTrimasikExcelWithoutAttendedDays("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         AnnualExamResult result = getSavedResult();
 
@@ -369,7 +376,7 @@ class ExamResultServiceTest {
         MockMultipartFile file =
                 createAnnualExcel("25", "20", "X", "50", "40", "Y", "25", "18", "Z");
 
-        service.processExcelUpload(file, "250", ExamResultService.ANNUAL);
+        service.processExcelUpload(schoolId, file, "250", ExamResultService.ANNUAL);
 
         AnnualExamResult result = getSavedResult();
         // Grades are calculated from policy, NOT copied from Excel.
@@ -382,7 +389,7 @@ class ExamResultServiceTest {
     void uploadingNewTrimasikResult_shouldDeleteOldTrimasikResults() throws Exception {
         MockMultipartFile file = createTrimasikExcel("20", "18", "15");
 
-        service.processExcelUpload(file, null, ExamResultService.EKAM_KASOTI);
+        service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
 
         verify(resultRepository)
                 .deleteBySchoolIdAndResultType(schoolId, ExamResultService.EKAM_KASOTI);
@@ -399,8 +406,7 @@ class ExamResultServiceTest {
 
         when(school.getId()).thenReturn(schoolId);
 
-        when(schoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc())
-                .thenReturn(Optional.of(school));
+        when(schoolRepository.findByIdAndIsActiveTrue(schoolId)).thenReturn(Optional.of(school));
 
         when(presentationSettings.findById(schoolId)).thenReturn(Optional.empty());
 
@@ -740,5 +746,183 @@ class ExamResultServiceTest {
         assertEquals(expectedMarks, subject.getObtainedMarks());
         assertEquals(expectedMaximumMarks, subject.getMaximumMarks());
         assertEquals(expectedStatus, subject.getStatus());
+    }
+
+    @Test
+    void getResult_shouldReturnResultWhenFound() {
+        AnnualExamResult entity = new AnnualExamResult();
+        entity.setId(UUID.randomUUID());
+        entity.setSchoolId(schoolId);
+        entity.setResultType(ExamResultService.ANNUAL);
+        entity.setStandard("3");
+        entity.setStudentClass("A");
+        entity.setRollNumber(1);
+        entity.setStudentName("Test Student");
+
+        when(resultRepository.findResult(schoolId, ExamResultService.ANNUAL, "3", "A", 1))
+                .thenReturn(Optional.of(entity));
+
+        var response = service.getResult(schoolId, "3", "A", 1, ExamResultService.ANNUAL);
+
+        assertNotNull(response);
+        assertEquals("Test Student", response.studentName());
+        assertEquals(schoolId, response.schoolId());
+    }
+
+    @Test
+    void getResult_shouldThrowWhenNotFound() {
+        when(resultRepository.findResult(schoolId, ExamResultService.ANNUAL, "3", "A", 99))
+                .thenReturn(Optional.empty());
+
+        DomainException ex =
+                assertThrows(
+                        DomainException.class,
+                        () -> service.getResult(schoolId, "3", "A", 99, ExamResultService.ANNUAL));
+        assertEquals("result_not_found", ex.getCode());
+    }
+
+    @Test
+    void getResult_shouldThrowWhenSchoolInactive() {
+        UUID unknownSchoolId = UUID.randomUUID();
+        when(schoolRepository.findByIdAndIsActiveTrue(unknownSchoolId))
+                .thenReturn(Optional.empty());
+
+        DomainException ex =
+                assertThrows(
+                        DomainException.class,
+                        () ->
+                                service.getResult(
+                                        unknownSchoolId, "3", "A", 1, ExamResultService.ANNUAL));
+        assertEquals("school_not_found", ex.getCode());
+    }
+
+    @Test
+    void clearResults_shouldDeleteOnlyForSpecifiedSchool() {
+        service.clearResults(schoolId, ExamResultService.ANNUAL);
+
+        verify(resultRepository).deleteBySchoolIdAndResultType(schoolId, ExamResultService.ANNUAL);
+    }
+
+    @Test
+    void
+            resultXlsxTemplateFormat_shouldImportBothAnnualAndEkamKasoti_withHyphenAttendedDaysAndReorderedSubjects()
+                    throws Exception {
+        /*
+         * Reordered synthetic workbook matching exact 25 columns of tmp/result.xlsx:
+         * GR No. | Student UID | Standard | Class | Name | Birth Date | Attended Days |
+         * Maths  | Obtained | Gujarati | Obtained | Science | Obtained | Hindi | Obtained |
+         * English | Obtained | SS | Obtained | Sanskrit | Obtained | PD | Obtained | Evs | Obtained
+         * Notice: Maths is ordered before Gujarati to assert subject-to-column mapping is not positional.
+         * Maths header has trailing space ('Maths ').
+         * Attended Days contains '-'.
+         */
+        try (XSSFWorkbook workbook = new XSSFWorkbook();
+                ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Results");
+            Row header = sheet.createRow(0);
+
+            header.createCell(0).setCellValue("GR No.");
+            header.createCell(1).setCellValue("Student UID");
+            header.createCell(2).setCellValue("Standard");
+            header.createCell(3).setCellValue("Class");
+            header.createCell(4).setCellValue("Name");
+            header.createCell(5).setCellValue("Birth Date");
+            header.createCell(6).setCellValue("Attended Days");
+
+            // Subject 1 in file: Maths (with trailing space)
+            header.createCell(7).setCellValue("Maths ");
+            header.createCell(8).setCellValue("Obtained");
+            // Subject 2 in file: Gujarati
+            header.createCell(9).setCellValue("Gujarati");
+            header.createCell(10).setCellValue("Obtained");
+            // Subject 3 in file: English
+            header.createCell(11).setCellValue("English");
+            header.createCell(12).setCellValue("Obtained");
+
+            // Remaining subjects in 25-column layout (unconfigured for standard 3, blank obtained)
+            String[] remaining = {"Science", "Hindi", "SS", "Sanskrit", "PD", "Evs"};
+            int col = 13;
+            for (String sub : remaining) {
+                header.createCell(col++).setCellValue(sub);
+                header.createCell(col++).setCellValue("Obtained");
+            }
+
+            // Student row
+            Row student = sheet.createRow(1);
+            student.createCell(0).setCellValue("4110");
+            student.createCell(1).setCellValue("999999999999999999"); // UID must be ignored
+            student.createCell(2).setCellValue("3");
+            student.createCell(3).setCellValue("A");
+            student.createCell(4).setCellValue("Synthetic Student");
+            student.createCell(5).setCellValue("04.12.2015");
+            student.createCell(6).setCellValue("-"); // Attended Days is '-'
+
+            // Maths marks: max 40, obtained 35
+            student.createCell(7).setCellValue("40");
+            student.createCell(8).setCellValue("35");
+            // Gujarati marks: max 40, obtained 30
+            student.createCell(9).setCellValue("40");
+            student.createCell(10).setCellValue("30");
+            // English marks: max 40, obtained 25
+            student.createCell(11).setCellValue("40");
+            student.createCell(12).setCellValue("25");
+
+            // Blank obtained cells for unconfigured subjects (like sample template)
+            for (int c = 13; c < 25; c += 2) {
+                student.createCell(c).setCellValue("40");
+                student.createCell(c + 1).setCellValue("");
+            }
+
+            workbook.write(output);
+            MockMultipartFile file =
+                    new MockMultipartFile(
+                            "file",
+                            "synthetic-result.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            output.toByteArray());
+
+            // 1. Test Annual Exam upload
+            service.processExcelUpload(schoolId, file, "200", ExamResultService.ANNUAL);
+            AnnualExamResult annualResult = getSavedResult();
+
+            assertEquals("-", annualResult.getAttendedDays());
+            assertEquals("200", annualResult.getTotalWorkingDays());
+            assertEquals("3", annualResult.getStandard());
+            assertEquals("A", annualResult.getStudentClass());
+            assertEquals("Synthetic Student", annualResult.getStudentName());
+            assertEquals(1, annualResult.getRollNumber());
+            assertEquals("4110", annualResult.getGeneralRegisterNumber());
+
+            // Subject mapping must accurately map marks regardless of header order
+            AnnualExamResultSubject maths = findSubject(annualResult, "Mathematics");
+            assertEquals(35, maths.getObtainedMarks());
+            assertEquals(40, maths.getMaximumMarks());
+            assertEquals("A", maths.getGrade()); // 35/40 = 87.5% >= 80%
+
+            AnnualExamResultSubject gujarati = findSubject(annualResult, "Gujarati");
+            assertEquals(30, gujarati.getObtainedMarks());
+            assertEquals(40, gujarati.getMaximumMarks());
+            assertEquals("B", gujarati.getGrade()); // 30/40 = 75% >= 65%
+
+            AnnualExamResultSubject english = findSubject(annualResult, "English");
+            assertEquals(25, english.getObtainedMarks());
+            assertEquals(40, english.getMaximumMarks());
+            assertEquals("C", english.getGrade()); // 25/40 = 62.5% >= 50%
+
+            assertEquals(120, annualResult.getTotalMarks());
+            assertEquals(90, annualResult.getObtainedMarks());
+
+            // 2. Test same file structure for Ekam Kasoti upload
+            org.mockito.Mockito.reset(resultRepository);
+            service.processExcelUpload(schoolId, file, null, ExamResultService.EKAM_KASOTI);
+            AnnualExamResult ekamResult = getSavedResult();
+
+            assertEquals("-", ekamResult.getAttendedDays());
+            assertNull(ekamResult.getTotalWorkingDays());
+            AnnualExamResultSubject ekamMaths = findSubject(ekamResult, "Mathematics");
+            assertEquals(35, ekamMaths.getObtainedMarks());
+            assertNull(ekamMaths.getGrade()); // Ekam Kasoti has no grades
+        }
     }
 }

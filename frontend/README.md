@@ -1,25 +1,19 @@
-# Frontend
+# Frontend — Rorfost School Platform
 
-The frontend is a React 19, TypeScript, and Vite static single-page application for Rorfost Primary School. It provides the full public school website (in natural Gujarati), Student Corner (materials, result lookup, downloads), and the complete Principal Admin Panel (in clear English).
+The frontend is a React 19, TypeScript, and Vite single-page application and Cloudflare Pages Functions proxy providing a Gujarati-first public portal and an administrative panel for school principals.
 
-## Features Implemented
+- **Platform Product:** Rorfost School Platform
+- **Production Deployment:** Dhadhana Primary School Portal (`dhadhana-school-pages.pages.dev`)
 
-- **Public School Website (Gujarati)**: Home, About School, Principal's Desk, Notices & Notice Details, Photo Gallery & Album Viewer, Contact Page, and Footer/Header navigation.
-- **Student Corner (Gujarati)**: Study Materials (filtered by Standard & Subject), Examination Results Lookup (with privacy PIN verification & printable marksheet view), Downloads, and Student Notices.
-- **School Tools (Gujarati)**: Client-side age/date, attendance, marks, and subject-wise percentage utilities for teachers, parents, and children. Entered calculation values are not stored.
-- **Principal Admin Panel (English)**:
-    - Authentication (Login, Session Restore, Password Change with min 12-char validation, Logout, Protected `RequireAdmin` wrapper).
-    - Operational Dashboard with quick links.
-    - School Settings & Principal Profile management, including ImageKit-backed school-logo replacement and removal.
-    - Academic Configuration: Academic Years (create/update/set current/archive), Standards, Subjects, and Standard-Subject Mappings.
-    - Results & Marks setup (internally generic assessments), subject maximum/passing mark configuration, and DRAFT/PUBLISHED/ARCHIVED lifecycle controls.
-    - Content Management: Study Materials (PDF upload), School Notices & Attachments, Photo Gallery Albums with dedicated photo management, multi-photo upload, cover selection, accessible reordering, captions, and deletion, Downloads management.
-    - Account & Security management.
+## Architecture Overview
 
-## Pending Inputs
-
-- **Result Import Excel Schema**: The documented Standard 3 Ekam Kasoti workbook can be imported after its students are enrolled with school-controlled numeric roll numbers. Other result formats still require an approved workbook contract.
-- **Timetables**: Exam timetable and school timetable features remain pending backend model inputs.
+- **Hosting & Serving:** Hosted on Cloudflare Pages (`dhadhana-school-pages`) with static assets served from Cloudflare's global edge network.
+- **Client-Side Routing:** Managed by React Router with `_redirects` (`/* /index.html 200`) providing seamless direct page refreshes.
+- **API Proxy (Pages Functions):** Handled via `functions/api/[[catchall]].ts`. Proxies `/api/*` to the Spring Boot backend on Render.
+- **Gateway Security:** Injects `X-Portal-Gateway-Token` (from encrypted Pages runtime secret) and `X-Portal-Client-IP` (from `CF-Connecting-IP`), stripping any client-supplied spoofed headers. Fails closed with HTTP 500 if the gateway token is unset.
+- **Dynamic Branding:** School name and logo derived at build-time (`VITE_SCHOOL_NAME`, `VITE_SCHOOL_LOGO`) or fetched dynamically via API.
+- **Anti-Bot Protection:** Cloudflare Turnstile integration on public result lookups and principal login (`VITE_TURNSTILE_SITE_KEY`).
+- **Feature Flag Awareness:** UI navigation, sidebar, mobile drawers, student shortcuts, and route guards (`FeatureRouteGuard`) conditionally rendered based on active school feature flags fetched from `/api/v1/public/features`.
 
 ## Commands
 
@@ -33,17 +27,48 @@ npm run test
 npm run build
 ```
 
-Copy `.env.example` to `.env.local` for local values. Every `VITE_*` value is embedded in the browser bundle and is public; never put secrets there.
+## Cloudflare Pages Configuration & Deployment
 
-## Structure
+The frontend uses Cloudflare Pages with project name `dhadhana-school-pages` configured in `wrangler.toml`.
 
-- `src/app` — application providers and route configuration (`AppRouter.tsx`)
-- `src/api` — shared HTTP client foundation and TypeScript DTO definitions (`types.ts`)
-- `src/components` — shared layout (`Header`, `Footer`, `MobileNav`, `AdminLayout`), UI components (`Button`, `Card`, `Input`, `Badge`, `ConfirmModal`), and feedback primitives
-- `src/pages` — public pages and `src/pages/admin/` principal management pages
-- `src/features` — domain hooks (`auth`, `public`, `school`)
-- `src/styles` — global design tokens and base styling
+### Build Settings
 
-## Deployment
+- **Framework preset:** None (or Vite)
+- **Root directory:** `frontend`
+- **Build command:** `npm run build`
+- **Build output directory:** `dist`
 
-Cloudflare Workers is the intended frontend host. The checked-in Worker configuration builds the SPA into `dist`, serves assets with SPA fallback, and proxies `/api/` requests to the configured backend origin. Use `npm run deploy` only with provider credentials supplied outside the repository. No frontend Docker deployment is required.
+### Secret Provisioning
+
+The Pages Function requires `PORTAL_GATEWAY_TOKEN` provisioned as a runtime secret:
+
+```bash
+npx wrangler pages secret put PORTAL_GATEWAY_TOKEN --project-name=dhadhana-school-pages
+```
+
+### Manual Deployment via GitHub Actions or CLI
+
+To deploy production assets:
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name=dhadhana-school-pages
+```
+
+Alternatively, use the GitHub Actions workflow `.github/workflows/deploy-frontend.yml` via `workflow_dispatch`.
+
+## Directory Structure
+
+- `src/app` — Application routes (`AppRouter.tsx`) with `FeatureRouteGuard` and root providers.
+- `src/api` — HTTP client (`client.ts`), CSRF handling, and TypeScript DTOs (`types.ts`).
+- `src/components` — Shared UI elements, layout headers/footers, and admin shell.
+- `src/pages` — Public pages and `src/pages/admin/` principal views.
+- `src/features/` — Cohesive domain features:
+    - `auth` — Principal login, session restoration, and route guards.
+    - `public` — Result marksheet viewer and public content components.
+    - `school` — School metadata and settings hooks.
+    - `tools` — Gujarati educational calculators.
+    - `featureFlags` — Client-side feature flag gates (`api`, `hooks`, `types`, `defaults`, `FeatureRouteGuard`).
+- `functions/` — Cloudflare Pages Functions:
+    - `functions/api/[[catchall]].ts` — API gateway proxy with path validation, header sanitization, token injection, and edge caching.
+    - `functions/cache/` — Shared edge cache evaluation and key generation utilities.

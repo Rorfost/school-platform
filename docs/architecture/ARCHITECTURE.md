@@ -1,47 +1,69 @@
-# Architecture
+# Architecture — Rorfost School Platform
 
 ## Overview
 
-The portal is a feature-oriented Spring Boot modular monolith with a separately deployed React frontend. This is the simplest maintainable shape for a small school and one initial administrator. The browser uses HTTPS REST; the backend owns authorization and all database/storage access.
+Rorfost School Platform is a feature-oriented Spring Boot modular monolith with a React single-page frontend. This architecture provides simplicity and operational efficiency for small schools without distributed microservice overhead.
+
+## Architecture: As-Is vs. Target
+
+### Current Production State (As-Is)
+A single-school production deployment serving Dhadhana Primary School:
 
 ```mermaid
 flowchart LR
-  U[Public users and principal] --> CF[Cloudflare\nDNS, TLS, CDN]
-  CF --> FE[React + Vite frontend\nCloudflare hosting]
-  FE -->|HTTPS REST| BE[Spring Boot modular monolith\nRender Free initially]
+  U[Public users and principal] --> CF[Cloudflare Worker\ndhadhana-school]
+  CF --> FE[React + Vite SPA]
+  CF -->|Proxy /api/*| BE[Spring Boot modular monolith\nRender Free]
   BE --> DB[(Aiven PostgreSQL)]
   BE --> IK[ImageKit\npublic files]
 ```
 
-## Components and boundaries
+- Public and admin controllers resolve the default school via `SchoolRepository.findFirstByIsActiveTrueOrderByCreatedAtAsc()`.
+- Single database schema on Aiven PostgreSQL with Spring Session JDBC.
+- Single ImageKit account with flat or mixed asset paths.
 
-- **Frontend:** React/Vite static SPA with a feature-oriented route/provider/API-client foundation, TanStack Query cache, Tailwind styling, and Gujarati-first shell. It never holds secrets.
-- **Backend:** Spring Boot 4.x Java 21 modular monolith with DTO boundaries, validation, `PRINCIPAL` session authentication, CSRF/CORS/security headers, request IDs, ProblemDetail errors, Flyway, Spring Session JDBC, and an ImageKit-backed storage abstraction. Feature packages are added only when their roadmap phase starts.
-- **PostgreSQL:** relational source of truth, audit metadata, and Spring Session JDBC tables. Use Flyway for every schema change, `snake_case`, UUID external IDs, and `TIMESTAMPTZ` timestamps.
-- **Object storage:** ImageKit for public files, including school branding. Database rows retain object keys and metadata, never binary file content; public DTOs derive URLs from the configured ImageKit endpoint.
-
-The desktop principal shell uses a viewport-height layout: its header and sidebar stay available while only the main admin content region scrolls. On smaller screens, the sidebar becomes a modal drawer that temporarily locks background scrolling.
-
-## Security boundary
-
-Only the backend connects to PostgreSQL and object storage. The initial `PRINCIPAL` role authenticates through BCrypt and PostgreSQL-backed Spring Session JDBC records. Public routes and health remain narrowly scoped, while other admin routes require the principal session and CSRF on mutation. Individual result retrieval must eventually resist enumeration and return `Cache-Control: no-store`.
-
-## Local architecture
+### Target Multi-Tenant State (Migration Plan)
+A multi-tenant architecture hosting multiple schools on unified infrastructure:
 
 ```mermaid
 flowchart LR
-  B[Browser :5173] --> F[Vite dev server]
-  F --> A[Spring Boot :8080]
-  A --> P[(PostgreSQL :5432)]
-  A --> I[ImageKit]
+  subgraph Cloudflare Edge
+    WA[Worker: school-a\n+ Secret Token A]
+    WB[Worker: school-b\n+ Secret Token B]
+    WC[Worker: school-c\n+ Secret Token C]
+  end
+
+  WA -->|X-Portal-Gateway-Token| BE[Shared Spring Boot Monolith\nRender Free\nTenantContextFilter]
+  WB -->|X-Portal-Gateway-Token| BE
+  WC -->|X-Portal-Gateway-Token| BE
+
+  BE --> DB[(Shared Neon PostgreSQL\nTenant-Scoped Tables)]
+  BE --> IK[ImageKit\nschools/school-uuid/...]
 ```
 
-Docker Compose runs only PostgreSQL; frontend and backend run natively for fast development. The backend connects to ImageKit using environment-provided credentials. Flyway owns both Spring Session JDBC tables and the V1 domain schema. The database foundation is created before feature delivery so later feature work can use stable, tested constraints; controllers and workflows still arrive in their roadmap phases.
+- **Per-School Cloudflare Workers:** Each school has a distinct Worker host (`school-a.workers.dev`, etc.) serving the same SPA build with school-specific static routes and injecting an opaque, cryptographically random `PORTAL_GATEWAY_TOKEN` secret into proxied `/api/*` requests.
+- **Render Backend Gateway Filter:** Intercepts `/api/*` calls, validates the SHA-256 token hash against the database, and binds an immutable `TenantContext` to the request thread.
+- **Tenant Context Enforcement:** All controllers, services, and repositories filter queries and mutations by `school_id`. No entity is shared across tenants.
+- **Neon PostgreSQL:** Single shared database with strict composite foreign keys, partial indexes, and tenant predicates.
+- **ImageKit Namespace & Deletion Ownership Guard:** All new uploads are stored under canonical tenant-isolated prefix `schools/<school-uuid>/<category>/...` (for branding, signatures, study materials, gallery, downloads). Legacy non-canonical object paths remain functional and resolve without migration. Before any remote deletion or replacement of media, `StorageService.assertKeyBelongsToSchool` validates that canonical keys belong strictly to the authenticated tenant (`schools/<school-id>/`), preventing cross-tenant deletion attacks even if foreign keys or IDs are presented.
 
-## Intentional constraints
+## Components and Boundaries
 
-Redis is absent because one backend instance and JDBC-backed sessions are sufficient initially. Microservices are absent because the domain, team, traffic, and deployment needs do not justify distributed complexity. No queue, search cluster, GraphQL, MongoDB, or Kubernetes is planned.
+- **Frontend:** React 19 / Vite static SPA with TanStack Query, React Router, Tailwind CSS, and Gujarati-first components.
+- **Backend Packages:**
+  - `auth`: Principal authentication, session restoration, and password management.
+  - `school`: School settings, principal profile, and visitor counts.
+  - `academic`: Academic years, standards, subjects, standard-subject mappings, and student rosters.
+  - `assessment`: Annual and Ekam Kasoti exam results, marks calculations, and presentation rules.
+  - `content`: Study materials, notices, photo gallery albums, and downloads.
+  - `dashboard` & `audit`: Operational summary and append-only administrative logs.
+  - `tenant` *(Target)*: Request-scoped tenant context holder and gateway verification filter.
+  - `featureflag` *(Target)*: School-level feature registry and backend/frontend gatekeepers.
+  - `common`: Cross-cutting security, exceptions, and ImageKit storage abstractions.
 
-## Scaling path
+## Security Boundaries
 
-First improve indexes, caching of safe public content, ImageKit/CDN file delivery, and backend host capacity. If multiple backend instances become necessary, revisit session strategy, rate limiting, and operational needs with measured evidence. Split services only when a clear ownership, scaling, or reliability boundary outweighs the new complexity.
+1. **Origin Protection:** The backend does not trust unauthenticated incoming headers (`Host`, `Origin`, `X-Forwarded-Host`, `X-School-Id`) for tenant routing.
+2. **Session-Tenant Binding:** Admin requests must satisfy `PrincipalSession.schoolId == TenantContext.schoolId`.
+3. **Database Isolation:** Every sensitive query and join enforces tenant ownership.
+4. **Result Privacy:** Public result lookups enforce `Cache-Control: no-store` and resist enumeration attacks.

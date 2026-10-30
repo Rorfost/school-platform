@@ -1,0 +1,24 @@
+# Cloudflare Pages project configuration.
+# This file configures the Pages project (`dhadhana-school-pages`).
+# Secrets (PORTAL_GATEWAY_TOKEN) must be added via `wrangler pages secret put`.
+name = "dhadhana-school-pages"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-16"
+
+# Gateway token is an encrypted runtime secret — set via:
+# wrangler pages secret put PORTAL_GATEWAY_TOKEN --project-name=dhadhana-school-pages
+
+# Runtime variables (non-secret)
+[vars]
+SCHOOL_SLUG = "dhadhana"
+BACKEND_ORIGIN = "https://school-platform-qxwv.onrender.com"
+
+# ── Cloudflare Edge Rate Limiting ─────────────────────────────────────────────
+# Cloudflare edge rate limiting is currently disabled.
+# When rate-limit bindings are absent, the Pages Function operates normally and
+# forwards requests to the Render backend, where endpoint-specific protections
+# (such as backend login rate limiting) remain active.
+#
+# Note: Backend rate limiting only protects specific routes (e.g. admin login)
+# and does not provide edge rate limiting across all API routes or public result lookups.
+# Cloudflare Turnstile provides anti-bot protection on public result lookups.

@@ -7,7 +7,6 @@ import java.util.UUID;
 public record ExamResultResponse(
         UUID id,
         UUID schoolId,
-        String studentUid,
         String studentName,
         String standard,
         String studentClass,

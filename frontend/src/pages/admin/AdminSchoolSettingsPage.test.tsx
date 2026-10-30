@@ -62,7 +62,7 @@ function renderWithData(ui: React.ReactElement, preloaded = true) {
         defaultOptions: { queries: { retry: false } },
     });
     if (preloaded) {
-        queryClient.setQueryData(queryKeys.school, mockSchool);
+        queryClient.setQueryData(queryKeys.adminSchool, mockSchool);
     }
     return render(
         <QueryClientProvider client={queryClient}>

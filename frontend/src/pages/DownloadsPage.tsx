@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Download, FileDown, FolderOpen, Search } from "lucide-react";
-import { apiRequest } from "@/api/client";
-import { queryKeys } from "@/api/queryKeys";
-import type { DownloadResponse, PageResponse } from "@/api/types";
+import { usePublicDownloads } from "@/features/public/usePublicContent";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -21,11 +18,7 @@ export function DownloadsPage() {
     const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
     const [searchTerm, setSearchTerm] = useState("");
 
-    const { data, isLoading, error, refetch } = useQuery({
-        queryKey: queryKeys.downloads({ page: 0, size: 50 }),
-        queryFn: () =>
-            apiRequest<PageResponse<DownloadResponse>>("/api/v1/public/downloads?page=0&size=50"),
-    });
+    const { data, isLoading, error, refetch } = usePublicDownloads(0, 50);
 
     const downloads = data?.items ?? [];
 
@@ -91,7 +84,7 @@ export function DownloadsPage() {
                     <ContentSkeleton />
                 </>
             ) : error ? (
-                <ErrorState onRetry={() => refetch()} />
+                <ErrorState error={error} onRetry={() => refetch()} />
             ) : filteredDownloads.length === 0 ? (
                 <EmptyState
                     icon={FolderOpen}

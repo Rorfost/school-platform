@@ -332,6 +332,11 @@ export interface ExamResultSubjectResponse {
     sortOrder: number;
 }
 
+export interface GradeBand {
+    label: string;
+    minPercentage: number;
+}
+
 export interface ResultPresentationSettingsResponse {
     resultDate: string | null;
     resultPlace?: string | null;
@@ -347,6 +352,7 @@ export interface ResultPresentationSettingsResponse {
     gradeBMin: number;
     gradeCMin: number;
     gradeDMin: number;
+    gradeBands?: GradeBand[];
     principalSignatureUrl?: string | null;
     classTeacherName?: string | null;
     classTeacherSignatureUrl?: string | null;
@@ -355,7 +361,6 @@ export interface ResultPresentationSettingsResponse {
 export interface ExamResultResponse {
     id: string;
     schoolId: string;
-    studentUid?: string | null;
     studentName: string;
     standard: string;
     studentClass?: string | null;

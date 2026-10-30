@@ -107,7 +107,8 @@ public class AssessmentService {
         validateSubjects(schoolId, request);
         item.update(request.title().trim(), trim(request.description()), request.assessmentDate());
         assessmentSubjects.deleteAll(
-                assessmentSubjects.findByAssessmentIdOrderByCreatedAt(item.getId()));
+                assessmentSubjects.findByAssessmentIdAndSchoolIdOrderByCreatedAt(
+                        item.getId(), schoolId));
         saveSubjects(item, request.subjects());
         audit(schoolId, actorId, AuditAction.ASSESSMENT_UPDATED, item.getId());
         return response(item);
@@ -118,7 +119,7 @@ public class AssessmentService {
         Assessment item = require(schoolId, id);
         if (item.getStatus() == AssessmentStatus.ARCHIVED) throw conflict("assessment_archived");
         List<AssessmentSubject> subjects =
-                assessmentSubjects.findByAssessmentIdOrderByCreatedAt(id);
+                assessmentSubjects.findByAssessmentIdAndSchoolIdOrderByCreatedAt(id, schoolId);
         if (subjects.isEmpty()
                 || subjects.stream()
                         .anyMatch(
@@ -198,7 +199,9 @@ public class AssessmentService {
 
     private AssessmentResponse response(Assessment item) {
         return AssessmentResponse.from(
-                item, assessmentSubjects.findByAssessmentIdOrderByCreatedAt(item.getId()));
+                item,
+                assessmentSubjects.findByAssessmentIdAndSchoolIdOrderByCreatedAt(
+                        item.getId(), item.getSchoolId()));
     }
 
     private String trim(String value) {

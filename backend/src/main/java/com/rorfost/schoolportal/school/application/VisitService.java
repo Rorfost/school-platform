@@ -2,6 +2,7 @@ package com.rorfost.schoolportal.school.application;
 
 import com.rorfost.schoolportal.common.exception.DomainException;
 import com.rorfost.schoolportal.school.api.VisitResponse;
+import com.rorfost.schoolportal.school.domain.School;
 import com.rorfost.schoolportal.school.repository.SchoolRepository;
 
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,8 @@ public class VisitService {
     }
 
     @Transactional
-    public VisitResponse increment() {
-        UUID schoolId = publicSchoolId();
+    public VisitResponse increment(UUID schoolId) {
+        requireActiveSchool(schoolId);
         // PostgreSQL performs the increment inside one UPSERT, so concurrent page opens cannot lose
         // visits.
         jdbc.update(
@@ -37,12 +38,14 @@ public class VisitService {
     }
 
     @Transactional(readOnly = true)
-    public VisitResponse get() {
-        return count(publicSchoolId());
+    public VisitResponse get(UUID schoolId) {
+        requireActiveSchool(schoolId);
+        return count(schoolId);
     }
 
     @Transactional
     public VisitResponse reset(UUID schoolId) {
+        requireActiveSchool(schoolId);
         jdbc.update(
                 """
         INSERT INTO site_metrics (school_id, total_visits) VALUES (?, 0)
@@ -62,10 +65,11 @@ public class VisitService {
         return new VisitResponse(count == null ? 0 : count);
     }
 
-    private UUID publicSchoolId() {
-        return schools.findFirstByIsActiveTrueOrderByCreatedAtAsc()
-                .map(s -> s.getId())
-                .orElseThrow(
-                        () -> new DomainException(HttpStatus.NOT_FOUND, "school_not_configured"));
+    private School requireActiveSchool(UUID schoolId) {
+        if (schoolId == null) {
+            throw new DomainException(HttpStatus.NOT_FOUND, "school_not_found");
+        }
+        return schools.findByIdAndIsActiveTrue(schoolId)
+                .orElseThrow(() -> new DomainException(HttpStatus.NOT_FOUND, "school_not_found"));
     }
 }

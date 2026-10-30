@@ -1,6 +1,7 @@
 import { Printer } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/api/client";
+import { queryKeys } from "@/api/queryKeys";
 import { Button } from "@/components/ui/Button";
 import type { ExamResultResponse, ResultPresentationSettingsResponse } from "@/api/types";
 import { formatDate } from "@/utils/date";
@@ -20,7 +21,7 @@ export function ExamResultViewer({
     resultType?: "ANNUAL" | "EKAM_KASOTI";
 }) {
     const { data: settings } = useQuery<ResultPresentationSettingsResponse>({
-        queryKey: ["result-settings", result.standard],
+        queryKey: queryKeys.resultSettings(result.standard, resultType),
         queryFn: () =>
             apiRequest<ResultPresentationSettingsResponse>(
                 `/api/v1/public/result-settings?standard=${encodeURIComponent(result.standard)}`,
@@ -125,14 +126,16 @@ export function ExamResultViewer({
                                 </div>
                             </div>
 
-                            {/* Line 2: Student UID, Birthdate, Roll No */}
+                            {/* Line 2: GR No, Birthdate, Roll No */}
                             <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
                                 <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                                     <span className="font-bold shrink-0 w-[88px] sm:w-[100px] flex justify-between whitespace-nowrap">
-                                        <span className="whitespace-nowrap">વિદ્યાર્થી યુઆઈડી</span>
+                                        <span className="whitespace-nowrap">જ. રજી. નંબર</span>
                                         <span>:</span>
                                     </span>
-                                    <span className="truncate">{result.studentUid || "-"}</span>
+                                    <span className="truncate">
+                                        {result.generalRegisterNumber || "-"}
+                                    </span>
                                 </div>
                                 <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                                     <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
@@ -152,24 +155,17 @@ export function ExamResultViewer({
                                 </div>
                             </div>
 
-                            {/* Line 3: GR No, Total Working Days, Present Days */}
+                            {/* Line 3: Total Working Days, Present Days */}
                             <div className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 text-xs sm:text-sm">
                                 <div className="w-full sm:w-[52%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
                                     <span className="font-bold shrink-0 w-[88px] sm:w-[100px] flex justify-between whitespace-nowrap">
-                                        <span className="whitespace-nowrap">જ. રજી. નંબર</span>
-                                        <span>:</span>
-                                    </span>
-                                    <span>{result.generalRegisterNumber || "-"}</span>
-                                </div>
-                                <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
-                                    <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                                         <span className="whitespace-nowrap">કુલ કાર્ય દિવસ</span>
                                         <span>:</span>
                                     </span>
                                     <span>{result.totalWorkingDays ?? "-"}</span>
                                 </div>
-                                <div className="w-[42%] sm:w-[19%] shrink-0 flex gap-1.5 items-center min-w-0">
-                                    <span className="font-bold shrink-0 w-[68px] sm:w-[76px] flex justify-between whitespace-nowrap">
+                                <div className="w-[58%] sm:w-[29%] shrink-0 flex gap-1.5 items-center min-w-0 pr-1">
+                                    <span className="font-bold shrink-0 w-[88px] sm:w-[86px] flex justify-between whitespace-nowrap">
                                         <span className="whitespace-nowrap">હાજર દિવસ</span>
                                         <span>:</span>
                                     </span>

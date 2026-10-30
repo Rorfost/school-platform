@@ -91,13 +91,20 @@ export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
 
 export function ErrorState({
     message = LABELS.errorFallback,
+    error,
     onRetry,
     children,
 }: {
     message?: string;
+    error?: unknown;
     onRetry?: () => void;
     children?: ReactNode;
 }) {
+    let displayMessage = message;
+    if (error instanceof Error && error.message) {
+        displayMessage = error.message;
+    }
+
     return (
         <div
             className="rounded-xl border border-red-200 bg-red-50/70 p-6 text-red-950 shadow-xs"
@@ -111,7 +118,7 @@ export function ErrorState({
                 />
                 <div className="flex-1">
                     <p className="text-sm sm:text-base font-medium leading-relaxed">
-                        {children ?? message}
+                        {children ?? displayMessage}
                     </p>
                     {onRetry && (
                         <div className="mt-4">

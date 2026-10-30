@@ -25,6 +25,11 @@ describe("api client & error utilities", () => {
         expect(getGujaratiErrorMessage("login_rate_limited")).toBe(
             "ઘણા નિષ્ફળ પ્રયાસો થયા છે. કૃપા કરીને થોડી મિનિટો પછી પ્રયત્ન કરો.",
         );
+        expect(getGujaratiErrorMessage("request_timeout")).toContain(
+            "સર્વર પ્રતિસાદમાં વધુ સમય લાગી રહ્યો છે",
+        );
+        expect(getGujaratiErrorMessage("rate_limited")).toContain("વિનંતી મર્યાદા");
+        expect(getGujaratiErrorMessage("backend_unavailable")).toContain("સર્વર હાલ અનુપલબ્ધ છે");
         expect(getGujaratiErrorMessage("unknown_code")).toBe(
             "હમણાં વિનંતી પૂર્ણ થઈ શકી નથી. કૃપા કરીને ફરી પ્રયત્ન કરો.",
         );
@@ -65,5 +70,53 @@ describe("api client & error utilities", () => {
         await expect(
             apiRequest<void>("/api/v1/admin/materials/item", { method: "DELETE" }),
         ).resolves.toBeUndefined();
+    });
+
+    it("handles 429 rate limiting gracefully with natural Gujarati message", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+            new Response(null, {
+                status: 429,
+                statusText: "Too Many Requests",
+            }),
+        );
+
+        await expect(apiRequest("/api/v1/public/results")).rejects.toMatchObject({
+            status: 429,
+            code: "rate_limited",
+        });
+    });
+
+    it("handles 503 backend unavailable gracefully with natural Gujarati message", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+            new Response(null, {
+                status: 503,
+                statusText: "Service Unavailable",
+            }),
+        );
+
+        await expect(apiRequest("/api/v1/public/school")).rejects.toMatchObject({
+            status: 503,
+            code: "backend_unavailable",
+        });
+    });
+
+    it("times out when request exceeds configured timeoutMs budget", async () => {
+        vi.spyOn(globalThis, "fetch").mockImplementationOnce((_url, init) => {
+            return new Promise((_resolve, reject) => {
+                const signal = (init as RequestInit)?.signal;
+                if (signal) {
+                    signal.addEventListener("abort", () => {
+                        reject(new DOMException("The user aborted a request.", "AbortError"));
+                    });
+                }
+            });
+        });
+
+        await expect(apiRequest("/api/v1/public/notices", { timeoutMs: 10 })).rejects.toMatchObject(
+            {
+                status: 408,
+                code: "request_timeout",
+            },
+        );
     });
 });

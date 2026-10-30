@@ -3,9 +3,24 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { LABELS } from "@/utils/gujarati";
+import { useFeatureFlags } from "@/features/featureFlags";
+import { usePublicRoutePrefetch } from "@/features/public/usePublicContent";
+import type { FeatureKey } from "@/features/featureFlags";
+
+interface StudentSection {
+    to: string;
+    title: string;
+    description: string;
+    icon: typeof BookOpen;
+    badgeText: string;
+    featureKey?: FeatureKey;
+}
 
 export function StudentCornerPage() {
-    const sections = [
+    const { isFeatureEnabled } = useFeatureFlags();
+    const prefetchRoute = usePublicRoutePrefetch();
+
+    const sections: StudentSection[] = [
         {
             to: "/student/materials",
             title: LABELS.materials,
@@ -13,6 +28,7 @@ export function StudentCornerPage() {
                 "ધોરણ ૧ થી ૮ માટે વિષયવાર પાઠ્યપુસ્તકો, સ્વાધ્યાય સામગ્રી અને શીખવા માટે ઉપયોગી ફાઈલો.",
             icon: BookOpen,
             badgeText: "અભ્યાસ",
+            featureKey: "MATERIALS",
         },
         {
             to: "/student/results",
@@ -20,6 +36,7 @@ export function StudentCornerPage() {
             description: "ત્રિમાસિક કસોટી અને વાર્ષિક પરીક્ષા પરિણામ અંગેની માહિતી.",
             icon: GraduationCap,
             badgeText: "પરિણામ",
+            featureKey: "EXAM_RESULTS",
         },
         {
             to: "/student/downloads",
@@ -27,6 +44,7 @@ export function StudentCornerPage() {
             description: "શાળાના ફોર્મ્સ, પરિપત્રો અને વિદ્યાર્થીઓ માટે જરૂરી પત્રકો.",
             icon: Download,
             badgeText: "ફાઈલો",
+            featureKey: "DOWNLOADS",
         },
         {
             to: "/tools",
@@ -36,6 +54,10 @@ export function StudentCornerPage() {
             badgeText: "ઉપયોગી",
         },
     ];
+
+    const visibleSections = sections.filter(
+        (sec) => !sec.featureKey || isFeatureEnabled(sec.featureKey),
+    );
 
     return (
         <div className="space-y-8">
@@ -47,31 +69,35 @@ export function StudentCornerPage() {
             />
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-                {sections.map((section) => {
+                {visibleSections.map((section) => {
                     const Icon = section.icon;
                     return (
                         <Link
                             key={section.to}
                             to={section.to}
-                            className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all hover:border-[#0d2461] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2461]"
+                            onFocus={() => prefetchRoute(section.to)}
+                            onPointerEnter={(event) => {
+                                if (event.pointerType === "mouse") prefetchRoute(section.to);
+                            }}
+                            className="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-xs transition-all hover:border-brand-900/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-900"
                         >
                             <div>
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-[#0d2461] group-hover:bg-[#0d2461] group-hover:text-white transition-colors">
+                                    <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-brand-900 group-hover:bg-brand-900 group-hover:text-white transition-colors">
                                         <Icon size={24} aria-hidden="true" />
                                     </div>
                                     <Badge variant="primary" size="sm">
                                         {section.badgeText}
                                     </Badge>
                                 </div>
-                                <h2 className="text-lg font-bold text-slate-900 group-hover:text-[#0d2461] transition-colors">
+                                <h2 className="text-lg font-bold text-slate-900 group-hover:text-brand-900 transition-colors">
                                     {section.title}
                                 </h2>
                                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">
                                     {section.description}
                                 </p>
                             </div>
-                            <div className="mt-6 text-sm font-semibold text-blue-900">
+                            <div className="mt-6 text-sm font-semibold text-brand-900">
                                 વિભાગ ખોલો →
                             </div>
                         </Link>

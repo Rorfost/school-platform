@@ -44,10 +44,12 @@ export function Footer() {
             className="size-12 shrink-0 rounded-full border-2 border-blue-100 object-contain shadow-sm"
           /> */}
                     <div>
-                        <h3 className="text-sm text-slate-600 xs:text-base">{school.name}</h3>
-                        {/* <p className="text-xs text-slate-500 font-medium">
-              પ્રાથમિક શિક્ષણ દ્વારા બાળકોમાં સર્વાંગી વિકાસ અને સંસ્કાર સિંચન
-            </p> */}
+                        <h3
+                            title={school.name}
+                            className="text-sm text-slate-600 xs:text-base truncate max-w-xs sm:max-w-md"
+                        >
+                            {school.name}
+                        </h3>
                     </div>
                     {/* <p className="text-xs font-semibold text-blue-900">॥ સા વિદ્યા યા વિમુક્તયે ॥</p> */}
                 </div>
@@ -102,12 +104,14 @@ export function Footer() {
 
                 {/* Bottom copyright & admin link */}
                 <div className="w-full border-t border-slate-100 pt-2 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="text-center sm:text-left">
+                    <div className="text-center sm:text-left space-y-0.5">
                         <p>
-                            © {new Date().getFullYear()} Rakesh Patel, Principal at PM SHRI Dhadhana
-                            Primary School
+                            © {new Date().getFullYear()} {school.name || "શાળા પોર્ટલ"} · સર્વાધિકાર
+                            સુરક્ષિત
                         </p>
-                        {/* <p className="text-slate-500">Built & Maintained by Raj Patel | Rorfost</p> */}
+                        <p className="text-slate-400 text-[10px]">
+                            Portal software developed by Raj Patel | Rorfost
+                        </p>
                     </div>
 
                     <div className="flex items-center gap-3">

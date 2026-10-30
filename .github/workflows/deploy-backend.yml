@@ -1,0 +1,67 @@
+name: Manual Deploy Backend (Render Web Service)
+
+on:
+    workflow_dispatch:
+        inputs:
+            target_environment:
+                description: "Target backend environment"
+                required: true
+                type: choice
+                options:
+                    - staging
+                    - production
+            confirm_deployment:
+                description: "Type 'DEPLOY' to confirm deployment"
+                required: true
+                default: "DRY_RUN"
+
+permissions:
+    contents: read
+
+jobs:
+    deploy-backend:
+        name: Trigger Backend Deploy
+        runs-on: ubuntu-latest
+        environment: ${{ github.event.inputs.target_environment }}
+        steps:
+            - name: Validate authorization and target environment
+              run: |
+                  if [ "${{ github.event.inputs.confirm_deployment }}" != "DEPLOY" ]; then
+                      echo "ERROR: Manual confirmation string 'DEPLOY' required. Aborting."
+                      exit 1
+                  fi
+                  TARGET="${{ github.event.inputs.target_environment }}"
+                  echo "Target environment selected: $TARGET"
+                  if [ "$TARGET" != "staging" ] && [ "$TARGET" != "production" ]; then
+                      echo "ERROR: Unknown or unsupported target environment '$TARGET'. Aborting fail-closed."
+                      exit 1
+                  fi
+
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: "21"
+                  cache: maven
+
+            - name: Run backend verification
+              working-directory: backend
+              run: mvn -B test "-Dtest=!*IntegrationTest" --no-transfer-progress
+
+            - name: Trigger Render Deploy Hook
+              env:
+                  RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+              run: |
+                  if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+                      echo "ERROR: RENDER_DEPLOY_HOOK_URL secret is not configured for environment '${{ github.event.inputs.target_environment }}'."
+                      exit 1
+                  fi
+                  echo "Triggering Render deployment for commit ${GITHUB_SHA::7}..."
+                  RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$RENDER_DEPLOY_HOOK_URL")
+                  if [ "$RESPONSE_CODE" -ge 200 ] && [ "$RESPONSE_CODE" -lt 300 ]; then
+                      echo "Render deployment hook triggered successfully (HTTP $RESPONSE_CODE)."
+                  else
+                      echo "ERROR: Render deployment hook failed with HTTP $RESPONSE_CODE."
+                      exit 1
+                  fi

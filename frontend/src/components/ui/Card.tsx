@@ -9,8 +9,8 @@ export function Card({ children, variant = "default", className = "", ...rest }:
     const variantStyles = {
         default: "bg-white border-slate-200 shadow-xs",
         interactive:
-            "bg-white border-slate-200 shadow-xs hover:shadow-md hover:border-[#0d2461] transition-all cursor-pointer",
-        accent: "bg-blue-50/50 border-[#0d2461]/20 shadow-xs",
+            "bg-white border-slate-200 shadow-xs hover:shadow-md hover:border-brand-900 transition-all motion-reduce:transition-none cursor-pointer",
+        accent: "bg-brand-50/50 border-brand-900/20 shadow-xs",
     }[variant];
 
     return (

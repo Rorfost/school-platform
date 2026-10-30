@@ -40,6 +40,38 @@ public class StorageService {
         return upload(prefix, file, IMAGE_TYPES);
     }
 
+    public StoredObject uploadSchoolPublicDocument(
+            UUID schoolId, String category, MultipartFile file) {
+        return upload(canonicalSchoolPrefix(schoolId, category), file, DOCUMENT_TYPES);
+    }
+
+    public StoredObject uploadSchoolPublicImage(
+            UUID schoolId, String category, MultipartFile file) {
+        return upload(canonicalSchoolPrefix(schoolId, category), file, IMAGE_TYPES);
+    }
+
+    public void assertKeyBelongsToSchool(String objectKey, UUID schoolId) {
+        if (objectKey == null || schoolId == null) {
+            return;
+        }
+        validateKey(objectKey);
+        String expectedPrefix = "schools/" + schoolId.toString().toLowerCase(Locale.ROOT) + "/";
+        // If the key is canonical (starts with "schools/"), it must match this tenant's school UUID
+        if (objectKey.toLowerCase(Locale.ROOT).startsWith("schools/")
+                && !objectKey.toLowerCase(Locale.ROOT).startsWith(expectedPrefix)) {
+            throw new DomainException(HttpStatus.FORBIDDEN, "storage_key_ownership_violation");
+        }
+    }
+
+    private String canonicalSchoolPrefix(UUID schoolId, String category) {
+        if (schoolId == null) {
+            throw new DomainException(HttpStatus.BAD_REQUEST, "school_id_required");
+        }
+        String cleanCategory =
+                category == null ? "misc" : category.trim().replaceAll("^/+|/+$", "");
+        return "schools/" + schoolId.toString().toLowerCase(Locale.ROOT) + "/" + cleanCategory;
+    }
+
     public String publicUrl(String objectKey) {
         validateKey(objectKey);
         if (properties.urlEndpoint() == null || properties.urlEndpoint().isBlank())

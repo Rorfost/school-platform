@@ -11,8 +11,8 @@
     --color-brand-600: #2563eb;
     --color-brand-700: #1d4ed8;
     --color-brand-800: #1e40af;
-    --color-brand-900: #1e3a8a;
-    --color-brand-950: #172554;
+    --color-brand-900: #0d2461;
+    --color-brand-950: #081a49;
 
     --color-accent-50: #fef2f2;
     --color-accent-100: #fee2e2;
@@ -43,6 +43,12 @@
     body {
         @apply bg-slate-50 font-sans text-slate-900 antialiased;
         letter-spacing: 0.01em;
+        line-height: 1.6;
+    }
+
+    /* Gujarati typography enhancement: accommodate matras and conjunct glyphs without clipping in tabular layouts */
+    table {
+        line-height: 1.5;
     }
 
     :focus-visible {

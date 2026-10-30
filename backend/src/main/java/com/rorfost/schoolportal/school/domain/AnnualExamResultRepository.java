@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,12 @@ public interface AnnualExamResultRepository extends JpaRepository<AnnualExamResu
 
     Optional<AnnualExamResult> findBySchoolIdAndResultTypeAndStandardAndRollNumber(
             UUID schoolId, String resultType, String standard, Integer rollNumber);
+
+    List<AnnualExamResult> findBySchoolId(UUID schoolId);
+
+    long countBySchoolId(UUID schoolId);
+
+    long countBySchoolIdAndResultType(UUID schoolId, String resultType);
 
     @Query(
             """

@@ -28,7 +28,7 @@ export function AdminSchoolSettingsPage() {
         isError,
         refetch,
     } = useQuery<SchoolResponse>({
-        queryKey: queryKeys.school,
+        queryKey: queryKeys.adminSchool,
         queryFn: () => apiRequest<SchoolResponse>("/api/v1/admin/school"),
     });
 
@@ -39,7 +39,7 @@ export function AdminSchoolSettingsPage() {
                 body: payload,
             }),
         onSuccess: (updated) => {
-            queryClient.setQueryData(queryKeys.school, updated);
+            queryClient.setQueryData(queryKeys.adminSchool, updated);
             queryClient.invalidateQueries({ queryKey: queryKeys.school });
             setSuccessMessage("School identity settings updated successfully.");
             setTimeout(() => setSuccessMessage(null), 4000);
@@ -47,7 +47,7 @@ export function AdminSchoolSettingsPage() {
     });
 
     const updateBranding = (updated: SchoolResponse, message: string) => {
-        queryClient.setQueryData(queryKeys.school, updated);
+        queryClient.setQueryData(queryKeys.adminSchool, updated);
         queryClient.invalidateQueries({ queryKey: queryKeys.school });
         setLogoFile(null);
         setLogoPreview(null);
@@ -56,7 +56,7 @@ export function AdminSchoolSettingsPage() {
     };
 
     const updateSeal = (updated: SchoolResponse, message: string) => {
-        queryClient.setQueryData(queryKeys.school, updated);
+        queryClient.setQueryData(queryKeys.adminSchool, updated);
         queryClient.invalidateQueries({ queryKey: queryKeys.school });
         setSealFile(null);
         setSealPreview(null);
@@ -232,14 +232,22 @@ export function AdminSchoolSettingsPage() {
             </div>
 
             {successMessage && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-semibold flex items-center gap-2">
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm font-semibold flex items-center gap-2"
+                >
                     <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
                     <span>{successMessage}</span>
                 </div>
             )}
 
             {errorMessage && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium">
+                <div
+                    role="alert"
+                    aria-live="assertive"
+                    className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-900 text-sm font-medium"
+                >
                     {errorMessage}
                 </div>
             )}
