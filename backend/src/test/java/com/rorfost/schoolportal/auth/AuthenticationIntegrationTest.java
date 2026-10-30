@@ -313,7 +313,8 @@ class AuthenticationIntegrationTest {
     private AdminUser createPrincipal(boolean mustChangePassword) {
         AdminUser user =
                 adminUserRepository.saveAndFlush(
-                        new AdminUser(activeSchool.getId(), EMAIL, passwordEncoder.encode(PASSWORD)));
+                        new AdminUser(
+                                activeSchool.getId(), EMAIL, passwordEncoder.encode(PASSWORD)));
         if (!mustChangePassword) {
             jdbcTemplate.update(
                     "UPDATE admin_users SET must_change_password = FALSE WHERE id = ?",
@@ -323,14 +324,20 @@ class AuthenticationIntegrationTest {
     }
 
     private MvcResult login(String email, String password) throws Exception {
-        return mockMvc.perform(loginRequest(email, password))
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult res = mockMvc.perform(loginRequest(email, password)).andReturn();
+        System.err.println(
+                "LOGIN STATUS: "
+                        + res.getResponse().getStatus()
+                        + " BODY: "
+                        + res.getResponse().getContentAsString());
+        assertThat(res.getResponse().getStatus()).isEqualTo(200);
+        return res;
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder loginRequest(
             String email, String password) throws Exception {
         return post("/api/v1/admin/auth/login")
+                .header("X-Portal-Gateway-Token", GATEWAY_TOKEN)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
